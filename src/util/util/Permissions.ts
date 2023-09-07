@@ -283,7 +283,10 @@ export async function getPermission(
 	const permission = Permissions.finalPermission({
 		user: {
 			id: user_id,
-			roles: member?.roles.map((x) => x.id) || [],
+			roles:
+				member?.roles
+					.filter((x) => !x.tags?.disabled)
+					.map((x) => x.id) || [],
 		},
 		guild: {
 			roles: member?.roles || [],

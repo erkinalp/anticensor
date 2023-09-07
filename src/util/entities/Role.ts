@@ -65,6 +65,7 @@ export class Role extends BaseClass {
 		bot_id?: string;
 		integration_id?: string;
 		premium_subscriber?: boolean;
+		disabled?: boolean;
 	};
 
 	@Column({ default: 0 })
