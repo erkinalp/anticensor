@@ -66,6 +66,7 @@ export enum PrivateUserEnum {
 	purchased_flags,
 	premium_usage_flags,
 	disabled,
+	rights, // required for proper handling of user rights for clients that wish to support it
 	// settings,	// now a relation
 	// locale
 }
