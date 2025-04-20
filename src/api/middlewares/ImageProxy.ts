@@ -20,7 +20,7 @@ import { Config, JimpType } from "@spacebar/util";
 import { Request, Response } from "express";
 import { yellow } from "picocolors";
 import crypto from "crypto";
-import fetch from "node-fetch";
+import fetch from "node-fetch-commonjs";
 
 let sharp: undefined | false | { default: typeof import("sharp") } = undefined;
 
@@ -157,11 +157,13 @@ export async function ImageProxy(req: Request, res: Response) {
 
 		const buffer = Buffer.from(arrayBuffer);
 		if (sharp && sharpSupported.has(contentType)) {
-			resultBuffer = await sharp
-				.default(buffer)
-				// Sharp doesn't support "scaleToFit"
-				.resize(width)
-				.toBuffer();
+			resultBuffer = Buffer.from(
+				await sharp
+					.default(buffer)
+					// Sharp doesn't support "scaleToFit"
+					.resize(width)
+					.toBuffer(),
+			);
 		} else if (Jimp && jimpSupported.has(contentType)) {
 			resultBuffer = await Jimp.read(buffer).then((image) => {
 				contentType = image.getMIME();

@@ -32,7 +32,7 @@ export const NO_AUTHORIZATION_ROUTES = [
 	"POST /auth/reset",
 	"GET /invites/",
 	// Routes with a seperate auth system
-	/^(POST|HEAD) \/webhooks\/\d+\/\w+\/?/, // no token requires auth
+	/^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/\d+\/\w+\/?/, // no token requires auth
 	// Public information endpoints
 	"GET /ping",
 	"GET /gateway",
@@ -108,7 +108,6 @@ export async function Authentication(
 		req.rights = new Rights(Number(user.rights));
 		return next();
 	} catch (error) {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		return next(new HTTPError(error!.toString(), 400));
 	}
 }
