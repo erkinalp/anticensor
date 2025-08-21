@@ -34,7 +34,7 @@ router.get(
 		const config = ConnectionConfig.get();
 		const instanceConfig = Config.get().connections;
 
-		const filteredConfig: Record<string, any> = {};
+		const filteredConfig: Record<string, Record<string, unknown>> = {};
 		Object.keys(config).forEach((key) => {
 			if (
 				instanceConfig.providers.length === 0 ||
