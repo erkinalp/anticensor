@@ -16,12 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class MessageLimits {
-	maxCharacters: number = 1048576;
-	maxTTSCharacters: number = 160;
-	maxReactions: number = 2048;
-	maxAttachmentSize: number = 1024 * 1024 * 1024;
-	maxBulkDelete: number = 1000;
-	maxEmbedDownloadSize: number = 1024 * 1024 * 5;
-	maxReasonLength: number = 512;
+export class ApplicationLimits {
+	maxEmojiNameLength: number = 32;
+	maxStickerNameLength: number = 30;
+	maxApplicationNameLength: number = 32;
+	maxWebhookNameLength: number = 80;
+	maxInviteCodeLength: number = 32;
+	maxVanityUrlLength: number = 16;
+	maxTemplateNameLength: number = 100;
+	maxTemplateDescriptionLength: number = 120;
+	maxScheduledEventNameLength: number = 100;
+	maxScheduledEventDescriptionLength: number = 1000;
+	maxForumTagNameLength: number = 20;
+	maxDiscriminatorLength: number = 4;
 }

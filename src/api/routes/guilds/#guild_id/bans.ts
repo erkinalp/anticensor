@@ -21,6 +21,7 @@ import {
 	APIBansArray,
 	Ban,
 	BanRegistrySchema,
+	Config,
 	DiscordApiErrors,
 	GuildBanAddEvent,
 	GuildBanRemoveEvent,
@@ -89,8 +90,7 @@ router.get(
 		query: {
 			query: {
 				type: "string",
-				description:
-					"Query to match username(s) and display name(s) against (1-32 characters)",
+				description: `Query to match username(s) and display name(s) against (1-${Config.get().limits.user.maxUsername} characters)`,
 				required: true,
 			},
 			limit: {
@@ -117,9 +117,10 @@ router.get(
 			throw new HTTPError("Limit must be between 1 and 10");
 
 		const query = String(req.query.query);
-		if (!query || query.trim().length === 0 || query.length > 32) {
+		const { maxUsername } = Config.get().limits.user;
+		if (!query || query.trim().length === 0 || query.length > maxUsername) {
 			throw new HTTPError(
-				"The query must be between 1 and 32 characters in length",
+				`The query must be between 1 and ${maxUsername} characters in length`,
 			);
 		}
 
