@@ -18,7 +18,7 @@
 
 import { ConnectedAccount } from "../entities/ConnectedAccount";
 import { UserSettings } from "../entities/UserSettings";
-import { Config } from "../config/Config";
+import { Config } from "../util/Config";
 
 export enum VisibilityLevel {
 	PRIVATE = 0,
