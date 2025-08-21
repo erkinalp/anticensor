@@ -22,3 +22,19 @@ export function trimSpecial(str?: string): string {
 	if (!str) return "";
 	return str.replace(SPECIAL_CHAR, "").trim();
 }
+
+/**
+ * Capitalizes the first letter of a string.
+ * @param str The string to capitalize.
+ * @returns The capitalized string.
+ */
+export function capitalize(str: string): string {
+	if (!str) return "";
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function centerString(str: string, len: number): string {
+	const pad = len - str.length;
+	const padLeft = Math.floor(pad / 2) + str.length;
+	return str.padStart(padLeft).padEnd(len);
+}

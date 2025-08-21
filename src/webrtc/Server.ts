@@ -15,13 +15,20 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import { closeDatabase, Config, initDatabase, initEvent } from "@spacebar/util";
 import dotenv from "dotenv";
+dotenv.config();
+import { closeDatabase, Config, initDatabase, initEvent } from "@spacebar/util";
 import http from "http";
 import ws from "ws";
 import { Connection } from "./events/Connection";
-dotenv.config();
+import {
+	loadWebRtcLibrary,
+	mediaServer,
+	WRTC_PORT_MAX,
+	WRTC_PORT_MIN,
+	WRTC_PUBLIC_IP,
+} from "./util/MediaServer";
+import { green, yellow } from "picocolors";
 
 export class Server {
 	public ws: ws.Server;
@@ -69,14 +76,25 @@ export class Server {
 		await initDatabase();
 		await Config.init();
 		await initEvent();
+
+		// try to load webrtc library, if failed just don't start webrtc endpoint
+		try {
+			await loadWebRtcLibrary();
+		} catch (e) {
+			console.log(`[WebRTC] ${yellow("WEBRTC disabled")}`);
+			return;
+		}
+
+		await mediaServer.start(WRTC_PUBLIC_IP, WRTC_PORT_MIN, WRTC_PORT_MAX);
 		if (!this.server.listening) {
 			this.server.listen(this.port);
-			console.log(`[WebRTC] online on 0.0.0.0:${this.port}`);
+			console.log(`[WebRTC] ${green(`online on 0.0.0.0:${this.port}`)}`);
 		}
 	}
 
 	async stop() {
 		closeDatabase();
 		this.server.close();
+		mediaServer?.stop();
 	}
 }

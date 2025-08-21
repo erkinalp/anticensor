@@ -16,12 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import morgan from "morgan";
+
 process.on("unhandledRejection", console.error);
 process.on("uncaughtException", console.error);
 
 import http from "http";
 import * as Api from "@spacebar/api";
 import * as Gateway from "@spacebar/gateway";
+import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
@@ -30,18 +33,25 @@ import { Config, initDatabase, Sentry } from "@spacebar/util";
 const app = express();
 const server = http.createServer();
 const port = Number(process.env.PORT) || 3001;
+const wrtcWsPort = Number(process.env.WRTC_WS_PORT) || 3004;
 const production = process.env.NODE_ENV == "development" ? false : true;
 server.on("request", app);
 
 const api = new Api.SpacebarServer({ server, port, production, app });
 const cdn = new CDNServer({ server, port, production, app });
 const gateway = new Gateway.Server({ server, port, production });
+const webrtc = new Webrtc.Server({
+	server: undefined,
+	port: wrtcWsPort,
+	production,
+});
 
 process.on("SIGTERM", async () => {
 	console.log("Shutting down due to SIGTERM");
 	await gateway.stop();
 	await cdn.stop();
 	await api.stop();
+	await webrtc.stop();
 	server.close();
 	Sentry.close();
 });
@@ -51,14 +61,37 @@ async function main() {
 	await Config.init();
 	await Sentry.init(app);
 
+	const logRequests = process.env["LOG_REQUESTS"] != undefined;
+	if (logRequests) {
+		app.use(
+			morgan("combined", {
+				skip: (req, res) => {
+					let skip = !(
+						process.env["LOG_REQUESTS"]?.includes(
+							res.statusCode.toString(),
+						) ?? false
+					);
+					if (process.env["LOG_REQUESTS"]?.charAt(0) == "-")
+						skip = !skip;
+					return skip;
+				},
+			}),
+		);
+	}
+
 	await new Promise((resolve) =>
 		server.listen({ port }, () => resolve(undefined)),
 	);
-	await Promise.all([api.start(), cdn.start(), gateway.start()]);
+	await Promise.all([
+		api.start(),
+		cdn.start(),
+		gateway.start(),
+		webrtc.start(),
+	]);
 
 	Sentry.errorHandler(app);
 
-	console.log(`[Server] ${green(`listening on port ${bold(port)}`)}`);
+	console.log(`[Server] ${green(`Listening on port ${bold(port)}`)}`);
 }
 
 main().catch(console.error);

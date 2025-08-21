@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2024 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -21,6 +21,7 @@ export * from "./ActivitySchema";
 export * from "./ApplicationAuthorizeSchema";
 export * from "./ApplicationCreateSchema";
 export * from "./ApplicationModifySchema";
+export * from "./AutomodRuleSchema";
 export * from "./BackupCodesChallengeSchema";
 export * from "./BanCreateSchema";
 export * from "./BanModeratorSchema";
@@ -59,6 +60,7 @@ export * from "./MfaCodesSchema";
 export * from "./ModifyGuildStickerSchema";
 export * from "./PasswordResetSchema";
 export * from "./PurgeSchema";
+export * from "./RefreshUrlsRequestSchema";
 export * from "./RegisterSchema";
 export * from "./RelationshipPostSchema";
 export * from "./RelationshipPutSchema";
@@ -67,6 +69,9 @@ export * from "./responses";
 export * from "./RoleModifySchema";
 export * from "./RolePositionUpdateSchema";
 export * from "./SelectProtocolSchema";
+export * from "./StreamCreateSchema";
+export * from "./StreamDeleteSchema";
+export * from "./StreamWatchSchema";
 export * from "./TeamCreateSchema";
 export * from "./TemplateCreateSchema";
 export * from "./TemplateModifySchema";

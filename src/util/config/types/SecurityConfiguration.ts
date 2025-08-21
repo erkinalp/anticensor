@@ -37,4 +37,10 @@ export class SecurityConfiguration {
 	mfaBackupCodeCount: number = 10;
 	statsWorldReadable: boolean = true;
 	defaultRegistrationTokenExpiration: number = 1000 * 60 * 60 * 24 * 7; //1 week
+	// cdn signed urls
+	cdnSignUrls: boolean = false;
+	cdnSignatureKey: string = crypto.randomBytes(32).toString("base64");
+	cdnSignatureDuration: string = "24h";
+	cdnSignatureIncludeIp: boolean = true;
+	cdnSignatureIncludeUserAgent: boolean = true;
 }

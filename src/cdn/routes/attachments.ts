@@ -16,13 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
-import { Config, Snowflake } from "@spacebar/util";
-import { storage } from "../util/Storage";
+import {
+	Config,
+	hasValidSignature,
+	NewUrlUserSignatureData,
+	Snowflake,
+	UrlSignResult,
+} from "@spacebar/util";
+import { Request, Response, Router } from "express";
 import FileType from "file-type";
+import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
-import imageSize from "image-size";
+import { storage } from "../util/Storage";
 
 const router = Router();
 
@@ -39,6 +45,7 @@ router.post(
 	async (req: Request, res: Response) => {
 		if (req.headers.signature !== Config.get().security.requestSignature)
 			throw new HTTPError("Invalid request signature");
+
 		if (!req.file) throw new HTTPError("file missing");
 
 		const { buffer, mimetype, size, originalname } = req.file;
@@ -63,12 +70,15 @@ router.post(
 			}
 		}
 
+		const finalUrl = `${endpoint}/${path}`;
+
 		const file = {
 			id,
 			content_type: mimetype,
 			filename: filename,
 			size,
-			url: `${endpoint}/${path}`,
+			url: finalUrl,
+			path,
 			width,
 			height,
 		};
@@ -84,6 +94,26 @@ router.get(
 		// const { format } = req.query;
 
 		const path = `attachments/${channel_id}/${id}/${filename}`;
+
+		const fullUrl =
+			(req.headers["x-forwarded-proto"] ?? req.protocol) +
+			"://" +
+			(req.headers["x-forwarded-host"] ?? req.hostname) +
+			req.originalUrl;
+
+		if (
+			Config.get().security.cdnSignUrls &&
+			!hasValidSignature(
+				new NewUrlUserSignatureData({
+					ip: req.ip,
+					userAgent: req.headers["user-agent"] as string,
+				}),
+				UrlSignResult.fromUrl(fullUrl),
+			)
+		) {
+			return res.status(404).send("This content is no longer available.");
+		}
+
 		const file = await storage.get(path);
 		if (!file) throw new HTTPError("File not found");
 		const type = await FileType.fromBuffer(file);

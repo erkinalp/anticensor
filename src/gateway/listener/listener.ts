@@ -27,6 +27,8 @@ import {
 	EVENTEnum,
 	Relationship,
 	RelationshipType,
+	Message,
+	NewUrlUserSignatureData,
 } from "@spacebar/util";
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
@@ -190,8 +192,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
 		case "RELATIONSHIP_REMOVE":
 		case "CHANNEL_DELETE":
 		case "GUILD_DELETE":
+			this.events[id]?.();
 			delete this.events[id];
-			opts.cancel();
 			break;
 		case "CHANNEL_CREATE":
 			if (
@@ -282,6 +284,25 @@ async function consume(this: WebSocket, opts: EventOpts) {
 		default:
 			// always gets sent
 			// Any events not defined in an intent are considered "passthrough" and will always be sent
+			break;
+	}
+
+	// data rewrites, e.g. signed attachment URLs
+	switch (event) {
+		case "MESSAGE_CREATE":
+		case "MESSAGE_UPDATE":
+			// console.log(this.request)
+			if (data["attachments"])
+				data["attachments"] =
+					Message.prototype.withSignedAttachments.call(
+						data,
+						new NewUrlUserSignatureData({
+							ip: this.ipAddress,
+							userAgent: this.userAgent,
+						}),
+					).attachments;
+			break;
+		default:
 			break;
 	}
 

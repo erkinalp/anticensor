@@ -30,6 +30,7 @@ import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In } from "typeorm";
 
 export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
+	const startTime = Date.now();
 	// Schema validation can only accept either string or array, so transforming it here to support both
 	if (!d.guild_id) throw new Error('"guild_id" is required');
 	d.guild_id = Array.isArray(d.guild_id) ? d.guild_id[0] : d.guild_id;
@@ -51,10 +52,15 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
 	guild_id = guild_id as string;
 	user_ids = user_ids as string[] | undefined;
 
-	if ("query" in d && (!limit || Number.isNaN(limit)))
+	if (d.query && (!limit || Number.isNaN(limit))) {
+		console.log("Query:", d);
 		throw new Error('"query" requires "limit" to be set');
-	if ("query" in d && user_ids)
+	}
+
+	if (d.query && user_ids) {
+		console.log("Query:", d);
 		throw new Error('"query" and "user_ids" are mutually exclusive');
+	}
 
 	// TODO: Configurable limit?
 	if ((query || (user_ids && user_ids.length > 0)) && (!limit || limit > 100))
@@ -195,4 +201,8 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
 			d: chunk,
 		});
 	});
+
+	console.log(
+		`[Gateway] REQUEST_GUILD_MEMBERS took ${Date.now() - startTime}ms for guild ${guild_id} with ${members.length} members`,
+	);
 }

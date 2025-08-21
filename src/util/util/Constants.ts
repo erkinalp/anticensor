@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2024 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -52,23 +52,6 @@ export const WsStatus = {
 	RESUMING: 8,
 };
 
-/**
- * The current status of a voice connection. Here are the available statuses:
- * * CONNECTED: 0
- * * CONNECTING: 1
- * * AUTHENTICATING: 2
- * * RECONNECTING: 3
- * * DISCONNECTED: 4
- * @typedef {number} VoiceStatus
- */
-export const VoiceStatus = {
-	CONNECTED: 0,
-	CONNECTING: 1,
-	AUTHENTICATING: 2,
-	RECONNECTING: 3,
-	DISCONNECTED: 4,
-};
-
 export const OPCodes = {
 	DISPATCH: 0,
 	HEARTBEAT: 1,
@@ -82,22 +65,6 @@ export const OPCodes = {
 	INVALID_SESSION: 9,
 	HELLO: 10,
 	HEARTBEAT_ACK: 11,
-};
-
-export const VoiceOPCodes = {
-	IDENTIFY: 0,
-	SELECT_PROTOCOL: 1,
-	READY: 2,
-	HEARTBEAT: 3,
-	SESSION_DESCRIPTION: 4,
-	SPEAKING: 5,
-	HEARTBEAT_ACK: 6,
-	RESUME: 7,
-	HELLO: 8,
-	RESUMED: 9,
-	CLIENT_CONNECT: 12, // incorrect, op 12 is probably used for video
-	CLIENT_DISCONNECT: 13, // incorrect
-	VERSION: 16, //not documented
 };
 
 export const Events = {
@@ -351,6 +318,20 @@ export const ChannelTypes = {
 export const ClientApplicationAssetTypes = {
 	SMALL: 1,
 	BIG: 2,
+};
+
+export const AutomodActionTypes = {
+	BLOCK_MESSAGE: 1,
+	SEND_ALERT: 2,
+	TIMEOUT_MEMBER: 3,
+};
+
+export const AutomodTriggerTypes = {
+	CUSTOM_WORDS: 1,
+	UNKNOWN_2: 2,
+	SUSPECTED_SPAM_CONTENT: 3,
+	COMMONLY_FLAGGED_WORDS: 4,
+	MENTION_SPAM: 5,
 };
 
 export const Colors = {

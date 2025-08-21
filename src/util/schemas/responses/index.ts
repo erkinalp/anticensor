@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+export * from "./AccountStandingResponse";
 export * from "./APIErrorOrCaptchaResponse";
 export * from "./APIErrorResponse";
 export * from "./BackupCodesChallengeResponse";
@@ -23,6 +24,7 @@ export * from "./CaptchaRequiredResponse";
 export * from "./DiscoverableGuildsResponse";
 export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
+export * from "./EmojiSourceResponse"
 export * from "./GatewayBotResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
@@ -44,6 +46,7 @@ export * from "./InstanceStatsResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
 export * from "./OAuthAuthorizeResponse";
+export * from "./RefreshUrlsResponse";
 export * from "./TeamListResponse";
 export * from "./Tenor";
 export * from "./TokenResponse";

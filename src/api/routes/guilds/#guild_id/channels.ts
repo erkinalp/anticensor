@@ -108,11 +108,29 @@ router.patch(
 	async (req: Request, res: Response) => {
 		// changes guild channel position
 		const { guild_id } = req.params;
-		const body = req.body as ChannelReorderSchema;
+		let body = req.body as ChannelReorderSchema;
 
 		const guild = await Guild.findOneOrFail({
 			where: { id: guild_id },
 			select: { channel_ordering: true },
+		});
+
+		body = body.sort((a, b) => {
+			const apos =
+				a.position ||
+				(a.parent_id
+					? guild.channel_ordering.findIndex(
+							(_) => _ === a.parent_id,
+						) + 1
+					: 0);
+			const bpos =
+				b.position ||
+				(b.parent_id
+					? guild.channel_ordering.findIndex(
+							(_) => _ === b.parent_id,
+						) + 1
+					: 0);
+			return apos - bpos;
 		});
 
 		// The channels not listed for this query
@@ -120,58 +138,63 @@ router.patch(
 			(x) => !body.find((c) => c.id == x),
 		);
 
-		const withParents = body.filter((x) => x.parent_id != undefined);
-		const withPositions = body.filter((x) => x.position != undefined);
+		const withParents = body.filter((x) => x.parent_id !== undefined);
+		const withPositions = body.filter((x) => x.position !== undefined);
+		// You can't do it with Promise.all or the way this is being done is super incorrect
+		for await (const opt of withPositions) {
+			const channel = await Channel.findOneOrFail({
+				where: { id: opt.id },
+			});
 
-		await Promise.all(
-			withPositions.map(async (opt) => {
-				const channel = await Channel.findOneOrFail({
-					where: { id: opt.id },
-				});
+			notMentioned.splice(opt.position as number, 0, channel.id);
+			channel.position = notMentioned.findIndex((_) => _ === channel.id);
 
-				channel.position = opt.position as number;
-				notMentioned.splice(opt.position as number, 0, channel.id);
-
-				await emitEvent({
-					event: "CHANNEL_UPDATE",
-					data: channel,
-					channel_id: channel.id,
-					guild_id,
-				} as ChannelUpdateEvent);
-			}),
-		);
-
+			await emitEvent({
+				event: "CHANNEL_UPDATE",
+				data: channel,
+				channel_id: channel.id,
+				guild_id,
+			} as ChannelUpdateEvent);
+		}
+		// Due to this also being able to change the order, this needs to be done in order
 		// have to do the parents after the positions
-		await Promise.all(
-			withParents.map(async (opt) => {
-				const [channel, parent] = await Promise.all([
-					Channel.findOneOrFail({
-						where: { id: opt.id },
-					}),
-					Channel.findOneOrFail({
-						where: { id: opt.parent_id as string },
-						select: { permission_overwrites: true },
-					}),
-				]);
+		for await (const opt of withParents) {
+			const [channel, parent] = await Promise.all([
+				Channel.findOneOrFail({
+					where: { id: opt.id },
+				}),
+				opt.parent_id
+					? Channel.findOneOrFail({
+							where: { id: opt.parent_id },
+							select: {
+								permission_overwrites: true,
+								id: true,
+							},
+						})
+					: null,
+			]);
 
-				if (opt.lock_permissions)
-					await Channel.update(
-						{ id: channel.id },
-						{ permission_overwrites: parent.permission_overwrites },
-					);
-
+			if (opt.lock_permissions && parent)
+				await Channel.update(
+					{ id: channel.id },
+					{ permission_overwrites: parent.permission_overwrites },
+				);
+			if (parent && opt.position === undefined) {
 				const parentPos = notMentioned.indexOf(parent.id);
 				notMentioned.splice(parentPos + 1, 0, channel.id);
 				channel.position = (parentPos + 1) as number;
+			}
+			channel.parent = parent || undefined;
+			channel.parent_id = parent?.id || null;
+			await channel.save();
 
-				await emitEvent({
-					event: "CHANNEL_UPDATE",
-					data: channel,
-					channel_id: channel.id,
-					guild_id,
-				} as ChannelUpdateEvent);
-			}),
-		);
+			await emitEvent({
+				event: "CHANNEL_UPDATE",
+				data: channel,
+				channel_id: channel.id,
+				guild_id,
+			} as ChannelUpdateEvent);
+		}
 
 		await Guild.update(
 			{ id: guild_id },
