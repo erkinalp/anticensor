@@ -37,9 +37,7 @@ export function initStats() {
 				"/etc/os-release",
 				"utf8",
 			).split("\n");
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			const osRelease: any = {};
+			const osRelease: Record<string, string> = {};
 			for (const line of osReleaseLines) {
 				if (!line) continue;
 				const [key, value] = line.match(/(.*?)="?([^"]*)"?/)!.slice(1);

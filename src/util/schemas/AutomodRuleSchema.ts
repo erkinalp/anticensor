@@ -21,6 +21,7 @@ export interface AutomodMentionSpamRuleSchema {
 	mention_raid_protection_enabled: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AutomodSuspectedSpamRuleSchema {}
 
 export interface AutomodCommonlyFlaggedWordsRuleSchema {
