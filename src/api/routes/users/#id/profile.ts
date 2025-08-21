@@ -28,9 +28,9 @@ import {
 	UserUpdateEvent,
 	emitEvent,
 	handleFile,
+	ConnectionPrivacy,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ConnectionPrivacy } from "../../../util/util/ConnectionPrivacy";
 
 const router: Router = Router();
 

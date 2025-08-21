@@ -58,13 +58,10 @@ router.patch(
 		// TODO: do we need to do anything if the connection is revoked?
 
 		if (typeof body.visibility === "boolean")
-			//@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
 			body.visibility = body.visibility ? 1 : 0;
 		if (typeof body.show_activity === "boolean")
-			//@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
 			body.show_activity = body.show_activity ? 1 : 0;
 		if (typeof body.metadata_visibility === "boolean")
-			//@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
 			body.metadata_visibility = body.metadata_visibility ? 1 : 0;
 
 		if (
