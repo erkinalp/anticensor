@@ -23,4 +23,7 @@ export class GuildLimits {
 	maxChannels: number = 65535;
 	maxBulkBanUsers: number = 200;
 	maxChannelsInCategory: number = 65535;
+	maxGuildNameLength: number = 100;
+	maxRoleNameLength: number = 100;
+	maxMembersRequestLimit: number = 100;
 }

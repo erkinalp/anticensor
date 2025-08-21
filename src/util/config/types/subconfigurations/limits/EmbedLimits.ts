@@ -16,12 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class MessageLimits {
-	maxCharacters: number = 1048576;
-	maxTTSCharacters: number = 160;
-	maxReactions: number = 2048;
-	maxAttachmentSize: number = 1024 * 1024 * 1024;
-	maxBulkDelete: number = 1000;
-	maxEmbedDownloadSize: number = 1024 * 1024 * 5;
-	maxReasonLength: number = 512;
+export class EmbedLimits {
+	maxTitleLength: number = 256;
+	maxDescriptionLength: number = 4096;
+	maxFieldNameLength: number = 256;
+	maxFieldValueLength: number = 1024;
+	maxFooterTextLength: number = 2048;
+	maxAuthorNameLength: number = 256;
 }

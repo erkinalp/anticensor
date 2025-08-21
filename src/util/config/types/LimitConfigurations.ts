@@ -23,6 +23,11 @@ import {
 	MessageLimits,
 	RateLimits,
 	UserLimits,
+	EmbedLimits,
+	ComponentLimits,
+	AttachmentLimits,
+	AutomodLimits,
+	ApplicationLimits,
 } from ".";
 
 export class LimitsConfiguration {
@@ -32,4 +37,9 @@ export class LimitsConfiguration {
 	channel: ChannelLimits = new ChannelLimits();
 	rate: RateLimits = new RateLimits();
 	absoluteRate: GlobalRateLimits = new GlobalRateLimits();
+	embed: EmbedLimits = new EmbedLimits();
+	component: ComponentLimits = new ComponentLimits();
+	attachment: AttachmentLimits = new AttachmentLimits();
+	automod: AutomodLimits = new AutomodLimits();
+	application: ApplicationLimits = new ApplicationLimits();
 }

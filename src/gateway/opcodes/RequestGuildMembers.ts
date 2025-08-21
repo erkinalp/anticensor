@@ -17,6 +17,7 @@
 */
 
 import {
+	Config,
 	getDatabase,
 	getPermission,
 	GuildMembersChunkEvent,
@@ -62,9 +63,13 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
 		throw new Error('"query" and "user_ids" are mutually exclusive');
 	}
 
-	// TODO: Configurable limit?
-	if ((query || (user_ids && user_ids.length > 0)) && (!limit || limit > 100))
-		limit = 100;
+	const maxGuildMembersLimit =
+		Config.get().limits.guild.maxMembersRequestLimit || 100;
+	if (
+		(query || (user_ids && user_ids.length > 0)) &&
+		(!limit || limit > maxGuildMembersLimit)
+	)
+		limit = maxGuildMembersLimit;
 
 	const permissions = await getPermission(this.user_id, guild_id);
 	permissions.hasThrow("VIEW_CHANNEL");

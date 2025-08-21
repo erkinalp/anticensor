@@ -20,4 +20,7 @@ export class ChannelLimits {
 	maxPins: number = 500;
 	maxTopic: number = 1024;
 	maxWebhooks: number = 100;
+	maxChannelNameLength: number = 100;
+	maxStageTopicLength: number = 120;
+	maxThreadNameLength: number = 100;
 }

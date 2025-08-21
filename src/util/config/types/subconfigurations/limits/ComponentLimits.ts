@@ -16,12 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class MessageLimits {
-	maxCharacters: number = 1048576;
-	maxTTSCharacters: number = 160;
-	maxReactions: number = 2048;
-	maxAttachmentSize: number = 1024 * 1024 * 1024;
-	maxBulkDelete: number = 1000;
-	maxEmbedDownloadSize: number = 1024 * 1024 * 5;
-	maxReasonLength: number = 512;
+export class ComponentLimits {
+	maxLabelLength: number = 80;
+	maxPlaceholderLength: number = 100;
+	maxSelectOptionLabelLength: number = 100;
+	maxSelectOptionDescriptionLength: number = 100;
+	maxSelectOptionValueLength: number = 100;
+	maxModalTitleLength: number = 45;
+	maxTextInputLabelLength: number = 45;
+	maxTextInputPlaceholderLength: number = 100;
+	maxTextInputValueLength: number = 4000;
+	maxTextInputMinLength: number = 0;
+	maxTextInputMaxLength: number = 4000;
 }

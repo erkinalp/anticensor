@@ -186,7 +186,7 @@ router.get(
 
 		res.send({
 			items: pins,
-			has_more: false
+			has_more: false,
 		});
 	},
 );

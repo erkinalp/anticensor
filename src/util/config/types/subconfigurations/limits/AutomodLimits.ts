@@ -16,12 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class MessageLimits {
-	maxCharacters: number = 1048576;
-	maxTTSCharacters: number = 160;
-	maxReactions: number = 2048;
-	maxAttachmentSize: number = 1024 * 1024 * 1024;
-	maxBulkDelete: number = 1000;
-	maxEmbedDownloadSize: number = 1024 * 1024 * 5;
-	maxReasonLength: number = 512;
+export class AutomodLimits {
+	maxRuleNameLength: number = 100;
+	maxKeywordFilterLength: number = 60;
+	maxRegexPatternLength: number = 260;
+	maxAllowListLength: number = 1000;
+	maxMentionTotalLimit: number = 50;
 }
