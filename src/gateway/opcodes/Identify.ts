@@ -95,7 +95,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 	const userQueryTime = Date.now();
 
 	// Check intents
-	if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
+	if (!identify.intents)
+		identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
 	this.intents = new Intents(identify.intents);
 
 	// TODO: actually do intent things.
@@ -553,6 +554,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 			readyTime: Date.now() - readyTime,
 			pendingGuildsTime: Date.now() - pendingGuildsTime,
 			readySupplementalTime: Date.now() - readySupplementalTime,
-		}
+		},
 	);
 }

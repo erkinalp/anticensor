@@ -44,7 +44,7 @@ function getCommitOrFail() {
 
 if (cluster.isPrimary) {
 	const commit = getCommitOrFail();
-	Logo.printLogo().then(()=>{
+	Logo.printLogo().then(() => {
 		const unformatted = `spacebar-server | !! Pre-release build !!`;
 		const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
 		console.log(
@@ -61,10 +61,14 @@ if (cluster.isPrimary) {
 				),
 			),
 		);
-		console.log(`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`);
+		console.log(
+			`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`,
+		);
 
 		if (commit == null) {
-			console.log(yellow(`Warning: Git is not installed or not in PATH.`));
+			console.log(
+				yellow(`Warning: Git is not installed or not in PATH.`),
+			);
 		}
 
 		initStats();
@@ -79,7 +83,9 @@ if (cluster.isPrimary) {
 			// Fork workers.
 			for (let i = 0; i < cores; i++) {
 				// Delay each worker start if using sqlite database to prevent locking it
-				const delay = process.env.DATABASE?.includes("://") ? 0 : i * 1000;
+				const delay = process.env.DATABASE?.includes("://")
+					? 0
+					: i * 1000;
 				setTimeout(() => {
 					cluster.fork();
 					console.log(`[Process] Worker ${cyan(i)} started.`);
