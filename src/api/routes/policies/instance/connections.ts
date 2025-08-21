@@ -16,10 +16,23 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface ConnectionUpdateSchema {
-	visibility?: number;
-	show_activity?: number;
-	metadata_visibility?: number;
-	data_sharing_level?: number;
-	consent_given?: boolean;
-}
+import { route } from "@spacebar/api";
+import { Config } from "@spacebar/util";
+import { Request, Response, Router } from "express";
+
+const router = Router();
+
+router.get("/", route({}), async (req: Request, res: Response) => {
+	const config = Config.get().connections;
+	res.json(config);
+});
+
+router.patch("/", route({}), async (req: Request, res: Response) => {
+	const updates = req.body;
+	await Config.set({
+		connections: { ...Config.get().connections, ...updates },
+	});
+	res.json(Config.get().connections);
+});
+
+export default router;

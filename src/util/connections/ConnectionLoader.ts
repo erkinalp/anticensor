@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Connection } from "@spacebar/util";
+import { Connection, Config } from "@spacebar/util";
 import fs from "fs";
 import path from "path";
 import { ConnectionConfig } from "./ConnectionConfig";
@@ -41,6 +41,15 @@ export class ConnectionLoader {
 		dirs.forEach(async (x) => {
 			const modPath = path.resolve(path.join(root, x));
 			const mod = new (require(modPath).default)() as Connection;
+
+			const config = Config.get().connections;
+			if (
+				config.providers.length > 0 &&
+				!config.providers.includes(mod.id)
+			) {
+				return;
+			}
+
 			ConnectionStore.connections.set(mod.id, mod);
 
 			mod.init();

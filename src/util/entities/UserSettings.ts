@@ -126,6 +126,18 @@ export class UserSettings extends BaseClassWithoutId {
 
 	@Column({ nullable: true })
 	view_nsfw_guilds: boolean = true;
+
+	@Column({ nullable: true })
+	connections_default_visibility: number = 1;
+
+	@Column({ nullable: true })
+	connections_activity_sharing: boolean = true;
+
+	@Column({ nullable: true })
+	connections_metadata_sharing: boolean = true;
+
+	@Column({ nullable: true })
+	connections_require_approval: boolean = false;
 }
 
 interface CustomStatus {

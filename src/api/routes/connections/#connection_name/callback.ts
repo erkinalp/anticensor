@@ -22,6 +22,7 @@ import {
 	ConnectionStore,
 	emitEvent,
 	FieldErrors,
+	Config,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -57,12 +58,17 @@ router.post(
 		const connectedAccnt = await connection.handleCallback(body);
 
 		// whether we should emit a connections update event, only used when a connection doesnt already exist
-		if (connectedAccnt)
+		if (connectedAccnt) {
+			const config = Config.get().connections;
+			connectedAccnt.visibility = config.defaultVisibility;
+			connectedAccnt.data_sharing_level = 1;
+
 			emitEvent({
 				event: "USER_CONNECTIONS_UPDATE",
 				data: { ...connectedAccnt, token_data: undefined },
 				user_id: userId,
 			});
+		}
 
 		res.sendStatus(204);
 	},

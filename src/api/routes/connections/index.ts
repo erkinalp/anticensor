@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { ConnectionConfig } from "@spacebar/util";
+import { ConnectionConfig, Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router();
 
@@ -32,13 +32,21 @@ router.get(
 	}),
 	async (req: Request, res: Response) => {
 		const config = ConnectionConfig.get();
+		const instanceConfig = Config.get().connections;
 
+		const filteredConfig: Record<string, Record<string, unknown>> = {};
 		Object.keys(config).forEach((key) => {
-			delete config[key].clientId;
-			delete config[key].clientSecret;
+			if (
+				instanceConfig.providers.length === 0 ||
+				instanceConfig.providers.includes(key)
+			) {
+				filteredConfig[key] = { ...config[key] };
+				delete filteredConfig[key].clientId;
+				delete filteredConfig[key].clientSecret;
+			}
 		});
 
-		res.json(config);
+		res.json(filteredConfig);
 	},
 );
 

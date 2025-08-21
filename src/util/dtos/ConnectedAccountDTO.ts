@@ -33,10 +33,13 @@ export class ConnectedAccountDTO {
 	metadata_?: unknown;
 	metadata_visibility?: number;
 	two_way_link?: boolean;
+	data_sharing_level?: number;
+	consent_given_at?: Date;
 
 	constructor(
 		connectedAccount: ConnectedAccount,
 		with_token: boolean = false,
+		viewerUserId?: string,
 	) {
 		this.id = connectedAccount.external_id;
 		this.user_id = connectedAccount.user_id;
@@ -57,5 +60,15 @@ export class ConnectedAccountDTO {
 			connectedAccount.metadata_visibility || false
 		);
 		this.two_way_link = connectedAccount.two_way_link;
+		this.data_sharing_level = connectedAccount.data_sharing_level;
+		this.consent_given_at = connectedAccount.consent_given_at;
+	}
+
+	static createPublicDTO(
+		connectedAccount: ConnectedAccount,
+		viewerUserId: string,
+		targetUserId: string,
+	): ConnectedAccountDTO | null {
+		return new ConnectedAccountDTO(connectedAccount, false, viewerUserId);
 	}
 }
