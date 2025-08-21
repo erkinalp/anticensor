@@ -22,6 +22,7 @@ import {
 	ConnectionUpdateSchema,
 	DiscordApiErrors,
 	emitEvent,
+	Config,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router();
@@ -65,6 +66,13 @@ router.patch(
 		if (typeof body.metadata_visibility === "boolean")
 			//@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
 			body.metadata_visibility = body.metadata_visibility ? 1 : 0;
+
+		if (
+			typeof req.body.consent_given === "boolean" &&
+			req.body.consent_given
+		) {
+			connection.consent_given_at = new Date();
+		}
 
 		connection.assign(req.body);
 

@@ -30,6 +30,7 @@ import {
 	handleFile,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { ConnectionPrivacy } from "../../../util/util/ConnectionPrivacy";
 
 const router: Router = Router();
 
@@ -105,8 +106,10 @@ router.get(
 		const badges = await Badge.find();
 
 		res.json({
-			connected_accounts: user.connected_accounts.filter(
-				(x) => x.visibility != 0,
+			connected_accounts: ConnectionPrivacy.filterConnectedAccounts(
+				user.connected_accounts || [],
+				req.user_id,
+				req.params.id,
 			),
 			premium_guild_since: premium_guild_since, // TODO
 			premium_since: user.premium_since, // TODO

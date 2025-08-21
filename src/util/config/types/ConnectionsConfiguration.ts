@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface ConnectionUpdateSchema {
-	visibility?: number;
-	show_activity?: number;
-	metadata_visibility?: number;
-	data_sharing_level?: number;
-	consent_given?: boolean;
+export class ConnectionsConfiguration {
+	enabled: boolean = true;
+	defaultVisibility: number = 1;
+	allowUserOverride: boolean = true;
+	providers: string[] = [];
+	requireExplicitConsent: boolean = false;
+	dataRetentionDays: number = 365;
 }

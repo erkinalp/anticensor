@@ -1,53 +1,38 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
-
+	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
 	by the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-
+	
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
-
+	
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { route } from "@spacebar/api";
-import { ConnectionConfig, Config } from "@spacebar/util";
+import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+
 const router = Router();
 
-router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIConnectionsConfiguration",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const config = ConnectionConfig.get();
-		const instanceConfig = Config.get().connections;
+router.get("/", route({}), async (req: Request, res: Response) => {
+	const config = Config.get().connections;
+	res.json(config);
+});
 
-		const filteredConfig: any = {};
-		Object.keys(config).forEach((key) => {
-			if (
-				instanceConfig.providers.length === 0 ||
-				instanceConfig.providers.includes(key)
-			) {
-				filteredConfig[key] = { ...config[key] };
-				delete filteredConfig[key].clientId;
-				delete filteredConfig[key].clientSecret;
-			}
-		});
-
-		res.json(filteredConfig);
-	},
-);
+router.patch("/", route({}), async (req: Request, res: Response) => {
+	const updates = req.body;
+	await Config.set({
+		connections: { ...Config.get().connections, ...updates },
+	});
+	res.json(Config.get().connections);
+});
 
 export default router;

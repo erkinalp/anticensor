@@ -82,9 +82,29 @@ export class ConnectedAccount extends BaseClass {
 	@Column({ select: false, nullable: true, type: "simple-json" })
 	token_data?: ConnectedAccountTokenData | null;
 
+	@Column({ nullable: true })
+	consent_given_at?: Date;
+
+	@Column({ nullable: true })
+	data_sharing_level?: number = 1;
+
+	@Column({ nullable: true })
+	last_activity_sync?: Date;
+
+	@Column({ nullable: true })
+	privacy_override?: boolean = false;
+
 	async revoke() {
 		this.revoked = true;
 		this.token_data = null;
 		await this.save();
+	}
+
+	static isVisibleTo(
+		viewerUserId: string,
+		targetUserId: string,
+		account: ConnectedAccount,
+	): boolean {
+		return true;
 	}
 }

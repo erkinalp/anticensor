@@ -19,6 +19,7 @@
 import {
 	ApiConfiguration,
 	CdnConfiguration,
+	ConnectionsConfiguration,
 	DefaultsConfiguration,
 	EmailConfiguration,
 	EndpointConfiguration,
@@ -44,6 +45,7 @@ export class ConfigValue {
 	gateway: EndpointConfiguration = new EndpointConfiguration();
 	cdn: CdnConfiguration = new CdnConfiguration();
 	api: ApiConfiguration = new ApiConfiguration();
+	connections: ConnectionsConfiguration = new ConnectionsConfiguration();
 	general: GeneralConfiguration = new GeneralConfiguration();
 	limits: LimitsConfiguration = new LimitsConfiguration();
 	security: SecurityConfiguration = new SecurityConfiguration();

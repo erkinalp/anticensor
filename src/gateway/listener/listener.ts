@@ -30,6 +30,7 @@ import {
 	Message,
 	NewUrlUserSignatureData,
 } from "@spacebar/util";
+import { ConnectionPrivacy } from "../../util/util/ConnectionPrivacy";
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
 import { WebSocket } from "@spacebar/gateway";
@@ -301,6 +302,17 @@ async function consume(this: WebSocket, opts: EventOpts) {
 							userAgent: this.userAgent,
 						}),
 					).attachments;
+			break;
+		case "USER_CONNECTIONS_UPDATE":
+			if (data.user_id !== this.user_id) {
+				const filteredData = ConnectionPrivacy.filterConnectedAccounts(
+					[data],
+					this.user_id,
+					data.user_id,
+				);
+				if (filteredData.length === 0) return;
+				data = filteredData[0];
+			}
 			break;
 		default:
 			break;
