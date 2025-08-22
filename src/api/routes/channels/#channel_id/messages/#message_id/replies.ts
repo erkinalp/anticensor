@@ -88,7 +88,13 @@ router.get(
 			order: { timestamp: "ASC" },
 		});
 
-		return res.json(replyMessages.map((m) => m.toJSON()));
+		return res.json(
+			replyMessages.map((m) => {
+				const json = m.toJSON();
+				json.reply_ids = m.reply_ids ?? undefined;
+				return json;
+			}),
+		);
 	},
 );
 
