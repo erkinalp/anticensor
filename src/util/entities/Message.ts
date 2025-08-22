@@ -226,14 +226,17 @@ export class Message extends BaseClass {
 	@Column({ type: "simple-json", nullable: true })
 	poll?: Poll;
 
+	@Column({ type: "simple-json", nullable: true })
+	reply_ids?: string[];
+
 	@Column({ nullable: true })
 	username?: string;
 
 	@Column({ nullable: true })
 	avatar?: string;
 
-	toJSON(): Message {
-		return {
+	toJSON(options?: { includeReplyIds?: boolean }): Message {
+		const result = {
 			...this,
 			author_id: undefined,
 			member_id: undefined,
@@ -260,6 +263,12 @@ export class Message extends BaseClass {
 			poll: this.poll ?? undefined,
 			content: this.content ?? "",
 		};
+
+		if (options?.includeReplyIds) {
+			result.reply_ids = this.reply_ids ?? undefined;
+		}
+
+		return result;
 	}
 
 	withSignedAttachments(data: NewUrlUserSignatureData) {

@@ -33,6 +33,7 @@ import {
 	uploadFile,
 	NewUrlUserSignatureData,
 } from "@spacebar/util";
+import { In } from "typeorm";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
@@ -119,9 +120,14 @@ router.patch(
 
 		postHandleMessage(new_message);
 
-		// TODO: a DTO?
+		const includeReplyIds =
+			req.headers["x-client-capabilities"]?.includes(
+				"doubly_linked_replies",
+			) ||
+			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
+
 		return res.json({
-			...new_message.toJSON(),
+			...new_message.toJSON({ includeReplyIds }),
 			id: new_message.id,
 			type: new_message.type,
 			channel_id: new_message.channel_id,
@@ -288,7 +294,36 @@ router.get(
 		if (message.author_id !== req.user_id)
 			permissions.hasThrow("READ_MESSAGE_HISTORY");
 
-		return res.json(message);
+		if (!message.reply_ids) {
+			const replies = await Message.find({
+				where: {
+					channel_id: message.channel_id,
+					message_reference: {
+						message_id: message.id,
+					},
+				},
+				select: ["id"],
+			});
+
+			if (replies.length > 0) {
+				message.reply_ids = replies.map((r) => r.id);
+				await Message.update(
+					{ id: message.id },
+					{ reply_ids: message.reply_ids },
+				);
+			} else {
+				message.reply_ids = [];
+				await Message.update({ id: message.id }, { reply_ids: [] });
+			}
+		}
+
+		const includeReplyIds =
+			req.headers["x-client-capabilities"]?.includes(
+				"doubly_linked_replies",
+			) ||
+			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
+
+		return res.json(message.toJSON({ includeReplyIds }));
 	},
 );
 
@@ -325,6 +360,25 @@ router.delete(
 				permission.hasThrow("MANAGE_MESSAGES");
 			}
 		} else rights.hasThrow("SELF_DELETE_MESSAGES");
+
+		if (message.message_reference?.message_id) {
+			const parentMessage = await Message.findOne({
+				where: { id: message.message_reference.message_id },
+			});
+			if (parentMessage?.reply_ids) {
+				parentMessage.reply_ids = parentMessage.reply_ids.filter(
+					(id) => id !== message_id,
+				);
+				await Message.update(
+					{ id: parentMessage.id },
+					{ reply_ids: parentMessage.reply_ids },
+				);
+			}
+		}
+
+		if (message.reply_ids?.length && rights.has("MANAGE_MESSAGES")) {
+			await Message.delete({ id: In(message.reply_ids) });
+		}
 
 		await Message.delete({ id: message_id });
 

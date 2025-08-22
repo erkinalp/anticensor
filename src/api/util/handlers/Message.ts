@@ -274,6 +274,19 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 				}),
 			);
 		}
+
+		if (referencedMessage) {
+			if (!referencedMessage.reply_ids) {
+				referencedMessage.reply_ids = [];
+			}
+			if (!referencedMessage.reply_ids.includes(message.id)) {
+				referencedMessage.reply_ids.push(message.id);
+				await Message.update(
+					{ id: referencedMessage.id },
+					{ reply_ids: referencedMessage.reply_ids },
+				);
+			}
+		}
 	}
 
 	// root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
