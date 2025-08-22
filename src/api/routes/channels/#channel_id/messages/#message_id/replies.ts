@@ -88,15 +88,7 @@ router.get(
 			order: { timestamp: "ASC" },
 		});
 
-		const includeReplyIds =
-			req.headers["x-client-capabilities"]?.includes(
-				"doubly_linked_replies",
-			) ||
-			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
-
-		return res.json(
-			replyMessages.map((m) => m.toJSON({ includeReplyIds })),
-		);
+		return res.json(replyMessages.map((m) => m.toJSON()));
 	},
 );
 

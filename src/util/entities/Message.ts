@@ -235,8 +235,8 @@ export class Message extends BaseClass {
 	@Column({ nullable: true })
 	avatar?: string;
 
-	toJSON(options?: { includeReplyIds?: boolean }): Message {
-		const result = {
+	toJSON(): Message {
+		return {
 			...this,
 			author_id: undefined,
 			member_id: undefined,
@@ -262,13 +262,8 @@ export class Message extends BaseClass {
 			components: this.components ?? undefined,
 			poll: this.poll ?? undefined,
 			content: this.content ?? "",
+			reply_ids: this.reply_ids ?? undefined,
 		};
-
-		if (options?.includeReplyIds) {
-			result.reply_ids = this.reply_ids ?? undefined;
-		}
-
-		return result;
 	}
 
 	withSignedAttachments(data: NewUrlUserSignatureData) {

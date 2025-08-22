@@ -120,14 +120,8 @@ router.patch(
 
 		postHandleMessage(new_message);
 
-		const includeReplyIds =
-			req.headers["x-client-capabilities"]?.includes(
-				"doubly_linked_replies",
-			) ||
-			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
-
 		return res.json({
-			...new_message.toJSON({ includeReplyIds }),
+			...new_message.toJSON(),
 			id: new_message.id,
 			type: new_message.type,
 			channel_id: new_message.channel_id,
@@ -317,13 +311,7 @@ router.get(
 			}
 		}
 
-		const includeReplyIds =
-			req.headers["x-client-capabilities"]?.includes(
-				"doubly_linked_replies",
-			) ||
-			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
-
-		return res.json(message.toJSON({ includeReplyIds }));
+		return res.json(message.toJSON());
 	},
 );
 

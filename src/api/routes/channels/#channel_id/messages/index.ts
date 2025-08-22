@@ -209,14 +209,8 @@ router.get(
 
 		await populateForwardLinks(messages);
 
-		const includeReplyIds =
-			req.headers["x-client-capabilities"]?.includes(
-				"doubly_linked_replies",
-			) ||
-			req.headers["x-gateway-intents"]?.includes("doubly_linked_replies");
-
 		const ret = messages.map((x: Message) => {
-			x = x.toJSON({ includeReplyIds });
+			x = x.toJSON();
 
 			(x.reactions || []).forEach((y: Partial<Reaction>) => {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
