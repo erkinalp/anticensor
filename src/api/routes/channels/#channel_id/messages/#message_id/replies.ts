@@ -20,6 +20,7 @@ import {
 	Message,
 	Channel,
 	getPermission,
+	getRights,
 	emitEvent,
 	MessageDeleteBulkEvent,
 } from "@spacebar/util";
@@ -107,7 +108,6 @@ router.get(
 router.delete(
 	"/",
 	route({
-		permission: "MANAGE_MESSAGES",
 		responses: {
 			204: {},
 			403: {},
@@ -126,7 +126,6 @@ router.delete(
 			channel.guild_id,
 			channel_id,
 		);
-		permissions.hasThrow("MANAGE_MESSAGES");
 
 		const parentMessage = await Message.findOneOrFail({
 			where: { id: message_id, channel_id },
@@ -156,6 +155,30 @@ router.delete(
 		}
 
 		if (parentMessage.reply_ids?.length) {
+			const replyMessages = await Message.find({
+				where: { id: In(parentMessage.reply_ids) },
+				select: ["id", "author_id"],
+			});
+
+			const userOwnedReplies = replyMessages.filter(
+				(msg) => msg.author_id === req.user_id,
+			);
+			const otherOwnedReplies = replyMessages.filter(
+				(msg) => msg.author_id !== req.user_id,
+			);
+
+			const rights = await getRights(req.user_id);
+
+			if (userOwnedReplies.length > 0) {
+				rights.hasThrow("SELF_DELETE_MESSAGES");
+			}
+
+			if (otherOwnedReplies.length > 0) {
+				if (!rights.has("MANAGE_MESSAGES")) {
+					permissions.hasThrow("MANAGE_MESSAGES");
+				}
+			}
+
 			await Message.delete({ id: In(parentMessage.reply_ids) });
 
 			await emitEvent({
