@@ -364,8 +364,15 @@ router.delete(
 			}
 		}
 
-		if (message.reply_ids?.length && rights.has("MANAGE_MESSAGES")) {
-			await Message.delete({ id: In(message.reply_ids) });
+		if (message.reply_ids?.length) {
+			const permissions = await getPermission(
+				req.user_id,
+				channel.guild_id,
+				channel_id,
+			);
+			if (permissions.has("MANAGE_MESSAGES")) {
+				await Message.delete({ id: In(message.reply_ids) });
+			}
 		}
 
 		await Message.delete({ id: message_id });
