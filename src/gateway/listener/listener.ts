@@ -324,6 +324,16 @@ async function consume(this: WebSocket, opts: EventOpts) {
 				opts.data = filteredData[0];
 			}
 			break;
+		case "USER_UPDATE":
+			if (
+				data["user_profile"] &&
+				this.capabilities?.has(
+					Capabilities.FLAGS.EFFICIENT_RESPONSES,
+				)
+			) {
+				delete data["user_profile"];
+			}
+			break;
 		default:
 			break;
 	}
