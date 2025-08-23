@@ -11681,17 +11681,15 @@
                 "tags": [
                     "users"
                 ]
-            }
-        },
-        "/users/{id}/consents/{service_id}/": {
-            "put": {
-                "x-right-required": "MANAGE_USERS",
+            },
+            "delete": {
+                "x-right-required": "OPERATOR",
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
-                "summary": "Grant consent for a service for the specified user (admin only)",
+                "summary": "Revoke all consents for a specified user (operator only)",
                 "responses": {
                     "204": {
                         "description": "",
@@ -11699,6 +11697,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }
@@ -11713,21 +11721,14 @@
                             "type": "string"
                         },
                         "description": "id"
-                    },
-                    {
-                        "name": "service_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "service_id"
                     }
                 ],
                 "tags": [
                     "users"
                 ]
-            },
+            }
+        },
+        "/users/{id}/consents/{service_id}/": {
             "delete": {
                 "x-right-required": "MANAGE_USERS",
                 "security": [
