@@ -58,3 +58,4 @@ export * from "./UserSettings";
 export * from "./ValidRegistrationTokens";
 export * from "./VoiceState";
 export * from "./Webhook";
+export * from "./UserConsent";
