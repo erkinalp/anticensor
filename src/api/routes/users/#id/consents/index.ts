@@ -28,4 +28,21 @@ router.get(
 	},
 );
 
+router.delete(
+	"/",
+	route({
+		right: "OPERATOR",
+		summary: "Revoke all consents for a specified user (operator only)",
+		responses: {
+			204: { body: "null" },
+			403: { body: "APIErrorResponse" },
+		},
+	}),
+	async (req: Request, res: Response) => {
+		const target_user_id = req.params.id;
+		await UserConsent.delete({ user_id: target_user_id });
+		return res.status(204).send();
+	},
+);
+
 export default router;
