@@ -40,6 +40,28 @@ import { Channel as AMQChannel } from "amqplib";
 import { Recipient } from "@spacebar/util";
 import * as console from "node:console";
 
+function filterRedundantUserFields(rootUser: any, guildMemberUser: any): any {
+	if (!rootUser || !guildMemberUser) return guildMemberUser;
+	
+	const filteredUser: any = {};
+	let hasChanges = false;
+	
+	const comparableFields = ['avatar', 'banner', 'bio', 'theme_colors', 'pronouns', 'accent_color'];
+	
+	for (const field of comparableFields) {
+		if (guildMemberUser[field] !== undefined && 
+		    JSON.stringify(guildMemberUser[field]) !== JSON.stringify(rootUser[field])) {
+			filteredUser[field] = guildMemberUser[field];
+			hasChanges = true;
+		}
+	}
+	
+	filteredUser.id = guildMemberUser.id;
+	
+	return hasChanges ? filteredUser : { id: guildMemberUser.id };
+}
+
+
 // TODO: close connection on Invalidated Token
 // TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
@@ -327,11 +349,16 @@ async function consume(this: WebSocket, opts: EventOpts) {
 		case "USER_UPDATE":
 			if (
 				data["guild_member"] &&
+				data["guild_member"]["user"] &&
+				data["user"] &&
 				this.capabilities?.has(
 					Capabilities.FLAGS.EFFICIENT_RESPONSES,
 				)
 			) {
-				delete data["guild_member"];
+				data["guild_member"]["user"] = filterRedundantUserFields(
+					data["user"],
+					data["guild_member"]["user"]
+				);
 			}
 			break;
 		default:
