@@ -10,7 +10,7 @@ export class BanLists1755978992 implements MigrationInterface {
 				\`name\` varchar(255) NOT NULL,
 				\`description\` text,
 				\`creator_id\` varchar(255) NOT NULL,
-				\`creator_type\` enum('user', 'channel', 'role', 'group', 'guild') NOT NULL,
+				\`creator_type\` varchar(255) NOT NULL,
 				\`is_public\` tinyint NOT NULL DEFAULT 0,
 				\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 				\`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
@@ -37,7 +37,7 @@ export class BanLists1755978992 implements MigrationInterface {
 			CREATE TABLE \`ban_list_subscriptions\` (
 				\`id\` varchar(255) NOT NULL,
 				\`subscriber_id\` varchar(255) NOT NULL,
-				\`subscriber_type\` enum('user', 'channel', 'guild') NOT NULL,
+				\`subscriber_type\` varchar(255) NOT NULL,
 				\`ban_list_id\` varchar(255) NOT NULL,
 				\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 				PRIMARY KEY (\`id\`),

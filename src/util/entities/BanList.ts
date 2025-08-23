@@ -41,7 +41,7 @@ export class BanList extends BaseClass {
 	@Column()
 	creator_id: string;
 
-	@Column({ type: "enum", enum: BanListCreatorType })
+	@Column({ type: "varchar" }) //TODO enum
 	creator_type: BanListCreatorType;
 
 	@Column({ type: "boolean", default: false })

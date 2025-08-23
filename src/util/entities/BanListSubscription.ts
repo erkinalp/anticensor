@@ -51,7 +51,7 @@ export class BanListSubscription extends BaseClass {
 	)
 	subscriber_id: string;
 
-	@Column({ type: "enum", enum: BanListSubscriberType })
+	@Column({ type: "varchar" }) //TODO enum
 	subscriber_type: BanListSubscriberType;
 
 	@JoinColumn({ name: "subscriber_id" })
