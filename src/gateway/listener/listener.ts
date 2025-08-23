@@ -30,6 +30,7 @@ import {
 	Message,
 	NewUrlUserSignatureData,
 	ConnectionPrivacy,
+	PublicUser,
 } from "@spacebar/util";
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
@@ -40,27 +41,39 @@ import { Channel as AMQChannel } from "amqplib";
 import { Recipient } from "@spacebar/util";
 import * as console from "node:console";
 
-function filterRedundantUserFields(rootUser: any, guildMemberUser: any): any {
+function filterRedundantUserFields(
+	rootUser: PublicUser,
+	guildMemberUser: PublicUser,
+): Partial<PublicUser> {
 	if (!rootUser || !guildMemberUser) return guildMemberUser;
-	
-	const filteredUser: any = {};
+
+	const filteredUser: Partial<PublicUser> = {};
 	let hasChanges = false;
-	
-	const comparableFields = ['avatar', 'banner', 'bio', 'theme_colors', 'pronouns', 'accent_color'];
-	
+
+	const comparableFields: (keyof PublicUser)[] = [
+		"avatar",
+		"banner",
+		"bio",
+		"theme_colors",
+		"pronouns",
+		"accent_color",
+	];
+
 	for (const field of comparableFields) {
-		if (guildMemberUser[field] !== undefined && 
-		    JSON.stringify(guildMemberUser[field]) !== JSON.stringify(rootUser[field])) {
+		if (
+			guildMemberUser[field] !== undefined &&
+			JSON.stringify(guildMemberUser[field]) !==
+				JSON.stringify(rootUser[field])
+		) {
 			filteredUser[field] = guildMemberUser[field];
 			hasChanges = true;
 		}
 	}
-	
+
 	filteredUser.id = guildMemberUser.id;
-	
+
 	return hasChanges ? filteredUser : { id: guildMemberUser.id };
 }
-
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent
@@ -351,13 +364,11 @@ async function consume(this: WebSocket, opts: EventOpts) {
 				data["guild_member"] &&
 				data["guild_member"]["user"] &&
 				data["user"] &&
-				this.capabilities?.has(
-					Capabilities.FLAGS.EFFICIENT_RESPONSES,
-				)
+				this.capabilities?.has(Capabilities.FLAGS.EFFICIENT_RESPONSES)
 			) {
 				data["guild_member"]["user"] = filterRedundantUserFields(
 					data["user"],
-					data["guild_member"]["user"]
+					data["guild_member"]["user"],
 				);
 			}
 			break;
