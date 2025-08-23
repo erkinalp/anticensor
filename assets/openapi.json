@@ -1167,7 +1167,8 @@
                         "type": "integer"
                     },
                     "welcome_screen": {
-                        "$ref": "#/components/schemas/GuildWelcomeScreen"
+                        "$ref": "#/components/schemas/GuildWelcomeScreen",
+                        "description": "DEPRECATED: Look at the new Guild onboarding screens."
                     },
                     "widget_channel_id": {
                         "type": "string"
@@ -3654,6 +3655,71 @@
                     "name"
                 ]
             },
+            "EmojiGuild": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "emojis": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Emoji"
+                        }
+                    },
+                    "premium_tier": {
+                        "type": "integer"
+                    },
+                    "premium_subscription_count": {
+                        "type": "integer"
+                    },
+                    "approximate_member_count": {
+                        "type": "integer"
+                    },
+                    "approximate_presence_count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "emojis",
+                    "features",
+                    "id",
+                    "name",
+                    "premium_tier"
+                ]
+            },
+            "EmojiApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
             "GuildMessagesSearchMessage": {
                 "type": "object",
                 "properties": {
@@ -3961,6 +4027,9 @@
                     },
                     "guild_template_code": {
                         "type": "string"
+                    },
+                    "staff_only": {
+                        "type": "boolean"
                     },
                     "splash": {
                         "type": "string",
@@ -4303,7 +4372,8 @@
                         "type": "integer"
                     },
                     "welcome_screen": {
-                        "$ref": "#/components/schemas/GuildWelcomeScreen"
+                        "$ref": "#/components/schemas/GuildWelcomeScreen",
+                        "description": "DEPRECATED: Look at the new Guild onboarding screens."
                     },
                     "widget_channel_id": {
                         "type": "string"
@@ -4677,13 +4747,30 @@
                     "channel": {
                         "$ref": "#/components/schemas/RateLimitOptions"
                     },
-                    "auth": {}
+                    "auth": {
+                        "$ref": "#/components/schemas/AuthRateLimit"
+                    }
                 },
                 "required": [
                     "auth",
                     "channel",
                     "guild",
                     "webhook"
+                ]
+            },
+            "AuthRateLimit": {
+                "type": "object",
+                "properties": {
+                    "login": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "register": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    }
+                },
+                "required": [
+                    "login",
+                    "register"
                 ]
             },
             "GlobalRateLimits": {
@@ -5430,6 +5517,9 @@
                     },
                     "guild_template_code": {
                         "type": "string"
+                    },
+                    "staff_only": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -5579,6 +5669,9 @@
                     },
                     "guild_template_code": {
                         "type": "string"
+                    },
+                    "staff_only": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -6115,6 +6208,9 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "channel_id": {
+                        "type": "string"
+                    },
                     "attachments": {
                         "description": "TODO: we should create an interface for attachments\nTODO: OpenWAAO<-->attachment-style metadata conversion",
                         "type": "array",
@@ -6142,9 +6238,6 @@
                         "type": "string"
                     },
                     "nonce": {
-                        "type": "string"
-                    },
-                    "channel_id": {
                         "type": "string"
                     },
                     "tts": {
@@ -6451,6 +6544,62 @@
                     "guild_id"
                 ]
             },
+            "AccountStandingResponse": {
+                "type": "object",
+                "properties": {
+                    "classifications": {
+                        "type": "array",
+                        "items": {}
+                    },
+                    "guild_classifications": {
+                        "type": "array",
+                        "items": {}
+                    },
+                    "account_standing": {
+                        "type": "object",
+                        "properties": {
+                            "state": {
+                                "minimum": 0,
+                                "maximum": 100,
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "state"
+                        ]
+                    },
+                    "is_dsa_eligible": {
+                        "type": "boolean"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "discriminator": {
+                        "type": "string"
+                    },
+                    "is_appeal_eligible": {
+                        "type": "boolean"
+                    },
+                    "appeal_eligibility": {
+                        "description": "We don't yet know what these mean, but Discord appears to return \"1\" and \"2\".",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "account_standing",
+                    "appeal_eligibility",
+                    "classifications",
+                    "discriminator",
+                    "guild_classifications",
+                    "is_appeal_eligible",
+                    "is_dsa_eligible",
+                    "username"
+                ]
+            },
             "APIErrorOrCaptchaResponse": {
                 "anyOf": [
                     {
@@ -6535,6 +6684,41 @@
                     "joined"
                 ]
             },
+            "EmojiSourceResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "APPLICATION",
+                            "GUILD"
+                        ],
+                        "type": "string"
+                    },
+                    "guild": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EmojiGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "application": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EmojiApplication"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
             "GatewayBotResponse": {
                 "type": "object",
                 "properties": {
@@ -6604,7 +6788,8 @@
                 "type": "object",
                 "properties": {
                     "reason": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "user": {
                         "type": "object",
@@ -7626,6 +7811,12 @@
                     "guild_id": {
                         "type": "string"
                     },
+                    "mute": {
+                        "type": "boolean"
+                    },
+                    "deaf": {
+                        "type": "boolean"
+                    },
                     "nick": {
                         "type": "string"
                     },
@@ -7634,12 +7825,6 @@
                         "format": "date-time"
                     },
                     "pending": {
-                        "type": "boolean"
-                    },
-                    "deaf": {
-                        "type": "boolean"
-                    },
-                    "mute": {
                         "type": "boolean"
                     },
                     "premium_since": {
@@ -7754,6 +7939,9 @@
                     },
                     "guild_template_code": {
                         "type": "string"
+                    },
+                    "staff_only": {
+                        "type": "boolean"
                     },
                     "splash": {
                         "type": "string",
@@ -7969,6 +8157,12 @@
                             "guild_id": {
                                 "type": "string"
                             },
+                            "mute": {
+                                "type": "boolean"
+                            },
+                            "deaf": {
+                                "type": "boolean"
+                            },
                             "nick": {
                                 "type": "string"
                             },
@@ -7977,12 +8171,6 @@
                                 "format": "date-time"
                             },
                             "pending": {
-                                "type": "boolean"
-                            },
-                            "deaf": {
-                                "type": "boolean"
-                            },
-                            "mute": {
                                 "type": "boolean"
                             },
                             "premium_since": {
@@ -8252,10 +8440,7 @@
                                     "type": "integer"
                                 },
                                 "rtx_payload_type": {
-                                    "type": [
-                                        "null",
-                                        "integer"
-                                    ]
+                                    "type": "integer"
                                 }
                             },
                             "additionalProperties": false,
@@ -8274,6 +8459,53 @@
                 "required": [
                     "data",
                     "protocol"
+                ]
+            },
+            "StreamCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "call",
+                            "guild"
+                        ],
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "preferred_region": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "type"
+                ]
+            },
+            "StreamDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "stream_key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "stream_key"
+                ]
+            },
+            "StreamWatchSchema": {
+                "type": "object",
+                "properties": {
+                    "stream_key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "stream_key"
                 ]
             },
             "TeamCreateSchema": {
@@ -8696,6 +8928,11 @@
                             "type": "object",
                             "properties": {
                                 "type": {
+                                    "enum": [
+                                        "audio",
+                                        "screen",
+                                        "video"
+                                    ],
                                     "type": "string"
                                 },
                                 "rid": {
@@ -8712,6 +8949,9 @@
                                 "type"
                             ]
                         }
+                    },
+                    "max_secure_frames_version": {
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -8781,6 +9021,7 @@
                                 "type": {
                                     "enum": [
                                         "audio",
+                                        "screen",
                                         "video"
                                     ],
                                     "type": "string"
@@ -9165,6 +9406,9 @@
             "name": "download"
         },
         {
+            "name": "emojis"
+        },
+        {
             "name": "experiments"
         },
         {
@@ -9202,6 +9446,9 @@
         },
         {
             "name": "read-states"
+        },
+        {
+            "name": "safety-hub"
         },
         {
             "name": "scheduled-maintenances"
@@ -9614,6 +9861,84 @@
                             "type": "string"
                         },
                         "description": "token"
+                    }
+                ],
+                "tags": [
+                    "webhooks"
+                ]
+            }
+        },
+        "/webhooks/{webhook_id}/{token}/github/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WebhookExecuteSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "webhook_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "webhook_id"
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "token"
+                    },
+                    {
+                        "name": "wait",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "waits for server confirmation of message send before response, and returns the created message body"
+                    },
+                    {
+                        "name": "thread_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Send a message to the specified thread within a webhook's channel."
                     }
                 ],
                 "tags": [
@@ -10694,6 +11019,101 @@
                 ]
             }
         },
+        "/users/@me/consents/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List consents for the current user",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/any"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consents/{service_id}/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Grant consent for a service for the current user",
+                "responses": {
+                    "204": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "service_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "service_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Revoke consent for a service for the current user",
+                "responses": {
+                    "204": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "service_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "service_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/connections/": {
             "get": {
                 "security": [
@@ -11216,6 +11636,144 @@
                 ]
             }
         },
+        "/users/{id}/consents/": {
+            "get": {
+                "x-right-required": "MANAGE_USERS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List consents for a specified user (admin only)",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/any"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "delete": {
+                "x-right-required": "OPERATOR",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Revoke all consents for a specified user (operator only)",
+                "responses": {
+                    "204": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/{id}/consents/{service_id}/": {
+            "delete": {
+                "x-right-required": "MANAGE_USERS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Revoke consent for a service for the specified user (admin only)",
+                "responses": {
+                    "204": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "id"
+                    },
+                    {
+                        "name": "service_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "service_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/updates/": {
             "get": {
                 "responses": {
@@ -11591,6 +12149,40 @@
                 ]
             }
         },
+        "/safety-hub/@me/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountStandingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "safety-hub"
+                ]
+            }
+        },
         "/read-states/ack-bulk/": {
             "post": {
                 "security": [
@@ -11743,6 +12335,33 @@
                 ]
             }
         },
+        "/policies/instance/connections/": {
+            "get": {
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "policies"
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "policies"
+                ]
+            }
+        },
         "/policies/instance/config/": {
             "get": {
                 "responses": {
@@ -11759,6 +12378,12 @@
                 },
                 "tags": [
                     "policies"
+                ],
+                "x-badges": [
+                    {
+                        "label": "Spacebar-only",
+                        "color": "red"
+                    }
                 ]
             }
         },
@@ -15596,7 +16221,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GuildBansResponse"
+                                    "$ref": "#/components/schemas/APIBansArray"
                                 }
                             }
                         }
@@ -15628,6 +16253,70 @@
                 ]
             }
         },
+        "/guilds/{guild_id}/bans/search": {
+            "get": {
+                "x-permission-required": "BAN_MEMBERS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIBansArray"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Query to match username(s) and display name(s) against (1-32 characters)"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "Max number of members to return (1-10, default 10)"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
         "/guilds/{guild_id}/bans/{user_id}": {
             "get": {
                 "x-permission-required": "BAN_MEMBERS",
@@ -15642,7 +16331,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BanModeratorSchema"
+                                    "$ref": "#/components/schemas/GuildBansResponse"
                                 }
                             }
                         }
@@ -15710,15 +16399,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Ban"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "No description available"
                     },
                     "400": {
                         "description": "",
@@ -15822,6 +16504,235 @@
                 ]
             }
         },
+        "/guilds/{guild_id}/auto-moderation/rules/": {
+            "get": {
+                "x-permission-required": [
+                    "MANAGE_GUILD"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomodRuleSchemaWithId[]"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "post": {
+                "x-permission-required": [
+                    "MANAGE_GUILD"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomodRuleSchemaWithId"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/auto-moderation/rules/{rule_id}": {
+            "patch": {
+                "x-permission-required": [
+                    "MANAGE_GUILD"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomodRuleSchemaWithId"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "rule_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "rule_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "delete": {
+                "x-permission-required": [
+                    "MANAGE_GUILD"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "rule_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "rule_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
         "/guilds/{guild_id}/audit-logs/": {
             "get": {
                 "security": [
@@ -15871,6 +16782,12 @@
                 },
                 "tags": [
                     "guild-recommendations"
+                ],
+                "x-badges": [
+                    {
+                        "label": "Spacebar-only",
+                        "color": "red"
+                    }
                 ]
             }
         },
@@ -16048,6 +16965,51 @@
                 },
                 "tags": [
                     "experiments"
+                ]
+            }
+        },
+        "/emojis/{emoji_id}/source/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmojiSourceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "emoji_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "emoji_id"
+                    }
+                ],
+                "tags": [
+                    "emojis"
                 ]
             }
         },
@@ -16756,6 +17718,160 @@
                 ]
             }
         },
+        "/channels/{channel_id}/messages/pins/{message_id}": {
+            "put": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            },
+            "delete": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/pins/": {
+            "get": {
+                "x-permission-required": [
+                    "READ_MESSAGE_HISTORY"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIMessageArray"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
         "/channels/{channel_id}/messages/": {
             "get": {
                 "security": [
@@ -16944,6 +18060,98 @@
                             "type": "string"
                         },
                         "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/{message_id}/replies/": {
+            "get": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIMessageArray"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
                     }
                 ],
                 "tags": [
