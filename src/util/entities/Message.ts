@@ -226,6 +226,9 @@ export class Message extends BaseClass {
 	@Column({ type: "simple-json", nullable: true })
 	poll?: Poll;
 
+	@Column({ type: "simple-json", nullable: true })
+	reply_ids?: string[];
+
 	@Column({ nullable: true })
 	username?: string;
 
@@ -259,6 +262,7 @@ export class Message extends BaseClass {
 			components: this.components ?? undefined,
 			poll: this.poll ?? undefined,
 			content: this.content ?? "",
+			reply_ids: this.reply_ids ?? undefined,
 		};
 	}
 

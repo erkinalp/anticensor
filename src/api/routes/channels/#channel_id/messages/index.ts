@@ -54,6 +54,33 @@ import { URL } from "url";
 
 const router: Router = Router();
 
+async function populateForwardLinks(messages: Message[]): Promise<void> {
+	for (const message of messages) {
+		if (!message.reply_ids) {
+			const replies = await Message.find({
+				where: {
+					channel_id: message.channel_id,
+					message_reference: {
+						message_id: message.id,
+					},
+				},
+				select: ["id"],
+			});
+
+			if (replies.length > 0) {
+				message.reply_ids = replies.map((r) => r.id);
+				await Message.update(
+					{ id: message.id },
+					{ reply_ids: message.reply_ids },
+				);
+			} else {
+				message.reply_ids = [];
+				await Message.update({ id: message.id }, { reply_ids: [] });
+			}
+		}
+	}
+}
+
 // https://discord.com/developers/docs/resources/channel#create-message
 // get messages
 router.get(
@@ -179,6 +206,8 @@ router.get(
 		}
 
 		const endpoint = Config.get().cdn.endpointPublic;
+
+		await populateForwardLinks(messages);
 
 		const ret = messages.map((x: Message) => {
 			x = x.toJSON();

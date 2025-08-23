@@ -34,6 +34,7 @@ import {
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
 import { WebSocket } from "@spacebar/gateway";
+import { Capabilities } from "../util/Capabilities";
 import "missing-native-js-functions";
 import { Channel as AMQChannel } from "amqplib";
 import { Recipient } from "@spacebar/util";
@@ -302,6 +303,15 @@ async function consume(this: WebSocket, opts: EventOpts) {
 							userAgent: this.userAgent,
 						}),
 					).attachments;
+
+			if (
+				data["reply_ids"] &&
+				!this.capabilities?.has(
+					Capabilities.FLAGS.DOUBLY_LINKED_REPLIES,
+				)
+			) {
+				delete data["reply_ids"];
+			}
 			break;
 		case "USER_CONNECTIONS_UPDATE":
 			if (data.user_id !== this.user_id) {
