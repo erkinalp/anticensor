@@ -372,6 +372,9 @@ export class Channel extends BaseClass {
 		}
 
 		if (channel == null) {
+			// Check ban list subscriptions before creating channel
+			await Channel.checkBanListRestrictions(channelRecipients);
+
 			name = trimSpecial(name);
 
 			channel = await Channel.create({
@@ -544,6 +547,79 @@ export class Channel extends BaseClass {
 			rate_limit_per_user: this.rate_limit_per_user || undefined,
 			owner_id: this.owner_id || undefined,
 		};
+	}
+
+	static async checkBanListRestrictions(userIds: string[]) {
+		const { BanListSubscription, BanListSubscriberType } = await import(
+			"./BanListSubscription"
+		);
+		const { BanListEntry } = await import("./BanListEntry");
+
+		const userSubscriptions = await BanListSubscription.find({
+			where: userIds.map((userId: string) => ({
+				subscriber_id: userId,
+				subscriber_type: BanListSubscriberType.user,
+			})),
+		});
+
+		if (userSubscriptions.length === 0) return;
+
+		const banListIds = [
+			...new Set(userSubscriptions.map((sub) => sub.ban_list_id)),
+		];
+		const banListEntries = await BanListEntry.find({
+			where: banListIds.map((id: string) => ({ ban_list_id: id })),
+		});
+
+		const bannedUserIds = new Set(
+			banListEntries.map((entry) => entry.banned_user_id),
+		);
+
+		for (const userId of userIds) {
+			if (bannedUserIds.has(userId)) {
+				const subscriberIds = userSubscriptions
+					.filter((sub) =>
+						banListEntries.some(
+							(entry) =>
+								entry.ban_list_id === sub.ban_list_id &&
+								entry.banned_user_id === userId,
+						),
+					)
+					.map((sub) => sub.subscriber_id);
+
+				const hasConflict = subscriberIds.some((subscriberId: string) =>
+					userIds.includes(subscriberId),
+				);
+				if (hasConflict) {
+					throw new HTTPError("Cannot send message to user", 403);
+				}
+			}
+		}
+	}
+
+	async getBannedUsers(): Promise<string[]> {
+		const { BanListSubscription, BanListSubscriberType } = await import(
+			"./BanListSubscription"
+		);
+		const { BanListEntry } = await import("./BanListEntry");
+
+		const subscriptions = await BanListSubscription.find({
+			where: {
+				subscriber_id: this.id,
+				subscriber_type: BanListSubscriberType.channel,
+			},
+		});
+
+		if (subscriptions.length === 0) return [];
+
+		const banListIds = subscriptions.map((sub) => sub.ban_list_id);
+		const banListEntries = await BanListEntry.find({
+			where: banListIds.map((id: string) => ({ ban_list_id: id })),
+		});
+
+		return [
+			...new Set(banListEntries.map((entry) => entry.banned_user_id)),
+		];
 	}
 }
 
