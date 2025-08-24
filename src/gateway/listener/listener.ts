@@ -44,10 +44,10 @@ import * as console from "node:console";
 function filterRedundantUserFields(
 	rootUser: PublicUser,
 	guildMemberUser: PublicUser,
-): Partial<PublicUser> {
+): Partial<PublicUser> & Pick<PublicUser, "id"> {
 	if (!rootUser || !guildMemberUser) return guildMemberUser;
 
-	const filteredUser: Partial<PublicUser> = {};
+	const filteredUser: Record<string, unknown> = {};
 	let hasChanges = false;
 
 	const comparableFields: (keyof PublicUser)[] = [
@@ -65,14 +65,17 @@ function filterRedundantUserFields(
 			JSON.stringify(guildMemberUser[field]) !==
 				JSON.stringify(rootUser[field])
 		) {
-			filteredUser[field] = guildMemberUser[field];
+			(filteredUser as Record<string, unknown>)[field] =
+				guildMemberUser[field];
 			hasChanges = true;
 		}
 	}
 
 	filteredUser.id = guildMemberUser.id;
 
-	return hasChanges ? filteredUser : { id: guildMemberUser.id };
+	return hasChanges
+		? (filteredUser as Partial<PublicUser> & Pick<PublicUser, "id">)
+		: { id: guildMemberUser.id };
 }
 
 // TODO: close connection on Invalidated Token
