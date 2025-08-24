@@ -10,7 +10,7 @@ export class BanLists1755978992 implements MigrationInterface {
 				"name" character varying NOT NULL,
 				"description" text,
 				"creator_id" character varying NOT NULL,
-				"creator_type" character varying NOT NULL CHECK ("creator_type" IN ('user', 'channel', 'role', 'group', 'guild')),
+				"creator_type" character varying NOT NULL CHECK ("creator_type" IN ('user', 'channel', 'role', 'guild')),
 				"is_public" boolean NOT NULL DEFAULT false,
 				"created_at" TIMESTAMP NOT NULL DEFAULT now(),
 				"updated_at" TIMESTAMP NOT NULL DEFAULT now(),
