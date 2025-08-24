@@ -24,6 +24,7 @@ export enum BanListCreatorType {
 	user = "user",
 	channel = "channel",
 	role = "role",
+	group = "group",
 	guild = "guild",
 }
 

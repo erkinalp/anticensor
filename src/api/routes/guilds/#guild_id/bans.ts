@@ -28,6 +28,10 @@ import {
 	GuildBansResponse,
 	Member,
 	User,
+	BanList,
+	BanListEntry,
+	BanListSubscription,
+	BanListSubscriberType,
 	emitEvent,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -197,6 +201,69 @@ router.get(
 );
 
 router.put(
+	"/entries",
+	route({
+		permission: "BAN_MEMBERS",
+		requestBody: "GuildBanEntriesUpsertSchema",
+	}),
+	async (req: Request, res: Response) => {
+		const { guild_id } = req.params;
+		const body =
+			req.body as import("@spacebar/util").GuildBanEntriesUpsertSchema;
+
+		for (const e of body.entries) {
+			if (e.type === "user") {
+				const banned_user_id = e.user_id;
+				if (
+					req.user_id === banned_user_id &&
+					banned_user_id === req.permission?.cache.guild?.owner_id
+				)
+					continue;
+				if (req.permission?.cache.guild?.owner_id === banned_user_id)
+					continue;
+
+				const existingBan = await Ban.findOne({
+					where: { guild_id: guild_id, user_id: banned_user_id },
+				});
+				if (!existingBan) {
+					const ban = Ban.create({
+						user_id: banned_user_id,
+						guild_id: guild_id,
+						ip: getIpAdress(req),
+						executor_id: req.user_id,
+						reason: e.reason ?? undefined,
+					});
+					await ban.save();
+				}
+			} else if (e.type === "ban_list") {
+				const list = await BanList.findOne({
+					where: { id: e.ban_list_id },
+				});
+				if (!list) continue;
+				const existing = await BanListSubscription.findOne({
+					where: {
+						subscriber_id: guild_id,
+						subscriber_type: BanListSubscriberType.guild,
+						ban_list_id: e.ban_list_id,
+					},
+				});
+				if (!existing) {
+					const subscription = BanListSubscription.create({
+						subscriber_id: guild_id,
+						subscriber_type: BanListSubscriberType.guild,
+						ban_list_id: e.ban_list_id,
+						created_at: new Date(),
+					});
+					await subscription.save();
+				}
+			}
+		}
+
+		return res.status(204).send();
+	},
+);
+
+router.put(
 	"/:user_id",
 	route({
 		requestBody: "BanCreateSchema",
@@ -300,6 +367,38 @@ router.delete(
 		]);
 
 		return res.status(204).send();
+	},
+);
+
+router.get(
+	"/effective",
+	route({
+		permission: "BAN_MEMBERS",
+	}),
+	async (req: Request, res: Response) => {
+		const { guild_id } = req.params;
+
+		const bans = await Ban.find({ where: { guild_id } });
+		const subs = await BanListSubscription.find({
+			where: {
+				subscriber_id: guild_id,
+				subscriber_type: BanListSubscriberType.guild,
+			},
+			relations: ["ban_list"],
+		});
+
+		const userIds = new Set<string>(bans.map((b) => b.user_id));
+
+		for (const sub of subs) {
+			const entries = await BanListEntry.find({
+				where: { ban_list_id: sub.ban_list_id },
+			});
+			for (const entry of entries) {
+				userIds.add(entry.banned_user_id);
+			}
+		}
+
+		return res.json({ user_ids: Array.from(userIds) });
 	},
 );
 
