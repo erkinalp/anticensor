@@ -20,7 +20,8 @@
 		"generate:migration": "node -r dotenv/config -r module-alias/register node_modules/typeorm/cli.js migration:generate -d dist/util/util/Database.js",
 		"generate:openapi": "node scripts/openapi.js",
 		"add:license": "node scripts/license.js",
-		"migrate-from-staging": "node -r dotenv/config -r module-alias/register scripts/stagingMigration/index.js"
+		"migrate-from-staging": "node -r dotenv/config -r module-alias/register scripts/stagingMigration/index.js",
+		"verify:sqlite": "mkdir -p .tmp && node scripts/sqlite-verify.js"
 	},
 	"main": "dist/bundle/index.js",
 	"types": "src/bundle/index.ts",
