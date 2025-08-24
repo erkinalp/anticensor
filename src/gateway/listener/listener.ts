@@ -312,6 +312,13 @@ async function consume(this: WebSocket, opts: EventOpts) {
 			) {
 				delete data["reply_ids"];
 			}
+
+			if (
+				data["ban_list_subscriptions"] &&
+				!this.capabilities?.has(Capabilities.FLAGS.BAN_LISTS)
+			) {
+				delete data["ban_list_subscriptions"];
+			}
 			break;
 		case "USER_CONNECTIONS_UPDATE":
 			if (data.user_id !== this.user_id) {

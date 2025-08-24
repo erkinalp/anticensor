@@ -30,8 +30,16 @@ import {
 	Not,
 	PrimaryGeneratedColumn,
 	RelationId,
+	In,
 } from "typeorm";
-import { Ban, Channel, PublicGuildRelations } from ".";
+import {
+	Ban,
+	Channel,
+	PublicGuildRelations,
+	BanListEntry,
+	BanListSubscription,
+	BanListSubscriberType,
+} from ".";
 import { ReadyGuildDTO } from "../dtos";
 import {
 	GuildCreateEvent,
@@ -315,9 +323,32 @@ export class Member extends BaseClassWithoutId {
 
 	static async addToGuild(user_id: string, guild_id: string) {
 		const user = await User.getPublicUser(user_id);
-		const isBanned = await Ban.count({ where: { guild_id, user_id } });
-		if (isBanned) {
+		const isDirectBanned = await Ban.count({
+			where: { guild_id, user_id },
+		});
+		if (isDirectBanned) {
 			throw DiscordApiErrors.USER_BANNED;
+		}
+		const subs = await BanListSubscription.find({
+			where: {
+				subscriber_id: guild_id,
+				subscriber_type: BanListSubscriberType.guild,
+			},
+		});
+		if (subs.length) {
+			const isListed = await BanListEntry.count({
+				where: {
+					ban_list_id: In(
+						subs.map(
+							(s: BanListSubscription) => s.ban_list_id as string,
+						),
+					),
+					banned_user_id: user_id,
+				},
+			});
+			if (isListed) {
+				throw DiscordApiErrors.USER_BANNED;
+			}
 		}
 		const { maxGuilds } = Config.get().limits.user;
 		const guild_count = await Member.count({ where: { id: user_id } });
