@@ -30,7 +30,6 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { getRights, Rights } from "@spacebar/util";
-import { GuildFeatureFlags } from "@spacebar/util";
 const router = Router();
 
 router.get(
@@ -100,7 +99,7 @@ router.post(
 			});
 
 			const enabled = (guild.features || []).includes(
-				GuildFeatureFlags.BAN_QUESTIONNAIRE_REJECTS,
+				"BAN_QUESTIONNAIRE_REJECTS",
 			);
 
 			if (enabled) {
