@@ -1117,12 +1117,12 @@ export const MembershipStates = ["INSERTED", "INVITED", "ACCEPTED"];
  */
 export const WebhookTypes = ["Custom", "Incoming", "Channel Follower"];
 
+export const GuildFeatureFlags = {
+	BAN_QUESTIONNAIRE_REJECTS: "BAN_QUESTIONNAIRE_REJECTS",
+} as const;
+
 function keyMirror(arr: string[]) {
 	const tmp = Object.create(null);
-	export const GuildFeatureFlags = {
-		BAN_QUESTIONNAIRE_REJECTS: "BAN_QUESTIONNAIRE_REJECTS",
-	} as const;
-
 	for (const value of arr) tmp[value] = value;
 	return tmp;
 }
