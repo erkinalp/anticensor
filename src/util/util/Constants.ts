@@ -1,7 +1,3 @@
-export const GuildFeatureFlags = {
-	BAN_QUESTIONNAIRE_REJECTS: "BAN_QUESTIONNAIRE_REJECTS",
-} as const;
-
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2024 Spacebar and Spacebar Contributors
@@ -26,6 +22,7 @@ export const WSCodes = {
 	1000: "WS_CLOSE_REQUESTED",
 	4004: "TOKEN_INVALID",
 	4010: "SHARDING_INVALID",
+
 	4011: "SHARDING_REQUIRED",
 	4013: "INVALID_INTENTS",
 	4014: "DISALLOWED_INTENTS",
@@ -34,6 +31,8 @@ export const WSCodes = {
 /**
  * The current status of the client. Here are the available statuses:
  * * READY: 0
+
+
  * * CONNECTING: 1
  * * RECONNECTING: 2
  * * IDLE: 3
@@ -1120,6 +1119,10 @@ export const WebhookTypes = ["Custom", "Incoming", "Channel Follower"];
 
 function keyMirror(arr: string[]) {
 	const tmp = Object.create(null);
+	export const GuildFeatureFlags = {
+		BAN_QUESTIONNAIRE_REJECTS: "BAN_QUESTIONNAIRE_REJECTS",
+	} as const;
+
 	for (const value of arr) tmp[value] = value;
 	return tmp;
 }
