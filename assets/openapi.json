@@ -65,6 +65,502 @@
                 "description": "Request / response headers as keys / values of JSON object.",
                 "type": "object"
             },
+            "OpenAiChatCompletionObject": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "object": {
+                        "type": "string",
+                        "enum": [
+                            "chat.completion"
+                        ]
+                    },
+                    "created": {
+                        "type": "integer"
+                    },
+                    "model": {
+                        "type": "string"
+                    },
+                    "choices": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "index": {
+                                    "type": "integer"
+                                },
+                                "message": {
+                                    "type": "object",
+                                    "properties": {
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "content": {
+                                            "type": [
+                                                "null",
+                                                "string"
+                                            ]
+                                        },
+                                        "refusal": {
+                                            "type": [
+                                                "null",
+                                                "string"
+                                            ]
+                                        },
+                                        "annotations": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "content",
+                                        "role"
+                                    ]
+                                },
+                                "logprobs": {},
+                                "finish_reason": {
+                                    "type": [
+                                        "null",
+                                        "string"
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "finish_reason",
+                                "index",
+                                "message"
+                            ]
+                        }
+                    },
+                    "usage": {
+                        "type": "object",
+                        "properties": {
+                            "prompt_tokens": {
+                                "type": "integer"
+                            },
+                            "completion_tokens": {
+                                "type": "integer"
+                            },
+                            "total_tokens": {
+                                "type": "integer"
+                            },
+                            "prompt_tokens_details": {
+                                "type": "object",
+                                "properties": {
+                                    "cached_tokens": {
+                                        "type": "integer"
+                                    },
+                                    "audio_tokens": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "completion_tokens_details": {
+                                "type": "object",
+                                "properties": {
+                                    "reasoning_tokens": {
+                                        "type": "integer"
+                                    },
+                                    "audio_tokens": {
+                                        "type": "integer"
+                                    },
+                                    "accepted_prediction_tokens": {
+                                        "type": "integer"
+                                    },
+                                    "rejected_prediction_tokens": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "completion_tokens",
+                            "prompt_tokens",
+                            "total_tokens"
+                        ]
+                    },
+                    "service_tier": {
+                        "type": "string"
+                    },
+                    "system_fingerprint": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "choices",
+                    "created",
+                    "id",
+                    "model",
+                    "object",
+                    "usage"
+                ]
+            },
+            "OpenAIResponseObject": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "object": {
+                        "type": "string",
+                        "enum": [
+                            "response"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "enum": [
+                            "cancelled",
+                            "completed",
+                            "failed",
+                            "in_progress"
+                        ],
+                        "type": "string"
+                    },
+                    "error": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "incomplete_details": {},
+                    "instructions": {},
+                    "max_output_tokens": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "model": {
+                        "type": "string"
+                    },
+                    "output": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "message"
+                                    ]
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "role": {
+                                    "type": "string"
+                                },
+                                "content": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "output_text"
+                                                ]
+                                            },
+                                            "text": {
+                                                "type": "string"
+                                            },
+                                            "annotations": {
+                                                "type": "array",
+                                                "items": {}
+                                            }
+                                        },
+                                        "additionalProperties": false,
+                                        "required": [
+                                            "annotations",
+                                            "text",
+                                            "type"
+                                        ]
+                                    }
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "content",
+                                "id",
+                                "role",
+                                "status",
+                                "type"
+                            ]
+                        }
+                    },
+                    "output_text": {
+                        "type": "string"
+                    },
+                    "parallel_tool_calls": {
+                        "type": "boolean"
+                    },
+                    "previous_response_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "reasoning": {
+                        "type": "object",
+                        "properties": {
+                            "effort": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "summary": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "effort",
+                            "summary"
+                        ]
+                    },
+                    "store": {
+                        "type": "boolean"
+                    },
+                    "temperature": {
+                        "type": "integer"
+                    },
+                    "text": {
+                        "type": "object",
+                        "properties": {
+                            "format": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "type"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "format"
+                        ]
+                    },
+                    "tool_choice": {
+                        "type": "string"
+                    },
+                    "tools": {
+                        "type": "array",
+                        "items": {}
+                    },
+                    "top_p": {
+                        "type": "integer"
+                    },
+                    "truncation": {
+                        "type": "string"
+                    },
+                    "usage": {
+                        "type": "object",
+                        "properties": {
+                            "input_tokens": {
+                                "type": "integer"
+                            },
+                            "input_tokens_details": {
+                                "type": "object",
+                                "properties": {
+                                    "cached_tokens": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "output_tokens": {
+                                "type": "integer"
+                            },
+                            "output_tokens_details": {
+                                "type": "object",
+                                "properties": {
+                                    "reasoning_tokens": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "total_tokens": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "input_tokens",
+                            "output_tokens",
+                            "total_tokens"
+                        ]
+                    },
+                    "user": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Record<string,unknown>"
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "error",
+                    "id",
+                    "incomplete_details",
+                    "instructions",
+                    "max_output_tokens",
+                    "metadata",
+                    "model",
+                    "object",
+                    "output",
+                    "output_text",
+                    "parallel_tool_calls",
+                    "previous_response_id",
+                    "reasoning",
+                    "status",
+                    "store",
+                    "temperature",
+                    "text",
+                    "tool_choice",
+                    "tools",
+                    "top_p",
+                    "truncation",
+                    "usage",
+                    "user"
+                ]
+            },
+            "MessageName": {
+                "enum": [
+                    "authenticationCleartextPassword",
+                    "authenticationMD5Password",
+                    "authenticationOk",
+                    "authenticationSASL",
+                    "authenticationSASLContinue",
+                    "authenticationSASLFinal",
+                    "backendKeyData",
+                    "bindComplete",
+                    "closeComplete",
+                    "commandComplete",
+                    "copyData",
+                    "copyDone",
+                    "copyInResponse",
+                    "copyOutResponse",
+                    "dataRow",
+                    "emptyQuery",
+                    "error",
+                    "noData",
+                    "notice",
+                    "notification",
+                    "parameterDescription",
+                    "parameterStatus",
+                    "parseComplete",
+                    "portalSuspended",
+                    "readyForQuery",
+                    "replicationStart",
+                    "rowDescription"
+                ],
+                "type": "string"
+            },
+            "AutomodMentionSpamRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "mention_total_limit": {
+                        "type": "integer"
+                    },
+                    "mention_raid_protection_enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "mention_raid_protection_enabled",
+                    "mention_total_limit"
+                ]
+            },
+            "AutomodSuspectedSpamRuleSchema": {
+                "type": "object"
+            },
+            "AutomodCommonlyFlaggedWordsRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "allow_list": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "presets": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "integer"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    }
+                },
+                "required": [
+                    "allow_list",
+                    "presets"
+                ]
+            },
+            "AutomodCustomWordsRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "allow_list": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "keyword_filter": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "regex_patterns": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    }
+                },
+                "required": [
+                    "allow_list",
+                    "keyword_filter",
+                    "regex_patterns"
+                ]
+            },
             "ChannelPermissionOverwriteType": {
                 "enum": [
                     0,
@@ -1822,6 +2318,22 @@
                             }
                         ]
                     },
+                    "consent_given_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "data_sharing_level": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "last_activity_sync": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "privacy_override": {
+                        "type": "boolean",
+                        "default": false
+                    },
                     "id": {
                         "type": "string"
                     }
@@ -1998,6 +2510,22 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
+                    },
+                    "connections_default_visibility": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "connections_activity_sharing": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "connections_metadata_sharing": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "connections_require_approval": {
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "required": [
@@ -2005,6 +2533,10 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
+                    "connections_activity_sharing",
+                    "connections_default_visibility",
+                    "connections_metadata_sharing",
+                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -2404,6 +2936,12 @@
                     },
                     "poll": {
                         "$ref": "#/components/schemas/Poll"
+                    },
+                    "reply_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "username": {
                         "type": "string"
@@ -4510,6 +5048,50 @@
                     "username"
                 ]
             },
+            "GuildBansResponse": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "username": {
+                                "type": "string"
+                            },
+                            "discriminator": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "avatar": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "public_flags": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "avatar",
+                            "discriminator",
+                            "id",
+                            "public_flags",
+                            "username"
+                        ]
+                    }
+                },
+                "required": [
+                    "reason",
+                    "user"
+                ]
+            },
             "Categories": {
                 "type": "object",
                 "properties": {
@@ -4581,12 +5163,27 @@
                     "maxBio": {
                         "type": "integer",
                         "default": 190
+                    },
+                    "maxDisplayNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxPronounsLength": {
+                        "type": "integer",
+                        "default": 40
+                    },
+                    "maxStatusTextLength": {
+                        "type": "integer",
+                        "default": 128
                     }
                 },
                 "required": [
                     "maxBio",
+                    "maxDisplayNameLength",
                     "maxFriends",
                     "maxGuilds",
+                    "maxPronounsLength",
+                    "maxStatusTextLength",
                     "maxUsername"
                 ]
             },
@@ -4616,6 +5213,18 @@
                     "maxChannelsInCategory": {
                         "type": "integer",
                         "default": 65535
+                    },
+                    "maxGuildNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxRoleNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxMembersRequestLimit": {
+                        "type": "integer",
+                        "default": 100
                     }
                 },
                 "required": [
@@ -4623,7 +5232,10 @@
                     "maxChannels",
                     "maxChannelsInCategory",
                     "maxEmojis",
+                    "maxGuildNameLength",
                     "maxMembers",
+                    "maxMembersRequestLimit",
+                    "maxRoleNameLength",
                     "maxRoles"
                 ]
             },
@@ -4653,6 +5265,10 @@
                     "maxEmbedDownloadSize": {
                         "type": "integer",
                         "default": 5242880
+                    },
+                    "maxReasonLength": {
+                        "type": "integer",
+                        "default": 512
                     }
                 },
                 "required": [
@@ -4661,6 +5277,7 @@
                     "maxCharacters",
                     "maxEmbedDownloadSize",
                     "maxReactions",
+                    "maxReasonLength",
                     "maxTTSCharacters"
                 ]
             },
@@ -4678,10 +5295,25 @@
                     "maxWebhooks": {
                         "type": "integer",
                         "default": 100
+                    },
+                    "maxChannelNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxStageTopicLength": {
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "maxThreadNameLength": {
+                        "type": "integer",
+                        "default": 100
                     }
                 },
                 "required": [
+                    "maxChannelNameLength",
                     "maxPins",
+                    "maxStageTopicLength",
+                    "maxThreadNameLength",
                     "maxTopic",
                     "maxWebhooks"
                 ]
@@ -4808,6 +5440,221 @@
                     "enabled",
                     "limit",
                     "window"
+                ]
+            },
+            "EmbedLimits": {
+                "type": "object",
+                "properties": {
+                    "maxTitleLength": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxDescriptionLength": {
+                        "type": "integer",
+                        "default": 4096
+                    },
+                    "maxFieldNameLength": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxFieldValueLength": {
+                        "type": "integer",
+                        "default": 1024
+                    },
+                    "maxFooterTextLength": {
+                        "type": "integer",
+                        "default": 2048
+                    },
+                    "maxAuthorNameLength": {
+                        "type": "integer",
+                        "default": 256
+                    }
+                },
+                "required": [
+                    "maxAuthorNameLength",
+                    "maxDescriptionLength",
+                    "maxFieldNameLength",
+                    "maxFieldValueLength",
+                    "maxFooterTextLength",
+                    "maxTitleLength"
+                ]
+            },
+            "ComponentLimits": {
+                "type": "object",
+                "properties": {
+                    "maxLabelLength": {
+                        "type": "integer",
+                        "default": 80
+                    },
+                    "maxPlaceholderLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionLabelLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionDescriptionLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionValueLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxModalTitleLength": {
+                        "type": "integer",
+                        "default": 45
+                    },
+                    "maxTextInputLabelLength": {
+                        "type": "integer",
+                        "default": 45
+                    },
+                    "maxTextInputPlaceholderLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxTextInputValueLength": {
+                        "type": "integer",
+                        "default": 4000
+                    },
+                    "maxTextInputMinLength": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "maxTextInputMaxLength": {
+                        "type": "integer",
+                        "default": 4000
+                    }
+                },
+                "required": [
+                    "maxLabelLength",
+                    "maxModalTitleLength",
+                    "maxPlaceholderLength",
+                    "maxSelectOptionDescriptionLength",
+                    "maxSelectOptionLabelLength",
+                    "maxSelectOptionValueLength",
+                    "maxTextInputLabelLength",
+                    "maxTextInputMaxLength",
+                    "maxTextInputMinLength",
+                    "maxTextInputPlaceholderLength",
+                    "maxTextInputValueLength"
+                ]
+            },
+            "AttachmentLimits": {
+                "type": "object",
+                "properties": {
+                    "maxFilenameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxDescriptionLength": {
+                        "type": "integer",
+                        "default": 1024
+                    }
+                },
+                "required": [
+                    "maxDescriptionLength",
+                    "maxFilenameLength"
+                ]
+            },
+            "AutomodLimits": {
+                "type": "object",
+                "properties": {
+                    "maxRuleNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxKeywordFilterLength": {
+                        "type": "integer",
+                        "default": 60
+                    },
+                    "maxRegexPatternLength": {
+                        "type": "integer",
+                        "default": 260
+                    },
+                    "maxAllowListLength": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxMentionTotalLimit": {
+                        "type": "integer",
+                        "default": 50
+                    }
+                },
+                "required": [
+                    "maxAllowListLength",
+                    "maxKeywordFilterLength",
+                    "maxMentionTotalLimit",
+                    "maxRegexPatternLength",
+                    "maxRuleNameLength"
+                ]
+            },
+            "ApplicationLimits": {
+                "type": "object",
+                "properties": {
+                    "maxEmojiNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxStickerNameLength": {
+                        "type": "integer",
+                        "default": 30
+                    },
+                    "maxApplicationNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxWebhookNameLength": {
+                        "type": "integer",
+                        "default": 80
+                    },
+                    "maxInviteCodeLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxVanityUrlLength": {
+                        "type": "integer",
+                        "default": 16
+                    },
+                    "maxTemplateNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxTemplateDescriptionLength": {
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "maxScheduledEventNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxScheduledEventDescriptionLength": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxForumTagNameLength": {
+                        "type": "integer",
+                        "default": 20
+                    },
+                    "maxDiscriminatorLength": {
+                        "type": "integer",
+                        "default": 4
+                    }
+                },
+                "required": [
+                    "maxApplicationNameLength",
+                    "maxDiscriminatorLength",
+                    "maxEmojiNameLength",
+                    "maxForumTagNameLength",
+                    "maxInviteCodeLength",
+                    "maxScheduledEventDescriptionLength",
+                    "maxScheduledEventNameLength",
+                    "maxStickerNameLength",
+                    "maxTemplateDescriptionLength",
+                    "maxTemplateNameLength",
+                    "maxVanityUrlLength",
+                    "maxWebhookNameLength"
                 ]
             },
             "PublicConnectedAccount": {
@@ -5032,6 +5879,66 @@
                     "token_type"
                 ]
             },
+            "SupabaseResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "integer"
+                    },
+                    "error": {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string"
+                            },
+                            "code": {
+                                "type": "string"
+                            },
+                            "details": {}
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "message"
+                        ]
+                    }
+                }
+            },
+            "OpenAiResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/OpenAiChatCompletionObject"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OpenAIResponseObject"
+                    }
+                ]
+            },
+            "CopyResponse": {
+                "type": "object",
+                "properties": {
+                    "length": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/MessageName"
+                    },
+                    "binary": {
+                        "type": "boolean"
+                    },
+                    "columnTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "binary",
+                    "columnTypes",
+                    "length",
+                    "name"
+                ]
+            },
             "ApplicationAuthorizeSchema": {
                 "type": "object",
                 "properties": {
@@ -5126,6 +6033,80 @@
                         "type": "string"
                     }
                 }
+            },
+            "AutomodRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "creator_id": {
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "event_type": {
+                        "type": "integer"
+                    },
+                    "exempt_channels": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "exempt_roles": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "trigger_type": {
+                        "type": "integer"
+                    },
+                    "trigger_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodMentionSpamRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodSuspectedSpamRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodCommonlyFlaggedWordsRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodCustomWordsRuleSchema"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "creator_id",
+                    "enabled",
+                    "event_type",
+                    "exempt_channels",
+                    "exempt_roles",
+                    "guild_id",
+                    "name",
+                    "position",
+                    "trigger_metadata",
+                    "trigger_type"
+                ]
             },
             "BackupCodesChallengeSchema": {
                 "type": "object",
@@ -5369,12 +6350,18 @@
                 "type": "object",
                 "properties": {
                     "visibility": {
-                        "type": "boolean"
+                        "type": "integer"
                     },
                     "show_activity": {
-                        "type": "boolean"
+                        "type": "integer"
                     },
                     "metadata_visibility": {
+                        "type": "integer"
+                    },
+                    "data_sharing_level": {
+                        "type": "integer"
+                    },
+                    "consent_given": {
                         "type": "boolean"
                     }
                 }
@@ -6784,50 +7771,6 @@
                     "tokens"
                 ]
             },
-            "GuildBansResponse": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "user": {
-                        "type": "object",
-                        "properties": {
-                            "username": {
-                                "type": "string"
-                            },
-                            "discriminator": {
-                                "type": "string"
-                            },
-                            "id": {
-                                "type": "string"
-                            },
-                            "avatar": {
-                                "type": [
-                                    "null",
-                                    "string"
-                                ]
-                            },
-                            "public_flags": {
-                                "type": "integer"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "avatar",
-                            "discriminator",
-                            "id",
-                            "public_flags",
-                            "username"
-                        ]
-                    }
-                },
-                "required": [
-                    "reason",
-                    "user"
-                ]
-            },
             "GuildDiscoveryRequirementsResponse": {
                 "type": "object",
                 "properties": {
@@ -7541,6 +8484,9 @@
                     },
                     "disabled": {
                         "type": "boolean"
+                    },
+                    "rights": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7558,6 +8504,7 @@
                     "premium_usage_flags",
                     "public_flags",
                     "purchased_flags",
+                    "rights",
                     "username",
                     "verified"
                 ]
@@ -7664,6 +8611,9 @@
                     },
                     "disabled": {
                         "type": "boolean"
+                    },
+                    "rights": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7681,6 +8631,7 @@
                     "premium_usage_flags",
                     "public_flags",
                     "purchased_flags",
+                    "rights",
                     "username",
                     "verified"
                 ]
@@ -7701,6 +8652,12 @@
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/Application"
+                }
+            },
+            "APIBansArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildBansResponse"
                 }
             },
             "APIInviteArray": {
@@ -8040,11 +8997,31 @@
                     },
                     "absoluteRate": {
                         "$ref": "#/components/schemas/GlobalRateLimits"
+                    },
+                    "embed": {
+                        "$ref": "#/components/schemas/EmbedLimits"
+                    },
+                    "component": {
+                        "$ref": "#/components/schemas/ComponentLimits"
+                    },
+                    "attachment": {
+                        "$ref": "#/components/schemas/AttachmentLimits"
+                    },
+                    "automod": {
+                        "$ref": "#/components/schemas/AutomodLimits"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/ApplicationLimits"
                     }
                 },
                 "required": [
                     "absoluteRate",
+                    "application",
+                    "attachment",
+                    "automod",
                     "channel",
+                    "component",
+                    "embed",
                     "guild",
                     "message",
                     "rate",
@@ -8891,6 +9868,18 @@
                     },
                     "view_nsfw_guilds": {
                         "type": "boolean"
+                    },
+                    "connections_default_visibility": {
+                        "type": "integer"
+                    },
+                    "connections_activity_sharing": {
+                        "type": "boolean"
+                    },
+                    "connections_metadata_sharing": {
+                        "type": "boolean"
+                    },
+                    "connections_require_approval": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -8958,6 +9947,28 @@
                     "server_id",
                     "session_id",
                     "token",
+                    "user_id"
+                ]
+            },
+            "MemberVerificationDecisionSchema": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "decision": {
+                        "enum": [
+                            "accept",
+                            "reject"
+                        ],
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "decision",
                     "user_id"
                 ]
             },
@@ -15398,6 +16409,64 @@
                 ],
                 "responses": {
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/member-verification/decide": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberVerificationDecisionSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
                         "description": "",
                         "content": {
                             "application/json": {

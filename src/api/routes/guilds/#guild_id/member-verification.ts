@@ -24,6 +24,8 @@ import {
 	Member,
 	emitEvent,
 	GuildBanAddEvent,
+	AuditLog,
+	AuditLogEvents,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -126,6 +128,15 @@ router.post(
 					await Promise.all([
 						Member.removeFromGuild(targetId, guild_id),
 						ban.save(),
+						AuditLog.insert({
+							guild_id,
+							action_type: AuditLogEvents.MEMBER_BAN_ADD,
+							user_id: req.user_id,
+							target_id: targetId,
+							reason: reason || "Membership screening rejected",
+							changes: [],
+							options: {},
+						}),
 						emitEvent({
 							event: "GUILD_BAN_ADD",
 							data: {
