@@ -129,13 +129,11 @@ router.post(
 						Member.removeFromGuild(targetId, guild_id),
 						ban.save(),
 						AuditLog.insert({
-							guild_id,
 							action_type: AuditLogEvents.MEMBER_BAN_ADD,
 							user_id: req.user_id,
-							target_id: targetId,
 							reason: reason || "Membership screening rejected",
 							changes: [],
-							options: {},
+							target: { id: targetId },
 						}),
 						emitEvent({
 							event: "GUILD_BAN_ADD",
