@@ -1,3 +1,7 @@
+export const GuildFeatureFlags = {
+	BAN_QUESTIONNAIRE_REJECTS: "BAN_QUESTIONNAIRE_REJECTS",
+} as const;
+
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2024 Spacebar and Spacebar Contributors
