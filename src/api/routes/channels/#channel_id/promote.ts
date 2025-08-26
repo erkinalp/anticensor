@@ -60,7 +60,6 @@ router.post(
 		let newType: ChannelType | null = null;
 		switch (channel.type) {
 			case ChannelType.GUILD_PUBLIC_THREAD:
-			case ChannelType.GUILD_PRIVATE_THREAD:
 				newType = ChannelType.GUILD_TEXT;
 				break;
 			case ChannelType.GUILD_NEWS_THREAD:
@@ -69,6 +68,8 @@ router.post(
 			case ChannelType.ENCRYPTED_THREAD:
 				newType = ChannelType.ENCRYPTED;
 				break;
+			case ChannelType.GUILD_PRIVATE_THREAD:
+				throw new HTTPError("Private threads cannot be promoted", 400);
 			default:
 				throw new HTTPError(
 					"Unsupported channel type for promotion",
