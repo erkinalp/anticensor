@@ -48,7 +48,7 @@ router.get(
 			where: { id: req.user_id },
 		});
 
-		let guilds = members.map((x) => x.guild);
+		const guilds = members.map((x) => x.guild);
 
 		if ("with_counts" in req.query && req.query.with_counts == "true") {
 			const user = await User.findOneOrFail({
