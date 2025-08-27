@@ -22,6 +22,7 @@ import { green, red, yellow } from "picocolors";
 import { DataSource } from "typeorm";
 import { ConfigEntity } from "../entities/Config";
 import { Migration } from "../entities/Migration";
+import { Config } from "./Config";
 
 // UUID extension option is only supported with postgres
 // We want to generate all id's with Snowflakes that's why we have our own BaseEntity class
@@ -41,21 +42,7 @@ const DatabaseType = dbConnectionString.includes("://")
 	: "sqlite";
 const isSqlite = DatabaseType.includes("sqlite");
 
-const DataSourceOptions = new DataSource({
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	//@ts-ignore type 'string' is not 'mysql' | 'sqlite' | 'mariadb' | etc etc
-	type: DatabaseType,
-	charset: "utf8mb4",
-	url: isSqlite ? undefined : dbConnectionString,
-	database: isSqlite ? dbConnectionString : undefined,
-	entities: [path.join(__dirname, "..", "entities", "*.js")],
-	synchronize: !!process.env.DB_SYNC,
-	logging: !!process.env.DB_LOGGING,
-	bigNumberStrings: false,
-	supportBigNumbers: true,
-	name: "default",
-	migrations: [path.join(__dirname, "..", "migration", DatabaseType, "*.js")],
-});
+let DataSourceOptions: DataSource;
 
 // Gets the existing database connection
 export function getDatabase(): DataSource | null {
@@ -68,7 +55,41 @@ export function getDatabase(): DataSource | null {
 export async function initDatabase(): Promise<DataSource> {
 	if (dbConnection) return dbConnection;
 
-	if (isSqlite) {
+	const isVolatileMode =
+		process.env.VOLATILE_MODE === "true" ||
+		(Config.get()?.general?.volatileMode ?? false);
+
+	const finalDbConnectionString = isVolatileMode
+		? ":memory:"
+		: dbConnectionString;
+	const finalDatabaseType = isVolatileMode ? "sqlite" : DatabaseType;
+	const finalIsSqlite = isVolatileMode || isSqlite;
+
+	DataSourceOptions = new DataSource({
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore type 'string' is not 'mysql' | 'sqlite' | 'mariadb' | etc etc
+		type: finalDatabaseType,
+		charset: "utf8mb4",
+		url: finalIsSqlite ? undefined : finalDbConnectionString,
+		database: finalIsSqlite ? finalDbConnectionString : undefined,
+		entities: [path.join(__dirname, "..", "entities", "*.js")],
+		synchronize: !!process.env.DB_SYNC || isVolatileMode,
+		logging: !!process.env.DB_LOGGING,
+		bigNumberStrings: false,
+		supportBigNumbers: true,
+		name: "default",
+		migrations: [
+			path.join(__dirname, "..", "migration", finalDatabaseType, "*.js"),
+		],
+	});
+
+	if (isVolatileMode) {
+		console.log(
+			`[Database] ${yellow(
+				`Running in VOLATILE MODE - all data will be stored in memory and lost on restart!`,
+			)}`,
+		);
+	} else if (finalIsSqlite && !isVolatileMode) {
 		console.log(
 			`[Database] ${red(
 				`You are running sqlite! Please keep in mind that we recommend setting up a dedicated database!`,
@@ -76,13 +97,13 @@ export async function initDatabase(): Promise<DataSource> {
 		);
 	}
 
-	if (!process.env.DB_SYNC) {
+	if (!process.env.DB_SYNC && !isVolatileMode) {
 		const supported = ["mysql", "mariadb", "postgres", "sqlite"];
-		if (!supported.includes(DatabaseType)) {
+		if (!supported.includes(finalDatabaseType)) {
 			console.log(
 				"[Database]" +
 					red(
-						` We don't have migrations for DB type '${DatabaseType}'` +
+						` We don't have migrations for DB type '${finalDatabaseType}'` +
 							` To ignore, set DB_SYNC=true in your env. https://docs.spacebar.chat/setup/server/configuration/env/`,
 					),
 			);
@@ -90,7 +111,9 @@ export async function initDatabase(): Promise<DataSource> {
 		}
 	}
 
-	console.log(`[Database] ${yellow(`Connecting to ${DatabaseType} db`)}`);
+	console.log(
+		`[Database] ${yellow(`Connecting to ${finalDatabaseType} db`)}`,
+	);
 
 	dbConnection = await DataSourceOptions.initialize();
 
