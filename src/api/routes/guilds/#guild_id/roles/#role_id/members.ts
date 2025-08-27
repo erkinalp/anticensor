@@ -17,10 +17,121 @@
 */
 
 import { Router, Request, Response } from "express";
-import { DiscordApiErrors, Member, partition } from "@spacebar/util";
+import { EntityManager } from "typeorm";
+import {
+	DiscordApiErrors,
+	Member,
+	partition,
+	Role,
+	Snowflake,
+	getDatabase,
+	emitEvent,
+} from "@spacebar/util";
 import { route } from "@spacebar/api";
 
 const router = Router();
+router.put(
+	"/",
+	route({ permission: "MANAGE_ROLES" }),
+	async (req: Request, res: Response) => {
+		const { guild_id, role_id } = req.params;
+		const { member_ids } = req.body as { member_ids: string[] };
+
+		if (role_id == guild_id) throw DiscordApiErrors.INVALID_ROLE;
+
+		await getDatabase()!.transaction(async (manager: EntityManager) => {
+			const orig = await manager.findOneOrFail(Role, {
+				where: { id: role_id, guild_id },
+			});
+
+			const clone = manager.create(Role, {
+				...orig,
+				id: Snowflake.generate(),
+			});
+			await manager.save(Role, clone);
+
+			const membersInGuild = await manager.find(Member, {
+				where: { guild_id },
+				relations: ["roles", "user"],
+			});
+
+			const memberIdSet = new Set<string>(member_ids || []);
+
+			for (const m of membersInGuild) {
+				const hasClone = m.roles.some((r: Role) => r.id === clone.id);
+				const shouldHave = memberIdSet.has(m.id);
+
+				if (shouldHave && !hasClone) {
+					m.roles.push(Role.create({ id: clone.id }));
+					await manager.save(Member, m);
+					await emitEvent({
+						event: "GUILD_MEMBER_UPDATE",
+						data: {
+							guild_id,
+							user: m.user,
+							roles: m.roles.map((x: Role) => x.id),
+						},
+						guild_id,
+					});
+				} else if (!shouldHave && hasClone) {
+					m.roles = m.roles.filter((r: Role) => r.id !== clone.id);
+					await manager.save(Member, m);
+					await emitEvent({
+						event: "GUILD_MEMBER_UPDATE",
+						data: {
+							guild_id,
+							user: m.user,
+							roles: m.roles.map((x: Role) => x.id),
+						},
+						guild_id,
+					});
+				}
+			}
+
+			const tempId = Snowflake.generate();
+
+			await manager
+				.createQueryBuilder()
+				.update(Role)
+				.set({ id: tempId })
+				.where({ id: role_id, guild_id })
+				.execute();
+
+			await manager
+				.createQueryBuilder()
+				.update(Role)
+				.set({ id: role_id })
+				.where({ id: clone.id, guild_id })
+				.execute();
+
+			await manager
+				.createQueryBuilder()
+				.update(Role)
+				.set({ id: clone.id })
+				.where({ id: tempId, guild_id })
+				.execute();
+
+			await manager.query(
+				`UPDATE member_roles SET role_id = ? WHERE role_id = ?`,
+				[tempId, role_id],
+			);
+
+			await manager.query(
+				`UPDATE member_roles SET role_id = ? WHERE role_id = ?`,
+				[role_id, clone.id],
+			);
+
+			await manager.query(
+				`UPDATE member_roles SET role_id = ? WHERE role_id = ?`,
+				[clone.id, tempId],
+			);
+
+			await manager.delete(Role, { id: clone.id, guild_id });
+		});
+
+		res.sendStatus(204);
+	},
+);
 
 router.patch(
 	"/",
