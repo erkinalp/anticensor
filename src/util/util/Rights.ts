@@ -125,6 +125,15 @@ const ALL_RIGHTS = Object.values(Rights.FLAGS).reduce(
 	BigInt(0),
 );
 
+export function shouldRoutePresenceFromRights(
+	raw: bigint | number | string,
+): boolean {
+	const val = typeof raw === "string" ? BigInt(raw) : BigInt(raw || 0);
+	const isOperator = (val & Rights.FLAGS.OPERATOR) !== BigInt(0);
+	const hasPresenceBit = (val & Rights.FLAGS.PRESENCE) !== BigInt(0);
+	return isOperator ? hasPresenceBit : !hasPresenceBit;
+}
+
 export async function getRights(
 	user_id: string,
 	/**, opts: {

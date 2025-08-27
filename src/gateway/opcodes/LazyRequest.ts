@@ -38,6 +38,7 @@ import {
 	Send,
 } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
+import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 import { check } from "./instanceOf";
 
 // TODO: only show roles/members that have access to this channel
@@ -240,17 +241,24 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 				if (session?.status == "unknown") session.status = "online";
 				const user = (await User.getPublicUser(x)).toPublicUser(); // why is this needed?
 
-				return Send(this, {
-					op: OPCODES.Dispatch,
-					s: this.sequence++,
-					t: "PRESENCE_UPDATE",
-					d: {
-						user: user,
-						activities: session?.activities || [],
-						client_status: session?.client_status,
-						status: session?.status || "offline",
-					} as Presence,
+				const u = await User.findOneOrFail({
+					where: { id: x },
+					select: ["id", "rights"],
 				});
+				if (shouldRoutePresenceFromRights(u.rights)) {
+					return Send(this, {
+						op: OPCODES.Dispatch,
+						s: this.sequence++,
+						t: "PRESENCE_UPDATE",
+						d: {
+							user: user,
+							activities: session?.activities || [],
+							client_status: session?.client_status,
+							status: session?.status || "offline",
+						} as Presence,
+					});
+				}
+				return;
 			}),
 		]);
 
