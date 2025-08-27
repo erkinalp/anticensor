@@ -59,13 +59,10 @@ router.patch(
 					.status(403)
 					.send({ message: "Missing MANAGE_TICKETS" });
 			if (isClosed && !perm.has("MANAGE_TICKETS"))
-				return res
-					.status(403)
-					.send({
-						message:
-							DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD
-								.message,
-					});
+				return res.status(403).send({
+					message:
+						DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD.message,
+				});
 			ticket.owner_id = payload.owner_id || undefined;
 		}
 
@@ -87,13 +84,10 @@ router.patch(
 					.status(403)
 					.send({ message: "Missing MANAGE_TICKETS" });
 			if (isClosed && !perm.has("MANAGE_TICKETS"))
-				return res
-					.status(403)
-					.send({
-						message:
-							DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD
-								.message,
-					});
+				return res.status(403).send({
+					message:
+						DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD.message,
+				});
 			if (payload.public) {
 				if (ticket.type === ChannelType.GUILD_PRIVATE_THREAD)
 					ticket.type = ChannelType.GUILD_PUBLIC_THREAD;
