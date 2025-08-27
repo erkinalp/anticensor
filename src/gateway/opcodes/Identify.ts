@@ -57,6 +57,7 @@ import {
 	emitEvent,
 	getDatabase,
 } from "@spacebar/util";
+import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 import { check } from "./instanceOf";
 
 // TODO: user sharding
@@ -376,23 +377,32 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 	const sessionReplaceTime = Date.now();
 
-	Promise.all([
+	const shouldRoutePresence = shouldRoutePresenceFromRights(user.rights);
+
+	const promises: Promise<unknown>[] = [
 		emitEvent({
 			event: "SESSIONS_REPLACE",
 			user_id: this.user_id,
 			data: allSessions,
 		} as SessionsReplace),
-		emitEvent({
-			event: "PRESENCE_UPDATE",
-			user_id: this.user_id,
-			data: {
-				user: user.toPublicUser(),
-				activities: session.activities,
-				client_status: session.client_status,
-				status: session.status,
-			},
-		} as PresenceUpdateEvent),
-	]);
+	];
+
+	if (shouldRoutePresence) {
+		promises.push(
+			emitEvent({
+				event: "PRESENCE_UPDATE",
+				user_id: this.user_id,
+				data: {
+					user: user.toPublicUser(),
+					activities: session.activities,
+					client_status: session.client_status,
+					status: session.status,
+				},
+			} as PresenceUpdateEvent),
+		);
+	}
+
+	Promise.all(promises);
 
 	// Build READY
 
