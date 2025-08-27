@@ -990,6 +990,11 @@ export const DiscordApiErrors = {
 	UNKNOWN_VOICE_STATE: new ApiError("Unknown Voice State", 10065, 404),
 };
 
+export const TicketFlags = {
+	RESOLVED: 1 << 0,
+	ARCHIVED: 1 << 1,
+} as const;
+
 /**
  * An error encountered while performing an API request (Spacebar only). Here are the potential errors:
  */
