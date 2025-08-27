@@ -1,5 +1,3 @@
-import tickets from "./tickets";
-import ticket from "./ticket";
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
@@ -22,6 +20,8 @@ import { route } from "@spacebar/api";
 import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import tickets from "./tickets";
+import ticket from "./ticket";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
