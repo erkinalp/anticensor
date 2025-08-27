@@ -376,7 +376,10 @@ router.post(
 					});
 			}
 
-			if (channel.rate_limit_per_user && channel.rate_limit_per_user > 0) {
+			if (
+				channel.rate_limit_per_user &&
+				channel.rate_limit_per_user > 0
+			) {
 				const lastMessage = await Message.findOne({
 					where: {
 						channel_id,
@@ -387,9 +390,10 @@ router.post(
 				});
 
 				if (lastMessage) {
-					const timeSinceLastMessage = Date.now() - lastMessage.timestamp.getTime();
+					const timeSinceLastMessage =
+						Date.now() - lastMessage.timestamp.getTime();
 					const slowmodeMs = channel.rate_limit_per_user * 1000;
-					
+
 					if (timeSinceLastMessage < slowmodeMs) {
 						throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
 					}
