@@ -22,6 +22,7 @@ import {
 	Channel,
 	Config,
 	DmChannelDTO,
+	DiscordApiErrors,
 	FieldErrors,
 	Member,
 	Message,
@@ -373,6 +374,26 @@ router.post(
 							message: req.t("common:toomany.MESSAGE"),
 						},
 					});
+			}
+
+			if (channel.rate_limit_per_user && channel.rate_limit_per_user > 0) {
+				const lastMessage = await Message.findOne({
+					where: {
+						channel_id,
+						author_id: req.user_id,
+					},
+					order: { timestamp: "DESC" },
+					select: ["timestamp"],
+				});
+
+				if (lastMessage) {
+					const timeSinceLastMessage = Date.now() - lastMessage.timestamp.getTime();
+					const slowmodeMs = channel.rate_limit_per_user * 1000;
+					
+					if (timeSinceLastMessage < slowmodeMs) {
+						throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
+					}
+				}
 			}
 		}
 
