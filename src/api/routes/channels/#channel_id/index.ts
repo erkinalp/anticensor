@@ -1,3 +1,5 @@
+import tickets from "./tickets";
+import ticket from "./ticket";
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
@@ -170,4 +172,6 @@ router.patch(
 	},
 );
 
+router.use(tickets);
+router.use(ticket);
 export default router;
