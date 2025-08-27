@@ -24,6 +24,7 @@ import {
 	User,
 	ActivitySchema,
 } from "@spacebar/util";
+import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 import { check } from "./instanceOf";
 
 export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
@@ -41,16 +42,22 @@ export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
 		where: { session_id: this.session_id },
 	});
 
-	await emitEvent({
-		event: "PRESENCE_UPDATE",
-		user_id: this.user_id,
-		data: {
-			user: await User.getPublicUser(this.user_id),
-			status: presence.status,
-			activities: presence.activities,
-			client_status: session.client_status,
-		},
-	} as PresenceUpdateEvent);
+	const u = await User.findOneOrFail({
+		where: { id: this.user_id },
+		select: ["id", "rights"],
+	});
+	if (shouldRoutePresenceFromRights(u.rights)) {
+		await emitEvent({
+			event: "PRESENCE_UPDATE",
+			user_id: this.user_id,
+			data: {
+				user: await User.getPublicUser(this.user_id),
+				status: presence.status,
+				activities: presence.activities,
+				client_status: session.client_status,
+			},
+		} as PresenceUpdateEvent);
+	}
 
 	console.log(
 		`Presence update for user ${this.user_id} processed in ${Date.now() - startTime}ms`,

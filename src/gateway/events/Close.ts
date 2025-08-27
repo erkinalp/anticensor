@@ -27,6 +27,7 @@ import {
 	VoiceState,
 	VoiceStateUpdateEvent,
 } from "@spacebar/util";
+import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
 	console.log("[WebSocket] closed", code, reason.toString());
@@ -97,15 +98,21 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
 			id: this.user_id,
 		}));
 
-		await emitEvent({
-			event: "PRESENCE_UPDATE",
-			user_id: this.user_id,
-			data: {
-				user: userOrId,
-				activities: session.activities,
-				client_status: session?.client_status,
-				status: session.status,
-			},
-		} as PresenceUpdateEvent);
+		const u = await User.findOneOrFail({
+			where: { id: this.user_id },
+			select: ["id", "rights"],
+		}).catch(() => undefined);
+		if (!u || shouldRoutePresenceFromRights(u.rights)) {
+			await emitEvent({
+				event: "PRESENCE_UPDATE",
+				user_id: this.user_id,
+				data: {
+					user: userOrId,
+					activities: session.activities,
+					client_status: session?.client_status,
+					status: session.status,
+				},
+			} as PresenceUpdateEvent);
+		}
 	}
 }
