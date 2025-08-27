@@ -57,21 +57,31 @@ router.get(
 			});
 			const results = await Promise.all(
 				members.map(async (m) => {
-					const roles = await Role.find({ where: { guild_id: m.guild.id } });
+					const roles = await Role.find({
+						where: { guild_id: m.guild.id },
+					});
 					const perms =
 						m.guild.owner_id === user.id
 							? new Permissions(Permissions.FLAGS.ADMINISTRATOR)
 							: Permissions.finalPermission({
 									user: {
 										id: user.id,
-										roles: (await Member.findOneOrFail({
-											where: { id: user.id, guild_id: m.guild.id },
-											relations: ["roles"],
-										})).roles.map((r) => r.id),
+										roles: (
+											await Member.findOneOrFail({
+												where: {
+													id: user.id,
+													guild_id: m.guild.id,
+												},
+												relations: ["roles"],
+											})
+										).roles.map((r) => r.id),
 									},
 									guild: { roles },
-							  });
-					return { ...m.guild, permissions: perms.bitfield.toString() };
+								});
+					return {
+						...m.guild,
+						permissions: perms.bitfield.toString(),
+					};
 				}),
 			);
 			return res.json(results);
