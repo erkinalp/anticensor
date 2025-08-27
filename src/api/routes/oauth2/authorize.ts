@@ -27,6 +27,7 @@ import {
 	Permissions,
 	User,
 	getPermission,
+	Role,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router();
@@ -231,20 +232,28 @@ router.post(
 			relations: ["bot"],
 		});
 
-		// TODO: use DiscordApiErrors
-		// findOneOrFail throws code 404
-		if (!app) throw new ApiError("Unknown Application", 10002, 404);
-		if (!app.bot)
-			throw new ApiError(
-				"OAuth2 application does not have a bot",
-				50010,
-				400,
-			);
+		if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+		if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
 
-		await Member.addToGuild(app.id, body.guild_id);
+		await Member.addToGuild(app.bot.id, body.guild_id);
+
+		if (body.permissions) {
+			const role = Role.create({
+				guild_id: body.guild_id,
+				name: app.name,
+				permissions: body.permissions.toString(),
+				color: 0,
+				hoist: false,
+				managed: true,
+				mentionable: false,
+				position: 1,
+			});
+			await role.save();
+			await Member.addRole(app.bot.id, body.guild_id, role.id);
+		}
 
 		return res.json({
-			location: "/oauth2/authorized", // redirect URL
+			location: "/oauth2/authorized",
 		});
 	},
 );
