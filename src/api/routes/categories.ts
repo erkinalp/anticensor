@@ -9,6 +9,14 @@ const router: Router = Router();
 router.get(
 	"/",
 	route({
+		query: {
+			locale: { type: "string", required: false, description: "Locale code" },
+			primary_only: {
+				type: "string",
+				required: false,
+				description: "If 'true', only return category IDs",
+			},
+		},
 		responses: {
 			200: { body: "unknown" },
 		},
