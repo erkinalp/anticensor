@@ -9,10 +9,6 @@ const router: Router = Router();
 router.get(
 	"/",
 	route({
-		query: {
-			locale: { type: "string", optional: true },
-			primary_only: { type: "string", optional: true },
-		},
 		responses: {
 			200: { body: "unknown" },
 		},
