@@ -10,7 +10,11 @@ router.get(
 	"/",
 	route({
 		query: {
-			locale: { type: "string", required: false, description: "Locale code" },
+			locale: {
+				type: "string",
+				required: false,
+				description: "Locale code",
+			},
 			primary_only: {
 				type: "string",
 				required: false,
@@ -22,7 +26,10 @@ router.get(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { primary_only } = req.query as { locale?: string; primary_only?: string };
+		const { primary_only } = req.query as {
+			locale?: string;
+			primary_only?: string;
+		};
 		const categories = [
 			{ id: 1, name: "Gaming" },
 			{ id: 2, name: "Music" },
