@@ -174,10 +174,10 @@ async function consume(this: WebSocket, opts: EventOpts) {
 	const consumer = consume.bind(this);
 	const listenOpts = opts as ListenEventOpts;
 	if (
-		event === "GEOLOCATION_UPDATE" ||
-		event === "GEOLOCATION_BROADCAST" ||
-		event === "GEO_FENCE_ENTER" ||
-		event === "GEO_FENCE_EXIT"
+		event === EVENTEnum.GeolocationUpdate ||
+		event === EVENTEnum.GeolocationBroadcast ||
+		event === EVENTEnum.GeoFenceEnter ||
+		event === EVENTEnum.GeoFenceExit
 	) {
 		if (!this.intents?.has?.(Intents.ERKINALP_FLAGS.GEOSPATIAL)) return;
 		if (!permission.has("VIEW_GEOSPATIAL")) return;
