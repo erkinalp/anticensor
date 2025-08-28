@@ -45,6 +45,7 @@ import { PublicUserProjection, User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { dbEngine } from "../util/Database";
+import { GeofenceDefinition } from "./Message";
 
 export enum ChannelType {
 	GUILD_TEXT = 0, // a text channel within a guild
@@ -193,6 +194,15 @@ export class Channel extends BaseClass {
 
 	@Column()
 	default_thread_rate_limit_per_user: number = 0;
+
+	@Column({ type: "simple-json", nullable: true })
+	geofences?: GeofenceDefinition[];
+
+	@Column({ default: false })
+	location_sharing_enabled: boolean = false;
+
+	@Column({ nullable: true })
+	default_location_share_duration_ms?: number;
 
 	/** Must be calculated Channel.calculatePosition */
 	position: number;

@@ -67,6 +67,14 @@ export enum MessageType {
 	SELF_COMMAND_SCRIPT = 43, // self command scripts
 	ENCRYPTION = 50,
 	CUSTOM_START = 63,
+	LOCATION_SHARE = 72, // Single location share (lat/lng/timestamp)
+	LOCATION_LIVE = 73, // Live location sharing (ongoing)
+	LOCATION_QUERY = 74, // Spatial query for nearby content
+	LOCATION_RESPONSE = 75, // Response to spatial query
+	GEOFENCE_ALERT = 76, // Geofence entry/exit notification
+	IOT_SENSOR_DATA = 77, // Sensor reading with location
+	IOT_DEVICE_STATUS = 78, // Device status update
+	IOT_ALERT = 79, // IoT device alert/alarm
 	UNHANDLED = 255,
 }
 
@@ -234,6 +242,24 @@ export class Message extends BaseClass {
 
 	@Column({ nullable: true })
 	avatar?: string;
+
+	@Column({ type: "simple-json", nullable: true })
+	geo_location?: GeoLocation;
+
+	@Column({ type: "simple-json", nullable: true })
+	live_location?: LiveLocationShare;
+
+	@Column({ type: "simple-json", nullable: true })
+	spatial_query?: SpatialQuery;
+
+	@Column({ type: "simple-json", nullable: true })
+	geofence_data?: GeofenceDefinition;
+
+	@Column({ type: "simple-json", nullable: true })
+	iot_sensor_data?: IoTSensorData;
+
+	@Column({ type: "simple-json", nullable: true })
+	iot_device_status?: IoTDeviceStatus;
 
 	toJSON(): Message {
 		return {
@@ -468,4 +494,56 @@ export interface PollAnswerCount {
 	id: string;
 	count: number;
 	me_voted: boolean;
+}
+
+export interface GeoLocation {
+	latitude: number;
+	longitude: number;
+	altitude?: number;
+	accuracy?: number;
+	timestamp: Date;
+	address?: string;
+}
+
+export interface LiveLocationShare {
+	location: GeoLocation;
+	duration_ms: number;
+	update_interval_ms: number;
+	expires_at: Date;
+}
+
+export interface SpatialQuery {
+	center: GeoLocation;
+	radius_meters: number;
+	query_type: "messages" | "users" | "channels";
+	time_range?: {
+		start: Date;
+		end: Date;
+	};
+}
+
+export interface GeofenceDefinition {
+	id: string;
+	name: string;
+	geometry: GeoLocation[] | { center: GeoLocation; radius_meters: number };
+	trigger_on: "enter" | "exit" | "both";
+}
+
+export interface IoTSensorData {
+	sensor_id: string;
+	sensor_type: "temperature" | "humidity" | "air_quality" | "motion" | "custom";
+	value: number;
+	unit: string;
+	location: GeoLocation;
+	timestamp: Date;
+	metadata?: Record<string, any>;
+}
+
+export interface IoTDeviceStatus {
+	device_id: string;
+	status: "online" | "offline" | "maintenance";
+	battery_level?: number;
+	signal_strength?: number;
+	last_seen: Date;
+	location: GeoLocation;
 }

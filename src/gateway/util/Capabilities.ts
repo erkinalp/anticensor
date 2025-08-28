@@ -20,6 +20,10 @@ export class Capabilities extends BitField {
 		CLIENT_STATE_V2: BitFlag(10),
 		PASSIVE_GUILD_UPDATE: BitFlag(11),
 		DOUBLY_LINKED_REPLIES: BitFlag(37),
+		GEODATA_MESSAGES: BitFlag(38),
+		SPATIAL_QUERIES: BitFlag(39),
+		LIVE_LOCATION: BitFlag(40),
+		GEOFENCES: BitFlag(41),
 	};
 
 	any = (capability: CapabilityResolvable) => super.any(capability);
