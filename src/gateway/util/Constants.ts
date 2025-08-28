@@ -41,6 +41,7 @@ export enum OPCODES {
 	Stream_Ping = 21,
 	Stream_Set_Paused = 22,
 	Request_Application_Commands = 24,
+	Location_Update = 25,
 }
 export enum CLOSECODES {
 	Unknown_error = 4000,

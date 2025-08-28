@@ -28,6 +28,7 @@ import { onGuildSubscriptionsBulk } from "./GuildSubscriptionsBulk";
 import { onStreamCreate } from "./StreamCreate";
 import { onStreamDelete } from "./StreamDelete";
 import { onStreamWatch } from "./StreamWatch";
+import { onLocationUpdate } from "./LocationUpdate";
 
 export type OPCodeHandler = (this: WebSocket, data: Payload) => unknown;
 
@@ -47,5 +48,6 @@ export default {
 	18: onStreamCreate,
 	19: onStreamDelete,
 	20: onStreamWatch,
+	25: onLocationUpdate,
 	37: onGuildSubscriptionsBulk,
 } as { [key: number]: OPCodeHandler };
