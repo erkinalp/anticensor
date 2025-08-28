@@ -1,4 +1,4 @@
-import { BitField, BitFieldResolvable, BitFlag } from "@spacebar/util";
+import { BitField, BitFieldResolvable, BitFlag, Intents } from "@spacebar/util";
 
 export type CapabilityResolvable = BitFieldResolvable | CapabilityString;
 type CapabilityString = keyof typeof Capabilities.FLAGS;
@@ -27,5 +27,21 @@ export class Capabilities extends BitField {
 	};
 
 	any = (capability: CapabilityResolvable) => super.any(capability);
-	has = (capability: CapabilityResolvable) => super.has(capability);
+	has = (capability: CapabilityResolvable) => {
+		const geodataCapabilities = [
+			Capabilities.FLAGS.GEODATA_MESSAGES,
+			Capabilities.FLAGS.SPATIAL_QUERIES,
+			Capabilities.FLAGS.LIVE_LOCATION,
+			Capabilities.FLAGS.GEOFENCES,
+		];
+		
+		if (geodataCapabilities.some(flag => capability === flag || (typeof capability === 'bigint' && capability === flag))) {
+			const websocket = (this as any).websocket;
+			if (websocket?.intents && !websocket.intents.has(Intents.ERKINALP_FLAGS.GEOSPATIAL)) {
+				return false;
+			}
+		}
+		
+		return super.has(capability);
+	};
 }

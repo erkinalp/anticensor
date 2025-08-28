@@ -46,6 +46,7 @@ export class Intents extends BitField {
 		DIRECT_MESSAGES_THREADS: BigInt(1) << BigInt(42), // direct message threads
 		JUMBO_EVENTS: BigInt(1) << BigInt(43), // jumbo events (size limits to be defined later)
 		LOBBIES: BigInt(1) << BigInt(44), // lobbies
+		GEOSPATIAL: BigInt(1) << BigInt(45), // location sharing, spatial queries, geofences, and IoT geodata
 		INSTANCE_ROUTES: BigInt(1) << BigInt(60), // all message route changes
 		INSTANCE_GUILD_CHANGES: BigInt(1) << BigInt(61), // all guild create, guild object patch, split, merge and delete events
 		INSTANCE_POLICY_UPDATES: BigInt(1) << BigInt(62), // all instance policy updates
@@ -55,7 +56,8 @@ export class Intents extends BitField {
 	static PRIVILEGED_FLAGS: BitField = new Intents(
 		Intents.FLAGS.GUILD_PRESENCES |
 			Intents.FLAGS.GUILD_MEMBERS |
-			Intents.FLAGS.GUILD_MESSAGES_CONTENT,
+			Intents.FLAGS.GUILD_MESSAGES_CONTENT |
+			Intents.ERKINALP_FLAGS.GEOSPATIAL,
 	);
 
 	static INTENT_TO_EVENTS_MAP = {
@@ -158,6 +160,12 @@ export class Intents extends BitField {
 		],
 		// GUILD_MESSAGE_POLLS
 		24: ["MESSAGE_POLL_VOTE_ADD", "MESSAGE_POLL_VOTE_REMOVE"],
+		// GEOSPATIAL
+		45: [
+			"LOCATION_UPDATE",
+			"GEOFENCE_TRIGGERED",
+			"SPATIAL_QUERY_RESULT",
+		],
 	};
 	static DM_INTENT_TO_EVENTS_MAP = {
 		// DIRECT_MESSAGES
@@ -178,5 +186,11 @@ export class Intents extends BitField {
 		14: ["TYPING_START"],
 		// DIRECT_MESSAGE_POLLS
 		25: ["MESSAGE_POLL_VOTE_ADD", "MESSAGE_POLL_VOTE_REMOVE"],
+		// GEOSPATIAL
+		45: [
+			"LOCATION_UPDATE",
+			"GEOFENCE_TRIGGERED", 
+			"SPATIAL_QUERY_RESULT",
+		],
 	};
 }

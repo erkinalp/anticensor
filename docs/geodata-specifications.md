@@ -159,9 +159,25 @@ SPATIAL_QUERY_RESULT: {
 }
 ```
 
-### 5. Capability Flags
+### 5. Gateway Intent and Capability Flags
 
-New capability flags for backward compatibility (placed after bit 36):
+#### GEOSPATIAL Gateway Intent
+
+All geodata functionality is gated behind the `GEOSPATIAL` gateway intent (bit 45), which is a **privileged intent** due to the sensitive nature of location data:
+
+```typescript
+GEOSPATIAL: BigInt(1) << BigInt(45), // location sharing, spatial queries, geofences, and IoT geodata
+```
+
+The `GEOSPATIAL` intent controls which geodata events clients receive:
+- `LOCATION_UPDATE` - Live location sharing updates
+- `GEOFENCE_TRIGGERED` - Geofence entry/exit notifications  
+- `SPATIAL_QUERY_RESULT` - Results from spatial queries
+- `MESSAGE_CREATE`/`MESSAGE_UPDATE` - For geodata message types (72-79)
+
+#### Capability Flags
+
+Individual capability flags provide fine-grained feature control (gated behind the GEOSPATIAL intent):
 
 ```typescript
 GEODATA_MESSAGES: BitFlag(38),    // Support for geodata message types
@@ -169,6 +185,8 @@ SPATIAL_QUERIES: BitFlag(39),     // Support for spatial queries
 LIVE_LOCATION: BitFlag(40),       // Support for live location sharing
 GEOFENCES: BitFlag(41),           // Support for geofence features
 ```
+
+**Important:** Clients must have both the `GEOSPATIAL` intent **and** the specific capability flag to use geodata features. The intent controls event delivery, while capabilities control feature availability.
 
 ### 6. Database Migrations
 
@@ -210,10 +228,16 @@ CREATE SPATIAL INDEX idx_messages_geo_location ON messages
 - User controls for location sharing visibility (public, friends, specific users)
 
 #### Permission Model
+- **Gateway Intent:** `GEOSPATIAL` (privileged) - Required to receive any geodata events
 - New permission: `SHARE_LOCATION` - Allow sharing location in channel
 - New permission: `VIEW_LOCATION` - Allow viewing others' location data
 - New permission: `MANAGE_GEOFENCES` - Create/modify geofences in channel
 - New permission: `SPATIAL_QUERY` - Perform spatial queries in channel
+
+**Authorization Flow:**
+1. Client must have `GEOSPATIAL` intent enabled (privileged, requires explicit authorization)
+2. Client must have appropriate capability flags for specific features
+3. User must have channel-level permissions for the specific action
 
 #### Data Retention
 - Live location data automatically deleted after expiration
@@ -336,3 +360,28 @@ IOT_ALERT = 79,             // IoT device alert/alarm
 - WebSocket connection limits
 
 This specification provides a comprehensive foundation for implementing geodata features in the Spacebar server while maintaining compatibility with Discord clients and supporting advanced use cases including IoT applications.
+
+## Gateway Intent Implementation
+
+The `GEOSPATIAL` intent is implemented as a privileged intent (similar to `GUILD_PRESENCES`) due to the sensitive nature of location data. This ensures that only explicitly authorized clients can receive geodata events, providing strong privacy protection by default.
+
+### Intent-to-Events Mapping
+
+```typescript
+// GEOSPATIAL intent (bit 45) maps to these events:
+45: [
+    "LOCATION_UPDATE",      // Live location sharing updates
+    "GEOFENCE_TRIGGERED",   // Geofence entry/exit notifications
+    "SPATIAL_QUERY_RESULT", // Spatial query results
+]
+```
+
+Additionally, `MESSAGE_CREATE` and `MESSAGE_UPDATE` events for geodata message types (72-79) are filtered based on the `GEOSPATIAL` intent.
+
+### Backward Compatibility
+
+Existing Discord clients will not be affected by these changes since:
+- New message types use values 72+ (well above Discord's current range)
+- New capability flags use bits 38+ (following the established pattern)
+- The `GEOSPATIAL` intent is opt-in and privileged
+- All geodata fields in API responses are optional and only included when the client has appropriate capabilities

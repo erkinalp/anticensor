@@ -30,6 +30,7 @@ import {
 	Message,
 	NewUrlUserSignatureData,
 	ConnectionPrivacy,
+	Intents,
 } from "@spacebar/util";
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
@@ -233,6 +234,20 @@ async function consume(this: WebSocket, opts: EventOpts) {
 			}
 			break;
 		}
+	}
+
+	switch (event) {
+		case "LOCATION_UPDATE":
+		case "GEOFENCE_TRIGGERED":
+		case "SPATIAL_QUERY_RESULT":
+			if (!this.intents?.has(Intents.ERKINALP_FLAGS.GEOSPATIAL)) return;
+			break;
+		case "MESSAGE_CREATE":
+		case "MESSAGE_UPDATE":
+			if (data.type >= 72 && data.type <= 79) {
+				if (!this.intents?.has(Intents.ERKINALP_FLAGS.GEOSPATIAL)) return;
+			}
+			break;
 	}
 
 	// permission checking
