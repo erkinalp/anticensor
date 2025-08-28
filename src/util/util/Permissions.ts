@@ -75,6 +75,10 @@ export class Permissions extends BitField {
 		USE_PUBLIC_THREADS: BitFlag(35),
 		USE_PRIVATE_THREADS: BitFlag(36),
 		USE_EXTERNAL_STICKERS: BitFlag(37),
+		SHARE_LOCATION: BitFlag(38),
+		VIEW_LOCATION: BitFlag(39),
+		MANAGE_GEOFENCES: BitFlag(40),
+		SPATIAL_QUERY: BitFlag(41),
 
 		/**
 		 * CUSTOM PERMISSIONS ideas:

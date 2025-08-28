@@ -536,7 +536,7 @@ export interface IoTSensorData {
 	unit: string;
 	location: GeoLocation;
 	timestamp: Date;
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export interface IoTDeviceStatus {

@@ -36,7 +36,7 @@ export class Capabilities extends BitField {
 		];
 		
 		if (geodataCapabilities.some(flag => capability === flag || (typeof capability === 'bigint' && capability === flag))) {
-			const websocket = (this as any).websocket;
+			const websocket = (this as { websocket?: { intents?: { has: (intent: bigint) => boolean } } }).websocket;
 			if (websocket?.intents && !websocket.intents.has(Intents.ERKINALP_FLAGS.GEOSPATIAL)) {
 				return false;
 			}

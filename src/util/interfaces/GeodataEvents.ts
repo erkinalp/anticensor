@@ -24,7 +24,7 @@ export interface SpatialQueryResultEvent {
 	event: "SPATIAL_QUERY_RESULT";
 	data: {
 		query_id: string;
-		results: any[];
+		results: unknown[];
 		total_count: number;
 	};
 }

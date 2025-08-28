@@ -163,7 +163,7 @@ SPATIAL_QUERY_RESULT: {
 
 #### GEOSPATIAL Gateway Intent
 
-All geodata functionality is gated behind the `GEOSPATIAL` gateway intent (bit 45), which is a **privileged intent** due to the sensitive nature of location data:
+All geodata functionality is gated behind the `GEOSPATIAL` gateway intent (bit 45). Unlike Discord, anticensor does not use privileged intents - all intents are assertable, and access control is handled through user rights and permissions:
 
 ```typescript
 GEOSPATIAL: BigInt(1) << BigInt(45), // location sharing, spatial queries, geofences, and IoT geodata
@@ -186,7 +186,7 @@ LIVE_LOCATION: BitFlag(40),       // Support for live location sharing
 GEOFENCES: BitFlag(41),           // Support for geofence features
 ```
 
-**Important:** Clients must have both the `GEOSPATIAL` intent **and** the specific capability flag to use geodata features. The intent controls event delivery, while capabilities control feature availability.
+**Important:** Clients must have both the `GEOSPATIAL` intent **and** the specific capability flag to use geodata features. The intent controls event delivery, while capabilities control feature availability. Access is further controlled by user permissions (`SHARE_LOCATION`, `VIEW_LOCATION`, `MANAGE_GEOFENCES`, `SPATIAL_QUERY`).
 
 ### 6. Database Migrations
 
@@ -228,14 +228,14 @@ CREATE SPATIAL INDEX idx_messages_geo_location ON messages
 - User controls for location sharing visibility (public, friends, specific users)
 
 #### Permission Model
-- **Gateway Intent:** `GEOSPATIAL` (privileged) - Required to receive any geodata events
-- New permission: `SHARE_LOCATION` - Allow sharing location in channel
-- New permission: `VIEW_LOCATION` - Allow viewing others' location data
-- New permission: `MANAGE_GEOFENCES` - Create/modify geofences in channel
-- New permission: `SPATIAL_QUERY` - Perform spatial queries in channel
+- **Gateway Intent:** `GEOSPATIAL` - Required to receive any geodata events (not privileged in anticensor)
+- New permission: `SHARE_LOCATION` (bit 38) - Allow sharing location in channel
+- New permission: `VIEW_LOCATION` (bit 39) - Allow viewing others' location data
+- New permission: `MANAGE_GEOFENCES` (bit 40) - Create/modify geofences in channel
+- New permission: `SPATIAL_QUERY` (bit 41) - Perform spatial queries in channel
 
 **Authorization Flow:**
-1. Client must have `GEOSPATIAL` intent enabled (privileged, requires explicit authorization)
+1. Client must have `GEOSPATIAL` intent enabled
 2. Client must have appropriate capability flags for specific features
 3. User must have channel-level permissions for the specific action
 
@@ -363,7 +363,7 @@ This specification provides a comprehensive foundation for implementing geodata 
 
 ## Gateway Intent Implementation
 
-The `GEOSPATIAL` intent is implemented as a privileged intent (similar to `GUILD_PRESENCES`) due to the sensitive nature of location data. This ensures that only explicitly authorized clients can receive geodata events, providing strong privacy protection by default.
+The `GEOSPATIAL` intent is implemented as a standard intent in anticensor. Unlike Discord, anticensor does not use privileged intents - all intents are assertable. Privacy protection is provided through the permission system, where users must have appropriate channel-level permissions to access geodata features.
 
 ### Intent-to-Events Mapping
 
