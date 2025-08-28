@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "@spacebar/util";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddGeodataSupport1756398565000 implements MigrationInterface {
 	name = "AddGeodataSupport1756398565000";
