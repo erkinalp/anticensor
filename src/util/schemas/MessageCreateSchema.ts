@@ -40,7 +40,7 @@ export interface MessageCreateSchema {
 	embed?: Embed;
 	// TODO: ^ embed is deprecated in favor of embeds (https://discord.com/developers/docs/resources/channel#message-object)
 	allowed_mentions?: {
-		parse?: string[];
+		parse?: ("users" | "roles" | "everyone")[];
 		roles?: string[];
 		users?: string[];
 		replied_user?: boolean;

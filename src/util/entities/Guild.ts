@@ -248,9 +248,6 @@ export class Guild extends BaseClass {
 	rules_channel?: string;
 
 	@Column({ nullable: true })
-	region?: string;
-
-	@Column({ nullable: true })
 	splash?: string;
 
 	@Column({ nullable: true })
@@ -348,7 +345,6 @@ export class Guild extends BaseClass {
 			max_presences: Config.get().defaults.guild.maxPresences,
 			max_video_channel_users:
 				Config.get().defaults.guild.maxVideoChannelUsers,
-			region: Config.get().regions.default,
 		}).save();
 
 		// we have to create the role _after_ the guild because else we would get a "SQLITE_CONSTRAINT: FOREIGN KEY constraint failed" error
