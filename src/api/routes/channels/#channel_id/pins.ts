@@ -112,6 +112,7 @@ router.put(
 			} as MessageCreateEvent),
 		]);
 
+		void 0;
 		res.sendStatus(204);
 	},
 );
