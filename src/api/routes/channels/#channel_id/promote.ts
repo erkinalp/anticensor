@@ -102,7 +102,7 @@ router.post(
 			const allow = desired & ~base;
 			const deny = base & ~desired;
 
-			if (allow !== 0n || deny !== 0n) {
+			if (allow !== BigInt(0) || deny !== BigInt(0)) {
 				computedOverwrites.push({
 					id: role.id,
 					type: 0,
@@ -115,7 +115,7 @@ router.post(
 		for (const ow of threadOverwrites.filter((o) => o.type === 1)) {
 			const allow = BigInt(ow.allow || "0");
 			const deny = BigInt(ow.deny || "0");
-			if (allow === 0n && deny === 0n) continue;
+			if (allow === BigInt(0) && deny === BigInt(0)) continue;
 			computedOverwrites.push({
 				id: ow.id,
 				type: 1,

@@ -13,7 +13,7 @@ import * as cluster from "cluster";
  */
 export class Snowflake {
 	static readonly EPOCH = 1420070400000;
-	static INCREMENT = 0n; // max 4095
+	static INCREMENT = BigInt(0); // max 4095
 	static processId = BigInt(process.pid % 31); // max 31
 	static workerId = BigInt((cluster.worker?.id || 0) % 31); // max 31
 
@@ -89,8 +89,8 @@ export class Snowflake {
 	static generateWorkerProcess() {
 		// worker process - returns a number
 		const time = BigInt(Date.now() - Snowflake.EPOCH) << BigInt(22);
-		const worker = Snowflake.workerId << 17n;
-		const process = Snowflake.processId << 12n;
+		const worker = Snowflake.workerId << BigInt(17);
+		const process = Snowflake.processId << BigInt(12);
 		const increment = Snowflake.INCREMENT++;
 		return BigInt(time | worker | process | increment);
 	}
