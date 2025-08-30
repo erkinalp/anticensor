@@ -5,29 +5,13 @@ import {
 	getGuildLimits,
 	Channel,
 	ChannelType,
-	Message,
 } from "@spacebar/util";
+import {
+	computeLastActivityAt,
+	isActiveThread,
+} from "../../../../util/thread-utils";
 
 const router = Router({ mergeParams: true });
-
-async function computeLastActivityAt(thread: Channel): Promise<Date> {
-	if (thread.last_message_id) {
-		const msg = await Message.findOne({
-			where: { id: thread.last_message_id },
-		});
-		if (msg?.timestamp) return msg.timestamp;
-	}
-	return thread.created_at;
-}
-
-function isActiveThread(
-	durationSec: number | undefined | null,
-	inactivityMs: number,
-): boolean {
-	if (!durationSec && durationSec !== 0) durationSec = 86400;
-	if (durationSec === 0) return true;
-	return inactivityMs < durationSec * 1000;
-}
 
 router.get(
 	"/",

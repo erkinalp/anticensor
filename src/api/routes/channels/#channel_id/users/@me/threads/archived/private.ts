@@ -5,29 +5,10 @@ import {
 	getGuildLimits,
 	Channel,
 	ChannelType,
-	Message,
 } from "@spacebar/util";
+import { listArchivedThreadsFor } from "../../../../../../../util/thread-utils";
 
 const router = Router({ mergeParams: true });
-
-async function computeLastActivityAt(thread: Channel): Promise<Date> {
-	if (thread.last_message_id) {
-		const msg = await Message.findOne({
-			where: { id: thread.last_message_id },
-		});
-		if (msg?.timestamp) return msg.timestamp;
-	}
-	return thread.created_at;
-}
-
-function isArchivedThread(
-	durationSec: number | undefined | null,
-	inactivityMs: number,
-): boolean {
-	if (!durationSec && durationSec !== 0) durationSec = 86400;
-	if (durationSec === 0) return false;
-	return inactivityMs >= durationSec * 1000;
-}
 
 router.get(
 	"/",
@@ -51,7 +32,6 @@ router.get(
 			limits.maxArchivedPageSize,
 		);
 
-		const now = Date.now();
 		const threads = await Channel.find({
 			where: [
 				{
@@ -62,35 +42,14 @@ router.get(
 			order: { id: "DESC" },
 		});
 
-		const withActivity = await Promise.all(
-			threads.map(async (t) => {
-				const lastAt = await computeLastActivityAt(t);
-				return { t, lastAt, inactivityMs: now - lastAt.getTime() };
-			}),
+		const { threads: page, has_more } = await listArchivedThreadsFor(
+			threads,
+			before,
+			limit,
 		);
 
-		let archived = withActivity
-			.filter(({ t, inactivityMs }) =>
-				isArchivedThread(t.default_auto_archive_duration, inactivityMs),
-			)
-			.sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
-
-		if (before) {
-			const beforeTs = Number.isNaN(Number(before))
-				? Date.parse(before)
-				: Number(before);
-			if (!Number.isNaN(beforeTs)) {
-				archived = archived.filter(
-					(x) => x.lastAt.getTime() < beforeTs,
-				);
-			}
-		}
-
-		const page = archived.slice(0, limit).map((x) => x.t);
-		const has_more = archived.length > page.length;
-
 		res.status(200).json({
-			threads: page.map((c) => c.toJSON()),
+			threads: page.map((c: Channel) => c.toJSON()),
 			has_more,
 		});
 	},
