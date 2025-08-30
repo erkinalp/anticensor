@@ -136,7 +136,7 @@ router.patch(
 		role.assign({
 			...body,
 			permissions: String(
-				(req.permission?.bitfield || 0n) &
+				(req.permission?.bitfield || BigInt(0)) &
 					BigInt(body.permissions || "0"),
 			),
 		});
