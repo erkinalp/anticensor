@@ -32,6 +32,7 @@ import { Request, Response, Router } from "express";
 const router: Router = Router();
 
 // pins route: no-op comment to retrigger formatting
+// format: keep for CI trigger
 // This is the old endpoint
 router.put(
 	"/:message_id",
