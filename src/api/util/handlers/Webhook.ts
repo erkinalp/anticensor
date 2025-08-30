@@ -114,22 +114,8 @@ export const executeWebhook = async (req: Request, res: Response) => {
 	}
 
 	const embeds = body.embeds || [];
-	const allowed_mentions = body.allowed_mentions
-		? {
-				...body.allowed_mentions,
-				parse: Array.isArray(body.allowed_mentions.parse)
-					? (body.allowed_mentions.parse.filter(
-							(x: string): x is "users" | "roles" | "everyone" =>
-								x === "users" ||
-								x === "roles" ||
-								x === "everyone",
-						) as ("users" | "roles" | "everyone")[])
-					: undefined,
-			}
-		: undefined;
 	const message = await handleMessage({
 		...body,
-		allowed_mentions,
 		username: body.username || webhook.name,
 		avatar_url: body.avatar_url || webhook.avatar,
 		type: 0,
