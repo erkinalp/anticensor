@@ -274,6 +274,9 @@ export class Channel extends BaseClass {
 			case ChannelType.GUILD_TEXT:
 			case ChannelType.GUILD_NEWS:
 			case ChannelType.GUILD_VOICE:
+			case ChannelType.GUILD_PUBLIC_THREAD:
+			case ChannelType.GUILD_PRIVATE_THREAD:
+			case ChannelType.GUILD_NEWS_THREAD:
 				if (channel.parent_id && !opts?.skipExistsCheck) {
 					const exists = await Channel.findOneOrFail({
 						where: { id: channel.parent_id },
@@ -285,7 +288,22 @@ export class Channel extends BaseClass {
 						);
 					if (exists.guild_id !== channel.guild_id)
 						throw new HTTPError(
-							"The category channel needs to be in the guild",
+							"The thread parent needs to be in the guild",
+						);
+					const allowedParents = [
+						ChannelType.GUILD_TEXT,
+						ChannelType.GUILD_NEWS,
+						ChannelType.TICKET_TRACKER,
+					];
+					if (
+						(channel.type === ChannelType.GUILD_PUBLIC_THREAD ||
+							channel.type === ChannelType.GUILD_PRIVATE_THREAD ||
+							channel.type === ChannelType.GUILD_NEWS_THREAD) &&
+						!allowedParents.includes(exists.type)
+					)
+						throw new HTTPError(
+							"Invalid thread parent channel type",
+							400,
 						);
 				}
 				break;
@@ -535,15 +553,27 @@ export class Channel extends BaseClass {
 	}
 
 	toJSON() {
-		return {
-			...this,
+		const base = { ...this } as unknown as Record<string, unknown>;
 
-			// these fields are not returned depending on the type of channel
-			bitrate: this.bitrate || undefined,
-			user_limit: this.user_limit || undefined,
-			rate_limit_per_user: this.rate_limit_per_user || undefined,
-			owner_id: this.owner_id || undefined,
-		};
+		base.bitrate = this.bitrate || undefined;
+		base.user_limit = this.user_limit || undefined;
+		base.rate_limit_per_user = this.rate_limit_per_user || undefined;
+		base.owner_id = this.owner_id || undefined;
+
+		if (
+			this.parent?.type === ChannelType.TICKET_TRACKER ||
+			(this.parent_id &&
+				(this.type === ChannelType.GUILD_PRIVATE_THREAD ||
+					this.type === ChannelType.GUILD_PUBLIC_THREAD))
+		) {
+			const prefix = "ticket:initiator:";
+			if (this.topic && this.topic.startsWith(prefix)) {
+				const v = this.topic.substring(prefix.length).trim();
+				if (v) base.ticket_initiator_id = v;
+			}
+		}
+
+		return base;
 	}
 }
 

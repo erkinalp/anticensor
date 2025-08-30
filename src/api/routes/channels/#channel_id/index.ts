@@ -28,6 +28,8 @@ import {
 	handleFile,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import tickets from "./tickets";
+import ticket from "./ticket";
 
 const router: Router = Router();
 // TODO: delete channel
@@ -170,4 +172,6 @@ router.patch(
 	},
 );
 
+router.use(tickets);
+router.use(ticket);
 export default router;
