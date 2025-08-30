@@ -32,6 +32,11 @@ export interface FollowersLimitsConfiguration {
 	followersMaxPerChannel: number | null;
 }
 
+export interface AuditLogsLimitsConfiguration {
+	defaultLimit: number | null;
+	maxLimit: number | null;
+}
+
 export class ApiConfiguration {
 	defaultVersion: string = "9";
 	activeVersions: string[] = ["6", "7", "8", "9"];
@@ -40,6 +45,7 @@ export class ApiConfiguration {
 		threads: ThreadLimitsConfiguration;
 		crosspost: CrosspostLimitsConfiguration;
 		followers: FollowersLimitsConfiguration;
+		auditLogs: AuditLogsLimitsConfiguration;
 	} = {
 		threads: {
 			defaultThreadPageSize: 25,
@@ -53,6 +59,10 @@ export class ApiConfiguration {
 		},
 		followers: {
 			followersMaxPerChannel: null,
+		},
+		auditLogs: {
+			defaultLimit: 50,
+			maxLimit: 100,
 		},
 	};
 }

@@ -40,5 +40,9 @@ export function getGuildLimits(_guildId?: string) {
 			followersMaxPerChannel:
 				cfg.api.limits.followers.followersMaxPerChannel ?? null,
 		},
+		auditLogs: {
+			defaultLimit: cfg.api.limits.auditLogs?.defaultLimit ?? 50,
+			maxLimit: cfg.api.limits.auditLogs?.maxLimit ?? 100,
+		},
 	};
 }
