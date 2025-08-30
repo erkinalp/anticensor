@@ -19,7 +19,7 @@ router.put(
 router.delete(
 	"/",
 	route({
-		permission: "VIEW_CHANNEL", 
+		permission: "VIEW_CHANNEL",
 		responses: { 204: {} },
 	}),
 	async (req: Request, res: Response) => {

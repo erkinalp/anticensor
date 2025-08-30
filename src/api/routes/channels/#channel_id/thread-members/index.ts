@@ -1,6 +1,11 @@
 import { Router, Request, Response } from "express";
 import { route } from "@spacebar/api";
-import { ThreadMember, Channel, ChannelType, DiscordApiErrors } from "@spacebar/util";
+import {
+	ThreadMember,
+	Channel,
+	ChannelType,
+	DiscordApiErrors,
+} from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -18,7 +23,13 @@ router.get(
 			select: ["id", "type", "guild_id"],
 		});
 
-		if (![ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD, ChannelType.GUILD_NEWS_THREAD].includes(channel.type)) {
+		if (
+			![
+				ChannelType.GUILD_PUBLIC_THREAD,
+				ChannelType.GUILD_PRIVATE_THREAD,
+				ChannelType.GUILD_NEWS_THREAD,
+			].includes(channel.type)
+		) {
 			throw DiscordApiErrors.INVALID_CHANNEL_TYPE;
 		}
 
@@ -29,16 +40,23 @@ router.get(
 				user_id: true,
 				created_at: true,
 				flags: true,
-				user: { id: true, username: true, avatar: true, discriminator: true }
-			}
+				user: {
+					id: true,
+					username: true,
+					avatar: true,
+					discriminator: true,
+				},
+			},
 		});
 
-		res.json(members.map(m => ({
-			id: m.user_id,
-			user_id: m.user_id,
-			join_timestamp: m.created_at,
-			flags: m.flags
-		})));
+		res.json(
+			members.map((m) => ({
+				id: m.user_id,
+				user_id: m.user_id,
+				join_timestamp: m.created_at,
+				flags: m.flags,
+			})),
+		);
 	},
 );
 
