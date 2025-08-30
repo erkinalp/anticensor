@@ -17,28 +17,82 @@
 */
 
 export const LobbyMemberSchema = {
-	id: String,
-	metadata: Object,
-	flags: Number,
+	type: "object",
+	properties: {
+		id: { type: "string" },
+		metadata: {
+			type: "object",
+			additionalProperties: { type: "string" },
+			nullable: true,
+		},
+		flags: { type: "integer" },
+	},
+	required: ["id"],
+	additionalProperties: false,
 };
 
 export const LobbyCreateSchema = {
-	metadata: Object,
-	members: [LobbyMemberSchema],
-	idle_timeout_seconds: Number,
+	type: "object",
+	properties: {
+		metadata: {
+			type: "object",
+			additionalProperties: { type: "string" },
+			nullable: true,
+		},
+		members: {
+			type: "array",
+			items: LobbyMemberSchema,
+			maxItems: 25,
+		},
+		idle_timeout_seconds: {
+			type: "integer",
+			minimum: 5,
+			maximum: 604800,
+		},
+	},
+	required: ["idle_timeout_seconds"],
+	additionalProperties: false,
 };
 
 export const LobbyUpdateSchema = {
-	metadata: Object,
-	members: [LobbyMemberSchema],
-	idle_timeout_seconds: Number,
+	type: "object",
+	properties: {
+		metadata: {
+			type: "object",
+			additionalProperties: { type: "string" },
+			nullable: true,
+		},
+		members: {
+			type: "array",
+			items: LobbyMemberSchema,
+			maxItems: 25,
+		},
+		idle_timeout_seconds: {
+			type: "integer",
+			minimum: 5,
+			maximum: 604800,
+		},
+	},
+	additionalProperties: false,
 };
 
 export const LobbyMemberUpdateSchema = {
-	metadata: Object,
-	flags: Number,
+	type: "object",
+	properties: {
+		metadata: {
+			type: "object",
+			additionalProperties: { type: "string" },
+			nullable: true,
+		},
+		flags: { type: "integer" },
+	},
+	additionalProperties: false,
 };
 
 export const LobbyChannelLinkSchema = {
-	channel_id: String,
+	type: "object",
+	properties: {
+		channel_id: { type: "string" },
+	},
+	additionalProperties: false,
 };

@@ -22,7 +22,8 @@ import {
 	LobbyStore,
 	DiscordApiErrors,
 	Snowflake,
-	LobbyMember,
+	LobbyMemberDTO,
+	LobbyDTO,
 } from "@spacebar/util";
 
 const router = Router();
@@ -58,7 +59,7 @@ router.post(
 	async (req: Request, res: Response) => {
 		const body = req.body as {
 			metadata?: Record<string, string>;
-			members?: LobbyMember[];
+			members?: LobbyMemberDTO[];
 			idle_timeout_seconds?: number;
 		};
 
@@ -78,7 +79,8 @@ router.post(
 			idle_timeout_seconds: body.idle_timeout_seconds || 300,
 		});
 
-		return res.json(LobbyStore.toLobbyResponse(lobby));
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(lobby);
+		return res.json(lobbyResponse);
 	},
 );
 

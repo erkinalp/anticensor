@@ -18,7 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { LobbyStore, DiscordApiErrors } from "@spacebar/util";
+import { LobbyStore, DiscordApiErrors, LobbyMemberDTO } from "@spacebar/util";
 
 const router = Router();
 
@@ -44,7 +44,7 @@ router.put(
 			throw DiscordApiErrors.UNKNOWN_LOBBY;
 		}
 
-		const member = {
+		const member: LobbyMemberDTO = {
 			id: user_id,
 			metadata: body.metadata,
 			flags: body.flags,

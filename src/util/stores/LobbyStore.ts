@@ -17,6 +17,7 @@
 */
 
 import { emitEvent } from "../util/Event";
+import { LobbyMemberDTO } from "../dtos";
 
 declare global {
 	function setInterval(callback: () => void, ms: number): NodeJS.Timeout;
@@ -24,17 +25,11 @@ declare global {
 	function clearTimeout(id: NodeJS.Timeout): void;
 }
 
-export interface LobbyMember {
-	id: string;
-	metadata?: Record<string, string> | null;
-	flags?: number;
-}
-
 export interface Lobby {
 	id: string;
 	application_id: string;
 	metadata?: Record<string, string> | null;
-	members: LobbyMember[];
+	members: LobbyMemberDTO[];
 	linked_channel?: string;
 	idle_timeout_seconds: number;
 	created_at: Date;
@@ -116,7 +111,7 @@ export class LobbyStore {
 		}
 	}
 
-	public static addMember(lobbyId: string, member: LobbyMember): boolean {
+	public static addMember(lobbyId: string, member: LobbyMemberDTO): boolean {
 		const lobby = this.lobbies.get(lobbyId);
 		if (!lobby) return false;
 

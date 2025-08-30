@@ -16,8 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./LobbyDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserDTO";
+export interface LobbyMemberDTO {
+	id: string;
+	metadata?: Record<string, string> | null;
+	flags?: number;
+}
+
+export interface LobbyDTO {
+	id: string;
+	application_id: string;
+	metadata?: Record<string, string> | null;
+	members: LobbyMemberDTO[];
+	linked_channel?: { id: string };
+}

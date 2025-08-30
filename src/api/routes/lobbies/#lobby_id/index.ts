@@ -24,7 +24,8 @@ import {
 	Channel,
 	Member,
 	Lobby,
-	LobbyMember,
+	LobbyMemberDTO,
+	LobbyDTO,
 } from "@spacebar/util";
 
 const router = Router();
@@ -64,7 +65,8 @@ router.get(
 		}
 
 		LobbyStore.updateLobbyActivity(lobby_id);
-		return res.json(LobbyStore.toLobbyResponse(lobby));
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(lobby);
+		return res.json(lobbyResponse);
 	},
 );
 
@@ -82,7 +84,7 @@ router.patch(
 		const { lobby_id } = req.params;
 		const body = req.body as {
 			metadata?: Record<string, string>;
-			members?: LobbyMember[];
+			members?: LobbyMemberDTO[];
 			idle_timeout_seconds?: number;
 		};
 
@@ -105,7 +107,10 @@ router.patch(
 			updates.idle_timeout_seconds = body.idle_timeout_seconds;
 
 		const updatedLobby = LobbyStore.updateLobby(lobby_id, updates);
-		return res.json(LobbyStore.toLobbyResponse(updatedLobby!));
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(
+			updatedLobby!,
+		);
+		return res.json(lobbyResponse);
 	},
 );
 
@@ -181,7 +186,10 @@ router.patch(
 			linked_channel: body.channel_id || undefined,
 		});
 
-		return res.json(LobbyStore.toLobbyResponse(updatedLobby!));
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(
+			updatedLobby!,
+		);
+		return res.json(lobbyResponse);
 	},
 );
 
