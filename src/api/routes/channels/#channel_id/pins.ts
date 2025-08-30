@@ -55,7 +55,7 @@ router.put(
 
 		// * in dm channels anyone can pin messages -> only check for guilds
 		if (message.guild_id)
-			req.permission?.hasThrow(["PIN_MESSAGES", "MANAGE_MESSAGES"]);
+			req.permission?.hasThrow("PIN_MESSAGES");
 
 		const pinned_count = await Message.count({
 			where: { channel: { id: channel_id }, pinned: true },
@@ -140,7 +140,7 @@ router.delete(
 		});
 
 		if (message.guild_id)
-			req.permission?.hasThrow(["PIN_MESSAGES", "MANAGE_MESSAGES"]);
+			req.permission?.hasThrow("PIN_MESSAGES");
 
 		message.pinned = false;
 
