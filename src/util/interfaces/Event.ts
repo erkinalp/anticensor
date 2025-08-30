@@ -661,6 +661,10 @@ export enum EVENTEnum {
 	ApplicationCommandUpdate = "APPLICATION_COMMAND_UPDATE",
 	ApplicationCommandDelete = "APPLICATION_COMMAND_DELETE",
 	SessionsReplace = "SESSIONS_REPLACE",
+	GeolocationUpdate = "GEOLOCATION_UPDATE",
+	GeolocationBroadcast = "GEOLOCATION_BROADCAST",
+	GeoFenceEnter = "GEO_FENCE_ENTER",
+	GeoFenceExit = "GEO_FENCE_EXIT",
 }
 
 export type EVENT =
@@ -720,6 +724,10 @@ export type EVENT =
 	| "RELATIONSHIP_ADD"
 	| "RELATIONSHIP_REMOVE"
 	| "SESSIONS_REPLACE"
+	| "GEOLOCATION_UPDATE"
+	| "GEOLOCATION_BROADCAST"
+	| "GEO_FENCE_ENTER"
+	| "GEO_FENCE_EXIT"
 	| CUSTOMEVENTS;
 
 export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT";

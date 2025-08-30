@@ -235,6 +235,9 @@ export class Message extends BaseClass {
 	@Column({ nullable: true })
 	avatar?: string;
 
+	@Column({ type: "simple-json", nullable: true })
+	location?: import("../schemas/MessageCreateSchema").LocationData;
+
 	toJSON(): Message {
 		return {
 			...this,
@@ -263,6 +266,7 @@ export class Message extends BaseClass {
 			poll: this.poll ?? undefined,
 			content: this.content ?? "",
 			reply_ids: this.reply_ids ?? undefined,
+			location: this.location ?? undefined,
 		};
 	}
 

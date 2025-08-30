@@ -66,6 +66,16 @@ export interface MessageCreateSchema {
 	applied_tags?: string[]; // Not implemented yet, for webhooks in forums
 	thread_name?: string; // Not implemented yet, for webhooks
 	avatar_url?: string; // Not implemented yet, for webhooks
+	location?: LocationData;
+}
+
+export interface LocationData {
+	latitude: number;
+	longitude: number;
+	live_period?: number;
+	horizontal_accuracy?: number;
+	heading?: number;
+	proximity_alert_radius?: number;
 }
 
 // TypeScript complains once this is used above

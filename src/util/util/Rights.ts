@@ -95,6 +95,7 @@ export class Rights extends BitField {
 		VIEW_SERVER_STATS: BitFlag(48), // added per @chrischrome's request — can view server stats)
 		RESEND_VERIFICATION_EMAIL: BitFlag(49), // can resend verification emails (/auth/verify/resend)
 		CREATE_REGISTRATION_TOKENS: BitFlag(50), // can create registration tokens (/auth/generate-registration-tokens)
+		USE_GEOSPATIAL: BitFlag(51), // geolocation sharing and querying
 	};
 
 	any(permission: RightResolvable, checkOperator = true) {

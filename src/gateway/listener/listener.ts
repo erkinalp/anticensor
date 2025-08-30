@@ -30,6 +30,9 @@ import {
 	Message,
 	NewUrlUserSignatureData,
 	ConnectionPrivacy,
+	Intents,
+	Rights,
+	getRights,
 } from "@spacebar/util";
 import { OPCODES } from "../util/Constants";
 import { Send } from "../util/Send";
@@ -170,6 +173,23 @@ async function consume(this: WebSocket, opts: EventOpts) {
 
 	const consumer = consume.bind(this);
 	const listenOpts = opts as ListenEventOpts;
+	if (
+		event === EVENTEnum.GeolocationUpdate ||
+		event === EVENTEnum.GeolocationBroadcast ||
+		event === EVENTEnum.GeoFenceEnter ||
+		event === EVENTEnum.GeoFenceExit
+	) {
+		if (!this.intents?.has?.(Intents.ERKINALP_FLAGS.GEOSPATIAL)) return;
+		if (!permission.has("VIEW_GEOSPATIAL")) return;
+		let rights;
+		try {
+			rights = await getRights(this.user_id);
+		} catch (err) {
+			return;
+		}
+		if (!rights?.has?.(Rights.FLAGS.USE_GEOSPATIAL)) return;
+	}
+
 	opts.acknowledge?.();
 	// console.log("event", event);
 

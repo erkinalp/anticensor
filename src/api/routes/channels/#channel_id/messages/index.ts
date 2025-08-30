@@ -332,6 +332,93 @@ router.post(
 		const body = req.body as MessageCreateSchema;
 		const attachments: Attachment[] = [];
 
+		if (body.location) {
+			const permissions = await getPermission(
+				req.user_id,
+				undefined,
+				channel_id,
+			);
+			if (!permissions.has("VIEW_GEOSPATIAL")) {
+				throw new HTTPError("Missing VIEW_GEOSPATIAL permission", 403);
+			}
+
+			if (!req.rights.has(Rights.FLAGS.USE_GEOSPATIAL)) {
+				throw new HTTPError("Missing USE_GEOSPATIAL right", 403);
+			}
+
+			const {
+				latitude,
+				longitude,
+				live_period,
+				horizontal_accuracy,
+				heading,
+				proximity_alert_radius,
+			} = body.location;
+
+			if (
+				typeof latitude !== "number" ||
+				latitude < -90 ||
+				latitude > 90
+			) {
+				throw new HTTPError(
+					"Invalid latitude: must be between -90 and 90",
+					400,
+				);
+			}
+			if (
+				typeof longitude !== "number" ||
+				longitude < -180 ||
+				longitude > 180
+			) {
+				throw new HTTPError(
+					"Invalid longitude: must be between -180 and 180",
+					400,
+				);
+			}
+			if (
+				live_period !== undefined &&
+				(typeof live_period !== "number" ||
+					live_period < 60 ||
+					live_period > 86400)
+			) {
+				throw new HTTPError(
+					"Invalid live_period: must be between 60 and 86400 seconds",
+					400,
+				);
+			}
+			if (
+				horizontal_accuracy !== undefined &&
+				(typeof horizontal_accuracy !== "number" ||
+					horizontal_accuracy < 0 ||
+					horizontal_accuracy > 1500)
+			) {
+				throw new HTTPError(
+					"Invalid horizontal_accuracy: must be between 0 and 1500 meters",
+					400,
+				);
+			}
+			if (
+				heading !== undefined &&
+				(typeof heading !== "number" || heading < 1 || heading > 360)
+			) {
+				throw new HTTPError(
+					"Invalid heading: must be between 1 and 360 degrees",
+					400,
+				);
+			}
+			if (
+				proximity_alert_radius !== undefined &&
+				(typeof proximity_alert_radius !== "number" ||
+					proximity_alert_radius < 1 ||
+					proximity_alert_radius > 100000)
+			) {
+				throw new HTTPError(
+					"Invalid proximity_alert_radius: must be between 1 and 100000 meters",
+					400,
+				);
+			}
+		}
+
 		const channel = await Channel.findOneOrFail({
 			where: { id: channel_id },
 			relations: ["recipients", "recipients.user"],
@@ -431,6 +518,7 @@ router.post(
 			channel_id,
 			attachments,
 			timestamp: new Date(),
+			location: body.location,
 		});
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore dont care2

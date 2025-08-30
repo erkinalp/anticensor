@@ -36,6 +36,8 @@ import {
 	GuildOrUnavailable,
 	IdentifySchema,
 	Intents,
+	Rights,
+	getRights,
 	Member,
 	MemberPrivateProjection,
 	OPCodes,
@@ -101,6 +103,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 	this.intents = new Intents(identify.intents);
 
 	// TODO: actually do intent things.
+	if (
+		!this.intents.has(Intents.ERKINALP_FLAGS.GEOSPATIAL) ||
+		!(await getRights(this.user_id)).has(Rights.FLAGS.USE_GEOSPATIAL)
+	) {
+		this.capabilities.remove(Capabilities.FLAGS.GEOSPATIAL);
+	}
 
 	// Validate sharding
 	if (identify.shard) {

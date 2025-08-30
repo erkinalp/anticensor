@@ -1,17 +1,17 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
-	
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
 	by the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
-	
+
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -46,6 +46,7 @@ export class Intents extends BitField {
 		DIRECT_MESSAGES_THREADS: BigInt(1) << BigInt(42), // direct message threads
 		JUMBO_EVENTS: BigInt(1) << BigInt(43), // jumbo events (size limits to be defined later)
 		LOBBIES: BigInt(1) << BigInt(44), // lobbies
+		GEOSPATIAL: BigInt(1) << BigInt(45),
 		INSTANCE_ROUTES: BigInt(1) << BigInt(60), // all message route changes
 		INSTANCE_GUILD_CHANGES: BigInt(1) << BigInt(61), // all guild create, guild object patch, split, merge and delete events
 		INSTANCE_POLICY_UPDATES: BigInt(1) << BigInt(62), // all instance policy updates
@@ -158,6 +159,13 @@ export class Intents extends BitField {
 		],
 		// GUILD_MESSAGE_POLLS
 		24: ["MESSAGE_POLL_VOTE_ADD", "MESSAGE_POLL_VOTE_REMOVE"],
+		// GEOSPATIAL
+		45: [
+			"GEOLOCATION_UPDATE",
+			"GEOLOCATION_BROADCAST",
+			"GEO_FENCE_ENTER",
+			"GEO_FENCE_EXIT",
+		],
 	};
 	static DM_INTENT_TO_EVENTS_MAP = {
 		// DIRECT_MESSAGES
