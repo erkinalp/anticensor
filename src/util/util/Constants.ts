@@ -939,6 +939,19 @@ export const DiscordApiErrors = {
 		"A thread has already been created for this message",
 		160004,
 	),
+	MAXIMUM_NUMBER_OF_THREAD_MEMBERS_REACHED: new ApiError(
+		"Maximum number of thread members reached",
+		160005,
+	),
+	MAXIMUM_NUMBER_OF_FOLLOWERS_REACHED: new ApiError(
+		"Maximum number of followers reached",
+		160006,
+	),
+	ALREADY_FOLLOWING_CHANNEL: new ApiError(
+		"Already following this channel",
+		160007,
+	),
+	INVALID_CHANNEL_TYPE: new ApiError("Invalid channel type", 160008),
 	THREAD_IS_LOCKED: new ApiError("Thread is locked", 160005),
 	MAXIMUM_NUMBER_OF_ACTIVE_THREADS: new ApiError(
 		"Maximum number of active threads reached",

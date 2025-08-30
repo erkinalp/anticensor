@@ -16,8 +16,53 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+export interface ThreadLimitsConfiguration {
+	defaultThreadPageSize: number;
+	maxThreadPageSize: number | null;
+	defaultArchivedPageSize: number;
+	maxArchivedPageSize: number | null;
+	privateThreadMaxMembers: number | null;
+}
+
+export interface CrosspostLimitsConfiguration {
+	crosspostMaxTargets: number | null;
+}
+
+export interface FollowersLimitsConfiguration {
+	followersMaxPerChannel: number | null;
+}
+
+export interface AuditLogsLimitsConfiguration {
+	defaultLimit: number | null;
+	maxLimit: number | null;
+}
+
 export class ApiConfiguration {
 	defaultVersion: string = "9";
 	activeVersions: string[] = ["6", "7", "8", "9"];
 	endpointPublic: string | null = null;
+	limits: {
+		threads: ThreadLimitsConfiguration;
+		crosspost: CrosspostLimitsConfiguration;
+		followers: FollowersLimitsConfiguration;
+		auditLogs: AuditLogsLimitsConfiguration;
+	} = {
+		threads: {
+			defaultThreadPageSize: 25,
+			maxThreadPageSize: 100,
+			defaultArchivedPageSize: 25,
+			maxArchivedPageSize: 100,
+			privateThreadMaxMembers: null,
+		},
+		crosspost: {
+			crosspostMaxTargets: null,
+		},
+		followers: {
+			followersMaxPerChannel: null,
+		},
+		auditLogs: {
+			defaultLimit: 50,
+			maxLimit: 100,
+		},
+	};
 }

@@ -18,18 +18,77 @@
 
 import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
-const router = Router();
+import { AuditLog, getGuildLimits, resolveLimit } from "@spacebar/util";
 
-//TODO: implement audit logs
-router.get("/", route({}), async (req: Request, res: Response) => {
-	res.json({
-		audit_log_entries: [],
-		users: [],
-		integrations: [],
-		webhooks: [],
-		guild_scheduled_events: [],
-		threads: [],
-		application_commands: [],
-	});
-});
+const router = Router({ mergeParams: true });
+
+router.get(
+	"/",
+	route({
+		query: {
+			user_id: {
+				type: "string",
+				required: false,
+				description: "Filter by user id",
+			},
+			action_type: {
+				type: "number",
+				required: false,
+				description: "Filter by action type",
+			},
+			before: {
+				type: "string",
+				required: false,
+				description: "Entries before this id",
+			},
+			limit: {
+				type: "number",
+				required: false,
+				description: "Max number of entries to return",
+			},
+		},
+	}),
+	async (req: Request, res: Response) => {
+		const guildId = (req as Request & { guild_id?: string }).guild_id;
+		const { user_id, action_type, before } = req.query as {
+			user_id?: string;
+			action_type?: number;
+			before?: string;
+			limit?: number;
+		};
+		const qLimit = (req.query as { limit?: number }).limit;
+		const limits = getGuildLimits(guildId).auditLogs;
+		const effectiveLimit = resolveLimit(
+			qLimit,
+			limits.maxLimit,
+			limits.defaultLimit,
+			limits.maxLimit,
+		);
+
+		const qb = AuditLog.createQueryBuilder("audit").orderBy(
+			"audit.id",
+			"DESC",
+		);
+
+		if (user_id) qb.andWhere("audit.user_id = :user_id", { user_id });
+		if (typeof action_type === "number")
+			qb.andWhere("audit.action_type = :action_type", { action_type });
+		if (before) qb.andWhere("audit.id < :before", { before });
+
+		qb.limit(effectiveLimit);
+
+		const audit_log_entries = await qb.getMany();
+
+		res.json({
+			audit_log_entries,
+			users: [],
+			integrations: [],
+			webhooks: [],
+			guild_scheduled_events: [],
+			threads: [],
+			application_commands: [],
+		});
+	},
+);
+
 export default router;
