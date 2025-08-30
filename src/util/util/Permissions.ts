@@ -73,13 +73,13 @@ export class Permissions extends BitField {
 		// TODO: what is permission 33?
 		MANAGE_THREADS: BitFlag(34),
 		USE_PUBLIC_THREADS: BitFlag(35),
-		USE_PRIVATE_THREADS: BitFlag(36),
-		USE_EXTERNAL_STICKERS: BitFlag(37),
+	USE_PRIVATE_THREADS: BitFlag(36),
+	USE_EXTERNAL_STICKERS: BitFlag(37),
+	PIN_MESSAGES: BitFlag(38),
 
-		/**
+	/**
 		 * CUSTOM PERMISSIONS ideas:
 		 * - allow user to dm members
-		 * - allow user to pin messages (without MANAGE_MESSAGES)
 		 * - allow user to publish messages (without MANAGE_MESSAGES)
 		 */
 		// CUSTOM_PERMISSION: BigInt(1) << BigInt(0) + CUSTOM_PERMISSION_OFFSET
