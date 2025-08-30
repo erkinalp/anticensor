@@ -16,83 +16,43 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export const LobbyMemberSchema = {
-	type: "object",
-	properties: {
-		id: { type: "string" },
-		metadata: {
-			type: "object",
-			additionalProperties: { type: "string" },
-			nullable: true,
-		},
-		flags: { type: "integer" },
-	},
-	required: ["id"],
-	additionalProperties: false,
-};
+export interface LobbyMemberSchema {
+	id: string;
+	metadata?: Record<string, string> | null;
+	flags?: number;
+}
 
-export const LobbyCreateSchema = {
-	type: "object",
-	properties: {
-		metadata: {
-			type: "object",
-			additionalProperties: { type: "string" },
-			nullable: true,
-		},
-		members: {
-			type: "array",
-			items: LobbyMemberSchema,
-			maxItems: 25,
-		},
-		idle_timeout_seconds: {
-			type: "integer",
-			minimum: 5,
-			maximum: 604800,
-		},
-	},
-	required: ["idle_timeout_seconds"],
-	additionalProperties: false,
-};
+export interface LobbyCreateSchema {
+	metadata?: Record<string, string> | null;
+	/**
+	 * @maxItems 25
+	 */
+	members?: LobbyMemberSchema[];
+	/**
+	 * @minimum 5
+	 * @maximum 604800
+	 */
+	idle_timeout_seconds: number;
+}
 
-export const LobbyUpdateSchema = {
-	type: "object",
-	properties: {
-		metadata: {
-			type: "object",
-			additionalProperties: { type: "string" },
-			nullable: true,
-		},
-		members: {
-			type: "array",
-			items: LobbyMemberSchema,
-			maxItems: 25,
-		},
-		idle_timeout_seconds: {
-			type: "integer",
-			minimum: 5,
-			maximum: 604800,
-		},
-	},
-	additionalProperties: false,
-};
+export interface LobbyUpdateSchema {
+	metadata?: Record<string, string> | null;
+	/**
+	 * @maxItems 25
+	 */
+	members?: LobbyMemberSchema[];
+	/**
+	 * @minimum 5
+	 * @maximum 604800
+	 */
+	idle_timeout_seconds?: number;
+}
 
-export const LobbyMemberUpdateSchema = {
-	type: "object",
-	properties: {
-		metadata: {
-			type: "object",
-			additionalProperties: { type: "string" },
-			nullable: true,
-		},
-		flags: { type: "integer" },
-	},
-	additionalProperties: false,
-};
+export interface LobbyMemberUpdateSchema {
+	metadata?: Record<string, string> | null;
+	flags?: number;
+}
 
-export const LobbyChannelLinkSchema = {
-	type: "object",
-	properties: {
-		channel_id: { type: "string" },
-	},
-	additionalProperties: false,
-};
+export interface LobbyChannelLinkSchema {
+	channel_id?: string;
+}
