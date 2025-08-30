@@ -120,6 +120,9 @@ export class SpacebarServer extends Server {
 		await initRateLimits(api);
 		await initTranslation(api);
 
+		const { LobbyStore } = await import("@spacebar/util");
+		LobbyStore.init();
+
 		this.routes = await registerRoutes(
 			this,
 			path.join(__dirname, "routes", "/"),

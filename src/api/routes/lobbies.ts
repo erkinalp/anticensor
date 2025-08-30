@@ -16,18 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// NOTE: !! DO NOT REORDER THE IMPORTS !!
+import { Router } from "express";
+import lobbies from "./lobbies/index";
 
-import "reflect-metadata";
+const router = Router();
 
-export * from "./util/index";
-export * from "./interfaces/index";
-export * from "./entities/index";
-export * from "./dtos/index";
-export * from "./schemas";
-export * from "./schemas/LobbyCreateSchema";
-export * from "./imports";
-export * from "./config";
-export * from "./connections";
-export * from "./stores/LobbyStore";
-export * from "./Signing";
+router.use("/", lobbies);
+
+export default router;

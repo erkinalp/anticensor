@@ -16,18 +16,29 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// NOTE: !! DO NOT REORDER THE IMPORTS !!
+export const LobbyMemberSchema = {
+	id: String,
+	metadata: Object,
+	flags: Number,
+};
 
-import "reflect-metadata";
+export const LobbyCreateSchema = {
+	metadata: Object,
+	members: [LobbyMemberSchema],
+	idle_timeout_seconds: Number,
+};
 
-export * from "./util/index";
-export * from "./interfaces/index";
-export * from "./entities/index";
-export * from "./dtos/index";
-export * from "./schemas";
-export * from "./schemas/LobbyCreateSchema";
-export * from "./imports";
-export * from "./config";
-export * from "./connections";
-export * from "./stores/LobbyStore";
-export * from "./Signing";
+export const LobbyUpdateSchema = {
+	metadata: Object,
+	members: [LobbyMemberSchema],
+	idle_timeout_seconds: Number,
+};
+
+export const LobbyMemberUpdateSchema = {
+	metadata: Object,
+	flags: Number,
+};
+
+export const LobbyChannelLinkSchema = {
+	channel_id: String,
+};

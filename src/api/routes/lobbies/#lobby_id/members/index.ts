@@ -16,18 +16,35 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// NOTE: !! DO NOT REORDER THE IMPORTS !!
+import { route } from "@spacebar/api";
+import { Request, Response, Router } from "express";
+import { LobbyStore, DiscordApiErrors } from "@spacebar/util";
 
-import "reflect-metadata";
+const router = Router();
 
-export * from "./util/index";
-export * from "./interfaces/index";
-export * from "./entities/index";
-export * from "./dtos/index";
-export * from "./schemas";
-export * from "./schemas/LobbyCreateSchema";
-export * from "./imports";
-export * from "./config";
-export * from "./connections";
-export * from "./stores/LobbyStore";
-export * from "./Signing";
+router.delete(
+	"/@me",
+	route({
+		responses: {
+			204: {},
+			404: {},
+		},
+	}),
+	async (req: Request, res: Response) => {
+		const { lobby_id } = req.params;
+
+		const lobby = LobbyStore.getLobby(lobby_id);
+		if (!lobby) {
+			throw DiscordApiErrors.UNKNOWN_LOBBY;
+		}
+
+		const success = LobbyStore.removeMember(lobby_id, req.user_id);
+		if (!success) {
+			throw new Error("Unknown member");
+		}
+
+		return res.status(204).send();
+	},
+);
+
+export default router;
