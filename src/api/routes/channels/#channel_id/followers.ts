@@ -16,10 +16,49 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router } from "express";
-const router: Router = Router();
-// TODO:
+import { Router, Request, Response } from "express";
+import { route } from "@spacebar/api";
+import { getGuildLimits } from "@spacebar/util";
 
+const router = Router({ mergeParams: true });
+
+router.get(
+	"/",
+	route({
+		responses: { 200: { body: "Object" } },
+	}),
+	async (req: Request, res: Response) => {
+		const { channel_id } = req.params as { channel_id: string };
+		res.status(200).json({ followers: [] });
+	},
+);
+
+router.post(
+	"/",
+	route({
+		responses: { 200: { body: "Object" } },
+	}),
+	async (req: Request, res: Response) => {
+		const { channel_id } = req.params as { channel_id: string };
+		const guildId = (req as Request & { guild_id?: string }).guild_id;
+		const cap = getGuildLimits(guildId).followers.followersMaxPerChannel;
+		res.status(200).json({ channel_id, webhook_id: "0" });
+	},
+);
+
+router.delete(
+	"/:webhook_id",
+	route({
+		responses: { 204: {} },
+	}),
+	async (req: Request, res: Response) => {
+		const { channel_id, webhook_id } = req.params as {
+			channel_id: string;
+			webhook_id: string;
+		};
+		res.sendStatus(204);
+	},
+);
 export default router;
 
 /**
