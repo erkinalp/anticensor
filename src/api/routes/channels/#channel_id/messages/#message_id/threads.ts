@@ -11,6 +11,7 @@ import {
 	DiscordApiErrors,
 	ThreadMember
 } from "@spacebar/util";
+import { computeLastActivityAt } from "../../../../util/thread-utils";
 
 const router = Router({ mergeParams: true });
 
@@ -99,17 +100,19 @@ router.get(
 			take: limit
 		});
 
-		const threadsWithRemaining = threads.map((thread) => {
-			const lastActivityAt = thread.last_message_id ? new Date() : thread.created_at;
-			const inactivityMs = Date.now() - lastActivityAt.getTime();
-			const durationMs = (thread.default_auto_archive_duration || 1440) * 60 * 1000;
-			const remainingAutoArchive = Math.max(0, durationMs - inactivityMs);
+		const threadsWithRemaining = await Promise.all(
+			threads.map(async (thread) => {
+				const lastActivityAt = await computeLastActivityAt(thread);
+				const inactivityMs = Date.now() - lastActivityAt.getTime();
+				const durationMs = (thread.default_auto_archive_duration || 1440) * 60 * 1000;
+				const remainingAutoArchive = Math.max(0, durationMs - inactivityMs);
 
-			return {
-				...thread,
-				remainingAutoArchive: Math.floor(remainingAutoArchive / 1000)
-			};
-		});
+				return {
+					...thread,
+					remainingAutoArchive: Math.floor(remainingAutoArchive / 1000)
+				};
+			})
+		);
 
 		res.status(200).json({ 
 			threads: threadsWithRemaining, 

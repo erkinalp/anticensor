@@ -22,6 +22,7 @@ import {
 	Message, 
 	ChannelFollower, 
 	Channel,
+	MessageFlags,
 	getGuildLimits, 
 	resolveLimit,
 	emitEvent,
@@ -52,7 +53,7 @@ router.post(
 			relations: ["author"]
 		});
 
-		if (originalMessage.flags && (originalMessage.flags & (1 << 0))) {
+		if (originalMessage.flags && (originalMessage.flags & Number(MessageFlags.FLAGS.CROSSPOSTED))) {
 			throw DiscordApiErrors.ALREADY_CROSSPOSTED;
 		}
 
@@ -90,7 +91,7 @@ router.post(
 				author_id: originalMessage.author_id,
 				content: originalMessage.content,
 				type: originalMessage.type,
-				flags: (originalMessage.flags || 0) | (1 << 1),
+				flags: (originalMessage.flags || 0) | Number(MessageFlags.FLAGS.IS_CROSSPOST),
 				embeds: originalMessage.embeds,
 				attachments: originalMessage.attachments,
 				timestamp: new Date(),
@@ -113,7 +114,7 @@ router.post(
 
 		await Promise.all(crosspostPromises);
 
-		originalMessage.flags = (originalMessage.flags || 0) | (1 << 0);
+		originalMessage.flags = (originalMessage.flags || 0) | Number(MessageFlags.FLAGS.CROSSPOSTED);
 		await originalMessage.save();
 
 		await emitEvent({
