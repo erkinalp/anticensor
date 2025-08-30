@@ -31,7 +31,6 @@ import { Request, Response, Router } from "express";
 
 const router: Router = Router();
 
-// This is the old endpoint
 router.put(
 	"/:message_id",
 	route({
@@ -114,6 +113,7 @@ router.put(
 			} as MessageCreateEvent),
 		]);
 
+		void 0;
 		res.sendStatus(204);
 	},
 );
