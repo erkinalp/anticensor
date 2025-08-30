@@ -133,8 +133,9 @@ router.put(
 			throw new HTTPError("Message not found", 404);
 		}
 
+		// * in dm channels anyone can pin messages -> only check for guilds
 		if (message.guild_id) {
-			req.permission?.hasThrow("MANAGE_MESSAGES");
+			req.permission?.hasThrow(["PIN_MESSAGES", "MANAGE_MESSAGES"]);
 		}
 
 		if (message.pinned) {
@@ -237,8 +238,9 @@ router.delete(
 			throw new HTTPError("Message not found", 404);
 		}
 
+		// * in dm channels anyone can pin messages -> only check for guilds
 		if (message.guild_id) {
-			req.permission?.hasThrow("MANAGE_MESSAGES");
+			req.permission?.hasThrow(["PIN_MESSAGES", "MANAGE_MESSAGES"]);
 		}
 
 		if (!message.pinned) {
