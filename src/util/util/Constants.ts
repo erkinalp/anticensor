@@ -951,6 +951,7 @@ export const DiscordApiErrors = {
 		"Already following this channel",
 		160007,
 	),
+	INVALID_CHANNEL_TYPE: new ApiError("Invalid channel type", 160008),
 	THREAD_IS_LOCKED: new ApiError("Thread is locked", 160005),
 	MAXIMUM_NUMBER_OF_ACTIVE_THREADS: new ApiError(
 		"Maximum number of active threads reached",

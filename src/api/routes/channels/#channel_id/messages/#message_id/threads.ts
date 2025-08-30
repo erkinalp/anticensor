@@ -1,25 +1,23 @@
 import { Router, Request, Response } from "express";
 import { route } from "@spacebar/api";
-import { 
-	resolveLimit, 
+import {
+	resolveLimit,
 	getGuildLimits,
-	Channel, 
-	Message, 
-	ChannelType, 
-	getPermission, 
+	Channel,
+	Message,
+	ChannelType,
+	getPermission,
 	Snowflake,
 	DiscordApiErrors,
-	ThreadMember
+	ThreadMember,
 } from "@spacebar/util";
-import { computeLastActivityAt } from "../../../../util/thread-utils";
 
 const router = Router({ mergeParams: true });
 
 router.post(
 	"/",
 	route({
-		permission: "CREATE_PUBLIC_THREADS",
-		body: "ThreadCreateSchema",
+		permission: "USE_PUBLIC_THREADS",
 		responses: { 201: { body: "Channel" } },
 	}),
 	async (req: Request, res: Response) => {
@@ -33,7 +31,7 @@ router.post(
 		});
 
 		const existingThread = await Channel.findOne({
-			where: { parent_id: channel_id, last_message_id: message_id }
+			where: { parent_id: channel_id, last_message_id: message_id },
 		});
 
 		if (existingThread) {
@@ -48,7 +46,8 @@ router.post(
 		const thread = await Channel.create({
 			id: Snowflake.generate(),
 			type: ChannelType.GUILD_PUBLIC_THREAD,
-			name: name || `Thread from ${message.author?.username || 'Unknown'}`,
+			name:
+				name || `Thread from ${message.author?.username || "Unknown"}`,
 			parent_id: channel_id,
 			guild_id: message.guild_id,
 			owner_id: req.user_id,
@@ -61,7 +60,7 @@ router.post(
 			thread_id: thread.id,
 			user_id: req.user_id!,
 			created_at: new Date(),
-			flags: 0
+			flags: 0,
 		}).save();
 
 		res.status(201).json(thread);
@@ -96,27 +95,35 @@ router.get(
 
 		const threads = await Channel.find({
 			where: { parent_id: channel_id, last_message_id: message_id },
-			select: ["id", "name", "type", "created_at", "default_auto_archive_duration", "last_message_id"],
-			take: limit
+			select: [
+				"id",
+				"name",
+				"type",
+				"created_at",
+				"default_auto_archive_duration",
+				"last_message_id",
+			],
+			take: limit,
 		});
 
-		const threadsWithRemaining = await Promise.all(
-			threads.map(async (thread) => {
-				const lastActivityAt = await computeLastActivityAt(thread);
-				const inactivityMs = Date.now() - lastActivityAt.getTime();
-				const durationMs = (thread.default_auto_archive_duration || 1440) * 60 * 1000;
-				const remainingAutoArchive = Math.max(0, durationMs - inactivityMs);
+		const threadsWithRemaining = threads.map((thread) => {
+			const lastActivityAt = thread.last_message_id
+				? new Date()
+				: thread.created_at;
+			const inactivityMs = Date.now() - lastActivityAt.getTime();
+			const durationMs =
+				(thread.default_auto_archive_duration || 1440) * 60 * 1000;
+			const remainingAutoArchive = Math.max(0, durationMs - inactivityMs);
 
-				return {
-					...thread,
-					remainingAutoArchive: Math.floor(remainingAutoArchive / 1000)
-				};
-			})
-		);
+			return {
+				...thread,
+				remainingAutoArchive: Math.floor(remainingAutoArchive / 1000),
+			};
+		});
 
-		res.status(200).json({ 
-			threads: threadsWithRemaining, 
-			has_more: threads.length >= limit 
+		res.status(200).json({
+			threads: threadsWithRemaining,
+			has_more: threads.length >= limit,
 		});
 	},
 );

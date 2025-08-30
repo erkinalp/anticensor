@@ -18,7 +18,7 @@
 
 import { Router, Request, Response } from "express";
 import { route } from "@spacebar/api";
-feimport {
+import {
 	ChannelFollower,
 	Channel,
 	Webhook,
@@ -27,7 +27,7 @@ feimport {
 	resolveLimit,
 	getPermission,
 	Snowflake,
-	DiscordApiErrors
+	DiscordApiErrors,
 } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
@@ -48,15 +48,15 @@ router.get(
 				target_channel_id: true,
 				webhook_id: true,
 				target_channel: { id: true, name: true, guild_id: true },
-				webhook: { id: true, name: true }
-			}
+				webhook: { id: true, name: true },
+			},
 		});
 
 		res.status(200).json({
-			followers: followers.map(f => ({
+			followers: followers.map((f) => ({
 				channel_id: f.target_channel_id,
-				webhook_id: f.webhook_id
-			}))
+				webhook_id: f.webhook_id,
+			})),
 		});
 	},
 );
@@ -65,20 +65,26 @@ router.post(
 	"/",
 	route({
 		permission: "MANAGE_WEBHOOKS",
-		body: "FollowerCreateSchema",
 		responses: { 200: { body: "Object" } },
 	}),
 	async (req: Request, res: Response) => {
 		const { channel_id } = req.params as { channel_id: string };
-		const { webhook_channel_id } = req.body as { webhook_channel_id: string };
+		const { webhook_channel_id } = req.body as {
+			webhook_channel_id: string;
+		};
 
 		const guildId = (req as Request & { guild_id?: string }).guild_id;
 		const limits = getGuildLimits(guildId).followers;
-		const followerCap = resolveLimit(null, limits.followersMaxPerChannel, null, limits.followersMaxPerChannel);
+		const followerCap = resolveLimit(
+			0,
+			limits.followersMaxPerChannel,
+			0,
+			limits.followersMaxPerChannel,
+		);
 
 		if (followerCap !== null) {
 			const currentFollowers = await ChannelFollower.count({
-				where: { source_channel_id: channel_id }
+				where: { source_channel_id: channel_id },
 			});
 			if (currentFollowers >= followerCap) {
 				throw DiscordApiErrors.MAXIMUM_NUMBER_OF_FOLLOWERS_REACHED;
@@ -86,7 +92,10 @@ router.post(
 		}
 
 		const existing = await ChannelFollower.findOne({
-			where: { source_channel_id: channel_id, target_channel_id: webhook_channel_id }
+			where: {
+				source_channel_id: channel_id,
+				target_channel_id: webhook_channel_id,
+			},
 		});
 		if (existing) {
 			throw DiscordApiErrors.ALREADY_FOLLOWING_CHANNEL;
@@ -98,18 +107,18 @@ router.post(
 			name: `Crosspost Webhook`,
 			channel_id: webhook_channel_id,
 			guild_id: guildId,
-			user_id: req.user_id
+			user_id: req.user_id,
 		}).save();
 
 		await ChannelFollower.create({
 			source_channel_id: channel_id,
 			target_channel_id: webhook_channel_id,
-			webhook_id: webhook.id
+			webhook_id: webhook.id,
 		}).save();
 
 		res.status(200).json({
 			channel_id: webhook_channel_id,
-			webhook_id: webhook.id
+			webhook_id: webhook.id,
 		});
 	},
 );
@@ -128,7 +137,7 @@ router.delete(
 
 		await ChannelFollower.delete({
 			source_channel_id: channel_id,
-			webhook_id
+			webhook_id,
 		});
 		await Webhook.delete({ id: webhook_id });
 

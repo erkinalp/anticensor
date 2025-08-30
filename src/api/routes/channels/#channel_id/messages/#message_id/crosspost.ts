@@ -18,16 +18,16 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { 
-	Message, 
-	ChannelFollower, 
+import {
+	Message,
+	ChannelFollower,
 	Channel,
 	MessageFlags,
-	getGuildLimits, 
+	getGuildLimits,
 	resolveLimit,
 	emitEvent,
 	Snowflake,
-	DiscordApiErrors 
+	DiscordApiErrors,
 } from "@spacebar/util";
 
 const router = Router();
@@ -50,10 +50,13 @@ router.post(
 
 		const originalMessage = await Message.findOneOrFail({
 			where: { id: message_id, channel_id },
-			relations: ["author"]
+			relations: ["author"],
 		});
 
-		if (originalMessage.flags && (originalMessage.flags & Number(MessageFlags.FLAGS.CROSSPOSTED))) {
+		if (
+			originalMessage.flags &&
+			originalMessage.flags & Number(MessageFlags.FLAGS.CROSSPOSTED)
+		) {
 			throw DiscordApiErrors.ALREADY_CROSSPOSTED;
 		}
 
@@ -63,14 +66,19 @@ router.post(
 			select: {
 				target_channel_id: true,
 				webhook_id: true,
-				target_channel: { id: true, guild_id: true }
-			}
+				target_channel: { id: true, guild_id: true },
+			},
 		});
 
 		const guildId = (req as Request & { guild_id?: string }).guild_id;
 		const limits = getGuildLimits(guildId).crosspost;
-		const crosspostCap = resolveLimit(null, limits.crosspostMaxTargets, null, limits.crosspostMaxTargets);
-		
+		const crosspostCap = resolveLimit(
+			0,
+			limits.crosspostMaxTargets,
+			0,
+			limits.crosspostMaxTargets,
+		);
+
 		if (crosspostCap !== null && followers.length > crosspostCap) {
 			followers.splice(crosspostCap);
 		}
@@ -83,45 +91,51 @@ router.post(
 			}
 		}
 
-		const crosspostPromises = Array.from(uniqueTargets.values()).map(async (follower) => {
-			const crosspostMessage = await Message.create({
-				id: Snowflake.generate(),
-				channel_id: follower.target_channel_id,
-				guild_id: follower.target_channel.guild_id,
-				author_id: originalMessage.author_id,
-				content: originalMessage.content,
-				type: originalMessage.type,
-				flags: (originalMessage.flags || 0) | Number(MessageFlags.FLAGS.IS_CROSSPOST),
-				embeds: originalMessage.embeds,
-				attachments: originalMessage.attachments,
-				timestamp: new Date(),
-				message_reference: {
-					message_id: originalMessage.id,
-					channel_id: originalMessage.channel_id,
-					guild_id: originalMessage.guild_id
-				}
-			}).save();
+		const crosspostPromises = Array.from(uniqueTargets.values()).map(
+			async (follower) => {
+				const crosspostMessage = await Message.create({
+					id: Snowflake.generate(),
+					channel_id: follower.target_channel_id,
+					guild_id: follower.target_channel.guild_id,
+					author_id: originalMessage.author_id,
+					content: originalMessage.content,
+					type: originalMessage.type,
+					flags:
+						(originalMessage.flags || 0) |
+						Number(MessageFlags.FLAGS.IS_CROSSPOST),
+					embeds: originalMessage.embeds,
+					attachments: originalMessage.attachments,
+					timestamp: new Date(),
+					message_reference: {
+						message_id: originalMessage.id,
+						channel_id: originalMessage.channel_id,
+						guild_id: originalMessage.guild_id,
+					},
+				}).save();
 
-			await emitEvent({
-				event: "MESSAGE_CREATE",
-				channel_id: follower.target_channel_id,
-				guild_id: follower.target_channel.guild_id,
-				data: crosspostMessage
-			});
+				await emitEvent({
+					event: "MESSAGE_CREATE",
+					channel_id: follower.target_channel_id,
+					guild_id: follower.target_channel.guild_id,
+					data: crosspostMessage,
+				});
 
-			return crosspostMessage;
-		});
+				return crosspostMessage;
+			},
+		);
 
 		await Promise.all(crosspostPromises);
 
-		originalMessage.flags = (originalMessage.flags || 0) | Number(MessageFlags.FLAGS.CROSSPOSTED);
+		originalMessage.flags =
+			(originalMessage.flags || 0) |
+			Number(MessageFlags.FLAGS.CROSSPOSTED);
 		await originalMessage.save();
 
 		await emitEvent({
 			event: "MESSAGE_UPDATE",
 			channel_id,
 			guild_id: originalMessage.guild_id,
-			data: originalMessage
+			data: originalMessage,
 		});
 
 		res.json(originalMessage);
