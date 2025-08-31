@@ -60,7 +60,7 @@ router.post(
 			throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
 		}
 
-		let template_serialized: any | null = null;
+		let template_serialized: unknown | null = null;
 		let template_guild_id: string | null = null;
 
 		if (body.guild_template_code) {
@@ -68,44 +68,43 @@ router.post(
 				Config.get().templates;
 
 			if (!enabled) {
-				return res
-					.status(403)
-					.json({
-						code: 403,
-						message:
-							"Template creation & usage is disabled on this instance.",
-					});
+				return res.status(403).json({
+					code: 403,
+					message:
+						"Template creation & usage is disabled on this instance.",
+				});
 			}
 
 			const code = body.guild_template_code;
 
 			if (code.startsWith("discord:")) {
 				if (!allowDiscordTemplates) {
-					return res
-						.status(403)
-						.json({
-							code: 403,
-							message:
-								"Discord templates cannot be used on this instance.",
-						});
+					return res.status(403).json({
+						code: 403,
+						message:
+							"Discord templates cannot be used on this instance.",
+					});
 				}
 				const discordTemplateID = code.split("discord:", 2)[1];
 				const resp = await fetch(
-					`https://discord.com/api/v9/guilds/templates/${discordTemplateID}`,
-					{ method: "get", headers: { "Content-Type": "application/json" } },
+					`https://discord.com/api/v10/guilds/templates/${discordTemplateID}`,
+					{
+						method: "get",
+						headers: { "Content-Type": "application/json" },
+					},
 				);
-				const data = (await resp.json()) as any;
-				template_serialized =
-					data?.serialized_source_guild ?? null;
+				const data = (await resp.json()) as {
+					serialized_source_guild?: unknown;
+					source_guild_id?: string | null;
+				};
+				template_serialized = data?.serialized_source_guild ?? null;
 				template_guild_id = data?.source_guild_id ?? null;
 			} else if (code.startsWith("external:")) {
 				if (!allowRaws) {
-					return res
-						.status(403)
-						.json({
-							code: 403,
-							message: "Importing raws is disabled on this instance.",
-						});
+					return res.status(403).json({
+						code: 403,
+						message: "Importing raws is disabled on this instance.",
+					});
 				}
 				const raw = code.split("external:", 2)[1];
 				try {
