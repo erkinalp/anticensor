@@ -102,6 +102,21 @@ router.put(
 			}
 		}
 
+		for (const ip of body.banned_ips) {
+			if (!isValidIpAddress(ip)) {
+				return res.status(400).json({
+					message: "Invalid IP address format",
+					code: 50035,
+				});
+			}
+			if (isLocalhostIp(ip)) {
+				return res.status(400).json({
+					message: "Localhost IPs are not allowed",
+					code: 50035,
+				});
+			}
+		}
+
 		let ipAccess = await UserIpAccess.findOne({
 			where: { user_id: targetUserId },
 		});
@@ -109,9 +124,11 @@ router.put(
 			ipAccess = UserIpAccess.create({
 				user_id: targetUserId,
 				ips: body.ips,
+				banned_ips: body.banned_ips,
 			});
 		} else {
 			ipAccess.ips = body.ips;
+			ipAccess.banned_ips = body.banned_ips;
 		}
 
 		await ipAccess.save();

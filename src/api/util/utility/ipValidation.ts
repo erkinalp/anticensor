@@ -47,9 +47,22 @@ export async function checkUserIpAccess(
 	userId: string,
 	currentIp: string,
 ): Promise<boolean> {
-	const ipAccess = await UserIpAccess.findOne({ where: { user_id: userId } });
-	if (!ipAccess || ipAccess.ips.length === 0) {
+	const ipAccess = await UserIpAccess.findOne({
+		where: { user_id: userId },
+	});
+	if (!ipAccess) {
 		return true;
 	}
-	return isIpInRange(currentIp, ipAccess.ips);
+
+	if (ipAccess.banned_ips && ipAccess.banned_ips.length > 0) {
+		if (isIpInRange(currentIp, ipAccess.banned_ips)) {
+			return false;
+		}
+	}
+
+	if (ipAccess.ips && ipAccess.ips.length > 0) {
+		return isIpInRange(currentIp, ipAccess.ips);
+	}
+
+	return true;
 }

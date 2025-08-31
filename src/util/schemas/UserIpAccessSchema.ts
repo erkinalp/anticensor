@@ -18,8 +18,10 @@
 
 export interface UserIpAccessSchema {
 	ips: string[];
+	banned_ips: string[];
 }
 
 export const UserIpAccessSchema = {
 	ips: [String],
+	banned_ips: [String],
 };

@@ -36,4 +36,7 @@ export class UserIpAccess extends BaseClass {
 
 	@Column("simple-array")
 	ips: string[];
+
+	@Column("simple-array")
+	banned_ips: string[];
 }

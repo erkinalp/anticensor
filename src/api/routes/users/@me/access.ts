@@ -85,6 +85,31 @@ router.put(
 			}
 		}
 
+		for (const ip of body.banned_ips) {
+			if (!isValidIpAddress(ip)) {
+				return res.status(400).json({
+					message: "Invalid IP address format",
+					code: 50035,
+				});
+			}
+			if (isLocalhostIp(ip)) {
+				return res.status(400).json({
+					message: "Localhost IPs are not allowed",
+					code: 50035,
+				});
+			}
+		}
+
+		if (
+			body.banned_ips.length > 0 &&
+			isIpInRange(currentIp, body.banned_ips)
+		) {
+			return res.status(422).json({
+				message: "Current IP address would be blocked by this policy",
+				code: 50035,
+			});
+		}
+
 		if (body.ips.length > 0 && !isIpInRange(currentIp, body.ips)) {
 			return res.status(422).json({
 				message: "Current IP address would be blocked by this policy",
@@ -99,9 +124,11 @@ router.put(
 			ipAccess = UserIpAccess.create({
 				user_id: req.user_id,
 				ips: body.ips,
+				banned_ips: body.banned_ips,
 			});
 		} else {
 			ipAccess.ips = body.ips;
+			ipAccess.banned_ips = body.banned_ips;
 		}
 
 		await ipAccess.save();

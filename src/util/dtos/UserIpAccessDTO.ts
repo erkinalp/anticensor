@@ -21,9 +21,11 @@ import { UserIpAccess } from "../entities";
 export class UserIpAccessDTO {
 	id: string;
 	ips: string[];
+	banned_ips: string[];
 
 	constructor(access: UserIpAccess) {
 		this.id = access.id;
 		this.ips = access.ips;
+		this.banned_ips = access.banned_ips;
 	}
 }
