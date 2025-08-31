@@ -303,6 +303,30 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 
 	// TODO: check and put it all in the body
 
+	if (message.guild_id && message.content && message.author) {
+		const { AutomodEvaluator } = await import("@spacebar/util");
+		const { AutomodActionExecutor } = await import("@spacebar/util");
+
+		const automodResult = await AutomodEvaluator.evaluateMessage({
+			content: message.content,
+			channel,
+			author: message.author,
+			guild_id: message.guild_id,
+			member_roles: permission?.cache.member?.roles?.map((r) => r.id),
+		});
+
+		if (automodResult.triggered && automodResult.rule) {
+			await AutomodActionExecutor.executeActions(automodResult.actions, {
+				message,
+				channel,
+				member: permission?.cache.member,
+				rule_name: automodResult.rule.name,
+				matched_content: automodResult.matched_content,
+				keyword: automodResult.keyword,
+			});
+		}
+	}
+
 	return message;
 }
 

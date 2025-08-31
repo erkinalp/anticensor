@@ -88,6 +88,10 @@ router.post(
 		});
 
 		const savedRule = await AutomodRule.save(created);
+
+		const { AutomodEvaluator } = await import("@spacebar/util");
+		AutomodEvaluator.clearCache(guild_id);
+
 		return res.json(savedRule);
 	},
 );
@@ -110,7 +114,7 @@ router.patch(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { rule_id } = req.params;
+		const { rule_id, guild_id } = req.params;
 		const rule = await AutomodRule.findOneOrFail({
 			where: { id: rule_id },
 		});
@@ -119,6 +123,10 @@ router.patch(
 
 		AutomodRule.merge(rule, data);
 		const savedRule = await AutomodRule.save(rule);
+
+		const { AutomodEvaluator } = await import("@spacebar/util");
+		AutomodEvaluator.clearCache(guild_id);
+
 		return res.json(savedRule);
 	},
 );
@@ -138,8 +146,12 @@ router.delete(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { rule_id } = req.params;
+		const { rule_id, guild_id } = req.params;
 		await AutomodRule.delete({ id: rule_id });
+
+		const { AutomodEvaluator } = await import("@spacebar/util");
+		AutomodEvaluator.clearCache(guild_id);
+
 		return res.status(204).send();
 	},
 );
