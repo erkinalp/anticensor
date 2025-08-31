@@ -333,7 +333,7 @@ export const AutomodActionTypes = {
 
 export const AutomodTriggerTypes = {
 	CUSTOM_WORDS: 1,
-	UNKNOWN_2: 2,
+	HARMFUL_LINKS: 2,
 	SUSPECTED_SPAM_CONTENT: 3,
 	COMMONLY_FLAGGED_WORDS: 4,
 	MENTION_SPAM: 5,
