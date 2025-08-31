@@ -19,3 +19,7 @@
 export interface UserIpAccessSchema {
 	ips: string[];
 }
+
+export const UserIpAccessSchema = {
+	ips: [String],
+};
