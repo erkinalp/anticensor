@@ -19,6 +19,16 @@
 import { checkToken, Rights } from "@spacebar/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
+import { checkUserIpAccess } from "../util/utility/ipValidation";
+import { getIpAdress } from "../util/utility/ipAddress";
+
+type BannedIpEntry = {
+	ip: string;
+	firstViolation: Date;
+	attempts: number;
+};
+
+const BannedIpCache = new Map<string, BannedIpEntry>();
 
 export const NO_AUTHORIZATION_ROUTES = [
 	// Authentication routes
@@ -111,6 +121,37 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
 		req.user_id = decoded.id;
 		req.user_bot = user.bot;
 		req.rights = new Rights(Number(user.rights));
+
+		const currentIp = getIpAdress(req);
+		const ipAllowed = await checkUserIpAccess(user.id, currentIp);
+
+		if (!ipAllowed) {
+			const bannedEntry = BannedIpCache.get(currentIp);
+
+			if (bannedEntry) {
+				bannedEntry.attempts++;
+				req.socket.destroy();
+				return;
+			} else {
+				BannedIpCache.set(currentIp, {
+					ip: currentIp,
+					firstViolation: new Date(),
+					attempts: 1,
+				});
+
+				setTimeout(
+					() => {
+						BannedIpCache.delete(currentIp);
+					},
+					60 * 60 * 1000,
+				);
+
+				return res
+					.status(444)
+					.json({ message: "IP address not allowed", code: 20028 });
+			}
+		}
+
 		return next();
 	} catch (error) {
 		return next(new HTTPError(error!.toString(), 400));
