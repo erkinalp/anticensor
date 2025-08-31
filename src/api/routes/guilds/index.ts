@@ -24,8 +24,10 @@ import {
 	GuildCreateSchema,
 	Member,
 	getRights,
+	Template,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import fetch from "node-fetch-commonjs";
 
 const router: Router = Router();
 
@@ -58,10 +60,80 @@ router.post(
 			throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
 		}
 
+		let template_serialized: any | null = null;
+		let template_guild_id: string | null = null;
+
+		if (body.guild_template_code) {
+			const { enabled, allowDiscordTemplates, allowRaws } =
+				Config.get().templates;
+
+			if (!enabled) {
+				return res
+					.status(403)
+					.json({
+						code: 403,
+						message:
+							"Template creation & usage is disabled on this instance.",
+					});
+			}
+
+			const code = body.guild_template_code;
+
+			if (code.startsWith("discord:")) {
+				if (!allowDiscordTemplates) {
+					return res
+						.status(403)
+						.json({
+							code: 403,
+							message:
+								"Discord templates cannot be used on this instance.",
+						});
+				}
+				const discordTemplateID = code.split("discord:", 2)[1];
+				const resp = await fetch(
+					`https://discord.com/api/v9/guilds/templates/${discordTemplateID}`,
+					{ method: "get", headers: { "Content-Type": "application/json" } },
+				);
+				const data = (await resp.json()) as any;
+				template_serialized =
+					data?.serialized_source_guild ?? null;
+				template_guild_id = data?.source_guild_id ?? null;
+			} else if (code.startsWith("external:")) {
+				if (!allowRaws) {
+					return res
+						.status(403)
+						.json({
+							code: 403,
+							message: "Importing raws is disabled on this instance.",
+						});
+				}
+				const raw = code.split("external:", 2)[1];
+				try {
+					const parsed = JSON.parse(raw);
+					if (parsed?.serialized_source_guild) {
+						template_serialized = parsed.serialized_source_guild;
+						template_guild_id = parsed?.source_guild_id ?? null;
+					} else {
+						template_serialized = parsed;
+					}
+				} catch {
+					template_serialized = null;
+					template_guild_id = null;
+				}
+			} else {
+				const template = await Template.findOneOrFail({
+					where: { code },
+				});
+				template_serialized = template.serialized_source_guild;
+				template_guild_id = template.source_guild_id ?? null;
+			}
+		}
+
 		const guild = await Guild.createGuild({
+			...(template_serialized ?? {}),
 			...body,
 			owner_id: req.user_id,
-			template_guild_id: null,
+			template_guild_id: template_guild_id,
 		});
 
 		const { autoJoin } = Config.get().guild;
