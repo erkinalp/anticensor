@@ -90,15 +90,19 @@ router.get(
 		query: {
 			around: {
 				type: "string",
+				required: false,
 			},
 			before: {
 				type: "string",
+				required: false,
 			},
 			after: {
 				type: "string",
+				required: false,
 			},
 			limit: {
 				type: "number",
+				required: false,
 				description:
 					"max number of messages to return (1-100). defaults to 50",
 			},

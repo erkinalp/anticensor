@@ -97,3 +97,4 @@ export * from "./WebhookExecuteSchema";
 export * from "./WebhookUpdateSchema";
 export * from "./WidgetModifySchema";
 export * from "./ChannelPromoteSchema";
+export * from "./LobbyCreateSchema";
