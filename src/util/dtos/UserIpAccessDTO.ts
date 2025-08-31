@@ -16,9 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./LobbyDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserIpAccessDTO";
-export * from "./UserDTO";
+import { UserIpAccess } from "../entities";
+
+export class UserIpAccessDTO {
+	id: string;
+	ips: string[];
+
+	constructor(access: UserIpAccess) {
+		this.id = access.id;
+		this.ips = access.ips;
+	}
+}

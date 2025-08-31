@@ -16,9 +16,24 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./LobbyDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserIpAccessDTO";
-export * from "./UserDTO";
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { BaseClass } from "./BaseClass";
+import { User } from "./User";
+import { dbEngine } from "../util/Database";
+
+@Entity({
+	name: "user_ip_access",
+	engine: dbEngine,
+})
+export class UserIpAccess extends BaseClass {
+	@Column()
+	@RelationId((access: UserIpAccess) => access.user)
+	user_id: string;
+
+	@JoinColumn({ name: "user_id" })
+	@ManyToOne(() => User, { onDelete: "CASCADE" })
+	user: User;
+
+	@Column("simple-array")
+	ips: string[];
+}

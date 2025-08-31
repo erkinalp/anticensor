@@ -54,6 +54,7 @@ export * from "./Team";
 export * from "./TeamMember";
 export * from "./Template";
 export * from "./User";
+export * from "./UserIpAccess";
 export * from "./UserSettings";
 export * from "./ValidRegistrationTokens";
 export * from "./VoiceState";
