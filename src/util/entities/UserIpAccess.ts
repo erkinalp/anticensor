@@ -16,12 +16,27 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface UserIpAccessSchema {
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { BaseClass } from "./BaseClass";
+import { User } from "./User";
+import { dbEngine } from "../util/Database";
+
+@Entity({
+	name: "user_ip_access",
+	engine: dbEngine,
+})
+export class UserIpAccess extends BaseClass {
+	@Column()
+	@RelationId((access: UserIpAccess) => access.user)
+	user_id: string;
+
+	@JoinColumn({ name: "user_id" })
+	@ManyToOne(() => User, { onDelete: "CASCADE" })
+	user: User;
+
+	@Column("simple-array")
 	ips: string[];
+
+	@Column("simple-array")
 	banned_ips: string[];
 }
-
-export const UserIpAccessSchema = {
-	ips: [String],
-	banned_ips: [String],
-};

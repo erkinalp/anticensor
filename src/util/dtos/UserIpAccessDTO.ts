@@ -16,12 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface UserIpAccessSchema {
+import { UserIpAccess } from "../entities";
+
+export class UserIpAccessDTO {
+	id: string;
 	ips: string[];
 	banned_ips: string[];
-}
 
-export const UserIpAccessSchema = {
-	ips: [String],
-	banned_ips: [String],
-};
+	constructor(access: UserIpAccess) {
+		this.id = access.id;
+		this.ips = access.ips;
+		this.banned_ips = access.banned_ips;
+	}
+}

@@ -358288,10 +358288,17 @@
                 "items": {
                     "type": "string"
                 }
+            },
+            "banned_ips": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
             }
         },
         "additionalProperties": false,
         "required": [
+            "banned_ips",
             "ips"
         ],
         "definitions": {
