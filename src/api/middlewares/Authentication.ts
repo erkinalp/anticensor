@@ -23,6 +23,14 @@ import { HTTPError } from "lambert-server";
 import { checkUserIpAccess } from "../util/utility/ipValidation";
 import { getIpAdress } from "../util/utility/ipAddress";
 
+type BannedIpEntry = {
+	ip: string;
+	firstViolation: Date;
+	attempts: number;
+};
+
+const BannedIpCache = new Map<string, BannedIpEntry>();
+
 export const NO_AUTHORIZATION_ROUTES = [
 	// Authentication routes
 	"POST /auth/login",
@@ -113,9 +121,30 @@ export async function Authentication(
 		const ipAllowed = await checkUserIpAccess(user.id, currentIp);
 
 		if (!ipAllowed) {
-			return res
-				.status(444)
-				.json({ message: "IP address not allowed", code: 20028 });
+			const bannedEntry = BannedIpCache.get(currentIp);
+
+			if (bannedEntry) {
+				bannedEntry.attempts++;
+				req.socket.destroy();
+				return;
+			} else {
+				BannedIpCache.set(currentIp, {
+					ip: currentIp,
+					firstViolation: new Date(),
+					attempts: 1,
+				});
+
+				setTimeout(
+					() => {
+						BannedIpCache.delete(currentIp);
+					},
+					60 * 60 * 1000,
+				);
+
+				return res
+					.status(444)
+					.json({ message: "IP address not allowed", code: 20028 });
+			}
 		}
 
 		return next();
