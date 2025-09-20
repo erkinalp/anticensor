@@ -41,8 +41,7 @@ server.stdout.on("data", (data) => {
 
 server.stderr.on("data", (err) => {
 	process.stdout.write(err);
-	// we bad :(
-	process.kill(1);
+	process.exit(1);
 });
 
 server.on("close", (code) => {

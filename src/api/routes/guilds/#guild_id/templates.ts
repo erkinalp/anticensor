@@ -27,7 +27,6 @@ const TemplateGuildProjection: (keyof Guild)[] = [
 	"id",
 	"name",
 	"description",
-	"region",
 	"verification_level",
 	"default_message_notifications",
 	"explicit_content_filter",

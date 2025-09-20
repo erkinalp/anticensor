@@ -79,11 +79,11 @@ router.put(
 			channel.permission_overwrites?.push(overwrite);
 		}
 		overwrite.allow = String(
-			(req.permission?.bitfield || 0n) &
+			(req.permission?.bitfield || BigInt(0)) &
 				(BigInt(body.allow) || BigInt("0")),
 		);
 		overwrite.deny = String(
-			(req.permission?.bitfield || 0n) &
+			(req.permission?.bitfield || BigInt(0)) &
 				(BigInt(body.deny) || BigInt("0")),
 		);
 
