@@ -17,6 +17,8 @@
 */
 
 import * as Sentry from "@sentry/node";
+import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
+
 import { EmbedHandlers } from "@spacebar/api";
 import {
 	Application,
@@ -304,9 +306,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 	// TODO: check and put it all in the body
 
 	if (message.guild_id && message.content && message.author) {
-		const { AutomodEvaluator } = await import("@spacebar/util");
-		const { AutomodActionExecutor } = await import("@spacebar/util");
-
 		const automodResult = await AutomodEvaluator.evaluateMessage({
 			content: message.content,
 			channel,
