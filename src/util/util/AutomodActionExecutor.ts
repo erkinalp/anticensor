@@ -1,7 +1,7 @@
 import { AutomodActionTypes } from "./Constants";
-import { Channel, Message, Member } from "../entities";
+import { DiscordApiErrors } from "./Constants";
+import { Channel, Message, Member, MessageType, EmbedType } from "../entities";
 import { emitEvent } from "./Event";
-import { HTTPError } from "lambert-server";
 
 interface AutomodAction {
 	type: number;
@@ -57,11 +57,7 @@ export class AutomodActionExecutor {
 		action: AutomodAction,
 		context: AutomodActionContext,
 	): Promise<void> {
-		const customMessage =
-			(action.metadata?.custom_message as string) ||
-			"Your message was blocked by AutoMod.";
-
-		throw new HTTPError(customMessage, 200000);
+		throw DiscordApiErrors.AUTOMODERATOR_BLOCK;
 	}
 
 	private static async sendAlert(
@@ -76,14 +72,17 @@ export class AutomodActionExecutor {
 		});
 		if (!alertChannel) return;
 
-		const alertMessage = {
+		const createdMessage = Message.create({
 			channel_id: alertChannelId,
 			guild_id: alertChannel.guild_id,
 			author_id: "1008776202191634432",
 			content: "",
-			type: 24,
+			type: MessageType.DEFAULT,
+			reactions: [],
 			embeds: [
 				{
+					type: EmbedType.rich,
+					title: "AutoMod alert",
 					description:
 						context.message.content?.substring(0, 500) || "",
 					fields: [
@@ -129,9 +128,7 @@ export class AutomodActionExecutor {
 				},
 			],
 			timestamp: new Date(),
-		} as unknown as Message;
-
-		const createdMessage = Message.create(alertMessage);
+		});
 		await Promise.all([
 			Message.insert(createdMessage),
 			emitEvent({
