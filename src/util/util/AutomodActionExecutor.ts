@@ -77,7 +77,6 @@ export class AutomodActionExecutor {
 		if (!alertChannel) return;
 
 		const alertMessage = {
-			id: undefined,
 			channel_id: alertChannelId,
 			guild_id: alertChannel.guild_id,
 			author_id: "1008776202191634432",
@@ -85,7 +84,6 @@ export class AutomodActionExecutor {
 			type: 24,
 			embeds: [
 				{
-					type: "auto_moderation_message",
 					description:
 						context.message.content?.substring(0, 500) || "",
 					fields: [
