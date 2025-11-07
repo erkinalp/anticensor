@@ -589,6 +589,22 @@ export interface GuildMemberListUpdate extends Event {
 	};
 }
 
+export interface ThreadMembersUpdateEvent extends Event {
+	event: "THREAD_MEMBERS_UPDATE";
+	data: {
+		id: string;
+		guild_id?: string;
+		member_count: number;
+		added_members?: {
+			id: string;
+			user_id: string;
+			thread_id: string;
+			join_timestamp: Date;
+		}[];
+		removed_member_ids?: string[];
+	};
+}
+
 export type EventData =
 	| InvalidatedEvent
 	| ReadyEvent
@@ -639,7 +655,8 @@ export type EventData =
 	| InteractionFailureEvent
 	| MessageAckEvent
 	| RelationshipAddEvent
-	| RelationshipRemoveEvent;
+	| RelationshipRemoveEvent
+	| ThreadMembersUpdateEvent;
 
 // located in collection events
 
@@ -754,6 +771,7 @@ export type EVENT =
 	| "RELATIONSHIP_ADD"
 	| "RELATIONSHIP_REMOVE"
 	| "SESSIONS_REPLACE"
+	| "THREAD_MEMBERS_UPDATE"
 	| "USER_SETTINGS_PROTO_UPDATE"
 	| CUSTOMEVENTS;
 

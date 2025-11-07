@@ -73,6 +73,7 @@ export * from "./SettingsProtoUpdateSchema";
 export * from "./TeamCreateSchema";
 export * from "./TemplateCreateSchema";
 export * from "./TemplateModifySchema";
+export * from "./ThreadCreateSchema";
 export * from "./TotpDisableSchema";
 export * from "./TotpEnableSchema";
 export * from "./TotpSchema";
