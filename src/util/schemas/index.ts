@@ -39,7 +39,6 @@ export * from "./EmailDomainLookupSchema";
 export * from "./EmailDomainLookupVerifyCodeSchema";
 export * from "./EmojiCreateSchema";
 export * from "./EmojiModifySchema";
-export * from "./FollowerCreateSchema";
 export * from "./ForgotPasswordSchema";
 export * from "./GatewayPayloadSchema";
 export * from "./GuildCreateSchema";

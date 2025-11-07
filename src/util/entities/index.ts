@@ -26,7 +26,6 @@ export * from "./Ban";
 export * from "./BaseClass";
 export * from "./Categories";
 export * from "./Channel";
-export * from "./ChannelFollower";
 export * from "./ClientRelease";
 export * from "./Config";
 export * from "./ConnectedAccount";
