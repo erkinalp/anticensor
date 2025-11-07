@@ -3,14 +3,8 @@
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
 */
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	ChannelCreateEvent,
-	ChannelType,
-	emitEvent,
-	Snowflake,
-	getPermission,
-} from "@spacebar/util";
+import { Channel, ChannelCreateEvent, emitEvent, Snowflake, getPermission } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router();
@@ -28,24 +22,12 @@ router.post(
 			where: { id: channel_id },
 		});
 
-		if (tracker.type !== ChannelType.TICKET_TRACKER)
-			return res
-				.status(400)
-				.send({ message: "Channel is not a ticket tracker" });
+		if (tracker.type !== ChannelType.TICKET_TRACKER) return res.status(400).send({ message: "Channel is not a ticket tracker" });
 
-		const perm = await getPermission(
-			req.user_id,
-			tracker.guild_id,
-			tracker.id,
-		);
-		if (!perm.has("SEND_MESSAGES"))
-			return res
-				.status(403)
-				.send({ message: "Missing SEND_MESSAGES in tracker" });
+		const perm = await getPermission(req.user_id, tracker.guild_id, tracker.id);
+		if (!perm.has("SEND_MESSAGES")) return res.status(403).send({ message: "Missing SEND_MESSAGES in tracker" });
 
-		const name =
-			(req.body?.name as string | undefined)?.trim() ||
-			`ticket-${Snowflake.generate()}`;
+		const name = (req.body?.name as string | undefined)?.trim() || `ticket-${Snowflake.generate()}`;
 
 		const ticket = await Channel.createChannel(
 			{
