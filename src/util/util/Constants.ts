@@ -303,6 +303,9 @@ export const ChannelTypes = {
 	CATEGORY: 4,
 	NEWS: 5,
 	STORE: 6,
+	GUILD_NEWS_THREAD: 10,
+	GUILD_PUBLIC_THREAD: 11,
+	GUILD_PRIVATE_THREAD: 12,
 };
 
 export const ClientApplicationAssetTypes = {
@@ -589,6 +592,7 @@ export const DiscordApiErrors = {
 	MAXIMUM_SERVER_CATEGORIES: new ApiError("Maximum number of server categories has been reached ({})", 30030, undefined, ["5"]),
 	GUILD_ALREADY_HAS_TEMPLATE: new ApiError("Guild already has a template", 30031),
 	MAXIMUM_THREAD_PARTICIPANTS: new ApiError("Max number of thread participants has been reached", 30033),
+	MAXIMUM_NUMBER_OF_THREAD_MEMBERS_REACHED: new ApiError("Maximum number of thread members reached", 30033),
 	MAXIMUM_BANS_FOR_NON_GUILD_MEMBERS: new ApiError("Maximum number of bans for non-guild members have been exceeded", 30035),
 	MAXIMUM_BANS_FETCHES: new ApiError("Maximum number of bans fetches has been reached", 30037),
 	MAXIMUM_STICKERS: new ApiError("Maximum number of stickers reached", 30039),
@@ -626,6 +630,7 @@ export const DiscordApiErrors = {
 	INVALID_OR_TAKEN_INVITE_CODE: new ApiError("Invite code was either invalid or taken", 50020),
 	CANNOT_EXECUTE_ON_SYSTEM_MESSAGE: new ApiError("Cannot execute action on a system message", 50021),
 	CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE: new ApiError("Cannot execute action on this channel type", 50024),
+	INVALID_CHANNEL_TYPE: new ApiError("Invalid channel type", 50024),
 	INVALID_OAUTH_TOKEN: new ApiError("Invalid OAuth2 access token provided", 50025),
 	MISSING_REQUIRED_OAUTH2_SCOPE: new ApiError("Missing required OAuth2 scope", 50026),
 	INVALID_WEBHOOK_TOKEN_PROVIDED: new ApiError("Invalid webhook token provided", 50027),

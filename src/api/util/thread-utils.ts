@@ -10,29 +10,19 @@ export async function computeLastActivityAt(thread: Channel): Promise<Date> {
 	return thread.created_at;
 }
 
-export function isActiveThread(
-	durationSec: number | null | undefined,
-	inactivityMs: number,
-): boolean {
+export function isActiveThread(durationSec: number | null | undefined, inactivityMs: number): boolean {
 	if (!durationSec && durationSec !== 0) durationSec = 86400;
 	if (durationSec === 0) return true;
 	return inactivityMs < durationSec * 1000;
 }
 
-export function isArchivedThread(
-	durationSec: number | null | undefined,
-	inactivityMs: number,
-): boolean {
+export function isArchivedThread(durationSec: number | null | undefined, inactivityMs: number): boolean {
 	if (!durationSec && durationSec !== 0) durationSec = 86400;
 	if (durationSec === 0) return false;
 	return inactivityMs >= durationSec * 1000;
 }
 
-export async function listArchivedThreadsFor(
-	threads: Channel[],
-	before: string | undefined,
-	limit: number,
-): Promise<{ threads: Channel[]; has_more: boolean }> {
+export async function listArchivedThreadsFor(threads: Channel[], before: string | undefined, limit: number): Promise<{ threads: Channel[]; has_more: boolean }> {
 	const now = Date.now();
 	const withActivity = await Promise.all(
 		threads.map(async (t) => {
@@ -42,15 +32,11 @@ export async function listArchivedThreadsFor(
 	);
 
 	let archived = withActivity
-		.filter(({ t, inactivityMs }) =>
-			isArchivedThread(t.default_auto_archive_duration, inactivityMs),
-		)
+		.filter(({ t, inactivityMs }) => isArchivedThread(t.default_auto_archive_duration, inactivityMs))
 		.sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
 
 	if (before) {
-		const beforeTs = Number.isNaN(Number(before))
-			? Date.parse(before)
-			: Number(before);
+		const beforeTs = Number.isNaN(Number(before)) ? Date.parse(before) : Number(before);
 		if (!Number.isNaN(beforeTs)) {
 			archived = archived.filter((x) => x.lastAt.getTime() < beforeTs);
 		}

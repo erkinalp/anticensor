@@ -16,22 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Column,
-	Entity,
-	Index,
-	JoinColumn,
-	ManyToOne,
-	RelationId,
-} from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { Channel } from "./Channel";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
 
 @Entity({
 	name: "thread_members",
-	engine: dbEngine,
 })
 @Index(["thread_id", "user_id"], { unique: true })
 export class ThreadMember extends BaseClass {

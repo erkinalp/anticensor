@@ -1,11 +1,6 @@
 import { Router, Request, Response } from "express";
 import { route } from "@spacebar/api";
-import {
-	ThreadMember,
-	Channel,
-	ChannelType,
-	DiscordApiErrors,
-} from "@spacebar/util";
+import { ThreadMember, Channel, ChannelTypes, DiscordApiErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -23,13 +18,7 @@ router.get(
 			select: ["id", "type", "guild_id"],
 		});
 
-		if (
-			![
-				ChannelType.GUILD_PUBLIC_THREAD,
-				ChannelType.GUILD_PRIVATE_THREAD,
-				ChannelType.GUILD_NEWS_THREAD,
-			].includes(channel.type)
-		) {
+		if (![ChannelTypes.GUILD_PUBLIC_THREAD, ChannelTypes.GUILD_PRIVATE_THREAD, ChannelTypes.GUILD_NEWS_THREAD].includes(channel.type)) {
 			throw DiscordApiErrors.INVALID_CHANNEL_TYPE;
 		}
 

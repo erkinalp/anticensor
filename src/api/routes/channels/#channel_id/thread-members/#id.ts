@@ -1,15 +1,6 @@
 import { Router, Request, Response } from "express";
 import { route } from "@spacebar/api";
-import {
-	ThreadMember,
-	Channel,
-	ChannelType,
-	getPermission,
-	getGuildLimits,
-	resolveLimit,
-	emitEvent,
-	DiscordApiErrors,
-} from "@spacebar/util";
+import { ThreadMember, Channel, ChannelTypes, getPermission, getGuildLimits, resolveLimit, emitEvent, DiscordApiErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -31,32 +22,17 @@ router.put(
 			select: ["id", "type", "guild_id", "parent_id"],
 		});
 
-		if (
-			![
-				ChannelType.GUILD_PUBLIC_THREAD,
-				ChannelType.GUILD_PRIVATE_THREAD,
-				ChannelType.GUILD_NEWS_THREAD,
-			].includes(channel.type)
-		) {
+		if (![ChannelTypes.GUILD_PUBLIC_THREAD, ChannelTypes.GUILD_PRIVATE_THREAD, ChannelTypes.GUILD_NEWS_THREAD].includes(channel.type)) {
 			throw DiscordApiErrors.INVALID_CHANNEL_TYPE;
 		}
 
-		const permissions = await getPermission(
-			req.user_id!,
-			channel.guild_id,
-			channel_id,
-		);
-		if (channel.type === ChannelType.GUILD_PRIVATE_THREAD) {
+		const permissions = await getPermission(req.user_id!, channel.guild_id, channel_id);
+		if (channel.type === ChannelTypes.GUILD_PRIVATE_THREAD) {
 			permissions.hasThrow("MANAGE_THREADS");
 
 			const guildId = (req as Request & { guild_id?: string }).guild_id;
 			const limits = getGuildLimits(guildId).threads;
-			const memberCap = resolveLimit(
-				0,
-				limits.privateThreadMaxMembers,
-				0,
-				limits.privateThreadMaxMembers,
-			);
+			const memberCap = resolveLimit(0, limits.privateThreadMaxMembers, 0, limits.privateThreadMaxMembers);
 
 			if (memberCap !== null) {
 				const currentMembers = await ThreadMember.count({

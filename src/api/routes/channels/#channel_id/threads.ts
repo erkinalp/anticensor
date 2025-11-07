@@ -24,12 +24,7 @@ router.get(
 		const qLimit = (req.query as { limit?: number }).limit;
 		const guildId = (req as Request & { guild_id?: string }).guild_id;
 		const limits = getGuildLimits(guildId).threads;
-		const limit = resolveLimit(
-			qLimit,
-			limits.maxThreadPageSize,
-			limits.defaultThreadPageSize,
-			limits.maxThreadPageSize,
-		);
+		const limit = resolveLimit(qLimit, limits.maxThreadPageSize, limits.defaultThreadPageSize, limits.maxThreadPageSize);
 		res.status(200).json({ threads: [], has_more: false });
 	},
 );
