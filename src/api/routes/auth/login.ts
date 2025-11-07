@@ -17,20 +17,13 @@
 */
 
 import { getIpAdress, route, verifyCaptcha } from "@spacebar/api";
-import {
-	Config,
-	FieldErrors,
-	LoginSchema,
-	User,
-	WebAuthn,
-	generateToken,
-	generateWebAuthnTicket,
-} from "@spacebar/util";
+import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
+import { LoginSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 export default router;
 
 router.post(
@@ -47,8 +40,7 @@ router.post(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { login, password, captcha_key, undelete } =
-			req.body as LoginSchema;
+		const { login, password, captcha_key, undelete } = req.body as LoginSchema;
 
 		const config = Config.get();
 
@@ -75,17 +67,7 @@ router.post(
 
 		const user = await User.findOneOrFail({
 			where: [{ phone: login }, { email: login }],
-			select: [
-				"data",
-				"id",
-				"disabled",
-				"deleted",
-				"totp_secret",
-				"mfa_enabled",
-				"webauthn_enabled",
-				"security_keys",
-				"verified",
-			],
+			select: ["data", "id", "disabled", "deleted", "totp_secret", "mfa_enabled", "webauthn_enabled", "security_keys", "verified"],
 			relations: ["security_keys", "settings"],
 		}).catch(() => {
 			throw FieldErrors({
@@ -101,10 +83,7 @@ router.post(
 		});
 
 		// the salt is saved in the password refer to bcrypt docs
-		const same_password = await bcrypt.compare(
-			password,
-			user.data.hash || "",
-		);
+		const same_password = await bcrypt.compare(password, user.data.hash || "");
 		if (!same_password) {
 			throw FieldErrors({
 				login: {
@@ -123,8 +102,7 @@ router.post(
 			throw FieldErrors({
 				login: {
 					code: "ACCOUNT_LOGIN_VERIFICATION_EMAIL",
-					message:
-						"Email verification is required, please check your email.",
+					message: "Email verification is required, please check your email.",
 				},
 			});
 		}
@@ -153,9 +131,7 @@ router.post(
 			const challenge = JSON.stringify({
 				publicKey: {
 					...options,
-					challenge: Buffer.from(options.challenge).toString(
-						"base64",
-					),
+					challenge: Buffer.from(options.challenge).toString("base64"),
 					allowCredentials: user.security_keys.map((x) => ({
 						id: x.key_id,
 						type: "public-key",
@@ -179,10 +155,8 @@ router.post(
 
 		if (undelete) {
 			// undelete refers to un'disable' here
-			if (user.disabled)
-				await User.update({ id: user.id }, { disabled: false });
-			if (user.deleted)
-				await User.update({ id: user.id }, { deleted: false });
+			if (user.disabled) await User.update({ id: user.id }, { disabled: false });
+			if (user.deleted) await User.update({ id: user.id }, { deleted: false });
 		} else {
 			if (user.deleted)
 				return res.status(400).json({

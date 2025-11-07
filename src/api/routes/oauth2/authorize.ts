@@ -17,20 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	ApiError,
-	Application,
-	ApplicationAuthorizeSchema,
-	DiscordApiErrors,
-	FieldErrors,
-	Member,
-	Permissions,
-	User,
-	getPermission,
-	Role,
-} from "@spacebar/util";
+import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
 
@@ -85,13 +75,7 @@ router.get(
 				id: req.user_id,
 				bot: false,
 			},
-			select: [
-				"id",
-				"username",
-				"avatar",
-				"discriminator",
-				"public_flags",
-			],
+			select: ["id", "username", "avatar", "discriminator", "public_flags"],
 		});
 
 		const guilds = await Member.find({
@@ -211,18 +195,9 @@ router.post(
 		// TODO: captcha verification
 		// TODO: MFA verification
 
-		const perms = await getPermission(
-			req.user_id,
-			body.guild_id,
-			undefined,
-			{ member_relations: ["user"] },
-		);
+		const perms = await getPermission(req.user_id, body.guild_id, undefined, { member_relations: ["user"] });
 		// getPermission cache won't exist if we're owner
-		if (
-			Object.keys(perms.cache || {}).length > 0 &&
-			perms.cache.member?.user.bot
-		)
-			throw DiscordApiErrors.UNAUTHORIZED;
+		if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
 		perms.hasThrow("MANAGE_GUILD");
 
 		const app = await Application.findOne({

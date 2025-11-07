@@ -17,6 +17,7 @@
 */
 
 export * from "./Application";
+export * from "./ApplicationCommand";
 export * from "./Attachment";
 export * from "./AuditLog";
 export * from "./AutomodRule";
@@ -27,6 +28,7 @@ export * from "./BaseClass";
 export * from "./Categories";
 export * from "./Channel";
 export * from "./ClientRelease";
+export * from "./CloudAttachment";
 export * from "./Config";
 export * from "./ConnectedAccount";
 export * from "./ConnectionConfigEntity";
@@ -55,6 +57,7 @@ export * from "./TeamMember";
 export * from "./Template";
 export * from "./User";
 export * from "./UserSettings";
+export * from "./UserSettingsProtos";
 export * from "./ValidRegistrationTokens";
 export * from "./VoiceState";
 export * from "./Webhook";

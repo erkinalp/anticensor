@@ -17,21 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Config,
-	emitEvent,
-	FieldErrors,
-	generateToken,
-	handleFile,
-	PrivateUserProjection,
-	User,
-	UserModifySchema,
-	UserUpdateEvent,
-} from "@spacebar/util";
+import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
+import { PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -79,23 +70,12 @@ router.patch(
 		// Populated on password change
 		let newToken: string | undefined;
 
-		if (body.avatar)
-			body.avatar = await handleFile(
-				`/avatars/${req.user_id}`,
-				body.avatar as string,
-			);
-		if (body.banner)
-			body.banner = await handleFile(
-				`/banners/${req.user_id}`,
-				body.banner as string,
-			);
+		if (body.avatar) body.avatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+		if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
 
 		if (body.password) {
 			if (user.data?.hash) {
-				const same_password = await bcrypt.compare(
-					body.password,
-					user.data.hash || "",
-				);
+				const same_password = await bcrypt.compare(body.password, user.data.hash || "");
 				if (!same_password) {
 					throw FieldErrors({
 						password: {
@@ -152,10 +132,7 @@ router.patch(
 			}
 
 			const { maxUsername } = Config.get().limits.user;
-			if (
-				check_username.length > maxUsername ||
-				check_username.length < 2
-			) {
+			if (check_username.length > maxUsername || check_username.length < 2) {
 				throw FieldErrors({
 					username: {
 						code: "BASE_TYPE_BAD_LENGTH",

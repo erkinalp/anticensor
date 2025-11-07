@@ -21,9 +21,7 @@ import {
 	Channel,
 	Message,
 	MessageCreateEvent,
-	MessageCreateSchema,
 	MessageDeleteEvent,
-	MessageEditSchema,
 	MessageUpdateEvent,
 	Snowflake,
 	SpacebarApiErrors,
@@ -38,9 +36,10 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { handleMessage, postHandleMessage, route } from "../../../../../util";
-import { URL } from "url";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
+// TODO: message content/embed string length limit
 
 const messageUpload = multer({
 	limits: {
@@ -77,11 +76,7 @@ router.patch(
 			relations: ["attachments"],
 		});
 
-		const permissions = await getPermission(
-			req.user_id,
-			undefined,
-			channel_id,
-		);
+		const permissions = await getPermission(req.user_id, undefined, channel_id);
 
 		const rights = await getRights(req.user_id);
 
@@ -93,7 +88,8 @@ router.patch(
 			}
 		} else rights.hasThrow("SELF_EDIT_MESSAGES");
 
-		// @ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
+		// no longer necessary, somehow resolved by updating the type of `attachments`...?
+		// //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
 		const new_message = await handleMessage({
 			...message,
 			// TODO: should message_reference be overridable?
@@ -171,7 +167,7 @@ router.put(
 	async (req: Request, res: Response) => {
 		const { channel_id, message_id } = req.params;
 		const body = req.body as MessageCreateSchema;
-		const attachments: Attachment[] = [];
+		const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
 
 		const rights = await getRights(req.user_id);
 		rights.hasThrow("SEND_MESSAGES");
@@ -196,13 +192,8 @@ router.put(
 
 		if (req.file) {
 			try {
-				const file = await uploadFile(
-					`/attachments/${req.params.channel_id}`,
-					req.file,
-				);
-				attachments.push(
-					Attachment.create({ ...file, proxy_url: file.url }),
-				);
+				const file = await uploadFile(`/attachments/${req.params.channel_id}`, req.file);
+				attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
 			} catch (error) {
 				return res.status(400).json(error);
 			}
@@ -241,9 +232,7 @@ router.put(
 		]);
 
 		// no await as it shouldnt block the message send function and silently catch error
-		postHandleMessage(message).catch((e) =>
-			console.error("[Message] post-message handler failed", e),
-		);
+		postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
 		return res.json(
 			message.withSignedAttachments(
@@ -279,14 +268,9 @@ router.get(
 			relations: ["attachments"],
 		});
 
-		const permissions = await getPermission(
-			req.user_id,
-			undefined,
-			channel_id,
-		);
+		const permissions = await getPermission(req.user_id, undefined, channel_id);
 
-		if (message.author_id !== req.user_id)
-			permissions.hasThrow("READ_MESSAGE_HISTORY");
+		if (message.author_id !== req.user_id) permissions.hasThrow("READ_MESSAGE_HISTORY");
 
 		if (!message.reply_ids) {
 			const replies = await Message.find({
@@ -301,10 +285,7 @@ router.get(
 
 			if (replies.length > 0) {
 				message.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message.id },
-					{ reply_ids: message.reply_ids },
-				);
+				await Message.update({ id: message.id }, { reply_ids: message.reply_ids });
 			} else {
 				message.reply_ids = [];
 				await Message.update({ id: message.id }, { reply_ids: [] });
@@ -340,11 +321,7 @@ router.delete(
 
 		if (message.author_id !== req.user_id) {
 			if (!rights.has("MANAGE_MESSAGES")) {
-				const permission = await getPermission(
-					req.user_id,
-					channel.guild_id,
-					channel_id,
-				);
+				const permission = await getPermission(req.user_id, channel.guild_id, channel_id);
 				permission.hasThrow("MANAGE_MESSAGES");
 			}
 		} else rights.hasThrow("SELF_DELETE_MESSAGES");
@@ -354,22 +331,13 @@ router.delete(
 				where: { id: message.message_reference.message_id },
 			});
 			if (parentMessage?.reply_ids) {
-				parentMessage.reply_ids = parentMessage.reply_ids.filter(
-					(id) => id !== message_id,
-				);
-				await Message.update(
-					{ id: parentMessage.id },
-					{ reply_ids: parentMessage.reply_ids },
-				);
+				parentMessage.reply_ids = parentMessage.reply_ids.filter((id) => id !== message_id);
+				await Message.update({ id: parentMessage.id }, { reply_ids: parentMessage.reply_ids });
 			}
 		}
 
 		if (message.reply_ids?.length) {
-			const permissions = await getPermission(
-				req.user_id,
-				channel.guild_id,
-				channel_id,
-			);
+			const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
 			if (permissions.has("MANAGE_MESSAGES")) {
 				await Message.delete({ id: In(message.reply_ids) });
 			}

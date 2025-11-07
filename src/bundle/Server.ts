@@ -28,7 +28,7 @@ import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
-import { Config, initDatabase, Sentry } from "@spacebar/util";
+import { Config, initDatabase } from "@spacebar/util";
 
 const app = express();
 const server = http.createServer();
@@ -53,43 +53,27 @@ process.on("SIGTERM", async () => {
 	await api.stop();
 	await webrtc.stop();
 	server.close();
-	Sentry.close();
 });
 
 async function main() {
 	await initDatabase();
 	await Config.init();
-	await Sentry.init(app);
 
 	const logRequests = process.env["LOG_REQUESTS"] != undefined;
 	if (logRequests) {
 		app.use(
 			morgan("combined", {
 				skip: (req, res) => {
-					let skip = !(
-						process.env["LOG_REQUESTS"]?.includes(
-							res.statusCode.toString(),
-						) ?? false
-					);
-					if (process.env["LOG_REQUESTS"]?.charAt(0) == "-")
-						skip = !skip;
+					let skip = !(process.env["LOG_REQUESTS"]?.includes(res.statusCode.toString()) ?? false);
+					if (process.env["LOG_REQUESTS"]?.charAt(0) == "-") skip = !skip;
 					return skip;
 				},
 			}),
 		);
 	}
 
-	await new Promise((resolve) =>
-		server.listen({ port }, () => resolve(undefined)),
-	);
-	await Promise.all([
-		api.start(),
-		cdn.start(),
-		gateway.start(),
-		webrtc.start(),
-	]);
-
-	Sentry.errorHandler(app);
+	await new Promise((resolve) => server.listen({ port }, () => resolve(undefined)));
+	await Promise.all([api.start(), cdn.start(), gateway.start(), webrtc.start()]);
 
 	console.log(`[Server] ${green(`Listening on port ${bold(port)}`)}`);
 }

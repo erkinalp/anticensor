@@ -1,19 +1,10 @@
-import {
-	Column,
-	Entity,
-	JoinColumn,
-	ManyToOne,
-	OneToMany,
-	RelationId,
-} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
-import { dbEngine } from "../util/Database";
 import { User } from "./User";
 import { Stream } from "./Stream";
 
 @Entity({
 	name: "stream_sessions",
-	engine: dbEngine,
 })
 export class StreamSession extends BaseClass {
 	@Column()

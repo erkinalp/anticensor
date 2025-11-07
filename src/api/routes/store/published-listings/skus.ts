@@ -19,9 +19,9 @@
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
-router.get("/:id", route({}), async (req: Request, res: Response) => {
+router.get("/:sku_id", route({}), async (req: Request, res: Response) => {
 	//TODO
 	// const id = req.params.id;
 	res.json({

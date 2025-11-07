@@ -37,28 +37,21 @@ const recurseJsonReplace = (json: any) => {
 
 		json[key] = JSONReplacer.call(json, key, json[key]);
 
-		if (typeof json[key] == "object" && json[key] !== null)
-			json[key] = recurseJsonReplace(json[key]);
+		if (typeof json[key] == "object" && json[key] !== null) json[key] = recurseJsonReplace(json[key]);
 	}
 	return json;
 };
 
-export function Send(socket: WebSocket, data: Payload) {
-	if (process.env.WS_VERBOSE)
-		console.log(`[Websocket] Outgoing message: ${JSON.stringify(data)}`);
+export async function Send(socket: WebSocket, data: Payload) {
+	if (process.env.WS_VERBOSE) console.log(`[Websocket] Outgoing message: ${JSON.stringify(data)}`);
 
 	if (process.env.WS_DUMP) {
 		const id = socket.session_id || "unknown";
 
-		(async () => {
-			await fs.mkdir(path.join("dump", id), {
-				recursive: true,
-			});
-			await fs.writeFile(
-				path.join("dump", id, `${Date.now()}.out.json`),
-				JSON.stringify(data, null, 2),
-			);
-		})();
+		await fs.mkdir(path.join("dump", id), {
+			recursive: true,
+		});
+		await fs.writeFile(path.join("dump", id, `${Date.now()}.out.json`), JSON.stringify(data, null, 2));
 	}
 
 	let buffer: Buffer | string;
@@ -68,12 +61,16 @@ export function Send(socket: WebSocket, data: Payload) {
 		buffer = erlpack.pack(data);
 	}
 	// TODO: encode circular object
-	else if (socket.encoding === "json")
-		buffer = JSON.stringify(data, JSONReplacer);
+	else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);
 	else return;
+
 	// TODO: compression
-	if (socket.deflate) {
-		buffer = socket.deflate.process(buffer) as Buffer;
+	if (socket.compress === "zlib-stream") {
+		buffer = socket.deflate!.process(buffer) as Buffer;
+	} else if (socket.compress === "zstd-stream") {
+		if (typeof buffer === "string") buffer = Buffer.from(buffer as string);
+
+		buffer = (await socket.zstdEncoder!.encode(buffer as Buffer)) as Buffer;
 	}
 
 	return new Promise((res, rej) => {

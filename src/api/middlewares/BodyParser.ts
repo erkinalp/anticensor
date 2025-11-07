@@ -37,19 +37,12 @@ export function BodyParser(opts?: OptionsJson) {
 	const jsonParser = bodyParser.json(opts);
 
 	return (req: Request, res: Response, next: NextFunction) => {
-		if (!req.headers["content-type"])
-			req.headers["content-type"] = "application/json";
+		if (!req.headers["content-type"]) req.headers["content-type"] = "application/json";
 
 		jsonParser(req, res, (err) => {
 			if (err) {
-				const [message, status] = errorMessages[err.type] || [
-					"Invalid Body",
-					400,
-				];
-				const errorMessage =
-					message.includes("charset") || message.includes("encoding")
-						? `${message} "${err.charset || err.encoding}"`
-						: message;
+				const [message, status] = errorMessages[err.type] || ["Invalid Body", 400];
+				const errorMessage = message.includes("charset") || message.includes("encoding") ? `${message} "${err.charset || err.encoding}"` : message;
 				return next(new HTTPError(errorMessage, status));
 			}
 			next();

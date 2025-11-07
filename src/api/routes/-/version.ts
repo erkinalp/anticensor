@@ -34,21 +34,13 @@ router.get(
 		const version =
 			(typeof (cfg as Record<string, unknown>).version === "string"
 				? ((cfg as Record<string, unknown>).version as string)
-				: typeof (cfg as Record<string, unknown>).appVersion ===
-					  "string"
+				: typeof (cfg as Record<string, unknown>).appVersion === "string"
 					? ((cfg as Record<string, unknown>).appVersion as string)
 					: process.env.npm_package_version) || "unknown";
 		const api_compatibility =
-			(typeof (cfg as Record<string, unknown>).apiCompatibility ===
-			"string"
-				? ((cfg as Record<string, unknown>).apiCompatibility as string)
-				: null) ?? null;
+			(typeof (cfg as Record<string, unknown>).apiCompatibility === "string" ? ((cfg as Record<string, unknown>).apiCompatibility as string) : null) ?? null;
 		const extensions = (
-			Array.isArray(
-				(cfg as Record<string, unknown>).extensions as unknown[],
-			)
-				? ((cfg as { extensions: unknown[] }).extensions as unknown[])
-				: []
+			Array.isArray((cfg as Record<string, unknown>).extensions as unknown[]) ? ((cfg as { extensions: unknown[] }).extensions as unknown[]) : []
 		) as unknown[];
 
 		res.json({

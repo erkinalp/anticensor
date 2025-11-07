@@ -17,15 +17,9 @@
 */
 
 import { getIpAdress, route, verifyCaptcha } from "@spacebar/api";
-import {
-	checkToken,
-	Config,
-	FieldErrors,
-	generateToken,
-	User,
-} from "@spacebar/util";
+import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 async function getToken(user: User) {
 	const token = await generateToken(user.id);

@@ -16,35 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	CLOSECODES,
-	Capabilities,
-	OPCODES,
-	Payload,
-	Send,
-	WebSocket,
-	setupListener,
-} from "@spacebar/gateway";
+import { CLOSECODES, Capabilities, OPCODES, Payload, Send, WebSocket, setupListener } from "@spacebar/gateway";
 import {
 	Application,
 	Config,
-	DMChannel,
-	DefaultUserGuildSettings,
 	EVENTEnum,
 	Guild,
-	GuildCreateEvent,
 	GuildOrUnavailable,
-	IdentifySchema,
 	Intents,
 	Member,
 	MemberPrivateProjection,
 	OPCodes,
-	Permissions,
 	PresenceUpdateEvent,
 	PrivateSessionProjection,
-	PrivateUserProjection,
-	PublicUser,
-	PublicUserProjection,
 	ReadState,
 	ReadyEventData,
 	ReadyGuildDTO,
@@ -56,23 +40,47 @@ import {
 	checkToken,
 	emitEvent,
 	getDatabase,
+	TraceNode,
+	TraceRoot,
+	Stopwatch,
+	timePromise,
+	ElapsedTime,
+	Channel,
+	Emoji,
+	Role,
+	Sticker,
+	VoiceState,
+	UserSettingsProtos,
 } from "@spacebar/util";
 import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 import { check } from "./instanceOf";
+import { In } from "typeorm";
+import { PreloadedUserSettings } from "discord-protos";
+import { DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "@spacebar/schemas";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
 
+function logAuth(message: string) {
+	if (process.env.LOG_AUTH != "true") return;
+	console.log(`[Gateway/Auth] ${message}`);
+}
+
 const tryGetUserFromToken = async (...args: Parameters<typeof checkToken>) => {
+	logAuth("Checking token");
 	try {
 		return (await checkToken(...args)).user;
 	} catch (e) {
+		console.log("[Gateway] Error when identifying: ", e);
 		return null;
 	}
 };
 
 export async function onIdentify(this: WebSocket, data: Payload) {
-	const startTime = Date.now();
+	const totalSw = Stopwatch.startNew();
+	const taskSw = Stopwatch.startNew();
+	const gatewayShardName = `sb-gateway`;
+
 	if (this.user_id) {
 		// we've already identified
 		return this.close(CLOSECODES.Already_authenticated);
@@ -86,18 +94,21 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 	this.capabilities = new Capabilities(identify.capabilities || 0);
 	this.large_threshold = identify.large_threshold || 250;
+	const parseAndValidateTime = taskSw.getElapsedAndReset();
 
 	const user = await tryGetUserFromToken(identify.token, {
 		relations: ["relationships", "relationships.to", "settings"],
 		select: [...PrivateUserProjection, "relationships"],
 	});
-	if (!user) return this.close(CLOSECODES.Authentication_failed);
+	if (!user) {
+		console.log("[Gateway] Failed to identify user");
+		return this.close(CLOSECODES.Authentication_failed);
+	}
 	this.user_id = user.id;
-	const userQueryTime = Date.now();
+	const userQueryTime = taskSw.getElapsedAndReset();
 
 	// Check intents
-	if (!identify.intents)
-		identify.intents = BigInt("0b11011111111111111111111111111111111"); // TODO: what is this number?
+	if (!identify.intents) identify.intents = BigInt("0b11011111111111111111111111111111111"); // TODO: what is this number?
 	this.intents = new Intents(identify.intents);
 
 	// TODO: actually do intent things.
@@ -107,20 +118,13 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		this.shard_id = identify.shard[0];
 		this.shard_count = identify.shard[1];
 
-		if (
-			this.shard_count == null ||
-			this.shard_id == null ||
-			this.shard_id > this.shard_count ||
-			this.shard_id < 0 ||
-			this.shard_count <= 0
-		) {
+		if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
 			// TODO: why do we even care about this right now?
-			console.log(
-				`[Gateway] Invalid sharding from ${user.id}: ${identify.shard}`,
-			);
+			console.log(`[Gateway] Invalid sharding from ${user.id}: ${identify.shard}`);
 			return this.close(CLOSECODES.Invalid_shard);
 		}
 	}
+	const validateIntentsAndShardingTime = taskSw.getElapsedAndReset();
 
 	// Generate a new gateway session ( id is already made, just save it in db )
 	const session = Session.create({
@@ -135,75 +139,75 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		client_status: {},
 		activities: identify.presence?.activities, // TODO: validation
 	});
-
-	const createSessionTime = Date.now();
+	const createSessionTime = taskSw.getElapsedAndReset();
 
 	// Get from database:
 	// * the users read states
 	// * guild members for this user
 	// * recipients ( dm channels )
 	// * the bot application, if it exists
-	const [, application, read_states, members, recipients] = await Promise.all(
-		[
-			session.save(),
+	const [
+		{ elapsed: sessionSaveTime },
+		{ result: application, elapsed: applicationQueryTime },
+		{ result: read_states, elapsed: read_statesQueryTime },
+		{ result: members, elapsed: membersQueryTime },
+		{ result: recipients, elapsed: recipientsQueryTime },
+	] = await Promise.all([
+		timePromise(() => session.save()),
 
+		timePromise(() =>
 			Application.findOne({
 				where: { id: this.user_id },
 				select: ["id", "flags"],
 			}),
+		),
 
+		timePromise(() =>
 			ReadState.find({
 				where: { user_id: this.user_id },
-				select: [
-					"id",
-					"channel_id",
-					"last_message_id",
-					"last_pin_timestamp",
-					"mention_count",
-				],
+				select: ["id", "channel_id", "last_message_id", "last_pin_timestamp", "mention_count"],
 			}),
+		),
 
+		timePromise(() =>
 			Member.find({
 				where: { id: this.user_id },
 				select: {
 					// We only want some member props
-					...Object.fromEntries(
-						MemberPrivateProjection.map((x) => [x, true]),
-					),
+					...Object.fromEntries(MemberPrivateProjection.map((x) => [x, true])),
 					settings: true, // guild settings
 					roles: { id: true }, // the full role is fetched from the `guild` relation
+					guild: { id: true },
 
 					// TODO: we don't really need every property of
 					// guild channels, emoji, roles, stickers
 					// but we do want almost everything from guild.
 					// How do you do that without just enumerating the guild props?
-					guild: Object.fromEntries(
-						getDatabase()!
-							.getMetadata(Guild)
-							.columns.map((x) => [x.propertyName, true]),
-					),
+					// guild: Object.fromEntries(
+					// 	getDatabase()!
+					// 		.getMetadata(Guild)
+					// 		.columns.map((x) => [x.propertyName, true]),
+					// ),
 				},
 				relations: [
-					"guild",
-					"guild.channels",
-					"guild.emojis",
-					"guild.roles",
-					"guild.stickers",
-					"guild.voice_states",
+					// "guild",
+					// "guild.channels",
+					// "guild.emojis",
+					// "guild.roles",
+					// "guild.stickers",
+					// "guild.voice_states",
 					"roles",
 
 					// For these entities, `user` is always just the logged in user we fetched above
 					// "user",
 				],
 			}),
+		),
 
+		timePromise(() =>
 			Recipient.find({
 				where: { user_id: this.user_id, closed: false },
-				relations: [
-					"channel",
-					"channel.recipients",
-					"channel.recipients.user",
-				],
+				relations: ["channel", "channel.recipients", "channel.recipients.user"],
 				select: {
 					channel: {
 						id: true,
@@ -221,24 +225,137 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 							// at least one column.
 							id: true,
 							// We only want public user data for each dm channel
-							user: Object.fromEntries(
-								PublicUserProjection.map((x) => [x, true]),
-							),
+							user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
 						},
 					},
 				},
 			}),
-		],
+		),
+	]);
+
+	const { result: memberGuilds, elapsed: queryGuildsTime } = await timePromise(() =>
+		Promise.all(
+			members.map((m) =>
+				Guild.findOneOrFail({
+					where: { id: m.guild_id },
+					select: Object.fromEntries(
+						getDatabase()!
+							.getMetadata(Guild)
+							.columns.map((x) => [x.propertyName, true]),
+					),
+					// relations: ["channels", "emojis", "roles", "stickers", "voice_states"],
+				}),
+			),
+		),
 	);
 
-	const query1Time = Date.now();
+	const guildIds = memberGuilds.map((g) => g.id);
+
+	// select relations
+	const [
+		{ result: settingsProtos, elapsed: settingsProtosQueryTime },
+		{ result: memberGuildChannels, elapsed: queryGuildChannelsTime },
+		{ result: memberGuildEmojis, elapsed: queryGuildEmojisTime },
+		{ result: memberGuildRoles, elapsed: queryGuildRolesTime },
+		{ result: memberGuildStickers, elapsed: queryGuildStickersTime },
+		{ result: memberGuildVoiceStates, elapsed: queryGuildVoiceStatesTime },
+	] = await Promise.all([
+		timePromise(() =>
+			UserSettingsProtos.findOne({
+				where: { user_id: this.user_id },
+			}),
+		),
+		timePromise(() =>
+			Channel.find({
+				where: { guild_id: In(guildIds) },
+				order: { guild_id: "ASC" },
+			}),
+		),
+		timePromise(() =>
+			Emoji.find({
+				where: { guild_id: In(guildIds) },
+				order: { guild_id: "ASC" },
+			}),
+		),
+		timePromise(() =>
+			Role.find({
+				where: { guild_id: In(guildIds) },
+				order: { guild_id: "ASC" },
+			}),
+		),
+		timePromise(() =>
+			Sticker.find({
+				where: { guild_id: In(guildIds) },
+				order: { guild_id: "ASC" },
+			}),
+		),
+		timePromise(() =>
+			VoiceState.find({
+				where: { guild_id: In(guildIds) },
+				order: { guild_id: "ASC" },
+			}),
+		),
+	]);
+
+	const mergeMemberGuildsTrace: TraceNode = {
+		micros: 0,
+		calls: [],
+	};
+	members.forEach((m) => {
+		const sw = Stopwatch.startNew();
+		const totalSw = Stopwatch.startNew();
+		const trace: TraceNode = {
+			micros: 0,
+			calls: [],
+		};
+
+		const g = memberGuilds.find((mg) => mg.id === m.guild_id);
+		if (g) {
+			m.guild = g;
+			trace.calls.push("findGuild", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//channels
+			g.channels = memberGuildChannels.filter((c) => c.guild_id === m.guild_id);
+			trace.calls.push("filterChannels", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//emojis
+			g.emojis = memberGuildEmojis.filter((e) => e.guild_id === m.guild_id);
+			trace.calls.push("filterEmojis", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//roles
+			g.roles = memberGuildRoles.filter((r) => r.guild_id === m.guild_id);
+			trace.calls.push("filterRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//stickers
+			g.stickers = memberGuildStickers.filter((s) => s.guild_id === m.guild_id);
+			trace.calls.push("filterStickers", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//voice states
+			g.voice_states = memberGuildVoiceStates.filter((v) => v.guild_id === m.guild_id);
+			trace.calls.push("filterVoiceStates", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+			//total
+			trace.micros = totalSw.elapsed().totalMicroseconds;
+			mergeMemberGuildsTrace.calls!.push(`guild_${m.guild_id}`, trace);
+		} else {
+			console.error(`[Gateway] Member ${m.id} has invalid guild_id ${m.guild_id}`);
+			mergeMemberGuildsTrace.calls!.push(`guild_~~${m.guild_id}~~`, trace);
+		}
+	});
+
+	for (const call of mergeMemberGuildsTrace.calls!) {
+		if (typeof call !== "string") mergeMemberGuildsTrace.micros += (call as { micros: number }).micros;
+	}
+
+	const totalQueryTime = taskSw.getElapsedAndReset();
 
 	// We forgot to migrate user settings from the JSON column of `users`
 	// to the `user_settings` table theyre in now,
 	// so for instances that migrated, users may not have a `user_settings` row.
+	let createUserSettingsTime: ElapsedTime | undefined = undefined;
 	if (!user.settings) {
-		user.settings = new UserSettings();
-		await user.settings.save();
+		user.settings = await UserSettings.getOrDefault(user.id);
+		createUserSettingsTime = taskSw.getElapsedAndReset();
 	}
 
 	// Generate merged_members
@@ -246,7 +363,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		return [
 			{
 				...x,
-				roles: x.roles.map((x) => x.id),
+				// filter out @everyone role
+				roles: x.roles.filter((r) => r.id !== x.guild.id).map((x) => x.id),
 
 				// add back user, which we don't fetch from db
 				// TODO: For guild profiles, this may need to be changed.
@@ -261,8 +379,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 			},
 		];
 	});
-
-	const mergedMembersTime = Date.now();
+	const mergedMembersTime = taskSw.getElapsedAndReset();
 
 	// Populated with guilds 'unavailable' currently
 	// Just for bots
@@ -270,10 +387,10 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 	// Generate guilds list ( make them unavailable if user is bot )
 	const guilds: GuildOrUnavailable[] = members.map((member) => {
-		// filter guild channels we don't have permission to view
-		// TODO: check if this causes issues when the user is granted other roles?
 		member.guild.channels = member.guild.channels
-			.filter((channel) => {
+			/*
+   			//TODO maybe implement this correctly, by causing create and delete events for users who can newly view and not view the channels, along with doing these checks correctly, as they don't currently take into account that the owner of the guild is always able to view channels, with potentially other issues
+   			.filter((channel) => {
 				const perms = Permissions.finalPermission({
 					user: {
 						id: member.id,
@@ -285,10 +402,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 				return perms.has("VIEW_CHANNEL");
 			})
+   			*/
 			.map((channel) => {
-				channel.position = member.guild.channel_ordering.indexOf(
-					channel.id,
-				);
+				channel.position = member.guild.channel_ordering.indexOf(channel.id);
 				return channel;
 			})
 			.sort((a, b) => a.position - b.position);
@@ -305,22 +421,21 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 			threads: [],
 		};
 	});
+	const generateGuildsListTime = taskSw.getElapsedAndReset();
 
 	// Generate user_guild_settings
-	const user_guild_settings_entries: ReadyUserGuildSettingsEntries[] =
-		members.map((x) => ({
-			...DefaultUserGuildSettings,
-			...x.settings,
-			guild_id: x.guild_id,
-			channel_overrides: Object.entries(
-				x.settings.channel_overrides ?? {},
-			).map((y) => ({
-				...y[1],
-				channel_id: y[0],
-			})),
-		}));
+	const user_guild_settings_entries: ReadyUserGuildSettingsEntries[] = members.map((x) => ({
+		...DefaultUserGuildSettings,
+		...x.settings,
+		guild_id: x.guild_id,
+		channel_overrides: Object.entries(x.settings.channel_overrides ?? {}).map((y) => ({
+			...y[1],
+			channel_id: y[0],
+		})),
+	}));
+	const generateUserGuildSettingsTime = taskSw.getElapsedAndReset();
 
-	// Popultaed with users from private channels, relationships.
+	// Populated with users from private channels, relationships.
 	// Uses a set to dedupe for us.
 	const users: Set<PublicUser> = new Set();
 
@@ -333,16 +448,11 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 			const channel = r.channel as DMChannel;
 
 			// Remove ourself from the list of other users in dm channel
-			channel.recipients = channel.recipients.filter(
-				(recipient) => recipient.user.id !== this.user_id,
-			);
+			channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
 
-			const channelUsers = channel.recipients?.map((recipient) =>
-				recipient.user.toPublicUser(),
-			);
+			const channelUsers = channel.recipients?.map((recipient) => recipient.user.toPublicUser());
 
-			if (channelUsers && channelUsers.length > 0)
-				channelUsers.forEach((user) => users.add(user));
+			if (channelUsers && channelUsers.length > 0) channelUsers.forEach((user) => users.add(user));
 
 			return {
 				id: channel.id,
@@ -353,11 +463,11 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 				is_spam: false, // TODO
 			};
 		});
+	const generateDmChannelsTime = taskSw.getElapsedAndReset();
 
 	// From user relationships ( friends ), also append to `users` list
 	user.relationships.forEach((x) => users.add(x.to.toPublicUser()));
-
-	const remapDataTime = Date.now();
+	const appendRelationshipsTime = taskSw.getElapsedAndReset();
 
 	// Send SESSIONS_REPLACE and PRESENCE_UPDATE
 	const allSessions = (
@@ -374,52 +484,56 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		session_id: x.session_id, // TODO: discord.com sends 'all', what is that???
 		status: x.status,
 	}));
-
-	const sessionReplaceTime = Date.now();
+	const findAndGenerateSessionReplaceTime = taskSw.getElapsedAndReset();
 
 	const shouldRoutePresence = shouldRoutePresenceFromRights(user.rights);
 
-	const promises: Promise<unknown>[] = [
-		emitEvent({
-			event: "SESSIONS_REPLACE",
-			user_id: this.user_id,
-			data: allSessions,
-		} as SessionsReplace),
+	const promises: Promise<{ elapsed: ElapsedTime }>[] = [
+		timePromise(() =>
+			emitEvent({
+				event: "SESSIONS_REPLACE",
+				user_id: this.user_id,
+				data: allSessions,
+			} as SessionsReplace),
+		),
 	];
 
 	if (shouldRoutePresence) {
 		promises.push(
-			emitEvent({
-				event: "PRESENCE_UPDATE",
-				user_id: this.user_id,
-				data: {
-					user: user.toPublicUser(),
-					activities: session.activities,
-					client_status: session.client_status,
-					status: session.status,
-				},
-			} as PresenceUpdateEvent),
+			timePromise(() =>
+				emitEvent({
+					event: "PRESENCE_UPDATE",
+					user_id: this.user_id,
+					data: {
+						user: user.toPublicUser(),
+						activities: session.activities,
+						client_status: session.client_status,
+						status: session.status,
+					},
+				} as PresenceUpdateEvent),
+			),
 		);
 	}
 
-	Promise.all(promises);
+	const emitResults = await Promise.all(promises);
+	const emitSessionsReplaceTime = emitResults[0].elapsed;
+	const emitPresenceUpdateTime = emitResults[1]?.elapsed;
 
 	// Build READY
 
 	read_states.forEach((x) => {
 		x.id = x.channel_id;
 	});
+	const remapReadStateIdsTime = taskSw.getElapsedAndReset();
 
 	const d: ReadyEventData = {
 		v: 9,
-		application: application
-			? { id: application.id, flags: application.flags }
-			: undefined,
+		application: application ? { id: application.id, flags: application.flags } : undefined,
 		user: user.toPrivateUser(),
 		user_settings: user.settings,
-		guilds: this.capabilities.has(Capabilities.FLAGS.CLIENT_STATE_V2)
-			? guilds.map((x) => new ReadyGuildDTO(x).toJSON())
-			: guilds,
+		user_settings_proto: settingsProtos?.userSettings ? PreloadedUserSettings.toBase64(settingsProtos.userSettings) : undefined,
+		user_settings_proto_json: settingsProtos?.userSettings ? PreloadedUserSettings.toJson(settingsProtos.userSettings) : undefined,
+		guilds: this.capabilities.has(Capabilities.FLAGS.CLIENT_STATE_V2) ? guilds.map((x) => new ReadyGuildDTO(x).toJSON()) : guilds,
 		relationships: user.relationships.map((x) => x.toPublicRelationship()),
 		read_state: {
 			entries: read_states,
@@ -438,16 +552,10 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		merged_members: merged_members,
 		sessions: allSessions,
 
-		resume_gateway_url:
-			Config.get().gateway.endpointClient ||
-			Config.get().gateway.endpointPublic ||
-			"ws://127.0.0.1:3001",
+		resume_gateway_url: Config.get().gateway.endpointClient || Config.get().gateway.endpointPublic || "ws://127.0.0.1:3001",
 
 		// lol hack whatever
-		required_action:
-			Config.get().login.requireVerification && !user.verified
-				? "REQUIRE_VERIFIED_EMAIL"
-				: undefined,
+		required_action: Config.get().login.requireVerification && !user.verified ? "REQUIRE_VERIFIED_EMAIL" : undefined,
 
 		consents: {
 			personalization: {
@@ -469,7 +577,68 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 			// ????
 			flags: 0,
 		},
+		game_relationships: [],
 	};
+	const buildReadyEventDataTime = taskSw.getElapsedAndReset();
+	const _trace = [
+		gatewayShardName,
+		{
+			micros: totalSw.elapsed().totalMicroseconds,
+			calls: [],
+		},
+	] as TraceRoot;
+	const times = {
+		parseAndValidateTime,
+		userQueryTime,
+		validateIntentsAndShardingTime,
+		createSessionTime,
+		totalQueryTime,
+		createUserSettingsTime,
+		mergedMembersTime,
+		generateGuildsListTime,
+		generateUserGuildSettingsTime,
+		generateDmChannelsTime,
+		appendRelationshipsTime,
+		findAndGenerateSessionReplaceTime,
+		emitSessionsReplaceTime,
+		emitPresenceUpdateTime,
+		remapReadStateIdsTime,
+		buildReadyEventDataTime,
+	};
+	for (const [key, value] of Object.entries(times)) {
+		if (value) {
+			const val = { micros: value.totalMicroseconds } as { micros: number; calls: TraceNode[] };
+			_trace![1].calls.push(key, val);
+			if (key === "totalQueryTime") {
+				val.calls = [];
+				for (const [subkey, subvalue] of Object.entries({
+					sessionSaveTime,
+					applicationQueryTime,
+					read_statesQueryTime,
+					membersQueryTime,
+					recipientsQueryTime,
+					queryGuildsTime,
+					queryGuildChannelsTime,
+					queryGuildEmojisTime,
+					queryGuildRolesTime,
+					queryGuildStickersTime,
+					queryGuildVoiceStatesTime,
+				})) {
+					if (subvalue) {
+						val.calls.push(subkey, {
+							micros: subvalue.totalMicroseconds,
+						} as TraceNode);
+					}
+				}
+
+				val.calls.push("mergeMemberGuildsTrace", mergeMemberGuildsTrace);
+			}
+		}
+	}
+	_trace![1].calls.push("buildTraceTime", {
+		micros: taskSw.elapsed().totalMicroseconds,
+	});
+	d._trace = [JSON.stringify(_trace)];
 
 	// Send READY
 	await Send(this, {
@@ -486,9 +655,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 	await Promise.all(
 		pending_guilds.map((x) => {
 			//Even with the GUILD_MEMBERS intent, the bot always receives just itself as the guild members
-			const botMemberObject = members.find(
-				(member) => member.guild_id === x.id,
-			);
+			const botMemberObject = members.find((member) => member.guild_id === x.id);
 
 			return Send(this, {
 				op: OPCODES.Dispatch,
@@ -505,21 +672,15 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 							]
 						: [],
 				},
-			})?.catch((e) =>
-				console.error(`[Gateway] error when sending bot guilds`, e),
-			);
+			})?.catch((e) => console.error(`[Gateway] error when sending bot guilds`, e));
 		}),
 	);
 
 	const pendingGuildsTime = Date.now();
 
-	const readySupplementalGuilds = (
-		guilds.filter((guild) => !guild.unavailable) as Guild[]
-	).map((guild) => {
+	const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => {
 		return {
-			voice_states: guild.voice_states.map((state) =>
-				state.toPublicVoiceState(),
-			),
+			voice_states: guild.voice_states.map((state) => state.toPublicVoiceState()),
 			id: guild.id,
 			embedded_activities: [],
 		};
@@ -553,17 +714,5 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 	const setupListenerTime = Date.now();
 
-	console.log(
-		`[Gateway] IDENTIFY ${this.user_id} in ${Date.now() - startTime}ms`,
-		{
-			userQueryTime: Date.now() - userQueryTime,
-			createSessionTime: Date.now() - createSessionTime,
-			query1Time: Date.now() - query1Time,
-			remapDataTime: Date.now() - remapDataTime,
-			sessionReplaceTime: Date.now() - sessionReplaceTime,
-			readyTime: Date.now() - readyTime,
-			pendingGuildsTime: Date.now() - pendingGuildsTime,
-			readySupplementalTime: Date.now() - readySupplementalTime,
-		},
-	);
+	console.log(`[Gateway] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`, process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "");
 }

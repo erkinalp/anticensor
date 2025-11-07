@@ -26,7 +26,6 @@ import {
 	Member,
 	EVENTEnum,
 	Relationship,
-	RelationshipType,
 	Message,
 	NewUrlUserSignatureData,
 	ConnectionPrivacy,
@@ -39,6 +38,7 @@ import "missing-native-js-functions";
 import { Channel as AMQChannel } from "amqplib";
 import { Recipient } from "@spacebar/util";
 import * as console from "node:console";
+import { RelationshipType } from "@spacebar/schemas";
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent
@@ -47,10 +47,7 @@ import * as console from "node:console";
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
 // https://discord.com/developers/docs/topics/gateway#sharding
 
-export function handlePresenceUpdate(
-	this: WebSocket,
-	{ event, acknowledge, data }: EventOpts,
-) {
+export function handlePresenceUpdate(this: WebSocket, { event, acknowledge, data }: EventOpts) {
 	acknowledge?.();
 	if (event === EVENTEnum.PresenceUpdate) {
 		return Send(this, {
@@ -95,30 +92,16 @@ export async function setupListener(this: WebSocket) {
 
 	console.log("[RabbitMQ] setupListener: open for ", this.user_id);
 	if (RabbitMQ.connection) {
-		console.log(
-			"[RabbitMQ] setupListener: opts.channel = ",
-			typeof opts.channel,
-			"with channel id",
-			opts.channel?.ch,
-		);
+		console.log("[RabbitMQ] setupListener: opts.channel = ", typeof opts.channel, "with channel id", opts.channel?.ch);
 		opts.channel = await RabbitMQ.connection.createChannel();
 		opts.channel.queues = {};
-		console.log(
-			"[RabbitMQ] channel created: ",
-			typeof opts.channel,
-			"with channel id",
-			opts.channel?.ch,
-		);
+		console.log("[RabbitMQ] channel created: ", typeof opts.channel, "with channel id", opts.channel?.ch);
 	}
 
 	this.events[this.user_id] = await listenEvent(this.user_id, consumer, opts);
 
 	relationships.forEach(async (relationship) => {
-		this.events[relationship.to_id] = await listenEvent(
-			relationship.to_id,
-			handlePresenceUpdate.bind(this),
-			opts,
-		);
+		this.events[relationship.to_id] = await listenEvent(relationship.to_id, handlePresenceUpdate.bind(this), opts);
 	});
 
 	dm_channels.forEach(async (channel) => {
@@ -131,29 +114,14 @@ export async function setupListener(this: WebSocket) {
 		this.events[guild.id] = await listenEvent(guild.id, consumer, opts);
 
 		guild.channels.forEach(async (channel) => {
-			if (
-				permission
-					.overwriteChannel(channel.permission_overwrites ?? [])
-					.has("VIEW_CHANNEL")
-			) {
-				this.events[channel.id] = await listenEvent(
-					channel.id,
-					consumer,
-					opts,
-				);
+			if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
+				this.events[channel.id] = await listenEvent(channel.id, consumer, opts);
 			}
 		});
 	});
 
 	this.once("close", () => {
-		console.log(
-			"[RabbitMQ] setupListener: close for",
-			this.user_id,
-			"=",
-			typeof opts.channel,
-			"with channel id",
-			opts.channel?.ch,
-		);
+		console.log("[RabbitMQ] setupListener: close for", this.user_id, "=", typeof opts.channel, "with channel id", opts.channel?.ch);
 		if (opts.channel) opts.channel.close();
 		else {
 			Object.values(this.events).forEach((x) => x?.());
@@ -181,11 +149,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
 			break;
 		case "GUILD_MEMBER_ADD":
 			if (this.member_events[data.user.id]) break; // already subscribed
-			this.member_events[data.user.id] = await listenEvent(
-				data.user.id,
-				handlePresenceUpdate.bind(this),
-				this.listen_options,
-			);
+			this.member_events[data.user.id] = await listenEvent(data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
 			break;
 		case "GUILD_MEMBER_UPDATE":
 			if (!this.member_events[data.user.id]) break;
@@ -198,32 +162,20 @@ async function consume(this: WebSocket, opts: EventOpts) {
 			delete this.events[id];
 			break;
 		case "CHANNEL_CREATE":
-			if (
-				!permission
-					.overwriteChannel(data.permission_overwrites)
-					.has("VIEW_CHANNEL")
-			) {
+			if (!permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) {
 				return;
 			}
 			this.events[id] = await listenEvent(id, consumer, listenOpts);
 			break;
 		case "RELATIONSHIP_ADD":
-			this.events[data.user.id] = await listenEvent(
-				data.user.id,
-				handlePresenceUpdate.bind(this),
-				this.listen_options,
-			);
+			this.events[data.user.id] = await listenEvent(data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
 			break;
 		case "GUILD_CREATE":
 			this.events[id] = await listenEvent(id, consumer, listenOpts);
 			break;
 		case "CHANNEL_UPDATE": {
 			const exists = this.events[id];
-			if (
-				permission
-					.overwriteChannel(data.permission_overwrites)
-					.has("VIEW_CHANNEL")
-			) {
+			if (permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) {
 				if (exists) break;
 				this.events[id] = await listenEvent(id, consumer, listenOpts);
 			} else {
@@ -295,31 +247,21 @@ async function consume(this: WebSocket, opts: EventOpts) {
 		case "MESSAGE_UPDATE":
 			// console.log(this.request)
 			if (data["attachments"])
-				data["attachments"] =
-					Message.prototype.withSignedAttachments.call(
-						data,
-						new NewUrlUserSignatureData({
-							ip: this.ipAddress,
-							userAgent: this.userAgent,
-						}),
-					).attachments;
+				data["attachments"] = Message.prototype.withSignedAttachments.call(
+					data,
+					new NewUrlUserSignatureData({
+						ip: this.ipAddress,
+						userAgent: this.userAgent,
+					}),
+				).attachments;
 
-			if (
-				data["reply_ids"] &&
-				!this.capabilities?.has(
-					Capabilities.FLAGS.DOUBLY_LINKED_REPLIES,
-				)
-			) {
+			if (data["reply_ids"] && !this.capabilities?.has(Capabilities.FLAGS.DOUBLY_LINKED_REPLIES)) {
 				delete data["reply_ids"];
 			}
 			break;
 		case "USER_CONNECTIONS_UPDATE":
 			if (data.user_id !== this.user_id) {
-				const filteredData = ConnectionPrivacy.filterConnectedAccounts(
-					[data],
-					this.user_id,
-					data.user_id,
-				);
+				const filteredData = ConnectionPrivacy.filterConnectedAccounts([data], this.user_id, data.user_id);
 				if (filteredData.length === 0) return;
 				opts.data = filteredData[0];
 			}
