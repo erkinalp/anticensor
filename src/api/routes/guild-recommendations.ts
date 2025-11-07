@@ -22,7 +22,7 @@ import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { Like } from "typeorm";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -38,10 +38,7 @@ router.get(
 		const { limit } = req.query;
 		const showAllGuilds = Config.get().guild.discovery.showAllGuilds;
 
-		const genLoadId = (size: number) =>
-			[...Array(size)]
-				.map(() => Math.floor(Math.random() * 16).toString(16))
-				.join("");
+		const genLoadId = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");
 
 		const guilds = showAllGuilds
 			? await Guild.find({ take: Math.abs(Number(limit || 24)) })

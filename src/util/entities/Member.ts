@@ -17,38 +17,18 @@
 */
 
 import { HTTPError } from "lambert-server";
-import {
-	BeforeInsert,
-	BeforeUpdate,
-	Column,
-	Entity,
-	Index,
-	JoinColumn,
-	JoinTable,
-	ManyToMany,
-	ManyToOne,
-	Not,
-	PrimaryGeneratedColumn,
-	RelationId,
-} from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
-import {
-	GuildCreateEvent,
-	GuildDeleteEvent,
-	GuildMemberAddEvent,
-	GuildMemberRemoveEvent,
-	GuildMemberUpdateEvent,
-	MessageCreateEvent,
-} from "../interfaces";
+import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
 import { Config, emitEvent } from "../util";
 import { DiscordApiErrors } from "../util/Constants";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
 import { Role } from "./Role";
-import { PublicUser, User } from "./User";
-import { dbEngine } from "../util/Database";
+import { User } from "./User";
+import { PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
 
 export const MemberPrivateProjection: (keyof Member)[] = [
 	"id",
@@ -68,7 +48,6 @@ export const MemberPrivateProjection: (keyof Member)[] = [
 
 @Entity({
 	name: "members",
-	engine: dbEngine,
 })
 @Index(["id", "guild_id"], { unique: true })
 export class Member extends BaseClassWithoutId {
@@ -168,6 +147,8 @@ export class Member extends BaseClassWithoutId {
 			this.nick = this.nick.split("\n").join("");
 			this.nick = this.nick.split("\t").join("");
 		}
+		if (this.nick === "") this.nick = undefined;
+		if (this.pronouns === "") this.pronouns = undefined;
 	}
 
 	static async IsInGuildOrFail(user_id: string, guild_id: string) {
@@ -185,8 +166,7 @@ export class Member extends BaseClassWithoutId {
 			select: ["owner_id"],
 			where: { id: guild_id },
 		});
-		if (guild.owner_id === user_id)
-			throw new Error("The owner cannot be removed of the guild");
+		if (guild.owner_id === user_id) throw new Error("The owner cannot be removed of the guild");
 		const member = await Member.findOneOrFail({
 			where: { id: user_id, guild_id },
 			relations: ["user"],
@@ -248,11 +228,7 @@ export class Member extends BaseClassWithoutId {
 		]);
 	}
 
-	static async removeRole(
-		user_id: string,
-		guild_id: string,
-		role_id: string,
-	) {
+	static async removeRole(user_id: string, guild_id: string, role_id: string) {
 		const [member] = await Promise.all([
 			Member.findOneOrFail({
 				where: { id: user_id, guild_id },
@@ -282,11 +258,7 @@ export class Member extends BaseClassWithoutId {
 		]);
 	}
 
-	static async changeNickname(
-		user_id: string,
-		guild_id: string,
-		nickname: string,
-	) {
+	static async changeNickname(user_id: string, guild_id: string, nickname: string) {
 		const member = await Member.findOneOrFail({
 			where: {
 				id: user_id,
@@ -322,10 +294,7 @@ export class Member extends BaseClassWithoutId {
 		const { maxGuilds } = Config.get().limits.user;
 		const guild_count = await Member.count({ where: { id: user_id } });
 		if (guild_count >= maxGuilds) {
-			throw new HTTPError(
-				`You are at the ${maxGuilds} server limit.`,
-				403,
-			);
+			throw new HTTPError(`You are at the ${maxGuilds} server limit.`, 403);
 		}
 
 		const guild = await Guild.findOneOrFail({
@@ -337,10 +306,7 @@ export class Member extends BaseClassWithoutId {
 		});
 
 		for await (const channel of guild.channels) {
-			channel.position = await Channel.calculatePosition(
-				channel.id,
-				guild_id,
-			);
+			channel.position = await Channel.calculatePosition(channel.id, guild_id);
 		}
 
 		const memberCount = await Member.count({ where: { guild_id } });
@@ -472,86 +438,3 @@ export class Member extends BaseClassWithoutId {
 		return member as PublicMember;
 	}
 }
-
-export interface ChannelOverride {
-	message_notifications: number;
-	mute_config: MuteConfig;
-	muted: boolean;
-	channel_id: string | null;
-}
-
-export interface UserGuildSettings {
-	// channel_overrides: {
-	// 	channel_id: string;
-	// 	message_notifications: number;
-	// 	mute_config: MuteConfig;
-	// 	muted: boolean;
-	// }[];
-
-	channel_overrides: {
-		[channel_id: string]: ChannelOverride;
-	} | null;
-	message_notifications: number;
-	mobile_push: boolean;
-	mute_config: MuteConfig | null;
-	muted: boolean;
-	suppress_everyone: boolean;
-	suppress_roles: boolean;
-	version: number;
-	guild_id: string | null;
-	flags: number;
-	mute_scheduled_events: boolean;
-	hide_muted_channels: boolean;
-	notify_highlights: 0;
-}
-
-export const DefaultUserGuildSettings: UserGuildSettings = {
-	channel_overrides: null,
-	message_notifications: 1,
-	flags: 0,
-	hide_muted_channels: false,
-	mobile_push: true,
-	mute_config: null,
-	mute_scheduled_events: false,
-	muted: false,
-	notify_highlights: 0,
-	suppress_everyone: false,
-	suppress_roles: false,
-	version: 453, // ?
-	guild_id: null,
-};
-
-export interface MuteConfig {
-	end_time: number;
-	selected_time_window: number;
-}
-
-export type PublicMemberKeys =
-	| "id"
-	| "guild_id"
-	| "nick"
-	| "roles"
-	| "joined_at"
-	| "pending"
-	| "deaf"
-	| "mute"
-	| "premium_since"
-	| "avatar";
-
-export const PublicMemberProjection: PublicMemberKeys[] = [
-	"id",
-	"guild_id",
-	"nick",
-	"roles",
-	"joined_at",
-	"pending",
-	"deaf",
-	"mute",
-	"premium_since",
-	"avatar",
-];
-
-export type PublicMember = Omit<Pick<Member, PublicMemberKeys>, "roles"> & {
-	user: PublicUser;
-	roles: string[]; // only role ids not objects
-};

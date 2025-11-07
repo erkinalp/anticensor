@@ -17,14 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Application,
-	DiscordApiErrors,
-	PublicUserProjection,
-} from "@spacebar/util";
+import { Application, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { PublicUserProjection } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -37,12 +34,10 @@ router.get(
 	}),
 	async (req: Request, res: Response) => {
 		const app = await Application.findOneOrFail({
-			where: { id: req.params.id },
+			where: { id: req.params.id }, // ...huh? there's no ID in the path...
 			relations: ["bot", "owner"],
 			select: {
-				owner: Object.fromEntries(
-					PublicUserProjection.map((x) => [x, true]),
-				),
+				owner: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
 			},
 		});
 
@@ -51,8 +46,7 @@ router.get(
 		res.json({
 			...app,
 			owner: app.owner.toPublicUser(),
-			install_params:
-				app.install_params !== null ? app.install_params : undefined,
+			install_params: app.install_params !== null ? app.install_params : undefined,
 		});
 	},
 );

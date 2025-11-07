@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { Invite, PublicInviteRelation } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -40,7 +40,13 @@ router.get(
 			relations: PublicInviteRelation,
 		});
 
-		return res.json(invites);
+		await invites
+			.filter((i) => i.isExpired())
+			.forEachAsync(async (i) => {
+				await Invite.delete({ code: i.code });
+			});
+
+		return res.json(invites.filter((i) => !i.isExpired()));
 	},
 );
 

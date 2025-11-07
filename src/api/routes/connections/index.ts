@@ -19,7 +19,7 @@
 import { route } from "@spacebar/api";
 import { ConnectionConfig, Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -36,10 +36,7 @@ router.get(
 
 		const filteredConfig: Record<string, Record<string, unknown>> = {};
 		Object.keys(config).forEach((key) => {
-			if (
-				instanceConfig.providers.length === 0 ||
-				instanceConfig.providers.includes(key)
-			) {
+			if (instanceConfig.providers.length === 0 || instanceConfig.providers.includes(key)) {
 				filteredConfig[key] = { ...config[key] };
 				delete filteredConfig[key].clientId;
 				delete filteredConfig[key].clientSecret;

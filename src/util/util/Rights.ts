@@ -17,17 +17,11 @@
 */
 
 import { BitField } from "./BitField";
-import "missing-native-js-functions";
 import { BitFieldResolvable, BitFlag } from "./BitField";
 import { User } from "../entities";
 import { HTTPError } from "lambert-server";
 
-export type RightResolvable =
-	| bigint
-	| number
-	| Rights
-	| RightResolvable[]
-	| RightString;
+export type RightResolvable = bigint | number | Rights | RightResolvable[] | RightString;
 
 type RightString = keyof typeof Rights.FLAGS;
 // TODO: just like roles for members, users should have privilidges which combine multiple rights into one and make it easy to assign
@@ -98,36 +92,22 @@ export class Rights extends BitField {
 	};
 
 	any(permission: RightResolvable, checkOperator = true) {
-		return (
-			(checkOperator && super.any(Rights.FLAGS.OPERATOR)) ||
-			super.any(permission)
-		);
+		return (checkOperator && super.any(Rights.FLAGS.OPERATOR)) || super.any(permission);
 	}
 
 	has(permission: RightResolvable, checkOperator = true) {
-		return (
-			(checkOperator && super.has(Rights.FLAGS.OPERATOR)) ||
-			super.has(permission)
-		);
+		return (checkOperator && super.has(Rights.FLAGS.OPERATOR)) || super.has(permission);
 	}
 
 	hasThrow(permission: RightResolvable) {
 		if (this.has(permission)) return true;
-		throw new HTTPError(
-			`You are missing the following rights ${permission}`,
-			403,
-		);
+		throw new HTTPError(`You are missing the following rights ${permission}`, 403);
 	}
 }
 
-const ALL_RIGHTS = Object.values(Rights.FLAGS).reduce(
-	(total, val) => total | val,
-	BigInt(0),
-);
+const ALL_RIGHTS = Object.values(Rights.FLAGS).reduce((total, val) => total | val, BigInt(0));
 
-export function shouldRoutePresenceFromRights(
-	raw: bigint | number | string,
-): boolean {
+export function shouldRoutePresenceFromRights(raw: bigint | number | string): boolean {
 	const val = typeof raw === "string" ? BigInt(raw) : BigInt(raw || 0);
 	const isOperator = (val & Rights.FLAGS.OPERATOR) !== BigInt(0);
 	const hasPresenceBit = (val & Rights.FLAGS.PRESENCE) !== BigInt(0);

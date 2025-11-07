@@ -18,15 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import {
-	LobbyStore,
-	DiscordApiErrors,
-	Channel,
-	Member,
-	Lobby,
-	LobbyMemberDTO,
-	LobbyDTO,
-} from "@spacebar/util";
+import { LobbyStore, DiscordApiErrors, Channel, Member, Lobby, LobbyMemberDTO, LobbyDTO } from "@spacebar/util";
 
 const router = Router();
 
@@ -103,13 +95,10 @@ router.patch(
 		const updates: Partial<Omit<Lobby, "id" | "created_at">> = {};
 		if (body.metadata !== undefined) updates.metadata = body.metadata;
 		if (body.members !== undefined) updates.members = body.members;
-		if (body.idle_timeout_seconds !== undefined)
-			updates.idle_timeout_seconds = body.idle_timeout_seconds;
+		if (body.idle_timeout_seconds !== undefined) updates.idle_timeout_seconds = body.idle_timeout_seconds;
 
 		const updatedLobby = LobbyStore.updateLobby(lobby_id, updates);
-		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(
-			updatedLobby!,
-		);
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(updatedLobby!);
 		return res.json(lobbyResponse);
 	},
 );
@@ -186,9 +175,7 @@ router.patch(
 			linked_channel: body.channel_id || undefined,
 		});
 
-		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(
-			updatedLobby!,
-		);
+		const lobbyResponse: LobbyDTO = LobbyStore.toLobbyResponse(updatedLobby!);
 		return res.json(lobbyResponse);
 	},
 );

@@ -27,22 +27,19 @@ import { Config } from "./Config";
 // UUID extension option is only supported with postgres
 // We want to generate all id's with Snowflakes that's why we have our own BaseEntity class
 
-let dbConnection: DataSource | undefined;
+export let dbConnection: DataSource | undefined;
 
 // For typeorm cli
 if (!process.env) {
-	config();
+	config({ quiet: true });
 }
 
-const dbConnectionString =
-	process.env.DATABASE || path.join(process.cwd(), "database.db");
+const dbConnectionString = process.env.DATABASE || path.join(process.cwd(), "database.db");
 
-const DatabaseType = dbConnectionString.includes("://")
-	? dbConnectionString.split(":")[0]?.replace("+srv", "")
-	: "sqlite";
+export const DatabaseType = dbConnectionString.includes("://") ? dbConnectionString.split(":")[0]?.replace("+srv", "") : "sqlite";
 const isSqlite = DatabaseType.includes("sqlite");
 
-let DataSourceOptions: DataSource;
+export let DataSourceOptions: DataSource;
 
 // Gets the existing database connection
 export function getDatabase(): DataSource | null {
@@ -55,13 +52,9 @@ export function getDatabase(): DataSource | null {
 export async function initDatabase(): Promise<DataSource> {
 	if (dbConnection) return dbConnection;
 
-	const isVolatileMode =
-		process.env.VOLATILE_MODE === "true" ||
-		(Config.get()?.general?.volatileMode ?? false);
+	const isVolatileMode = process.env.VOLATILE_MODE === "true" || (Config.get()?.general?.volatileMode ?? false);
 
-	const finalDbConnectionString = isVolatileMode
-		? ":memory:"
-		: dbConnectionString;
+	const finalDbConnectionString = isVolatileMode ? ":memory:" : dbConnectionString;
 	const finalDatabaseType = isVolatileMode ? "sqlite" : DatabaseType;
 	const finalIsSqlite = isVolatileMode || isSqlite;
 
@@ -78,23 +71,13 @@ export async function initDatabase(): Promise<DataSource> {
 		bigNumberStrings: false,
 		supportBigNumbers: true,
 		name: "default",
-		migrations: [
-			path.join(__dirname, "..", "migration", finalDatabaseType, "*.js"),
-		],
+		migrations: [path.join(__dirname, "..", "migration", finalDatabaseType, "*.js")],
 	});
 
 	if (isVolatileMode) {
-		console.log(
-			`[Database] ${yellow(
-				`Running in VOLATILE MODE - all data will be stored in memory and lost on restart!`,
-			)}`,
-		);
+		console.log(`[Database] ${yellow(`Running in VOLATILE MODE - all data will be stored in memory and lost on restart!`)}`);
 	} else if (finalIsSqlite && !isVolatileMode) {
-		console.log(
-			`[Database] ${red(
-				`You are running sqlite! Please keep in mind that we recommend setting up a dedicated database!`,
-			)}`,
-		);
+		console.log(`[Database] ${red(`You are running sqlite! Please keep in mind that we recommend setting up a dedicated database!`)}`);
 	}
 
 	if (!process.env.DB_SYNC && !isVolatileMode) {
@@ -111,9 +94,7 @@ export async function initDatabase(): Promise<DataSource> {
 		}
 	}
 
-	console.log(
-		`[Database] ${yellow(`Connecting to ${finalDatabaseType} db`)}`,
-	);
+	console.log(`[Database] ${yellow(`Connecting to ${finalDatabaseType} db`)}`);
 
 	dbConnection = await DataSourceOptions.initialize();
 
@@ -127,9 +108,7 @@ export async function initDatabase(): Promise<DataSource> {
 		}
 	};
 	if (!(await dbExists())) {
-		console.log(
-			"[Database] This appears to be a fresh database. Synchronising.",
-		);
+		console.log("[Database] This appears to be a fresh database. Synchronising.");
 		await dbConnection.synchronize();
 
 		// On next start, typeorm will try to run all the migrations again from beginning.
@@ -152,11 +131,6 @@ export async function initDatabase(): Promise<DataSource> {
 	return dbConnection;
 }
 
-export { DataSourceOptions, DatabaseType, dbConnection };
-
 export async function closeDatabase() {
 	await dbConnection?.destroy();
 }
-
-export const dbEngine =
-	"InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";

@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ConnectionStore, FieldErrors } from "../../../../util";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get("/", route({}), async (req: Request, res: Response) => {
 	const { connection_name } = req.params;
@@ -30,9 +30,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 			provider_id: {
 				code: "BASE_TYPE_CHOICES",
 				message: req.t("common:field.BASE_TYPE_CHOICES", {
-					types: Array.from(ConnectionStore.connections.keys()).join(
-						", ",
-					),
+					types: Array.from(ConnectionStore.connections.keys()).join(", "),
 				}),
 			},
 		});

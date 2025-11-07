@@ -17,12 +17,9 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	HubWaitlistSignupResponse,
-	HubWaitlistSignupSchema,
-} from "@spacebar/util";
+import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.post(
 	"/signup",

@@ -17,31 +17,18 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	Config,
-	DiscordApiErrors,
-	User,
-	Webhook,
-	WebhookCreateSchema,
-	WebhookType,
-	handleFile,
-	isTextChannel,
-	trimSpecial,
-	FieldErrors,
-	ValidateName,
-} from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName } from "@spacebar/util";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
 	route({
-		description:
-			"Returns a list of channel webhook objects. Requires the MANAGE_WEBHOOKS permission.",
+		description: "Returns a list of channel webhook objects. Requires the MANAGE_WEBHOOKS permission.",
 		permission: "MANAGE_WEBHOOKS",
 		responses: {
 			200: {
@@ -53,27 +40,14 @@ router.get(
 		const { channel_id } = req.params;
 		const webhooks = await Webhook.find({
 			where: { channel_id },
-			relations: [
-				"user",
-				"channel",
-				"source_channel",
-				"guild",
-				"source_guild",
-				"application",
-			],
+			relations: ["user", "channel", "source_channel", "guild", "source_guild", "application"],
 		});
 
-		const instanceUrl =
-			Config.get().api.endpointPublic || "http://localhost:3001";
+		const instanceUrl = Config.get().api.endpointPublic || "http://localhost:3001";
 		return res.json(
 			webhooks.map((webhook) => ({
 				...webhook,
-				url:
-					instanceUrl +
-					"/webhooks/" +
-					webhook.id +
-					"/" +
-					webhook.token,
+				url: instanceUrl + "/webhooks/" + webhook.id + "/" + webhook.token,
 			})),
 		);
 	},
@@ -106,8 +80,7 @@ router.post(
 
 		const webhook_count = await Webhook.count({ where: { channel_id } });
 		const { maxWebhooks } = Config.get().limits.channel;
-		if (maxWebhooks && webhook_count > maxWebhooks)
-			throw DiscordApiErrors.MAXIMUM_WEBHOOKS.withParams(maxWebhooks);
+		if (maxWebhooks && webhook_count > maxWebhooks) throw DiscordApiErrors.MAXIMUM_WEBHOOKS.withParams(maxWebhooks);
 
 		let { avatar, name } = req.body as WebhookCreateSchema;
 		name = trimSpecial(name);

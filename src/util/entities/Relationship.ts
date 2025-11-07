@@ -16,28 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Column,
-	Entity,
-	Index,
-	JoinColumn,
-	ManyToOne,
-	RelationId,
-} from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
-
-export enum RelationshipType {
-	outgoing = 4,
-	incoming = 3,
-	blocked = 2,
-	friends = 1,
-}
+import { RelationshipType } from "@spacebar/schemas";
 
 @Entity({
 	name: "relationships",
-	engine: dbEngine,
 })
 @Index(["from_id", "to_id"], { unique: true })
 export class Relationship extends BaseClass {

@@ -21,7 +21,7 @@ import { User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.post(
 	"/",
@@ -45,10 +45,7 @@ router.post(
 
 		if (user.data.hash) {
 			// guest accounts can delete accounts without password
-			correctpass = await bcrypt.compare(
-				req.body.password,
-				user.data.hash,
-			); //Not sure if user typed right password :/
+			correctpass = await bcrypt.compare(req.body.password, user.data.hash); //Not sure if user typed right password :/
 		}
 
 		if (correctpass) {

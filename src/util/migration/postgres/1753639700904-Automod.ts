@@ -13,9 +13,7 @@ export class Automod1753639700904 implements MigrationInterface {
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.query(
-			`ALTER TABLE "automod_rules" DROP CONSTRAINT "FK_12d3d60b961393d310429c062b7"`,
-		);
+		await queryRunner.query(`ALTER TABLE "automod_rules" DROP CONSTRAINT "FK_12d3d60b961393d310429c062b7"`);
 		await queryRunner.query(`DROP TABLE "automod_rules"`);
 	}
 }

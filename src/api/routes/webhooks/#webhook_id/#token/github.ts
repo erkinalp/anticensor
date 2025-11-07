@@ -1,16 +1,13 @@
 import { getProxyUrl, route } from "@spacebar/api";
-import { capitalize, EmbedType, WebhookExecuteSchema } from "@spacebar/util";
+import { capitalize } from "@spacebar/util";
 import { NextFunction, Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { executeWebhook } from "../../../../util/handlers/Webhook";
+import { EmbedType, WebhookExecuteSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-const parseGitHubWebhook = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
+const parseGitHubWebhook = (req: Request, res: Response, next: NextFunction) => {
 	const eventType = req.headers["x-github-event"] as string;
 	if (!eventType) {
 		throw new HTTPError("Missing X-GitHub-Event header", 400);
@@ -55,11 +52,7 @@ function transformGitHubToDiscord(
 						color: 0xffd700,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -79,11 +72,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -103,11 +92,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -127,11 +112,7 @@ function transformGitHubToDiscord(
 						color: 0xf04747,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -151,11 +132,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -175,11 +152,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -196,17 +169,10 @@ function transformGitHubToDiscord(
 						title: `📝 Issue ${payload.action} in ${payload.repository?.full_name}`,
 						type: EmbedType.rich,
 						description: payload.issue?.title,
-						color:
-							payload.issue?.state === "open"
-								? 0x43b581
-								: 0xf04747,
+						color: payload.issue?.state === "open" ? 0x43b581 : 0xf04747,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -226,11 +192,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -250,11 +212,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -271,17 +229,10 @@ function transformGitHubToDiscord(
 						title: `🔀 Pull Request ${payload.action} in ${payload.repository?.full_name}`,
 						type: EmbedType.rich,
 						description: payload.pull_request?.title,
-						color:
-							payload.pull_request?.state === "open"
-								? 0x43b581
-								: 0xf04747,
+						color: payload.pull_request?.state === "open" ? 0x43b581 : 0xf04747,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -298,19 +249,10 @@ function transformGitHubToDiscord(
 						title: `📝 Pull Request Review ${payload.action} in ${payload.repository?.full_name}`,
 						type: EmbedType.rich,
 						description: payload.review?.body || "No review body",
-						color:
-							payload.review?.state === "approved"
-								? 0x43b581
-								: payload.review?.state === "changes_requested"
-									? 0xf04747
-									: 0x7289da,
+						color: payload.review?.state === "approved" ? 0x43b581 : payload.review?.state === "changes_requested" ? 0xf04747 : 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -330,11 +272,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -358,11 +296,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -384,11 +318,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -406,21 +336,11 @@ function transformGitHubToDiscord(
 					{
 						title: `✅ Check Run ${payload.check_run?.name} in ${payload.repository?.full_name}`,
 						type: EmbedType.rich,
-						description:
-							payload.check_run?.output?.title || "No title",
-						color:
-							payload.check_run?.conclusion === "success"
-								? 0x43b581
-								: payload.check_run?.conclusion === "failure"
-									? 0xf04747
-									: 0x7289da,
+						description: payload.check_run?.output?.title || "No title",
+						color: payload.check_run?.conclusion === "success" ? 0x43b581 : payload.check_run?.conclusion === "failure" ? 0xf04747 : 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -436,21 +356,11 @@ function transformGitHubToDiscord(
 					{
 						title: `✅ Check Suite ${payload.check_suite?.status} in ${payload.repository?.full_name}`,
 						type: EmbedType.rich,
-						description:
-							payload.check_suite?.head_branch || "No branch",
-						color:
-							payload.check_suite?.conclusion === "success"
-								? 0x43b581
-								: payload.check_suite?.conclusion === "failure"
-									? 0xf04747
-									: 0x7289da,
+						description: payload.check_suite?.head_branch || "No branch",
+						color: payload.check_suite?.conclusion === "success" ? 0x43b581 : payload.check_suite?.conclusion === "failure" ? 0xf04747 : 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -470,11 +380,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -494,11 +400,7 @@ function transformGitHubToDiscord(
 						color: 0x7289da,
 						thumbnail: {
 							url: payload.sender?.avatar_url,
-							proxy_url: getProxyUrl(
-								new URL(payload.sender?.avatar_url),
-								80,
-								80,
-							),
+							proxy_url: getProxyUrl(new URL(payload.sender?.avatar_url), 80, 80),
 							width: 80,
 							height: 80,
 						},
@@ -528,14 +430,12 @@ router.post(
 			wait: {
 				type: "boolean",
 				required: false,
-				description:
-					"waits for server confirmation of message send before response, and returns the created message body",
+				description: "waits for server confirmation of message send before response, and returns the created message body",
 			},
 			thread_id: {
 				type: "string",
 				required: false,
-				description:
-					"Send a message to the specified thread within a webhook's channel.",
+				description: "Send a message to the specified thread within a webhook's channel.",
 			},
 		},
 		responses: {

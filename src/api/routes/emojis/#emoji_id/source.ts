@@ -17,18 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Emoji,
-	APIErrorResponse,
-	DiscordApiErrors,
-	EmojiSourceResponse,
-	Guild,
-	Member,
-	EmojiGuild,
-} from "@spacebar/util";
+import { Emoji, DiscordApiErrors, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { APIErrorResponse, EmojiGuild, EmojiSourceResponse } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",

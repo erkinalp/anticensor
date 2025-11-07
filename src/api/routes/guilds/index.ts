@@ -17,19 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Config,
-	DiscordApiErrors,
-	Guild,
-	GuildCreateSchema,
-	Member,
-	getRights,
-	Template,
-} from "@spacebar/util";
+import { Config, DiscordApiErrors, Guild, Member, getRights, Template } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import fetch from "node-fetch-commonjs";
+import { GuildCreateSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 //TODO: create default channel
 
@@ -64,14 +57,12 @@ router.post(
 		let template_guild_id: string | null = null;
 
 		if (body.guild_template_code) {
-			const { enabled, allowDiscordTemplates, allowRaws } =
-				Config.get().templates;
+			const { enabled, allowDiscordTemplates, allowRaws } = Config.get().templates;
 
 			if (!enabled) {
 				return res.status(403).json({
 					code: 403,
-					message:
-						"Template creation & usage is disabled on this instance.",
+					message: "Template creation & usage is disabled on this instance.",
 				});
 			}
 
@@ -81,18 +72,14 @@ router.post(
 				if (!allowDiscordTemplates) {
 					return res.status(403).json({
 						code: 403,
-						message:
-							"Discord templates cannot be used on this instance.",
+						message: "Discord templates cannot be used on this instance.",
 					});
 				}
 				const discordTemplateID = code.split("discord:", 2)[1];
-				const resp = await fetch(
-					`https://discord.com/api/v10/guilds/templates/${discordTemplateID}`,
-					{
-						method: "get",
-						headers: { "Content-Type": "application/json" },
-					},
-				);
+				const resp = await fetch(`https://discord.com/api/v10/guilds/templates/${discordTemplateID}`, {
+					method: "get",
+					headers: { "Content-Type": "application/json" },
+				});
 				const data = (await resp.json()) as {
 					serialized_source_guild?: unknown;
 					source_guild_id?: string | null;

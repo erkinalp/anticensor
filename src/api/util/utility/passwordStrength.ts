@@ -17,11 +17,10 @@
 */
 
 import { Config } from "@spacebar/util";
-import "missing-native-js-functions";
 
 const reNUMBER = /[0-9]/g;
 const reUPPERCASELETTER = /[A-Z]/g;
-const reSYMBOLS = /[A-Z,a-z,0-9]/g;
+const reSYMBOLS = /[A-Za-z0-9]/g;
 
 // const blocklist: string[] = []; // TODO: update ones passwordblocklist is stored in db
 /*
@@ -36,8 +35,7 @@ const reSYMBOLS = /[A-Z,a-z,0-9]/g;
  * Returns: 0 > pw > 1
  */
 export function checkPassword(password: string): number {
-	const { minLength, minNumbers, minUpperCase, minSymbols } =
-		Config.get().register.password;
+	const { minLength, minNumbers, minUpperCase, minSymbols } = Config.get().register.password;
 	let strength = 0;
 
 	// checks for total password len
@@ -46,12 +44,12 @@ export function checkPassword(password: string): number {
 	}
 
 	// checks for amount of Numbers
-	if (password.count(reNUMBER) >= minNumbers - 1) {
+	if (password.match(reNUMBER)?.length ?? 0 >= minNumbers - 1) {
 		strength += 0.05;
 	}
 
 	// checks for amount of Uppercase Letters
-	if (password.count(reUPPERCASELETTER) >= minUpperCase - 1) {
+	if (password.match(reUPPERCASELETTER)?.length ?? 0 >= minUpperCase - 1) {
 		strength += 0.05;
 	}
 
@@ -61,10 +59,7 @@ export function checkPassword(password: string): number {
 	}
 
 	// checks if password only consists of numbers or only consists of chars
-	if (
-		password.length == password.count(reNUMBER) ||
-		password.length === password.count(reUPPERCASELETTER)
-	) {
+	if (password.length == password.match(reNUMBER)?.length || password.length === password.match(reUPPERCASELETTER)?.length) {
 		strength = 0;
 	}
 
@@ -77,8 +72,6 @@ export function checkPassword(password: string): number {
 	const entropies = Object.values(entropyMap);
 
 	entropies.map((x) => x / entropyMap.length);
-	strength +=
-		entropies.reduceRight((a: number, x: number) => a - x * Math.log2(x)) /
-		Math.log2(password.length);
+	strength += entropies.reduceRight((a: number, x: number) => a - x * Math.log2(x)) / Math.log2(password.length);
 	return strength;
 }

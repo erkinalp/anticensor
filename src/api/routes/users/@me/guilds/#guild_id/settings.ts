@@ -17,15 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	Member,
-	OrmUtils,
-	UserGuildSettingsSchema,
-} from "@spacebar/util";
+import { Channel, Member, OrmUtils } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { UserGuildSettingsSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // GET doesn't exist on discord.com
 router.get(

@@ -16,22 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { random, route } from "@spacebar/api";
-import {
-	Channel,
-	Guild,
-	Invite,
-	InviteCreateEvent,
-	InviteCreateSchema,
-	PublicInviteRelation,
-	User,
-	emitEvent,
-	isTextChannel,
-} from "@spacebar/util";
+import { randomString, route } from "@spacebar/api";
+import { Channel, Guild, Invite, InviteCreateEvent, PublicInviteRelation, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { InviteCreateSchema, isTextChannel } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.post(
 	"/",
@@ -64,13 +55,10 @@ router.post(
 		}
 		const { guild_id } = channel;
 
-		const expires_at =
-			body.max_age == 0 || body.max_age == undefined
-				? undefined
-				: new Date(body.max_age * 1000 + Date.now());
+		const expires_at = body.max_age == 0 || body.max_age == undefined ? undefined : new Date(body.max_age * 1000 + Date.now());
 
 		const invite = await Invite.create({
-			code: random(),
+			code: randomString(),
 			temporary: body.temporary || true,
 			uses: 0,
 			max_uses: body.max_uses ? Math.max(0, body.max_uses) : 0,
@@ -121,7 +109,7 @@ router.get(
 		const { guild_id } = channel;
 
 		const invites = await Invite.find({
-			where: { guild_id },
+			where: { guild_id, channel_id },
 			relations: PublicInviteRelation,
 		});
 

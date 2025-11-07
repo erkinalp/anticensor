@@ -16,27 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	BeforeRemove,
-	Column,
-	Entity,
-	JoinColumn,
-	ManyToOne,
-	RelationId,
-} from "typeorm";
+import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { URL } from "url";
 import { deleteFile } from "../util/cdn";
 import { BaseClass } from "./BaseClass";
-import { dbEngine } from "../util/Database";
-import {
-	getUrlSignature,
-	NewUrlUserSignatureData,
-	NewUrlSignatureData,
-} from "../Signing";
+import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing";
 
 @Entity({
 	name: "attachments",
-	engine: dbEngine,
 })
 export class Attachment extends BaseClass {
 	@Column()
@@ -65,13 +52,9 @@ export class Attachment extends BaseClass {
 	message_id: string;
 
 	@JoinColumn({ name: "message_id" })
-	@ManyToOne(
-		() => require("./Message").Message,
-		(message: import("./Message").Message) => message.attachments,
-		{
-			onDelete: "CASCADE",
-		},
-	)
+	@ManyToOne(() => require("./Message").Message, (message: import("./Message").Message) => message.attachments, {
+		onDelete: "CASCADE",
+	})
 	message: import("./Message").Message;
 
 	@BeforeRemove()
@@ -82,14 +65,10 @@ export class Attachment extends BaseClass {
 	signUrls(data: NewUrlUserSignatureData): Attachment {
 		return {
 			...this,
-			url: getUrlSignature(
-				new NewUrlSignatureData({ ...data, url: this.url }),
-			)
+			url: getUrlSignature(new NewUrlSignatureData({ ...data, url: this.url }))
 				.applyToUrl(this.url)
 				.toString(),
-			proxy_url: getUrlSignature(
-				new NewUrlSignatureData({ ...data, url: this.proxy_url }),
-			)
+			proxy_url: getUrlSignature(new NewUrlSignatureData({ ...data, url: this.proxy_url }))
 				.applyToUrl(this.proxy_url)
 				.toString(),
 		};
