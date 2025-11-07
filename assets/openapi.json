@@ -61,9 +61,187 @@
                     "read_states"
                 ]
             },
-            "Network.Headers": {
-                "description": "Request / response headers as keys / values of JSON object.",
+            "ApplicationAuthorizeSchema": {
+                "type": "object",
+                "properties": {
+                    "authorize": {
+                        "type": "boolean"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    },
+                    "captcha_key": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "minLength": 6,
+                        "maxLength": 6,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "authorize",
+                    "guild_id",
+                    "permissions"
+                ]
+            },
+            "ApplicationCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "team_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "ApplicationModifySchema": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": "string"
+                    },
+                    "max_participants": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "privacy_policy_url": {
+                        "type": "string"
+                    },
+                    "role_connections_verification_url": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "custom_install_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AutomodMentionSpamRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "mention_total_limit": {
+                        "type": "integer"
+                    },
+                    "mention_raid_protection_enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "mention_raid_protection_enabled",
+                    "mention_total_limit"
+                ]
+            },
+            "AutomodSuspectedSpamRuleSchema": {
                 "type": "object"
+            },
+            "AutomodCommonlyFlaggedWordsRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "allow_list": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "presets": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "integer"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    }
+                },
+                "required": [
+                    "allow_list",
+                    "presets"
+                ]
+            },
+            "AutomodCustomWordsRuleSchema": {
+                "type": "object",
+                "properties": {
+                    "allow_list": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "keyword_filter": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    },
+                    "regex_patterns": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
+                    }
+                },
+                "required": [
+                    "allow_list",
+                    "keyword_filter",
+                    "regex_patterns"
+                ]
             },
             "ChannelPermissionOverwriteType": {
                 "enum": [
@@ -1144,9 +1322,6 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "region": {
-                        "type": "string"
-                    },
                     "splash": {
                         "type": "string"
                     },
@@ -1822,6 +1997,22 @@
                             }
                         ]
                     },
+                    "consent_given_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "data_sharing_level": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "last_activity_sync": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "privacy_override": {
+                        "type": "boolean",
+                        "default": false
+                    },
                     "id": {
                         "type": "string"
                     }
@@ -1998,6 +2189,22 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
+                    },
+                    "connections_default_visibility": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "connections_activity_sharing": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "connections_metadata_sharing": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "connections_require_approval": {
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "required": [
@@ -2005,6 +2212,10 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
+                    "connections_activity_sharing",
+                    "connections_default_visibility",
+                    "connections_metadata_sharing",
+                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -2404,6 +2615,12 @@
                     },
                     "poll": {
                         "$ref": "#/components/schemas/Poll"
+                    },
+                    "reply_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "username": {
                         "type": "string"
@@ -4269,9 +4486,6 @@
                             "$ref": "#/components/schemas/Member"
                         }
                     },
-                    "region": {
-                        "type": "string"
-                    },
                     "system_channel_id": {
                         "type": "string"
                     },
@@ -4510,6 +4724,50 @@
                     "username"
                 ]
             },
+            "GuildBansResponse": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "username": {
+                                "type": "string"
+                            },
+                            "discriminator": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "avatar": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "public_flags": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "avatar",
+                            "discriminator",
+                            "id",
+                            "public_flags",
+                            "username"
+                        ]
+                    }
+                },
+                "required": [
+                    "reason",
+                    "user"
+                ]
+            },
             "Categories": {
                 "type": "object",
                 "properties": {
@@ -4581,12 +4839,27 @@
                     "maxBio": {
                         "type": "integer",
                         "default": 190
+                    },
+                    "maxDisplayNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxPronounsLength": {
+                        "type": "integer",
+                        "default": 40
+                    },
+                    "maxStatusTextLength": {
+                        "type": "integer",
+                        "default": 128
                     }
                 },
                 "required": [
                     "maxBio",
+                    "maxDisplayNameLength",
                     "maxFriends",
                     "maxGuilds",
+                    "maxPronounsLength",
+                    "maxStatusTextLength",
                     "maxUsername"
                 ]
             },
@@ -4616,6 +4889,18 @@
                     "maxChannelsInCategory": {
                         "type": "integer",
                         "default": 65535
+                    },
+                    "maxGuildNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxRoleNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxMembersRequestLimit": {
+                        "type": "integer",
+                        "default": 100
                     }
                 },
                 "required": [
@@ -4623,7 +4908,10 @@
                     "maxChannels",
                     "maxChannelsInCategory",
                     "maxEmojis",
+                    "maxGuildNameLength",
                     "maxMembers",
+                    "maxMembersRequestLimit",
+                    "maxRoleNameLength",
                     "maxRoles"
                 ]
             },
@@ -4653,6 +4941,10 @@
                     "maxEmbedDownloadSize": {
                         "type": "integer",
                         "default": 5242880
+                    },
+                    "maxReasonLength": {
+                        "type": "integer",
+                        "default": 512
                     }
                 },
                 "required": [
@@ -4661,6 +4953,7 @@
                     "maxCharacters",
                     "maxEmbedDownloadSize",
                     "maxReactions",
+                    "maxReasonLength",
                     "maxTTSCharacters"
                 ]
             },
@@ -4678,10 +4971,25 @@
                     "maxWebhooks": {
                         "type": "integer",
                         "default": 100
+                    },
+                    "maxChannelNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxStageTopicLength": {
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "maxThreadNameLength": {
+                        "type": "integer",
+                        "default": 100
                     }
                 },
                 "required": [
+                    "maxChannelNameLength",
                     "maxPins",
+                    "maxStageTopicLength",
+                    "maxThreadNameLength",
                     "maxTopic",
                     "maxWebhooks"
                 ]
@@ -4810,6 +5118,221 @@
                     "window"
                 ]
             },
+            "EmbedLimits": {
+                "type": "object",
+                "properties": {
+                    "maxTitleLength": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxDescriptionLength": {
+                        "type": "integer",
+                        "default": 4096
+                    },
+                    "maxFieldNameLength": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxFieldValueLength": {
+                        "type": "integer",
+                        "default": 1024
+                    },
+                    "maxFooterTextLength": {
+                        "type": "integer",
+                        "default": 2048
+                    },
+                    "maxAuthorNameLength": {
+                        "type": "integer",
+                        "default": 256
+                    }
+                },
+                "required": [
+                    "maxAuthorNameLength",
+                    "maxDescriptionLength",
+                    "maxFieldNameLength",
+                    "maxFieldValueLength",
+                    "maxFooterTextLength",
+                    "maxTitleLength"
+                ]
+            },
+            "ComponentLimits": {
+                "type": "object",
+                "properties": {
+                    "maxLabelLength": {
+                        "type": "integer",
+                        "default": 80
+                    },
+                    "maxPlaceholderLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionLabelLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionDescriptionLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxSelectOptionValueLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxModalTitleLength": {
+                        "type": "integer",
+                        "default": 45
+                    },
+                    "maxTextInputLabelLength": {
+                        "type": "integer",
+                        "default": 45
+                    },
+                    "maxTextInputPlaceholderLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxTextInputValueLength": {
+                        "type": "integer",
+                        "default": 4000
+                    },
+                    "maxTextInputMinLength": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "maxTextInputMaxLength": {
+                        "type": "integer",
+                        "default": 4000
+                    }
+                },
+                "required": [
+                    "maxLabelLength",
+                    "maxModalTitleLength",
+                    "maxPlaceholderLength",
+                    "maxSelectOptionDescriptionLength",
+                    "maxSelectOptionLabelLength",
+                    "maxSelectOptionValueLength",
+                    "maxTextInputLabelLength",
+                    "maxTextInputMaxLength",
+                    "maxTextInputMinLength",
+                    "maxTextInputPlaceholderLength",
+                    "maxTextInputValueLength"
+                ]
+            },
+            "AttachmentLimits": {
+                "type": "object",
+                "properties": {
+                    "maxFilenameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxDescriptionLength": {
+                        "type": "integer",
+                        "default": 1024
+                    }
+                },
+                "required": [
+                    "maxDescriptionLength",
+                    "maxFilenameLength"
+                ]
+            },
+            "AutomodLimits": {
+                "type": "object",
+                "properties": {
+                    "maxRuleNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxKeywordFilterLength": {
+                        "type": "integer",
+                        "default": 60
+                    },
+                    "maxRegexPatternLength": {
+                        "type": "integer",
+                        "default": 260
+                    },
+                    "maxAllowListLength": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxMentionTotalLimit": {
+                        "type": "integer",
+                        "default": 50
+                    }
+                },
+                "required": [
+                    "maxAllowListLength",
+                    "maxKeywordFilterLength",
+                    "maxMentionTotalLimit",
+                    "maxRegexPatternLength",
+                    "maxRuleNameLength"
+                ]
+            },
+            "ApplicationLimits": {
+                "type": "object",
+                "properties": {
+                    "maxEmojiNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxStickerNameLength": {
+                        "type": "integer",
+                        "default": 30
+                    },
+                    "maxApplicationNameLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxWebhookNameLength": {
+                        "type": "integer",
+                        "default": 80
+                    },
+                    "maxInviteCodeLength": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxVanityUrlLength": {
+                        "type": "integer",
+                        "default": 16
+                    },
+                    "maxTemplateNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxTemplateDescriptionLength": {
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "maxScheduledEventNameLength": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxScheduledEventDescriptionLength": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxForumTagNameLength": {
+                        "type": "integer",
+                        "default": 20
+                    },
+                    "maxDiscriminatorLength": {
+                        "type": "integer",
+                        "default": 4
+                    }
+                },
+                "required": [
+                    "maxApplicationNameLength",
+                    "maxDiscriminatorLength",
+                    "maxEmojiNameLength",
+                    "maxForumTagNameLength",
+                    "maxInviteCodeLength",
+                    "maxScheduledEventDescriptionLength",
+                    "maxScheduledEventNameLength",
+                    "maxStickerNameLength",
+                    "maxTemplateDescriptionLength",
+                    "maxTemplateNameLength",
+                    "maxVanityUrlLength",
+                    "maxWebhookNameLength"
+                ]
+            },
             "PublicConnectedAccount": {
                 "type": "object",
                 "properties": {
@@ -4906,6 +5429,30 @@
                     "ticket"
                 ]
             },
+            "LobbyMemberSchema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Record<string,string>"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
             "TokenResponse": {
                 "type": "object",
                 "properties": {
@@ -4983,149 +5530,79 @@
                     "webauthn"
                 ]
             },
-            "Network.Response": {
-                "description": "HTTP response data.",
+            "AutomodRuleSchema": {
                 "type": "object",
                 "properties": {
-                    "url": {
+                    "creator_id": {
                         "type": "string"
                     },
-                    "status": {
-                        "type": "integer"
-                    },
-                    "statusText": {
-                        "type": "string"
-                    },
-                    "headers": {
-                        "$ref": "#/components/schemas/Network.Headers"
-                    }
-                },
-                "required": [
-                    "headers",
-                    "status",
-                    "statusText",
-                    "url"
-                ]
-            },
-            "ConnectedAccountCommonOAuthTokenResponse": {
-                "type": "object",
-                "properties": {
-                    "access_token": {
-                        "type": "string"
-                    },
-                    "token_type": {
-                        "type": "string"
-                    },
-                    "scope": {
-                        "type": "string"
-                    },
-                    "refresh_token": {
-                        "type": "string"
-                    },
-                    "expires_in": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "access_token",
-                    "scope",
-                    "token_type"
-                ]
-            },
-            "ApplicationAuthorizeSchema": {
-                "type": "object",
-                "properties": {
-                    "authorize": {
+                    "enabled": {
                         "type": "boolean"
                     },
-                    "guild_id": {
-                        "type": "string"
+                    "event_type": {
+                        "type": "integer"
                     },
-                    "permissions": {
-                        "type": "string"
-                    },
-                    "captcha_key": {
-                        "type": "string"
-                    },
-                    "code": {
-                        "minLength": 6,
-                        "maxLength": 6,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "authorize",
-                    "guild_id",
-                    "permissions"
-                ]
-            },
-            "ApplicationCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "team_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "name"
-                ]
-            },
-            "ApplicationModifySchema": {
-                "type": "object",
-                "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "type": "string"
-                    },
-                    "cover_image": {
-                        "type": "string"
-                    },
-                    "interactions_endpoint_url": {
-                        "type": "string"
-                    },
-                    "max_participants": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "privacy_policy_url": {
-                        "type": "string"
-                    },
-                    "role_connections_verification_url": {
-                        "type": "string"
-                    },
-                    "tags": {
+                    "exempt_channels": {
                         "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
                     },
-                    "terms_of_service_url": {
-                        "type": "string"
-                    },
-                    "bot_public": {
-                        "type": "boolean"
-                    },
-                    "bot_require_code_grant": {
-                        "type": "boolean"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "custom_install_url": {
-                        "type": "string"
+                    "exempt_roles": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 1,
+                        "maxItems": 1
                     },
                     "guild_id": {
                         "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "trigger_type": {
+                        "type": "integer"
+                    },
+                    "trigger_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodMentionSpamRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodSuspectedSpamRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodCommonlyFlaggedWordsRuleSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AutomodCustomWordsRuleSchema"
+                            }
+                        ]
                     }
-                }
+                },
+                "required": [
+                    "creator_id",
+                    "enabled",
+                    "event_type",
+                    "exempt_channels",
+                    "exempt_roles",
+                    "guild_id",
+                    "name",
+                    "position",
+                    "trigger_metadata",
+                    "trigger_type"
+                ]
             },
             "BackupCodesChallengeSchema": {
                 "type": "object",
@@ -5369,12 +5846,18 @@
                 "type": "object",
                 "properties": {
                     "visibility": {
-                        "type": "boolean"
+                        "type": "integer"
                     },
                     "show_activity": {
-                        "type": "boolean"
+                        "type": "integer"
                     },
                     "metadata_visibility": {
+                        "type": "integer"
+                    },
+                    "data_sharing_level": {
+                        "type": "integer"
+                    },
+                    "consent_given": {
                         "type": "boolean"
                     }
                 }
@@ -5521,54 +6004,9 @@
                     "staff_only": {
                         "type": "boolean"
                     }
-                }
-            },
-            "LazyRequestSchema": {
-                "type": "object",
-                "properties": {
-                    "guild_id": {
-                        "type": "string"
-                    },
-                    "channels": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "integer"
-                                }
-                            }
-                        }
-                    },
-                    "activities": {
-                        "type": "boolean"
-                    },
-                    "threads": {
-                        "type": "boolean"
-                    },
-                    "typing": {
-                        "enum": [
-                            true
-                        ],
-                        "type": "boolean"
-                    },
-                    "members": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "member_updates": {
-                        "type": "boolean"
-                    },
-                    "thread_member_lists": {
-                        "type": "array",
-                        "items": {}
-                    }
                 },
                 "required": [
-                    "guild_id"
+                    "name"
                 ]
             },
             "GuildSubscriptionsBulkSchema": {
@@ -5673,7 +6111,10 @@
                     "staff_only": {
                         "type": "boolean"
                     }
-                }
+                },
+                "required": [
+                    "name"
+                ]
             },
             "GuildUpdateWelcomeScreenSchema": {
                 "type": "object",
@@ -6784,50 +7225,6 @@
                     "tokens"
                 ]
             },
-            "GuildBansResponse": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "user": {
-                        "type": "object",
-                        "properties": {
-                            "username": {
-                                "type": "string"
-                            },
-                            "discriminator": {
-                                "type": "string"
-                            },
-                            "id": {
-                                "type": "string"
-                            },
-                            "avatar": {
-                                "type": [
-                                    "null",
-                                    "string"
-                                ]
-                            },
-                            "public_flags": {
-                                "type": "integer"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "avatar",
-                            "discriminator",
-                            "id",
-                            "public_flags",
-                            "username"
-                        ]
-                    }
-                },
-                "required": [
-                    "reason",
-                    "user"
-                ]
-            },
             "GuildDiscoveryRequirementsResponse": {
                 "type": "object",
                 "properties": {
@@ -7541,6 +7938,9 @@
                     },
                     "disabled": {
                         "type": "boolean"
+                    },
+                    "rights": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7558,6 +7958,7 @@
                     "premium_usage_flags",
                     "public_flags",
                     "purchased_flags",
+                    "rights",
                     "username",
                     "verified"
                 ]
@@ -7664,6 +8065,9 @@
                     },
                     "disabled": {
                         "type": "boolean"
+                    },
+                    "rights": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7681,6 +8085,7 @@
                     "premium_usage_flags",
                     "public_flags",
                     "purchased_flags",
+                    "rights",
                     "username",
                     "verified"
                 ]
@@ -7701,6 +8106,12 @@
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/Application"
+                }
+            },
+            "APIBansArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildBansResponse"
                 }
             },
             "APIInviteArray": {
@@ -7770,6 +8181,10 @@
                     "autoCreateBotUsers": {
                         "type": "boolean",
                         "default": false
+                    },
+                    "volatileMode": {
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "required": [
@@ -7781,7 +8196,8 @@
                     "instanceDescription",
                     "instanceId",
                     "instanceName",
-                    "tosPage"
+                    "tosPage",
+                    "volatileMode"
                 ]
             },
             "APIChannelArray": {
@@ -8040,11 +8456,31 @@
                     },
                     "absoluteRate": {
                         "$ref": "#/components/schemas/GlobalRateLimits"
+                    },
+                    "embed": {
+                        "$ref": "#/components/schemas/EmbedLimits"
+                    },
+                    "component": {
+                        "$ref": "#/components/schemas/ComponentLimits"
+                    },
+                    "attachment": {
+                        "$ref": "#/components/schemas/AttachmentLimits"
+                    },
+                    "automod": {
+                        "$ref": "#/components/schemas/AutomodLimits"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/ApplicationLimits"
                     }
                 },
                 "required": [
                     "absoluteRate",
+                    "application",
+                    "attachment",
+                    "automod",
                     "channel",
+                    "component",
+                    "embed",
                     "guild",
                     "message",
                     "rate",
@@ -8059,30 +8495,6 @@
             },
             "APIConnectionsConfiguration": {
                 "type": "object"
-            },
-            "UpdatesResponse": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "pub_date": {
-                        "type": "string"
-                    },
-                    "url": {
-                        "type": "string"
-                    },
-                    "notes": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "required": [
-                    "name",
-                    "notes",
-                    "pub_date",
-                    "url"
-                ]
             },
             "UserNoteResponse": {
                 "type": "object",
@@ -8891,6 +9303,18 @@
                     },
                     "view_nsfw_guilds": {
                         "type": "boolean"
+                    },
+                    "connections_default_visibility": {
+                        "type": "integer"
+                    },
+                    "connections_activity_sharing": {
+                        "type": "boolean"
+                    },
+                    "connections_metadata_sharing": {
+                        "type": "boolean"
+                    },
+                    "connections_require_approval": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -9294,6 +9718,97 @@
                     "enabled"
                 ]
             },
+            "ChannelPromoteSchema": {
+                "type": "object",
+                "properties": {
+                    "position": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "LobbyCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Record<string,string>"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "members": {
+                        "maxItems": 25,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LobbyMemberSchema"
+                        }
+                    },
+                    "idle_timeout_seconds": {
+                        "minimum": 5,
+                        "maximum": 604800,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "idle_timeout_seconds"
+                ]
+            },
+            "LobbyUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Record<string,string>"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "members": {
+                        "maxItems": 25,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LobbyMemberSchema"
+                        }
+                    },
+                    "idle_timeout_seconds": {
+                        "minimum": 5,
+                        "maximum": 604800,
+                        "type": "integer"
+                    }
+                }
+            },
+            "LobbyMemberUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Record<string,string>"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "LobbyChannelLinkSchema": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "type": "string"
+                    }
+                }
+            },
             "BulkBanSchema": {
                 "type": "object",
                 "properties": {
@@ -9391,6 +9906,9 @@
             "name": "auth"
         },
         {
+            "name": "categories"
+        },
+        {
             "name": "channels"
         },
         {
@@ -9428,6 +9946,9 @@
         },
         {
             "name": "invites"
+        },
+        {
+            "name": "lobbies"
         },
         {
             "name": "oauth2"
@@ -12612,6 +13133,310 @@
                 },
                 "tags": [
                     "oauth2"
+                ]
+            }
+        },
+        "/lobbies/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LobbyCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "lobbies"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/members/@me": {
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/members/{user_id}/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LobbyMemberUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LobbyUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/channel-linking": {
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LobbyChannelLinkSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
                 ]
             }
         },
@@ -17523,160 +18348,6 @@
                 ]
             }
         },
-        "/channels/{channel_id}/pins/{message_id}": {
-            "put": {
-                "x-permission-required": "VIEW_CHANNEL",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "channel_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "channel_id"
-                    },
-                    {
-                        "name": "message_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "message_id"
-                    }
-                ],
-                "tags": [
-                    "channels"
-                ]
-            },
-            "delete": {
-                "x-permission-required": "VIEW_CHANNEL",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "channel_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "channel_id"
-                    },
-                    {
-                        "name": "message_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "message_id"
-                    }
-                ],
-                "tags": [
-                    "channels"
-                ]
-            }
-        },
-        "/channels/{channel_id}/pins/": {
-            "get": {
-                "x-permission-required": [
-                    "READ_MESSAGE_HISTORY"
-                ],
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIMessageArray"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "channel_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "channel_id"
-                    }
-                ],
-                "tags": [
-                    "channels"
-                ]
-            }
-        },
         "/channels/{channel_id}/permissions/{overwrite_id}": {
             "put": {
                 "x-permission-required": "MANAGE_ROLES",
@@ -17982,6 +18653,7 @@
                     {
                         "name": "around",
                         "in": "query",
+                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -17989,6 +18661,7 @@
                     {
                         "name": "before",
                         "in": "query",
+                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -17996,6 +18669,7 @@
                     {
                         "name": "after",
                         "in": "query",
+                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -18003,6 +18677,7 @@
                     {
                         "name": "limit",
                         "in": "query",
+                        "required": false,
                         "schema": {
                             "type": "number"
                         },
@@ -19247,6 +19922,50 @@
                 ]
             }
         },
+        "/categories/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unknown"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale code"
+                    },
+                    {
+                        "name": "primary_only",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "If 'true', only return category IDs"
+                    }
+                ],
+                "tags": [
+                    "categories"
+                ]
+            }
+        },
         "/auth/verify/view-backup-codes-challenge/": {
             "post": {
                 "requestBody": {
@@ -19803,6 +20522,12 @@
                 },
                 "tags": [
                     "applications"
+                ],
+                "x-badges": [
+                    {
+                        "label": "Spacebar-only",
+                        "color": "red"
+                    }
                 ]
             }
         },
@@ -20152,6 +20877,23 @@
                 ],
                 "tags": [
                     "applications"
+                ]
+            }
+        },
+        "/-/version/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "-"
                 ]
             }
         },

@@ -20,6 +20,17 @@
 	Regenerates the `spacebarchat/server/assets/schemas.json` file, used for API/Gateway input validation.
 */
 
+const conWarn = console.warn;
+console.warn = (...args) => {
+	if (args[0] === "initializer is expression for property id") return;
+	if (
+		args[0].startsWith("unknown initializer for property ") &&
+		args[0].endsWith("[object Object]")
+	)
+		return;
+	conWarn(...args);
+};
+
 const path = require("path");
 const fs = require("fs");
 const TJS = require("typescript-json-schema");
@@ -35,6 +46,7 @@ const settings = {
 	defaultProps: false,
 };
 
+const ExcludeAndWarn = [/^Record/, /^Partial/];
 const Excluded = [
 	"DefaultSchema",
 	"Schema",
@@ -62,6 +74,51 @@ const Excluded = [
 	"AnySchema",
 	"SMTPConnection.CustomAuthenticationResponse",
 	"TransportMakeRequestResponse",
+	/.*\..*/,
+	/^Axios.*/,
+	/^APIKeyConfiguration\..*/,
+	/^AccountSetting\..*/,
+	/^BulkContactManagement\..*/,
+	/^Campaign.*/,
+	/^Contact.*/,
+	/^DNS\..*/,
+	/^Delete.*/,
+	/^Destroy.*/,
+	/^Template\..*/,
+	/^Webhook\..*/,
+	/^(BigDecimal|BigInteger|Blob|Boolean|Document|Error|LazyRequest|List|Map|Normalized|Numeric)Schema/,
+	/^Put/,
+	"TraitsSchema",
+	"ListSchema",
+	"MapSchema",
+	"StructureSchema",
+	"MemberSchema",
+	"OperationSchema",
+	"StringSchema",
+	"TimestampDefaultSchema",
+	"TimestampDateTimeSchema",
+	"TimestampHttpDateSchema",
+	"TimestampEpochSecondsSchema",
+	"SimpleSchema",
+	"UnitSchema",
+	"StreamingBlobSchema",
+	"HttpResponse",
+	"ResolvedHttpResponse",
+	"ConnectedAccountCommonOAuthTokenResponse",
+	/^Clone.*Response$/,
+	/^Create.*Response$/,
+	/^Describe.*Response$/,
+	/^Get.*Response$/,
+	/^List.*Response$/,
+	/^Reorder.*Response$/,
+	/^Send.*Response$/,
+	/^Set.*Response$/,
+	/^Test.*Response$/,
+	/^Update.*Response$/,
+	/^Verify.*Response$/,
+	"SupabaseResponse",
+	"OpenAiResponse",
+	"CopyResponse",
 ];
 
 function main() {
@@ -77,13 +134,21 @@ function main() {
 			(x.endsWith("Schema") ||
 				x.endsWith("Response") ||
 				x.startsWith("API")) &&
-			!Excluded.includes(x)
+			!ExcludeAndWarn.some((exc) => {
+				const match = exc instanceof RegExp ? exc.test(x) : x === exc;
+				if (match) console.warn("Warning: Excluding schema", x);
+				return match;
+			}) &&
+			!Excluded.some((exc) =>
+				exc instanceof RegExp ? exc.test(x) : x === exc,
+			)
 		);
 	});
 
 	var definitions = {};
 
 	for (const name of schemas) {
+		console.log("Processing schema", name);
 		const part = TJS.generateSchema(program, name, settings, [], generator);
 		if (!part) continue;
 
@@ -112,7 +177,35 @@ function main() {
 		definitions = { ...definitions, [name]: { ...part } };
 	}
 
+	deleteOneOfKindUndefinedRecursive(definitions, "$");
+
 	fs.writeFileSync(schemaPath, JSON.stringify(definitions, null, 4));
+	console.log(
+		"Successfully wrote",
+		Object.keys(definitions).length,
+		"schemas to",
+		schemaPath,
+	);
+}
+
+function deleteOneOfKindUndefinedRecursive(obj, path) {
+	if (
+		obj?.type === "object" &&
+		obj?.properties?.oneofKind?.type === "undefined"
+	)
+		return true;
+
+	for (const key in obj) {
+		if (
+			typeof obj[key] === "object" &&
+			deleteOneOfKindUndefinedRecursive(obj[key], path + "." + key)
+		) {
+			console.log("Deleting", path, key);
+			delete obj[key];
+		}
+	}
+
+	return false;
 }
 
 main();
