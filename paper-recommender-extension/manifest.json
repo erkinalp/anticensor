@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "OMRC-MR Paper Recommender",
+  "version": "1.0",
+  "description": "Discourse-Aware Scientific Paper Recommendation for Zotero 7",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://api.semanticscholar.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Get Recommendations"
+  },
+  "icons": {
+    "48": "icons/icon-48.png"
+  }
+}
