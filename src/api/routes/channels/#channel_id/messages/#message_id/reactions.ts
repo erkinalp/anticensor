@@ -157,12 +157,14 @@ router.get(
 		const reaction = message.reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
 		if (!reaction) throw new HTTPError("Reaction not found", 404);
 
-		const users = await User.find({
-			where: {
-				id: In(reaction.user_ids),
-			},
-			select: PublicUserProjection,
-		});
+		const users = (
+			await User.find({
+				where: {
+					id: In(reaction.user_ids),
+				},
+				select: PublicUserProjection,
+			})
+		).map((user) => user.toPublicUser());
 
 		res.json(users);
 	},

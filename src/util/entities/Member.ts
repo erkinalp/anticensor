@@ -189,7 +189,7 @@ export class Member extends BaseClassWithoutId {
 			} as GuildDeleteEvent),
 			emitEvent({
 				event: "GUILD_MEMBER_REMOVE",
-				data: { guild_id, user: member.user },
+				data: { guild_id, user: member.user.toPublicUser() },
 				guild_id,
 			} as GuildMemberRemoveEvent),
 		]);
@@ -372,7 +372,7 @@ export class Member extends BaseClassWithoutId {
 				event: "GUILD_MEMBER_ADD",
 				data: {
 					...member,
-					user,
+					user: user.toPublicUser(),
 					guild_id,
 				},
 				guild_id,

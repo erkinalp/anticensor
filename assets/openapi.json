@@ -4481,7 +4481,7 @@
                             "sending_dns_records": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord"
+                                    "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord"
                                 }
                             }
                         },
@@ -8004,7 +8004,7 @@
                                 "type": "string"
                             },
                             "template": {
-                                "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                                "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                             }
                         },
                         "additionalProperties": false,
@@ -8031,7 +8031,7 @@
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                                    "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                                 }
                             },
                             "paging": {
@@ -8081,7 +8081,7 @@
                         "type": "object",
                         "properties": {
                             "template": {
-                                "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                                "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                             }
                         },
                         "additionalProperties": false,
@@ -8169,7 +8169,7 @@
                                 "type": "string"
                             },
                             "template": {
-                                "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                                "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                             }
                         },
                         "additionalProperties": false,
@@ -9223,7 +9223,7 @@
                 "type": "object",
                 "properties": {
                     "body": {
-                        "$ref": "#/components/schemas/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType"
+                        "$ref": "#/components/schemas/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType"
                     },
                     "status": {
                         "type": "integer"
@@ -9917,86 +9917,96 @@
                         "type": "integer"
                     },
                     "Data": {
-                        "additionalProperties": false,
                         "type": "array",
-                        "properties": {
-                            "Author": {
-                                "type": "string"
-                            },
-                            "Categories": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/Template.Categories"
+                        "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "properties": {
+                                "Author": {
+                                    "type": "string"
+                                },
+                                "Categories": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Template.Categories"
+                                    }
+                                },
+                                "Copyright": {
+                                    "type": "string"
+                                },
+                                "Description": {
+                                    "type": "string"
+                                },
+                                "EditMode": {
+                                    "$ref": "#/components/schemas/Template.EditMode"
+                                },
+                                "IsStarred": {
+                                    "type": "boolean"
+                                },
+                                "IsTextPartGenerationEnabled": {
+                                    "type": "boolean"
+                                },
+                                "Locale": {
+                                    "type": "string"
+                                },
+                                "Name": {
+                                    "type": "string"
+                                },
+                                "OwnerType": {
+                                    "$ref": "#/components/schemas/Template.OwnerType"
+                                },
+                                "Presets": {
+                                    "type": "string"
+                                },
+                                "Purposes": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Template.Purposes"
+                                    }
+                                },
+                                "ID": {
+                                    "type": "integer"
+                                },
+                                "OwnerId": {
+                                    "type": "integer"
+                                },
+                                "Previews": {
+                                    "type": "string"
+                                },
+                                "CreatedAt": {
+                                    "type": "string"
+                                },
+                                "LastUpdatedAt": {
+                                    "type": "string"
+                                },
+                                "LocaleList": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 }
                             },
-                            "Copyright": {
-                                "type": "string"
-                            },
-                            "Description": {
-                                "type": "string"
-                            },
-                            "EditMode": {
-                                "$ref": "#/components/schemas/Template.EditMode"
-                            },
-                            "IsStarred": {
-                                "type": "boolean"
-                            },
-                            "IsTextPartGenerationEnabled": {
-                                "type": "boolean"
-                            },
-                            "Locale": {
-                                "type": "string"
-                            },
-                            "Name": {
-                                "type": "string"
-                            },
-                            "OwnerType": {
-                                "$ref": "#/components/schemas/Template.OwnerType"
-                            },
-                            "Presets": {
-                                "type": "string"
-                            },
-                            "Purposes": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/Template.Purposes"
-                                }
-                            },
-                            "ID": {
-                                "type": "integer"
-                            },
-                            "OwnerId": {
-                                "type": "integer"
-                            },
-                            "Previews": {
-                                "type": "string"
-                            },
-                            "CreatedAt": {
-                                "type": "string"
-                            },
-                            "LastUpdatedAt": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "Author",
-                            "Categories",
-                            "Copyright",
-                            "CreatedAt",
-                            "Description",
-                            "EditMode",
-                            "ID",
-                            "IsStarred",
-                            "IsTextPartGenerationEnabled",
-                            "LastUpdatedAt",
-                            "Locale",
-                            "Name",
-                            "OwnerId",
-                            "OwnerType",
-                            "Presets",
-                            "Previews",
-                            "Purposes"
-                        ]
+                            "required": [
+                                "Author",
+                                "Categories",
+                                "Copyright",
+                                "CreatedAt",
+                                "Description",
+                                "EditMode",
+                                "ID",
+                                "IsStarred",
+                                "IsTextPartGenerationEnabled",
+                                "LastUpdatedAt",
+                                "Locale",
+                                "LocaleList",
+                                "Name",
+                                "OwnerId",
+                                "OwnerType",
+                                "Presets",
+                                "Previews",
+                                "Purposes"
+                            ]
+                        }
                     }
                 },
                 "required": [
@@ -11021,12 +11031,6 @@
                     "poll": {
                         "$ref": "#/components/schemas/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -11813,22 +11817,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -12035,22 +12023,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "required": [
@@ -12058,10 +12030,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -12338,10 +12306,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -14249,12 +14217,6 @@
                     "guild_id": {
                         "type": "string"
                     },
-                    "avatar": {
-                        "type": "string"
-                    },
-                    "premium_since": {
-                        "type": "integer"
-                    },
                     "mute": {
                         "type": "boolean"
                     },
@@ -14270,6 +14232,12 @@
                     },
                     "pending": {
                         "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -14299,6 +14267,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -14307,9 +14282,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -14322,10 +14294,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -15255,9 +15223,7 @@
                         "additionalProperties": false
                     },
                     "intents": {
-                        "type": "number",
-                        "properties": {},
-                        "additionalProperties": false
+                        "type": "number"
                     },
                     "presence": {
                         "$ref": "#/components/schemas/ActivitySchema"
@@ -15276,9 +15242,7 @@
                         "maxItems": 2,
                         "type": "array",
                         "items": {
-                            "type": "number",
-                            "properties": {},
-                            "additionalProperties": false
+                            "type": "number"
                         }
                     },
                     "guild_subscriptions": {
@@ -17042,11 +17006,11 @@
                     "region": {
                         "type": "string"
                     },
-                    "banner": {
+                    "icon": {
                         "type": "string",
                         "nullable": true
                     },
-                    "icon": {
+                    "banner": {
                         "type": "string",
                         "nullable": true
                     },
@@ -18273,9 +18237,6 @@
                         "type": "object",
                         "additionalProperties": false
                     },
-                    "banner": {
-                        "type": "string"
-                    },
                     "icon": {
                         "type": "string"
                     },
@@ -18343,6 +18304,9 @@
                         "items": {
                             "$ref": "#/components/schemas/Role"
                         }
+                    },
+                    "banner": {
+                        "type": "string"
                     },
                     "channels": {
                         "type": "array",
@@ -18523,6 +18487,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -18531,9 +18502,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -18546,10 +18514,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -18594,6 +18558,16 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "verified": {
+                        "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -18602,9 +18576,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -18617,10 +18588,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -18645,9 +18612,6 @@
                     },
                     "phone": {
                         "type": "string"
-                    },
-                    "verified": {
-                        "type": "boolean"
                     },
                     "nsfw_allowed": {
                         "type": "boolean"
@@ -18806,6 +18770,16 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "verified": {
+                        "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -18814,9 +18788,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -18829,10 +18800,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -18857,9 +18824,6 @@
                     },
                     "phone": {
                         "type": "string"
-                    },
-                    "verified": {
-                        "type": "boolean"
                     },
                     "nsfw_allowed": {
                         "type": "boolean"
@@ -19016,10 +18980,6 @@
                     "autoCreateBotUsers": {
                         "type": "boolean",
                         "default": false
-                    },
-                    "volatileMode": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "required": [
@@ -19031,8 +18991,7 @@
                     "instanceDescription",
                     "instanceId",
                     "instanceName",
-                    "tosPage",
-                    "volatileMode"
+                    "tosPage"
                 ]
             },
             "APIChannelArray": {
@@ -19062,12 +19021,6 @@
                     "guild_id": {
                         "type": "string"
                     },
-                    "avatar": {
-                        "type": "string"
-                    },
-                    "premium_since": {
-                        "type": "integer"
-                    },
                     "mute": {
                         "type": "boolean"
                     },
@@ -19083,6 +19036,12 @@
                     },
                     "pending": {
                         "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -19174,11 +19133,11 @@
                     "region": {
                         "type": "string"
                     },
-                    "banner": {
+                    "icon": {
                         "type": "string",
                         "nullable": true
                     },
-                    "icon": {
+                    "banner": {
                         "type": "string",
                         "nullable": true
                     },
@@ -19335,27 +19294,12 @@
                     "maxBio": {
                         "type": "integer",
                         "default": 190
-                    },
-                    "maxDisplayNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxPronounsLength": {
-                        "type": "integer",
-                        "default": 40
-                    },
-                    "maxStatusTextLength": {
-                        "type": "integer",
-                        "default": 128
                     }
                 },
                 "required": [
                     "maxBio",
-                    "maxDisplayNameLength",
                     "maxFriends",
                     "maxGuilds",
-                    "maxPronounsLength",
-                    "maxStatusTextLength",
                     "maxUsername"
                 ]
             },
@@ -19389,18 +19333,6 @@
                     "maxChannelsInCategory": {
                         "type": "integer",
                         "default": 65535
-                    },
-                    "maxGuildNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxRoleNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxMembersRequestLimit": {
-                        "type": "integer",
-                        "default": 100
                     }
                 },
                 "required": [
@@ -19408,10 +19340,7 @@
                     "maxChannels",
                     "maxChannelsInCategory",
                     "maxEmojis",
-                    "maxGuildNameLength",
                     "maxMembers",
-                    "maxMembersRequestLimit",
-                    "maxRoleNameLength",
                     "maxRoles",
                     "maxStickers"
                 ]
@@ -19443,10 +19372,6 @@
                         "type": "integer",
                         "default": 5242880
                     },
-                    "maxReasonLength": {
-                        "type": "integer",
-                        "default": 512
-                    },
                     "maxPreloadCount": {
                         "type": "integer",
                         "default": 100
@@ -19459,7 +19384,6 @@
                     "maxEmbedDownloadSize",
                     "maxPreloadCount",
                     "maxReactions",
-                    "maxReasonLength",
                     "maxTTSCharacters"
                 ]
             },
@@ -19477,25 +19401,10 @@
                     "maxWebhooks": {
                         "type": "integer",
                         "default": 100
-                    },
-                    "maxChannelNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxStageTopicLength": {
-                        "type": "integer",
-                        "default": 120
-                    },
-                    "maxThreadNameLength": {
-                        "type": "integer",
-                        "default": 100
                     }
                 },
                 "required": [
-                    "maxChannelNameLength",
                     "maxPins",
-                    "maxStageTopicLength",
-                    "maxThreadNameLength",
                     "maxTopic",
                     "maxWebhooks"
                 ]
@@ -19624,221 +19533,6 @@
                     "window"
                 ]
             },
-            "EmbedLimits": {
-                "type": "object",
-                "properties": {
-                    "maxTitleLength": {
-                        "type": "integer",
-                        "default": 256
-                    },
-                    "maxDescriptionLength": {
-                        "type": "integer",
-                        "default": 4096
-                    },
-                    "maxFieldNameLength": {
-                        "type": "integer",
-                        "default": 256
-                    },
-                    "maxFieldValueLength": {
-                        "type": "integer",
-                        "default": 1024
-                    },
-                    "maxFooterTextLength": {
-                        "type": "integer",
-                        "default": 2048
-                    },
-                    "maxAuthorNameLength": {
-                        "type": "integer",
-                        "default": 256
-                    }
-                },
-                "required": [
-                    "maxAuthorNameLength",
-                    "maxDescriptionLength",
-                    "maxFieldNameLength",
-                    "maxFieldValueLength",
-                    "maxFooterTextLength",
-                    "maxTitleLength"
-                ]
-            },
-            "ComponentLimits": {
-                "type": "object",
-                "properties": {
-                    "maxLabelLength": {
-                        "type": "integer",
-                        "default": 80
-                    },
-                    "maxPlaceholderLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionLabelLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionDescriptionLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionValueLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxModalTitleLength": {
-                        "type": "integer",
-                        "default": 45
-                    },
-                    "maxTextInputLabelLength": {
-                        "type": "integer",
-                        "default": 45
-                    },
-                    "maxTextInputPlaceholderLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxTextInputValueLength": {
-                        "type": "integer",
-                        "default": 4000
-                    },
-                    "maxTextInputMinLength": {
-                        "type": "integer",
-                        "default": 0
-                    },
-                    "maxTextInputMaxLength": {
-                        "type": "integer",
-                        "default": 4000
-                    }
-                },
-                "required": [
-                    "maxLabelLength",
-                    "maxModalTitleLength",
-                    "maxPlaceholderLength",
-                    "maxSelectOptionDescriptionLength",
-                    "maxSelectOptionLabelLength",
-                    "maxSelectOptionValueLength",
-                    "maxTextInputLabelLength",
-                    "maxTextInputMaxLength",
-                    "maxTextInputMinLength",
-                    "maxTextInputPlaceholderLength",
-                    "maxTextInputValueLength"
-                ]
-            },
-            "AttachmentLimits": {
-                "type": "object",
-                "properties": {
-                    "maxFilenameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxDescriptionLength": {
-                        "type": "integer",
-                        "default": 1024
-                    }
-                },
-                "required": [
-                    "maxDescriptionLength",
-                    "maxFilenameLength"
-                ]
-            },
-            "AutomodLimits": {
-                "type": "object",
-                "properties": {
-                    "maxRuleNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxKeywordFilterLength": {
-                        "type": "integer",
-                        "default": 60
-                    },
-                    "maxRegexPatternLength": {
-                        "type": "integer",
-                        "default": 260
-                    },
-                    "maxAllowListLength": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxMentionTotalLimit": {
-                        "type": "integer",
-                        "default": 50
-                    }
-                },
-                "required": [
-                    "maxAllowListLength",
-                    "maxKeywordFilterLength",
-                    "maxMentionTotalLimit",
-                    "maxRegexPatternLength",
-                    "maxRuleNameLength"
-                ]
-            },
-            "ApplicationLimits": {
-                "type": "object",
-                "properties": {
-                    "maxEmojiNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxStickerNameLength": {
-                        "type": "integer",
-                        "default": 30
-                    },
-                    "maxApplicationNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxWebhookNameLength": {
-                        "type": "integer",
-                        "default": 80
-                    },
-                    "maxInviteCodeLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxVanityUrlLength": {
-                        "type": "integer",
-                        "default": 16
-                    },
-                    "maxTemplateNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxTemplateDescriptionLength": {
-                        "type": "integer",
-                        "default": 120
-                    },
-                    "maxScheduledEventNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxScheduledEventDescriptionLength": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxForumTagNameLength": {
-                        "type": "integer",
-                        "default": 20
-                    },
-                    "maxDiscriminatorLength": {
-                        "type": "integer",
-                        "default": 4
-                    }
-                },
-                "required": [
-                    "maxApplicationNameLength",
-                    "maxDiscriminatorLength",
-                    "maxEmojiNameLength",
-                    "maxForumTagNameLength",
-                    "maxInviteCodeLength",
-                    "maxScheduledEventDescriptionLength",
-                    "maxScheduledEventNameLength",
-                    "maxStickerNameLength",
-                    "maxTemplateDescriptionLength",
-                    "maxTemplateNameLength",
-                    "maxVanityUrlLength",
-                    "maxWebhookNameLength"
-                ]
-            },
             "APILimitsConfiguration": {
                 "type": "object",
                 "properties": {
@@ -19859,31 +19553,11 @@
                     },
                     "absoluteRate": {
                         "$ref": "#/components/schemas/GlobalRateLimits"
-                    },
-                    "embed": {
-                        "$ref": "#/components/schemas/EmbedLimits"
-                    },
-                    "component": {
-                        "$ref": "#/components/schemas/ComponentLimits"
-                    },
-                    "attachment": {
-                        "$ref": "#/components/schemas/AttachmentLimits"
-                    },
-                    "automod": {
-                        "$ref": "#/components/schemas/AutomodLimits"
-                    },
-                    "application": {
-                        "$ref": "#/components/schemas/ApplicationLimits"
                     }
                 },
                 "required": [
                     "absoluteRate",
-                    "application",
-                    "attachment",
-                    "automod",
                     "channel",
-                    "component",
-                    "embed",
                     "guild",
                     "message",
                     "rate",
@@ -20817,18 +20491,12 @@
                 "type": "object",
                 "properties": {
                     "visibility": {
-                        "type": "integer"
+                        "type": "boolean"
                     },
                     "show_activity": {
-                        "type": "integer"
+                        "type": "boolean"
                     },
                     "metadata_visibility": {
-                        "type": "integer"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer"
-                    },
-                    "consent_given": {
                         "type": "boolean"
                     }
                 }
@@ -21044,10 +20712,7 @@
                     "staff_only": {
                         "type": "boolean"
                     }
-                },
-                "required": [
-                    "name"
-                ]
+                }
             },
             "GuildSubscriptionSchema": {
                 "type": "object",
@@ -21195,10 +20860,7 @@
                     "staff_only": {
                         "type": "boolean"
                     }
-                },
-                "required": [
-                    "name"
-                ]
+                }
             },
             "GuildUpdateWelcomeScreenSchema": {
                 "type": "object",
@@ -22912,121 +22574,6 @@
                     "enabled"
                 ]
             },
-            "ChannelPromoteSchema": {
-                "type": "object",
-                "properties": {
-                    "position": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "LobbyMemberSchema": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "flags": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "id"
-                ]
-            },
-            "LobbyCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "members": {
-                        "maxItems": 25,
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/LobbyMemberSchema"
-                        }
-                    },
-                    "idle_timeout_seconds": {
-                        "minimum": 5,
-                        "maximum": 604800,
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "idle_timeout_seconds"
-                ]
-            },
-            "LobbyUpdateSchema": {
-                "type": "object",
-                "properties": {
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "members": {
-                        "maxItems": 25,
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/LobbyMemberSchema"
-                        }
-                    },
-                    "idle_timeout_seconds": {
-                        "minimum": 5,
-                        "maximum": 604800,
-                        "type": "integer"
-                    }
-                }
-            },
-            "LobbyMemberUpdateSchema": {
-                "type": "object",
-                "properties": {
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "flags": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "LobbyChannelLinkSchema": {
-                "type": "object",
-                "properties": {
-                    "channel_id": {
-                        "type": "string"
-                    }
-                }
-            },
             "VoiceIdentifySchema": {
                 "type": "object",
                 "properties": {
@@ -23263,9 +22810,6 @@
             "name": "beaker"
         },
         {
-            "name": "categories"
-        },
-        {
             "name": "channels"
         },
         {
@@ -23315,9 +22859,6 @@
         },
         {
             "name": "invites"
-        },
-        {
-            "name": "lobbies"
         },
         {
             "name": "oauth2"
@@ -25224,101 +24765,6 @@
                 ]
             }
         },
-        "/users/@me/consents/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "List consents for the current user",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/any"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/@me/consents/{service_id}/": {
-            "put": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "Grant consent for a service for the current user",
-                "responses": {
-                    "204": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/null"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "service_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "service_id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            },
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "Revoke consent for a service for the current user",
-                "responses": {
-                    "204": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/null"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "service_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "service_id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
         "/users/@me/connections/": {
             "get": {
                 "security": [
@@ -25649,34 +25095,6 @@
                 ]
             }
         },
-        "/users/@me/applications/{app_id}/entitlements/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "app_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "app_id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
         "/users/@me/applications/{application_id}/entitlements/": {
             "get": {
                 "security": [
@@ -25751,344 +25169,6 @@
                         "description": "No description available"
                     }
                 },
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/relationships/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserRelationsResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/profile/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserProfileResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            },
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserProfileModifySchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIPublicUser"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/delete/": {
-            "post": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/consents/": {
-            "get": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "List consents for a specified user (admin only)",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/any"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            },
-            "delete": {
-                "x-right-required": "OPERATOR",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "Revoke all consents for a specified user (operator only)",
-                "responses": {
-                    "204": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/null"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "users"
-                ]
-            }
-        },
-        "/users/{id}/consents/{service_id}/": {
-            "delete": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "summary": "Revoke consent for a service for the specified user (admin only)",
-                "responses": {
-                    "204": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/null"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    },
-                    {
-                        "name": "service_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "service_id"
-                    }
-                ],
                 "tags": [
                     "users"
                 ]
@@ -26524,34 +25604,6 @@
                 ]
             }
         },
-        "/store/published-listings/applications/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "store"
-                ]
-            }
-        },
         "/store/published-listings/applications/{application_id}/subscription-plans/": {
             "get": {
                 "security": [
@@ -26601,34 +25653,6 @@
                             "type": "string"
                         },
                         "description": "application_id"
-                    }
-                ],
-                "tags": [
-                    "store"
-                ]
-            }
-        },
-        "/store/published-listings/applications/{id}/subscription-plans/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
                     }
                 ],
                 "tags": [
@@ -27023,33 +26047,6 @@
                 ]
             }
         },
-        "/policies/instance/connections/": {
-            "get": {
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "policies"
-                ]
-            },
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "policies"
-                ]
-            }
-        },
         "/policies/instance/config/": {
             "get": {
                 "responses": {
@@ -27300,310 +26297,6 @@
                 },
                 "tags": [
                     "oauth2"
-                ]
-            }
-        },
-        "/lobbies/": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LobbyCreateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "No description available"
-                    },
-                    "401": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "lobbies"
-                ]
-            }
-        },
-        "/lobbies/{lobby_id}/members/@me": {
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            }
-        },
-        "/lobbies/{lobby_id}/members/{user_id}/": {
-            "put": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LobbyMemberUpdateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    },
-                    {
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "user_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            },
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    },
-                    {
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "user_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            }
-        },
-        "/lobbies/{lobby_id}/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            },
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LobbyUpdateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            },
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
-                ]
-            }
-        },
-        "/lobbies/{lobby_id}/channel-linking": {
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LobbyChannelLinkSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "No description available"
-                    },
-                    "403": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "lobby_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "lobby_id"
-                    }
-                ],
-                "tags": [
-                    "lobbies"
                 ]
             }
         },
@@ -32692,34 +31385,17 @@
                 ]
             }
         },
-        "/channels/{channel_id}/promote/": {
-            "post": {
-                "x-permission-required": "MANAGE_CHANNELS",
+        "/channels/{channel_id}/pins/{message_id}": {
+            "put": {
+                "x-permission-required": "VIEW_CHANNEL",
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ChannelPromoteSchema"
-                            }
-                        }
-                    }
-                },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Channel"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "No description available"
                     },
                     "400": {
                         "description": "",
@@ -32736,6 +31412,115 @@
                     },
                     "404": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            },
+            "delete": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/pins/": {
+            "get": {
+                "x-permission-required": [
+                    "READ_MESSAGE_HISTORY"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIMessageArray"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [
@@ -33059,7 +31844,6 @@
                     {
                         "name": "around",
                         "in": "query",
-                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -33067,7 +31851,6 @@
                     {
                         "name": "before",
                         "in": "query",
-                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -33075,7 +31858,6 @@
                     {
                         "name": "after",
                         "in": "query",
-                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -33083,7 +31865,6 @@
                     {
                         "name": "limit",
                         "in": "query",
-                        "required": false,
                         "schema": {
                             "type": "number"
                         },
@@ -33203,98 +31984,6 @@
                             "type": "string"
                         },
                         "description": "channel_id"
-                    }
-                ],
-                "tags": [
-                    "channels"
-                ]
-            }
-        },
-        "/channels/{channel_id}/messages/{message_id}/replies/": {
-            "get": {
-                "x-permission-required": "VIEW_CHANNEL",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIMessageArray"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "channel_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "channel_id"
-                    },
-                    {
-                        "name": "message_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "message_id"
-                    }
-                ],
-                "tags": [
-                    "channels"
-                ]
-            },
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "403": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "channel_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "channel_id"
-                    },
-                    {
-                        "name": "message_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "message_id"
                     }
                 ],
                 "tags": [
@@ -34442,50 +33131,6 @@
                 ],
                 "tags": [
                     "channels"
-                ]
-            }
-        },
-        "/categories/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/unknown"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "locale",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Locale code"
-                    },
-                    {
-                        "name": "primary_only",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "If 'true', only return category IDs"
-                    }
-                ],
-                "tags": [
-                    "categories"
                 ]
             }
         },
@@ -35933,372 +34578,6 @@
                 ],
                 "tags": [
                     "applications"
-                ]
-            }
-        },
-        "/applications/{id}/skus/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApplicationSkusResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/applications/{id}/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Application"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            },
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ApplicationModifySchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Application"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/applications/{id}/delete": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/applications/{id}/entitlements/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApplicationEntitlementsResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/applications/{id}/bot/": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TokenOnlyResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            },
-            "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BotModifySchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Application"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/applications/{id}/bot/reset": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TokenResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "id"
-                    }
-                ],
-                "tags": [
-                    "applications"
-                ]
-            }
-        },
-        "/-/version/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "-"
                 ]
             }
         },

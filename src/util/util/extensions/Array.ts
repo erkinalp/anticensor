@@ -113,8 +113,8 @@ if (!Array.prototype.forEachAsync)
 		return arrayForEachAsync(this, callback);
 	};
 if (!Array.prototype.remove)
-	Array.prototype.remove = function <T>(this: T[], item: T) {
-		return arrayRemove.call(this, item);
+	(Array.prototype.remove as unknown as (item: unknown) => void) = function <T>(this: T[], item: T): void {
+		arrayRemove.call(this, item);
 	};
 if (!Array.prototype.first)
 	Array.prototype.first = function <T>(this: T[]) {

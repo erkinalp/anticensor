@@ -126,7 +126,7 @@ router.delete(
 			event: "GUILD_MEMBER_REMOVE",
 			data: {
 				guild_id: guild_id,
-				user: user,
+				user: user.toPublicUser(),
 			},
 			guild_id: guild_id,
 		} as GuildMemberRemoveEvent);

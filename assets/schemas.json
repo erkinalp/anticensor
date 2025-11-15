@@ -10712,7 +10712,7 @@
                     "sending_dns_records": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord"
+                            "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord"
                         }
                     }
                 },
@@ -10733,7 +10733,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/Domains\",{with:{\"resolution-mode\":\"import\"}}).DNSRecord": {
                 "type": "object",
                 "properties": {
                     "cached": {
@@ -14335,7 +14335,7 @@
                         "type": "string"
                     },
                     "template": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                     }
                 },
                 "additionalProperties": false,
@@ -14351,7 +14351,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -14378,7 +14378,7 @@
                         "type": "string"
                     },
                     "version": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
                     },
                     "versions": {
                         "type": "array",
@@ -14437,7 +14437,7 @@
                     "name"
                 ]
             },
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
                 "additionalProperties": false,
                 "type": "object",
                 "properties": {
@@ -14515,7 +14515,7 @@
                     "items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                            "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                         }
                     },
                     "paging": {
@@ -14556,7 +14556,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -14583,7 +14583,7 @@
                         "type": "string"
                     },
                     "version": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
                     },
                     "versions": {
                         "type": "array",
@@ -14642,7 +14642,7 @@
                     "name"
                 ]
             },
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
                 "additionalProperties": false,
                 "type": "object",
                 "properties": {
@@ -14718,7 +14718,7 @@
                 "type": "object",
                 "properties": {
                     "template": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                     }
                 },
                 "additionalProperties": false,
@@ -14733,7 +14733,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -14760,7 +14760,7 @@
                         "type": "string"
                     },
                     "version": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
                     },
                     "versions": {
                         "type": "array",
@@ -14819,7 +14819,7 @@
                     "name"
                 ]
             },
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
                 "additionalProperties": false,
                 "type": "object",
                 "properties": {
@@ -14963,7 +14963,7 @@
                         "type": "string"
                     },
                     "template": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate"
                     }
                 },
                 "additionalProperties": false,
@@ -14979,7 +14979,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Interfaces/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).IDomainTemplate": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -15006,7 +15006,7 @@
                         "type": "string"
                     },
                     "version": {
-                        "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
+                        "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion"
                     },
                     "versions": {
                         "type": "array",
@@ -15065,7 +15065,7 @@
                     "name"
                 ]
             },
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Domains/DomainTemplates\",{with:{\"resolution-mode\":\"import\"}}).TemplateVersion": {
                 "additionalProperties": false,
                 "type": "object",
                 "properties": {
@@ -16198,7 +16198,7 @@
         "type": "object",
         "properties": {
             "body": {
-                "$ref": "#/definitions/import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType"
+                "$ref": "#/definitions/import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType"
             },
             "status": {
                 "type": "integer"
@@ -16210,7 +16210,7 @@
             "status"
         ],
         "definitions": {
-            "import(\"/home/ubuntu/repos/anticensor/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType": {
+            "import(\"/home/mathman05/Downloads/sbserver/server/node_modules/mailgun.js/Types/Types/Suppressions/Suppressions\",{with:{\"resolution-mode\":\"import\"}}).SuppressionDataType": {
                 "anyOf": [
                     {
                         "type": "object",
@@ -17536,86 +17536,96 @@
                 "type": "integer"
             },
             "Data": {
-                "additionalProperties": false,
                 "type": "array",
-                "properties": {
-                    "Author": {
-                        "type": "string"
-                    },
-                    "Categories": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/Template.Categories"
+                "items": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "properties": {
+                        "Author": {
+                            "type": "string"
+                        },
+                        "Categories": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Template.Categories"
+                            }
+                        },
+                        "Copyright": {
+                            "type": "string"
+                        },
+                        "Description": {
+                            "type": "string"
+                        },
+                        "EditMode": {
+                            "$ref": "#/definitions/Template.EditMode"
+                        },
+                        "IsStarred": {
+                            "type": "boolean"
+                        },
+                        "IsTextPartGenerationEnabled": {
+                            "type": "boolean"
+                        },
+                        "Locale": {
+                            "type": "string"
+                        },
+                        "Name": {
+                            "type": "string"
+                        },
+                        "OwnerType": {
+                            "$ref": "#/definitions/Template.OwnerType"
+                        },
+                        "Presets": {
+                            "type": "string"
+                        },
+                        "Purposes": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Template.Purposes"
+                            }
+                        },
+                        "ID": {
+                            "type": "integer"
+                        },
+                        "OwnerId": {
+                            "type": "integer"
+                        },
+                        "Previews": {
+                            "type": "string"
+                        },
+                        "CreatedAt": {
+                            "type": "string"
+                        },
+                        "LastUpdatedAt": {
+                            "type": "string"
+                        },
+                        "LocaleList": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     },
-                    "Copyright": {
-                        "type": "string"
-                    },
-                    "Description": {
-                        "type": "string"
-                    },
-                    "EditMode": {
-                        "$ref": "#/definitions/Template.EditMode"
-                    },
-                    "IsStarred": {
-                        "type": "boolean"
-                    },
-                    "IsTextPartGenerationEnabled": {
-                        "type": "boolean"
-                    },
-                    "Locale": {
-                        "type": "string"
-                    },
-                    "Name": {
-                        "type": "string"
-                    },
-                    "OwnerType": {
-                        "$ref": "#/definitions/Template.OwnerType"
-                    },
-                    "Presets": {
-                        "type": "string"
-                    },
-                    "Purposes": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/Template.Purposes"
-                        }
-                    },
-                    "ID": {
-                        "type": "integer"
-                    },
-                    "OwnerId": {
-                        "type": "integer"
-                    },
-                    "Previews": {
-                        "type": "string"
-                    },
-                    "CreatedAt": {
-                        "type": "string"
-                    },
-                    "LastUpdatedAt": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "Author",
-                    "Categories",
-                    "Copyright",
-                    "CreatedAt",
-                    "Description",
-                    "EditMode",
-                    "ID",
-                    "IsStarred",
-                    "IsTextPartGenerationEnabled",
-                    "LastUpdatedAt",
-                    "Locale",
-                    "Name",
-                    "OwnerId",
-                    "OwnerType",
-                    "Presets",
-                    "Previews",
-                    "Purposes"
-                ]
+                    "required": [
+                        "Author",
+                        "Categories",
+                        "Copyright",
+                        "CreatedAt",
+                        "Description",
+                        "EditMode",
+                        "ID",
+                        "IsStarred",
+                        "IsTextPartGenerationEnabled",
+                        "LastUpdatedAt",
+                        "Locale",
+                        "LocaleList",
+                        "Name",
+                        "OwnerId",
+                        "OwnerType",
+                        "Presets",
+                        "Previews",
+                        "Purposes"
+                    ]
+                }
             }
         },
         "additionalProperties": false,
@@ -18826,12 +18836,6 @@
                     "poll": {
                         "$ref": "#/definitions/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -19630,22 +19634,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -19854,22 +19842,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -19878,10 +19850,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -20168,10 +20136,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -22994,22 +22962,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -23218,22 +23170,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -23242,10 +23178,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -23532,10 +23464,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -24988,12 +24920,6 @@
                     "poll": {
                         "$ref": "#/definitions/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -25712,12 +25638,6 @@
                     "guild_id": {
                         "type": "string"
                     },
-                    "avatar": {
-                        "type": "string"
-                    },
-                    "premium_since": {
-                        "type": "integer"
-                    },
                     "mute": {
                         "type": "boolean"
                     },
@@ -25733,6 +25653,12 @@
                     },
                     "pending": {
                         "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
                     },
                     "user": {
                         "$ref": "#/definitions/PublicUser"
@@ -25762,6 +25688,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -25770,9 +25703,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -25785,10 +25715,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -26880,9 +26806,7 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "number",
-                "properties": {},
-                "additionalProperties": false
+                "type": "bigint"
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -26901,9 +26825,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "number",
-                    "properties": {},
-                    "additionalProperties": false
+                    "type": "bigint"
                 }
             },
             "guild_subscriptions": {
@@ -29040,10 +28962,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -29903,22 +29825,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -30127,22 +30033,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -30151,10 +30041,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -30619,12 +30505,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -32893,10 +32773,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -33756,22 +33636,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -33980,22 +33844,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -34004,10 +33852,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -34472,12 +34316,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -36540,10 +36378,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -37403,22 +37241,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -37627,22 +37449,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -37651,10 +37457,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -38119,12 +37921,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -40012,13 +39808,13 @@
             "region": {
                 "type": "string"
             },
-            "banner": {
+            "icon": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "icon": {
+            "banner": {
                 "type": [
                     "null",
                     "string"
@@ -40387,6 +40183,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -40395,9 +40198,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -40410,10 +40210,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -40721,12 +40517,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -41526,22 +41316,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -41750,22 +41524,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -41774,10 +41532,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -42064,10 +41818,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -44116,10 +43870,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -44979,22 +44733,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -45203,22 +44941,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -45227,10 +44949,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -45695,12 +45413,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -47851,10 +47563,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -48714,22 +48426,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -48938,22 +48634,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -48962,10 +48642,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -49430,12 +49106,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -51476,13 +51146,13 @@
                     "region": {
                         "type": "string"
                     },
-                    "banner": {
+                    "icon": {
                         "type": [
                             "null",
                             "string"
                         ]
                     },
-                    "icon": {
+                    "banner": {
                         "type": [
                             "null",
                             "string"
@@ -51826,10 +51496,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -52689,22 +52359,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -52913,22 +52567,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -52937,10 +52575,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -53405,12 +53039,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -55305,12 +54933,6 @@
                     "poll": {
                         "$ref": "#/definitions/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -56109,22 +55731,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -56333,22 +55939,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -56357,10 +55947,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -56647,10 +56233,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -59746,22 +59332,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -59970,22 +59540,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -59994,10 +59548,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -60490,22 +60040,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -60514,10 +60048,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -61244,22 +60774,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -61468,22 +60982,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -61492,10 +60990,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -61636,9 +61130,6 @@
             "id": {
                 "type": "string"
             },
-            "banner": {
-                "type": "string"
-            },
             "icon": {
                 "type": "string"
             },
@@ -61678,6 +61169,9 @@
                 "items": {
                     "$ref": "#/definitions/Role"
                 }
+            },
+            "banner": {
+                "type": "string"
             },
             "channels": {
                 "type": "array",
@@ -62098,10 +61592,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -62961,22 +62455,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -63185,22 +62663,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -63209,10 +62671,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -63600,12 +63058,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -65361,6 +64813,13 @@
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
+            "premium_since": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "avatar": {
+                "type": "string"
+            },
             "username": {
                 "type": "string"
             },
@@ -65369,9 +64828,6 @@
             },
             "public_flags": {
                 "type": "integer"
-            },
-            "avatar": {
-                "type": "string"
             },
             "accent_color": {
                 "type": "integer"
@@ -65384,10 +64840,6 @@
             },
             "bot": {
                 "type": "boolean"
-            },
-            "premium_since": {
-                "type": "string",
-                "format": "date-time"
             },
             "premium_type": {
                 "type": "integer"
@@ -65434,6 +64886,16 @@
             "flags": {
                 "type": "integer"
             },
+            "verified": {
+                "type": "boolean"
+            },
+            "premium_since": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "avatar": {
+                "type": "string"
+            },
             "username": {
                 "type": "string"
             },
@@ -65442,9 +64904,6 @@
             },
             "public_flags": {
                 "type": "integer"
-            },
-            "avatar": {
-                "type": "string"
             },
             "accent_color": {
                 "type": "integer"
@@ -65457,10 +64916,6 @@
             },
             "bot": {
                 "type": "boolean"
-            },
-            "premium_since": {
-                "type": "string",
-                "format": "date-time"
             },
             "premium_type": {
                 "type": "integer"
@@ -65485,9 +64940,6 @@
             },
             "phone": {
                 "type": "string"
-            },
-            "verified": {
-                "type": "boolean"
             },
             "nsfw_allowed": {
                 "type": "boolean"
@@ -65783,9 +65235,6 @@
                         "type": "object",
                         "additionalProperties": false
                     },
-                    "banner": {
-                        "type": "string"
-                    },
                     "icon": {
                         "type": "string"
                     },
@@ -65853,6 +65302,9 @@
                         "items": {
                             "$ref": "#/definitions/Role"
                         }
+                    },
+                    "banner": {
+                        "type": "string"
                     },
                     "channels": {
                         "type": "array",
@@ -66273,10 +65725,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -67136,22 +66588,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -67360,22 +66796,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -67384,10 +66804,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -67775,12 +67191,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -70243,22 +69653,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -70467,22 +69861,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -70491,10 +69869,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -70639,6 +70013,16 @@
             "flags": {
                 "type": "integer"
             },
+            "verified": {
+                "type": "boolean"
+            },
+            "premium_since": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "avatar": {
+                "type": "string"
+            },
             "username": {
                 "type": "string"
             },
@@ -70647,9 +70031,6 @@
             },
             "public_flags": {
                 "type": "integer"
-            },
-            "avatar": {
-                "type": "string"
             },
             "accent_color": {
                 "type": "integer"
@@ -70662,10 +70043,6 @@
             },
             "bot": {
                 "type": "boolean"
-            },
-            "premium_since": {
-                "type": "string",
-                "format": "date-time"
             },
             "premium_type": {
                 "type": "integer"
@@ -70690,9 +70067,6 @@
             },
             "phone": {
                 "type": "string"
-            },
-            "verified": {
-                "type": "boolean"
             },
             "nsfw_allowed": {
                 "type": "boolean"
@@ -71709,22 +71083,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -71933,22 +71291,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -71957,10 +71299,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -72247,10 +71585,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -72875,12 +72213,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -74775,10 +74107,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -75638,22 +74970,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -75862,22 +75178,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -75886,10 +75186,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -76277,12 +75573,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -78268,12 +77558,6 @@
                     "poll": {
                         "$ref": "#/definitions/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -79072,22 +78356,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -79296,22 +78564,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -79320,10 +78572,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -79610,10 +78858,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -81781,10 +81029,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -82644,22 +81892,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -82868,22 +82100,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -82892,10 +82108,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -83360,12 +82572,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -85122,10 +84328,6 @@
             "autoCreateBotUsers": {
                 "type": "boolean",
                 "default": false
-            },
-            "volatileMode": {
-                "type": "boolean",
-                "default": false
             }
         },
         "additionalProperties": false,
@@ -85138,8 +84340,7 @@
             "instanceDescription",
             "instanceId",
             "instanceName",
-            "tosPage",
-            "volatileMode"
+            "tosPage"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -85922,22 +85123,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -86146,22 +85331,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -86170,10 +85339,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -86460,10 +85625,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -87916,12 +87081,6 @@
                     "poll": {
                         "$ref": "#/definitions/Poll"
                     },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "username": {
                         "type": "string"
                     },
@@ -88872,10 +88031,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -89735,22 +88894,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -89959,22 +89102,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -89983,10 +89110,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -90451,12 +89574,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -92817,22 +91934,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -93041,22 +92142,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -93065,10 +92150,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -93355,10 +92436,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -93983,12 +93064,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -95653,12 +94728,6 @@
             "guild_id": {
                 "type": "string"
             },
-            "avatar": {
-                "type": "string"
-            },
-            "premium_since": {
-                "type": "integer"
-            },
             "mute": {
                 "type": "boolean"
             },
@@ -95674,6 +94743,12 @@
             },
             "pending": {
                 "type": "boolean"
+            },
+            "premium_since": {
+                "type": "integer"
+            },
+            "avatar": {
+                "type": "string"
             },
             "user": {
                 "$ref": "#/definitions/PublicUser"
@@ -95703,6 +94778,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -95711,9 +94793,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -95726,10 +94805,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -95834,13 +94909,13 @@
             "region": {
                 "type": "string"
             },
-            "banner": {
+            "icon": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "icon": {
+            "banner": {
                 "type": [
                     "null",
                     "string"
@@ -96224,10 +95299,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -97087,22 +96162,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -97311,22 +96370,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -97335,10 +96378,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -97803,12 +96842,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -99734,10 +98767,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -100597,22 +99630,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -100821,22 +99838,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -100845,10 +99846,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -101313,12 +100310,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -103616,22 +102607,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -103840,22 +102815,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -103864,10 +102823,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -104154,10 +103109,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -104782,12 +103737,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -106537,32 +105486,12 @@
             },
             "absoluteRate": {
                 "$ref": "#/definitions/GlobalRateLimits"
-            },
-            "embed": {
-                "$ref": "#/definitions/EmbedLimits"
-            },
-            "component": {
-                "$ref": "#/definitions/ComponentLimits"
-            },
-            "attachment": {
-                "$ref": "#/definitions/AttachmentLimits"
-            },
-            "automod": {
-                "$ref": "#/definitions/AutomodLimits"
-            },
-            "application": {
-                "$ref": "#/definitions/ApplicationLimits"
             }
         },
         "additionalProperties": false,
         "required": [
             "absoluteRate",
-            "application",
-            "attachment",
-            "automod",
             "channel",
-            "component",
-            "embed",
             "guild",
             "message",
             "rate",
@@ -106587,28 +105516,13 @@
                     "maxBio": {
                         "type": "integer",
                         "default": 190
-                    },
-                    "maxDisplayNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxPronounsLength": {
-                        "type": "integer",
-                        "default": 40
-                    },
-                    "maxStatusTextLength": {
-                        "type": "integer",
-                        "default": 128
                     }
                 },
                 "additionalProperties": false,
                 "required": [
                     "maxBio",
-                    "maxDisplayNameLength",
                     "maxFriends",
                     "maxGuilds",
-                    "maxPronounsLength",
-                    "maxStatusTextLength",
                     "maxUsername"
                 ]
             },
@@ -106642,18 +105556,6 @@
                     "maxChannelsInCategory": {
                         "type": "integer",
                         "default": 65535
-                    },
-                    "maxGuildNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxRoleNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxMembersRequestLimit": {
-                        "type": "integer",
-                        "default": 100
                     }
                 },
                 "additionalProperties": false,
@@ -106662,10 +105564,7 @@
                     "maxChannels",
                     "maxChannelsInCategory",
                     "maxEmojis",
-                    "maxGuildNameLength",
                     "maxMembers",
-                    "maxMembersRequestLimit",
-                    "maxRoleNameLength",
                     "maxRoles",
                     "maxStickers"
                 ]
@@ -106697,10 +105596,6 @@
                         "type": "integer",
                         "default": 5242880
                     },
-                    "maxReasonLength": {
-                        "type": "integer",
-                        "default": 512
-                    },
                     "maxPreloadCount": {
                         "type": "integer",
                         "default": 100
@@ -106714,7 +105609,6 @@
                     "maxEmbedDownloadSize",
                     "maxPreloadCount",
                     "maxReactions",
-                    "maxReasonLength",
                     "maxTTSCharacters"
                 ]
             },
@@ -106732,26 +105626,11 @@
                     "maxWebhooks": {
                         "type": "integer",
                         "default": 100
-                    },
-                    "maxChannelNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxStageTopicLength": {
-                        "type": "integer",
-                        "default": 120
-                    },
-                    "maxThreadNameLength": {
-                        "type": "integer",
-                        "default": 100
                     }
                 },
                 "additionalProperties": false,
                 "required": [
-                    "maxChannelNameLength",
                     "maxPins",
-                    "maxStageTopicLength",
-                    "maxThreadNameLength",
                     "maxTopic",
                     "maxWebhooks"
                 ]
@@ -106884,226 +105763,6 @@
                     "enabled",
                     "limit",
                     "window"
-                ]
-            },
-            "EmbedLimits": {
-                "type": "object",
-                "properties": {
-                    "maxTitleLength": {
-                        "type": "integer",
-                        "default": 256
-                    },
-                    "maxDescriptionLength": {
-                        "type": "integer",
-                        "default": 4096
-                    },
-                    "maxFieldNameLength": {
-                        "type": "integer",
-                        "default": 256
-                    },
-                    "maxFieldValueLength": {
-                        "type": "integer",
-                        "default": 1024
-                    },
-                    "maxFooterTextLength": {
-                        "type": "integer",
-                        "default": 2048
-                    },
-                    "maxAuthorNameLength": {
-                        "type": "integer",
-                        "default": 256
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "maxAuthorNameLength",
-                    "maxDescriptionLength",
-                    "maxFieldNameLength",
-                    "maxFieldValueLength",
-                    "maxFooterTextLength",
-                    "maxTitleLength"
-                ]
-            },
-            "ComponentLimits": {
-                "type": "object",
-                "properties": {
-                    "maxLabelLength": {
-                        "type": "integer",
-                        "default": 80
-                    },
-                    "maxPlaceholderLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionLabelLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionDescriptionLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxSelectOptionValueLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxModalTitleLength": {
-                        "type": "integer",
-                        "default": 45
-                    },
-                    "maxTextInputLabelLength": {
-                        "type": "integer",
-                        "default": 45
-                    },
-                    "maxTextInputPlaceholderLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxTextInputValueLength": {
-                        "type": "integer",
-                        "default": 4000
-                    },
-                    "maxTextInputMinLength": {
-                        "type": "integer",
-                        "default": 0
-                    },
-                    "maxTextInputMaxLength": {
-                        "type": "integer",
-                        "default": 4000
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "maxLabelLength",
-                    "maxModalTitleLength",
-                    "maxPlaceholderLength",
-                    "maxSelectOptionDescriptionLength",
-                    "maxSelectOptionLabelLength",
-                    "maxSelectOptionValueLength",
-                    "maxTextInputLabelLength",
-                    "maxTextInputMaxLength",
-                    "maxTextInputMinLength",
-                    "maxTextInputPlaceholderLength",
-                    "maxTextInputValueLength"
-                ]
-            },
-            "AttachmentLimits": {
-                "type": "object",
-                "properties": {
-                    "maxFilenameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxDescriptionLength": {
-                        "type": "integer",
-                        "default": 1024
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "maxDescriptionLength",
-                    "maxFilenameLength"
-                ]
-            },
-            "AutomodLimits": {
-                "type": "object",
-                "properties": {
-                    "maxRuleNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxKeywordFilterLength": {
-                        "type": "integer",
-                        "default": 60
-                    },
-                    "maxRegexPatternLength": {
-                        "type": "integer",
-                        "default": 260
-                    },
-                    "maxAllowListLength": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxMentionTotalLimit": {
-                        "type": "integer",
-                        "default": 50
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "maxAllowListLength",
-                    "maxKeywordFilterLength",
-                    "maxMentionTotalLimit",
-                    "maxRegexPatternLength",
-                    "maxRuleNameLength"
-                ]
-            },
-            "ApplicationLimits": {
-                "type": "object",
-                "properties": {
-                    "maxEmojiNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxStickerNameLength": {
-                        "type": "integer",
-                        "default": 30
-                    },
-                    "maxApplicationNameLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxWebhookNameLength": {
-                        "type": "integer",
-                        "default": 80
-                    },
-                    "maxInviteCodeLength": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxVanityUrlLength": {
-                        "type": "integer",
-                        "default": 16
-                    },
-                    "maxTemplateNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxTemplateDescriptionLength": {
-                        "type": "integer",
-                        "default": 120
-                    },
-                    "maxScheduledEventNameLength": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxScheduledEventDescriptionLength": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxForumTagNameLength": {
-                        "type": "integer",
-                        "default": 20
-                    },
-                    "maxDiscriminatorLength": {
-                        "type": "integer",
-                        "default": 4
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "maxApplicationNameLength",
-                    "maxDiscriminatorLength",
-                    "maxEmojiNameLength",
-                    "maxForumTagNameLength",
-                    "maxInviteCodeLength",
-                    "maxScheduledEventDescriptionLength",
-                    "maxScheduledEventNameLength",
-                    "maxStickerNameLength",
-                    "maxTemplateDescriptionLength",
-                    "maxTemplateNameLength",
-                    "maxVanityUrlLength",
-                    "maxWebhookNameLength"
                 ]
             }
         },
@@ -107363,10 +106022,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -108226,22 +106885,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -108450,22 +107093,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -108474,10 +107101,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -108942,12 +107565,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -110801,6 +109418,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -110809,9 +109433,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -110824,10 +109445,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -110916,12 +109533,6 @@
                     "guild_id": {
                         "type": "string"
                     },
-                    "avatar": {
-                        "type": "string"
-                    },
-                    "premium_since": {
-                        "type": "integer"
-                    },
                     "mute": {
                         "type": "boolean"
                     },
@@ -110937,6 +109548,12 @@
                     },
                     "pending": {
                         "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
                     },
                     "user": {
                         "$ref": "#/definitions/PublicUser"
@@ -111080,6 +109697,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -111088,9 +109712,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -111103,10 +109724,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -111749,22 +110366,6 @@
                             }
                         ]
                     },
-                    "consent_given_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "data_sharing_level": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "last_activity_sync": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "privacy_override": {
-                        "type": "boolean",
-                        "default": false
-                    },
                     "id": {
                         "type": "string"
                     }
@@ -111973,22 +110574,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -111997,10 +110582,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -112370,10 +110951,10 @@
                     "rules_channel": {
                         "type": "string"
                     },
-                    "splash": {
+                    "region": {
                         "type": "string"
                     },
-                    "region": {
+                    "splash": {
                         "type": "string"
                     },
                     "system_channel_id": {
@@ -112998,12 +111579,6 @@
                     },
                     "poll": {
                         "$ref": "#/definitions/Poll"
-                    },
-                    "reply_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "username": {
                         "type": "string"
@@ -115659,18 +114234,12 @@
         "type": "object",
         "properties": {
             "visibility": {
-                "type": "integer"
+                "type": "boolean"
             },
             "show_activity": {
-                "type": "integer"
+                "type": "boolean"
             },
             "metadata_visibility": {
-                "type": "integer"
-            },
-            "data_sharing_level": {
-                "type": "integer"
-            },
-            "consent_given": {
                 "type": "boolean"
             }
         },
@@ -115911,9 +114480,6 @@
             }
         },
         "additionalProperties": false,
-        "required": [
-            "name"
-        ],
         "definitions": {
             "ChannelModifySchema": {
                 "type": "object",
@@ -116247,9 +114813,6 @@
             }
         },
         "additionalProperties": false,
-        "required": [
-            "name"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GuildUpdateWelcomeScreenSchema": {
@@ -116594,22 +115157,6 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "connections_default_visibility": {
-                        "type": "integer",
-                        "default": 1
-                    },
-                    "connections_activity_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_metadata_sharing": {
-                        "type": "boolean",
-                        "default": true
-                    },
-                    "connections_require_approval": {
-                        "type": "boolean",
-                        "default": false
                     }
                 },
                 "additionalProperties": false,
@@ -116618,10 +115165,6 @@
                     "allow_accessibility_detection",
                     "animate_emoji",
                     "animate_stickers",
-                    "connections_activity_sharing",
-                    "connections_default_visibility",
-                    "connections_metadata_sharing",
-                    "connections_require_approval",
                     "contact_sync_enabled",
                     "convert_emoticons",
                     "custom_status",
@@ -117648,6 +116191,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -117656,9 +116206,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -117671,10 +116218,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -117811,6 +116354,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -117819,9 +116369,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -117834,10 +116381,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -118685,6 +117228,13 @@
                         "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                         "type": "string"
                     },
+                    "premium_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -118693,9 +117243,6 @@
                     },
                     "public_flags": {
                         "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
                     },
                     "accent_color": {
                         "type": "integer"
@@ -118708,10 +117255,6 @@
                     },
                     "bot": {
                         "type": "boolean"
-                    },
-                    "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -120352,207 +118895,6 @@
             "channel_id",
             "enabled"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ChannelPromoteSchema": {
-        "type": "object",
-        "properties": {
-            "position": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "LobbyMemberSchema": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string"
-            },
-            "metadata": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Record<string,string>"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "flags": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id"
-        ],
-        "definitions": {
-            "Record<string,string>": {
-                "type": "object",
-                "additionalProperties": false
-            }
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "LobbyCreateSchema": {
-        "type": "object",
-        "properties": {
-            "metadata": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Record<string,string>"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "members": {
-                "maxItems": 25,
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/LobbyMemberSchema"
-                }
-            },
-            "idle_timeout_seconds": {
-                "minimum": 5,
-                "maximum": 604800,
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "idle_timeout_seconds"
-        ],
-        "definitions": {
-            "Record<string,string>": {
-                "type": "object",
-                "additionalProperties": false
-            },
-            "LobbyMemberSchema": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "flags": {
-                        "type": "integer"
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "id"
-                ]
-            }
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "LobbyUpdateSchema": {
-        "type": "object",
-        "properties": {
-            "metadata": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Record<string,string>"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "members": {
-                "maxItems": 25,
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/LobbyMemberSchema"
-                }
-            },
-            "idle_timeout_seconds": {
-                "minimum": 5,
-                "maximum": 604800,
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "definitions": {
-            "Record<string,string>": {
-                "type": "object",
-                "additionalProperties": false
-            },
-            "LobbyMemberSchema": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/Record<string,string>"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "flags": {
-                        "type": "integer"
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "id"
-                ]
-            }
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "LobbyMemberUpdateSchema": {
-        "type": "object",
-        "properties": {
-            "metadata": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Record<string,string>"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "flags": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "definitions": {
-            "Record<string,string>": {
-                "type": "object",
-                "additionalProperties": false
-            }
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "LobbyChannelLinkSchema": {
-        "type": "object",
-        "properties": {
-            "channel_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "VoiceIdentifySchema": {
