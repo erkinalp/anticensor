@@ -1,4 +1,5 @@
-import { AutomodRule, Channel, ChannelType, User } from "../entities";
+import { AutomodRule, Channel, User } from "../entities";
+import { ChannelType } from "@spacebar/schemas";
 import { AutomodTriggerTypes } from "./Constants";
 
 // AutomodEvaluator: Evaluates messages against guild automod rules.
@@ -35,13 +36,8 @@ export class AutomodEvaluator {
 	private static cacheExpiry = new Map<string, number>();
 	private static CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-	static async evaluateMessage(
-		context: AutomodEvaluationContext,
-	): Promise<AutomodEvaluationResult> {
-		if (
-			context.channel.type === ChannelType.ENCRYPTED ||
-			context.channel.type === ChannelType.ENCRYPTED_THREAD
-		) {
+	static async evaluateMessage(context: AutomodEvaluationContext): Promise<AutomodEvaluationResult> {
+		if (context.channel.type === ChannelType.ENCRYPTED || context.channel.type === ChannelType.ENCRYPTED_THREAD) {
 			return { triggered: false, actions: [] };
 		}
 
@@ -65,16 +61,11 @@ export class AutomodEvaluator {
 		return { triggered: false, actions: [] };
 	}
 
-	private static async getActiveRules(
-		guild_id: string,
-	): Promise<AutomodRule[]> {
+	private static async getActiveRules(guild_id: string): Promise<AutomodRule[]> {
 		const now = Date.now();
 		const cacheKey = guild_id;
 
-		if (
-			this.ruleCache.has(cacheKey) &&
-			this.cacheExpiry.get(cacheKey)! > now
-		) {
+		if (this.ruleCache.has(cacheKey) && this.cacheExpiry.get(cacheKey)! > now) {
 			return this.ruleCache.get(cacheKey)!;
 		}
 
@@ -89,27 +80,19 @@ export class AutomodEvaluator {
 		return rules;
 	}
 
-	private static isExempt(
-		rule: AutomodRule,
-		context: AutomodEvaluationContext,
-	): boolean {
+	private static isExempt(rule: AutomodRule, context: AutomodEvaluationContext): boolean {
 		if (rule.exempt_channels?.includes(context.channel.id)) {
 			return true;
 		}
 
 		if (rule.exempt_roles?.length && context.member_roles?.length) {
-			return rule.exempt_roles.some((roleId) =>
-				context.member_roles!.includes(roleId),
-			);
+			return rule.exempt_roles.some((roleId) => context.member_roles!.includes(roleId));
 		}
 
 		return false;
 	}
 
-	private static async evaluateRule(
-		rule: AutomodRule,
-		context: AutomodEvaluationContext,
-	): Promise<AutomodEvaluationResult> {
+	private static async evaluateRule(rule: AutomodRule, context: AutomodEvaluationContext): Promise<AutomodEvaluationResult> {
 		switch (rule.trigger_type) {
 			case AutomodTriggerTypes.CUSTOM_WORDS:
 				return this.evaluateKeywordRule(rule, context);
@@ -122,10 +105,7 @@ export class AutomodEvaluator {
 		}
 	}
 
-	private static evaluateKeywordRule(
-		rule: AutomodRule,
-		context: AutomodEvaluationContext,
-	): AutomodEvaluationResult {
+	private static evaluateKeywordRule(rule: AutomodRule, context: AutomodEvaluationContext): AutomodEvaluationResult {
 		if (!context.content) {
 			return { triggered: false, actions: [] };
 		}
@@ -148,10 +128,7 @@ export class AutomodEvaluator {
 						triggered: true,
 						rule,
 						keyword,
-						matched_content: this.extractMatchedContent(
-							content,
-							keyword,
-						),
+						matched_content: this.extractMatchedContent(content, keyword),
 						actions: rule.actions as AutomodAction[],
 					};
 				}
@@ -189,30 +166,18 @@ export class AutomodEvaluator {
 			return content.includes(cleanKeyword);
 		} else if (lowerKeyword.startsWith("*")) {
 			const cleanKeyword = lowerKeyword.slice(1);
-			return content
-				.split(/\s+/)
-				.some((word) => word.endsWith(cleanKeyword));
+			return content.split(/\s+/).some((word) => word.endsWith(cleanKeyword));
 		} else if (lowerKeyword.endsWith("*")) {
 			const cleanKeyword = lowerKeyword.slice(0, -1);
-			return content
-				.split(/\s+/)
-				.some((word) => word.startsWith(cleanKeyword));
+			return content.split(/\s+/).some((word) => word.startsWith(cleanKeyword));
 		} else {
-			const wordBoundaryRegex = new RegExp(
-				`\\b${lowerKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-				"i",
-			);
+			const wordBoundaryRegex = new RegExp(`\\b${lowerKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
 			return wordBoundaryRegex.test(content);
 		}
 	}
 
-	private static extractMatchedContent(
-		content: string,
-		keyword: string,
-	): string {
-		const index = content
-			.toLowerCase()
-			.indexOf(keyword.toLowerCase().replace(/\*/g, ""));
+	private static extractMatchedContent(content: string, keyword: string): string {
+		const index = content.toLowerCase().indexOf(keyword.toLowerCase().replace(/\*/g, ""));
 		if (index === -1) return content.substring(0, 50);
 
 		const start = Math.max(0, index - 25);
@@ -220,18 +185,11 @@ export class AutomodEvaluator {
 		return content.substring(start, end);
 	}
 
-	private static evaluateSpamRule(
-		rule: AutomodRule,
-		context: AutomodEvaluationContext,
-	): AutomodEvaluationResult {
+	private static evaluateSpamRule(rule: AutomodRule, context: AutomodEvaluationContext): AutomodEvaluationResult {
 		if (!context.content) return { triggered: false, actions: [] };
 
 		const content = context.content;
-		const spamIndicators = [
-			content.length > 1000,
-			(content.match(/[A-Z]/g) || []).length / content.length > 0.7,
-			content.split("").filter((c) => c === "!").length > 10,
-		];
+		const spamIndicators = [content.length > 1000, (content.match(/[A-Z]/g) || []).length / content.length > 0.7, content.split("").filter((c) => c === "!").length > 10];
 
 		if (spamIndicators.filter(Boolean).length >= 2) {
 			return {
@@ -245,10 +203,7 @@ export class AutomodEvaluator {
 		return { triggered: false, actions: [] };
 	}
 
-	private static evaluateMentionSpamRule(
-		rule: AutomodRule,
-		context: AutomodEvaluationContext,
-	): AutomodEvaluationResult {
+	private static evaluateMentionSpamRule(rule: AutomodRule, context: AutomodEvaluationContext): AutomodEvaluationResult {
 		if (!context.content) return { triggered: false, actions: [] };
 
 		const metadata = rule.trigger_metadata as Record<string, unknown>;
