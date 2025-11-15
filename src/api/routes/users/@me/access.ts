@@ -17,17 +17,10 @@
 */
 
 import { route, getIpAdress } from "@spacebar/api";
-import {
-	UserIpAccess,
-	UserIpAccessSchema,
-	UserIpAccessDTO,
-} from "@spacebar/util";
+import { UserIpAccess, UserIpAccessDTO } from "@spacebar/util";
+import { UserIpAccessSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-import {
-	isValidIpAddress,
-	isLocalhostIp,
-	isIpInRange,
-} from "../../../util/utility/ipValidation";
+import { isValidIpAddress, isLocalhostIp, isIpInRange } from "../../../util/utility/ipValidation";
 
 const router: Router = Router();
 
@@ -46,9 +39,7 @@ router.get(
 			where: { user_id: req.user_id },
 		});
 		if (!ipAccess) {
-			return res
-				.status(404)
-				.json({ message: "IP access policy not found", code: 10013 });
+			return res.status(404).json({ message: "IP access policy not found", code: 10013 });
 		}
 		res.json(new UserIpAccessDTO(ipAccess));
 	},
@@ -100,10 +91,7 @@ router.put(
 			}
 		}
 
-		if (
-			body.banned_ips.length > 0 &&
-			isIpInRange(currentIp, body.banned_ips)
-		) {
+		if (body.banned_ips.length > 0 && isIpInRange(currentIp, body.banned_ips)) {
 			return res.status(422).json({
 				message: "Current IP address would be blocked by this policy",
 				code: 50035,
@@ -151,9 +139,7 @@ router.delete(
 			where: { user_id: req.user_id },
 		});
 		if (!ipAccess) {
-			return res
-				.status(404)
-				.json({ message: "IP access policy not found", code: 10013 });
+			return res.status(404).json({ message: "IP access policy not found", code: 10013 });
 		}
 		await ipAccess.remove();
 		res.status(204).send();

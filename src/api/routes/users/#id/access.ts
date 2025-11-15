@@ -17,18 +17,10 @@
 */
 
 import { route, getIpAdress } from "@spacebar/api";
-import {
-	UserIpAccess,
-	UserIpAccessSchema,
-	UserIpAccessDTO,
-	User,
-} from "@spacebar/util";
+import { UserIpAccess, UserIpAccessDTO, User } from "@spacebar/util";
+import { UserIpAccessSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-import {
-	isValidIpAddress,
-	isLocalhostIp,
-	isIpInRange,
-} from "../../../util/utility/ipValidation";
+import { isValidIpAddress, isLocalhostIp, isIpInRange } from "../../../util/utility/ipValidation";
 
 const router: Router = Router();
 
@@ -47,18 +39,14 @@ router.get(
 
 		const targetUser = await User.findOne({ where: { id: targetUserId } });
 		if (!targetUser) {
-			return res
-				.status(404)
-				.json({ message: "User not found", code: 10013 });
+			return res.status(404).json({ message: "User not found", code: 10013 });
 		}
 
 		const ipAccess = await UserIpAccess.findOne({
 			where: { user_id: targetUserId },
 		});
 		if (!ipAccess) {
-			return res
-				.status(404)
-				.json({ message: "IP access policy not found", code: 10013 });
+			return res.status(404).json({ message: "IP access policy not found", code: 10013 });
 		}
 		res.json(new UserIpAccessDTO(ipAccess));
 	},
@@ -82,9 +70,7 @@ router.put(
 
 		const targetUser = await User.findOne({ where: { id: targetUserId } });
 		if (!targetUser) {
-			return res
-				.status(404)
-				.json({ message: "User not found", code: 10013 });
+			return res.status(404).json({ message: "User not found", code: 10013 });
 		}
 
 		for (const ip of body.ips) {
@@ -151,18 +137,14 @@ router.delete(
 
 		const targetUser = await User.findOne({ where: { id: targetUserId } });
 		if (!targetUser) {
-			return res
-				.status(404)
-				.json({ message: "User not found", code: 10013 });
+			return res.status(404).json({ message: "User not found", code: 10013 });
 		}
 
 		const ipAccess = await UserIpAccess.findOne({
 			where: { user_id: targetUserId },
 		});
 		if (!ipAccess) {
-			return res
-				.status(404)
-				.json({ message: "IP access policy not found", code: 10013 });
+			return res.status(404).json({ message: "IP access policy not found", code: 10013 });
 		}
 		await ipAccess.remove();
 		res.status(204).send();
