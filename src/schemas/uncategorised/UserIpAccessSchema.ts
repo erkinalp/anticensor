@@ -16,9 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./LobbyDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserDTO";
-export * from "./UserIpAccessDTO";
+export interface UserIpAccessSchema {
+	ips: string[];
+	banned_ips: string[];
+}
+
+export const UserIpAccessSchema = {
+	ips: [String],
+	banned_ips: [String],
+};

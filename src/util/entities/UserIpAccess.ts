@@ -16,9 +16,25 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./LobbyDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserDTO";
-export * from "./UserIpAccessDTO";
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { BaseClass } from "./BaseClass";
+import { User } from "./User";
+
+@Entity({
+	name: "user_ip_access",
+})
+export class UserIpAccess extends BaseClass {
+	@Column()
+	@RelationId((access: UserIpAccess) => access.user)
+	user_id: string;
+
+	@JoinColumn({ name: "user_id" })
+	@ManyToOne(() => User, { onDelete: "CASCADE" })
+	user: User;
+
+	@Column("simple-array")
+	ips: string[];
+
+	@Column("simple-array")
+	banned_ips: string[];
+}
