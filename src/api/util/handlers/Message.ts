@@ -16,7 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Sentry from "@sentry/node";
 import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
 import { EmbedHandlers } from "@spacebar/api";
 import {
