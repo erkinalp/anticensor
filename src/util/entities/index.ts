@@ -63,3 +63,4 @@ export * from "./ValidRegistrationTokens";
 export * from "./VoiceState";
 export * from "./Webhook";
 export * from "./UserConsent";
+export * from "./UserIpAccess";

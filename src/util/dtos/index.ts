@@ -21,3 +21,4 @@ export * from "./DmChannelDTO";
 export * from "./LobbyDTO";
 export * from "./ReadyGuildDTO";
 export * from "./UserDTO";
+export * from "./UserIpAccessDTO";
