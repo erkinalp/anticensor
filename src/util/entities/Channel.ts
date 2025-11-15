@@ -217,9 +217,7 @@ export class Channel extends BaseClass {
 					if (exists.guild_id !== channel.guild_id) throw new HTTPError("The thread parent needs to be in the guild");
 					const allowedParents = [ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS, ChannelType.TICKET_TRACKER];
 					if (
-						(channel.type === ChannelType.GUILD_PUBLIC_THREAD ||
-							channel.type === ChannelType.GUILD_PRIVATE_THREAD ||
-							channel.type === ChannelType.GUILD_NEWS_THREAD) &&
+						(channel.type === ChannelType.GUILD_PUBLIC_THREAD || channel.type === ChannelType.GUILD_PRIVATE_THREAD || channel.type === ChannelType.GUILD_NEWS_THREAD) &&
 						!allowedParents.includes(exists.type)
 					)
 						throw new HTTPError("Invalid thread parent channel type", 400);
@@ -525,9 +523,7 @@ export class Channel extends BaseClass {
 
 		if (
 			this.parent?.type === ChannelType.TICKET_TRACKER ||
-			(this.parent_id &&
-				(this.type === ChannelType.GUILD_PRIVATE_THREAD ||
-					this.type === ChannelType.GUILD_PUBLIC_THREAD))
+			(this.parent_id && (this.type === ChannelType.GUILD_PRIVATE_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD))
 		) {
 			const prefix = "ticket:initiator:";
 			if (this.topic && this.topic.startsWith(prefix)) {
