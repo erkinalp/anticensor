@@ -55,6 +55,7 @@ export enum EmbedType {
 	gifv = "gifv",
 	article = "article",
 	link = "link",
+	auto_moderation_message = "auto_moderation_message",
 }
 
 export interface EmbedImage {

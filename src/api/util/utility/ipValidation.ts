@@ -19,11 +19,9 @@
 import { UserIpAccess } from "../../../util/entities/UserIpAccess";
 
 export function isValidIpAddress(ip: string): boolean {
-	const ipv4Regex =
-		/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+	const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 	const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
-	const cidrRegex =
-		/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:[0-9]|[1-2][0-9]|3[0-2])$/;
+	const cidrRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:[0-9]|[1-2][0-9]|3[0-2])$/;
 
 	return ipv4Regex.test(ip) || ipv6Regex.test(ip) || cidrRegex.test(ip);
 }
@@ -43,10 +41,7 @@ export function isLocalhostIp(ip: string): boolean {
 	return ip === "127.0.0.1" || ip === "::1" || ip === "localhost";
 }
 
-export async function checkUserIpAccess(
-	userId: string,
-	currentIp: string,
-): Promise<boolean> {
+export async function checkUserIpAccess(userId: string, currentIp: string): Promise<boolean> {
 	const ipAccess = await UserIpAccess.findOne({
 		where: { user_id: userId },
 	});

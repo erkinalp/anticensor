@@ -319,12 +319,18 @@ export const AutomodActionTypes = {
 	TIMEOUT_MEMBER: 3,
 };
 
+// Automod trigger types mapping: 1–6 follow discord-api-docs; 30+ are Spacebar extensions.
 export const AutomodTriggerTypes = {
 	CUSTOM_WORDS: 1,
-	UNKNOWN_2: 2,
+	HARMFUL_LINKS: 2,
 	SUSPECTED_SPAM_CONTENT: 3,
 	COMMONLY_FLAGGED_WORDS: 4,
 	MENTION_SPAM: 5,
+	MEMBER_PROFILE: 6,
+	PROHIBITED_LANGUAGES: 30,
+	SIMILARITY: 31,
+	ARTIFICIAL_CONTENT: 32,
+	EXECUTABLE_FILES: 33,
 };
 
 export const Colors = {

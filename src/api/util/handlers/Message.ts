@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
 import { EmbedHandlers } from "@spacebar/api";
 import {
 	Application,
@@ -316,6 +317,27 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 	message.mention_everyone = mention_everyone;
 
 	// TODO: check and put it all in the body
+
+	if (message.guild_id && message.content && message.author) {
+		const automodResult = await AutomodEvaluator.evaluateMessage({
+			content: message.content,
+			channel,
+			author: message.author,
+			guild_id: message.guild_id,
+			member_roles: permission?.cache.member?.roles?.map((r) => r.id),
+		});
+
+		if (automodResult.triggered && automodResult.rule) {
+			await AutomodActionExecutor.executeActions(automodResult.actions, {
+				message,
+				channel,
+				member: permission?.cache.member,
+				rule_name: automodResult.rule.name,
+				matched_content: automodResult.matched_content,
+				keyword: automodResult.keyword,
+			});
+		}
+	}
 
 	return message;
 }

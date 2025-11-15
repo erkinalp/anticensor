@@ -146,9 +146,7 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
 					60 * 60 * 1000,
 				);
 
-				return res
-					.status(444)
-					.json({ message: "IP address not allowed", code: 20028 });
+				return res.status(444).json({ message: "IP address not allowed", code: 20028 });
 			}
 		}
 
