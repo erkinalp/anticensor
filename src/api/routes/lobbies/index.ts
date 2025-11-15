@@ -18,13 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import {
-	LobbyStore,
-	DiscordApiErrors,
-	Snowflake,
-	LobbyMemberDTO,
-	LobbyDTO,
-} from "@spacebar/util";
+import { LobbyStore, DiscordApiErrors, Snowflake, LobbyMemberDTO, LobbyDTO } from "@spacebar/util";
 
 const router = Router();
 

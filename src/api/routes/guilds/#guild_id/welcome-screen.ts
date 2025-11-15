@@ -17,15 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	Guild,
-	GuildUpdateWelcomeScreenSchema,
-	Member,
-} from "@spacebar/util";
+import { Channel, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { GuildUpdateWelcomeScreenSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -70,11 +66,9 @@ router.patch(
 
 		const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
 
-		if (body.enabled != undefined)
-			guild.welcome_screen.enabled = body.enabled;
+		if (body.enabled != undefined) guild.welcome_screen.enabled = body.enabled;
 
-		if (body.description != undefined)
-			guild.welcome_screen.description = body.description;
+		if (body.description != undefined) guild.welcome_screen.description = body.description;
 
 		if (body.welcome_channels != undefined) {
 			// Ensure channels exist within the guild

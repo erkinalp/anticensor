@@ -17,73 +17,48 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	ConnectedAccount,
-	ConnectionUpdateSchema,
-	DiscordApiErrors,
-	emitEvent,
-	Config,
-} from "@spacebar/util";
+import { ConnectedAccount, DiscordApiErrors, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+import { ConnectionUpdateSchema } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 // TODO: connection update schema
-router.patch(
-	"/",
-	route({ requestBody: "ConnectionUpdateSchema" }),
-	async (req: Request, res: Response) => {
-		const { connection_name, connection_id } = req.params;
-		const body = req.body as ConnectionUpdateSchema;
+router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
+	const { connection_name, connection_id } = req.params;
+	const body = req.body as ConnectionUpdateSchema;
 
-		const connection = await ConnectedAccount.findOne({
-			where: {
-				user_id: req.user_id,
-				external_id: connection_id,
-				type: connection_name,
-			},
-			select: [
-				"external_id",
-				"type",
-				"name",
-				"verified",
-				"visibility",
-				"show_activity",
-				"revoked",
-				"friend_sync",
-				"integrations",
-			],
-		});
+	const connection = await ConnectedAccount.findOne({
+		where: {
+			user_id: req.user_id,
+			external_id: connection_id,
+			type: connection_name,
+		},
+		select: ["external_id", "type", "name", "verified", "visibility", "show_activity", "revoked", "friend_sync", "integrations"],
+	});
 
-		if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
-		// TODO: do we need to do anything if the connection is revoked?
+	if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
+	// TODO: do we need to do anything if the connection is revoked?
 
-		if (typeof body.visibility === "boolean")
-			body.visibility = body.visibility ? 1 : 0;
-		if (typeof body.show_activity === "boolean")
-			body.show_activity = body.show_activity ? 1 : 0;
-		if (typeof body.metadata_visibility === "boolean")
-			body.metadata_visibility = body.metadata_visibility ? 1 : 0;
+	if (typeof body.visibility === "boolean") body.visibility = body.visibility ? 1 : 0;
+	if (typeof body.show_activity === "boolean") body.show_activity = body.show_activity ? 1 : 0;
+	if (typeof body.metadata_visibility === "boolean") body.metadata_visibility = body.metadata_visibility ? 1 : 0;
 
-		if (
-			typeof req.body.consent_given === "boolean" &&
-			req.body.consent_given
-		) {
-			connection.consent_given_at = new Date();
-		}
+	if (typeof req.body.consent_given === "boolean" && req.body.consent_given) {
+		connection.consent_given_at = new Date();
+	}
 
-		connection.assign(req.body);
+	connection.assign(req.body);
 
-		await ConnectedAccount.update(
-			{
-				user_id: req.user_id,
-				external_id: connection_id,
-				type: connection_name,
-			},
-			connection,
-		);
-		res.json(connection.toJSON());
-	},
-);
+	await ConnectedAccount.update(
+		{
+			user_id: req.user_id,
+			external_id: connection_id,
+			type: connection_name,
+		},
+		connection,
+	);
+	res.json(connection.toJSON());
+});
 
 router.delete("/", route({}), async (req: Request, res: Response) => {
 	const { connection_name, connection_id } = req.params;

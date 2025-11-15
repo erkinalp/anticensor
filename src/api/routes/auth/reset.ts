@@ -17,18 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	checkToken,
-	Email,
-	FieldErrors,
-	generateToken,
-	PasswordResetSchema,
-	User,
-} from "@spacebar/util";
+import { checkToken, Email, FieldErrors, generateToken, User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
+import { PasswordResetSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(

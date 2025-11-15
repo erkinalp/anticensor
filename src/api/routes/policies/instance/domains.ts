@@ -19,7 +19,7 @@
 import { route } from "@spacebar/api";
 import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -34,14 +34,8 @@ router.get(
 		const { cdn, gateway, api } = Config.get();
 
 		const IdentityForm = {
-			cdn:
-				cdn.endpointPublic ||
-				process.env.CDN ||
-				"http://localhost:3001",
-			gateway:
-				gateway.endpointPublic ||
-				process.env.GATEWAY ||
-				"ws://localhost:3001",
+			cdn: cdn.endpointPublic || process.env.CDN || "http://localhost:3001",
+			gateway: gateway.endpointPublic || process.env.GATEWAY || "ws://localhost:3001",
 			defaultApiVersion: api.defaultVersion ?? 9,
 			apiEndpoint: api.endpointPublic ?? "http://localhost:3001/api/",
 		};

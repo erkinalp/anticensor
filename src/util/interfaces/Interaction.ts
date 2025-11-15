@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AllowedMentions, Embed } from "../entities/Message";
+import { Embed, AllowedMentions } from "@spacebar/schemas";
 
 export interface Interaction {
 	id: string;
@@ -30,9 +30,11 @@ export interface Interaction {
 }
 
 export enum InteractionType {
-	SelfCommand = 0,
 	Ping = 1,
 	ApplicationCommand = 2,
+	MessageComponent = 3,
+	ApplicationCommandAutocomplete = 4,
+	ModalSubmit = 5,
 }
 
 export enum InteractionResponseType {

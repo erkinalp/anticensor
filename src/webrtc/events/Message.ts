@@ -31,22 +31,17 @@ const PayloadSchema = {
 export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
 	try {
 		const data: VoicePayload = JSON.parse(buffer.toString());
-		if (data.op !== VoiceOPCodes.IDENTIFY && !this.user_id)
-			return this.close(CLOSECODES.Not_authenticated);
+		if (data.op !== VoiceOPCodes.IDENTIFY && !this.user_id) return this.close(CLOSECODES.Not_authenticated);
 
 		const OPCodeHandler = OPCodeHandlers[data.op];
 		if (!OPCodeHandler) {
-			console.error("[WebRTC] Unkown opcode " + VoiceOPCodes[data.op]);
+			console.error("[WebRTC] Unknown opcode " + VoiceOPCodes[data.op]);
 			// TODO: if all opcodes are implemented comment this out:
 			// this.close(CloseCodes.Unknown_opcode);
 			return;
 		}
 
-		if (
-			![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(
-				data.op as VoiceOPCodes,
-			)
-		) {
+		if (![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(data.op as VoiceOPCodes)) {
 			console.log("[WebRTC] Opcode " + VoiceOPCodes[data.op]);
 		}
 

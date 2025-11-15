@@ -36,7 +36,6 @@ import {
 	RegionConfiguration,
 	RegisterConfiguration,
 	SecurityConfiguration,
-	SentryConfiguration,
 	TemplateConfiguration,
 	UserConfiguration,
 } from "../config";
@@ -58,11 +57,9 @@ export class ConfigValue {
 	kafka: KafkaConfiguration = new KafkaConfiguration();
 	templates: TemplateConfiguration = new TemplateConfiguration();
 	metrics: MetricsConfiguration = new MetricsConfiguration();
-	sentry: SentryConfiguration = new SentryConfiguration();
 	defaults: DefaultsConfiguration = new DefaultsConfiguration();
 	external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
 	email: EmailConfiguration = new EmailConfiguration();
-	passwordReset: PasswordResetConfiguration =
-		new PasswordResetConfiguration();
+	passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
 	user: UserConfiguration = new UserConfiguration();
 }

@@ -18,11 +18,10 @@
 
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { BaseClassWithoutId } from "./BaseClass";
-import { dbEngine } from "../util/Database";
+import { CustomStatus, FriendSourceFlags, GuildFolder } from "@spacebar/schemas";
 
 @Entity({
 	name: "user_settings",
-	engine: dbEngine,
 })
 export class UserSettings extends BaseClassWithoutId {
 	@PrimaryGeneratedColumn()
@@ -138,22 +137,18 @@ export class UserSettings extends BaseClassWithoutId {
 
 	@Column({ nullable: true })
 	connections_require_approval: boolean = false;
-}
 
-interface CustomStatus {
-	emoji_id?: string;
-	emoji_name?: string;
-	expires_at?: number;
-	text?: string;
-}
+	public static async getOrDefault(userId: string) {
+		// raw sql query
+		const userSettingsIndex = (await this.getRepository().query('SELECT "settingsIndex" FROM users WHERE id = $1', [userId]))[0]?.settingsIndex as string | null;
 
-interface GuildFolder {
-	color: number;
-	guild_ids: string[];
-	id: number;
-	name: string;
-}
+		console.log(`[INFO/UserSettings] Fetched settings index for user ${userId}:`, userSettingsIndex);
 
-interface FriendSourceFlags {
-	all: boolean;
+		if (!userSettingsIndex) return new UserSettings();
+
+		const settings = await UserSettings.findOne({ where: { index: userSettingsIndex } });
+		if (!settings) return new UserSettings();
+
+		return settings;
+	}
 }

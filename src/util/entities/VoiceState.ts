@@ -22,35 +22,11 @@ import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { Member } from "./Member";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
-
-export enum PublicVoiceStateEnum {
-	user_id,
-	suppress,
-	session_id,
-	self_video,
-	self_mute,
-	self_deaf,
-	self_stream,
-	request_to_speak_timestamp,
-	mute,
-	deaf,
-	channel_id,
-	guild_id,
-}
-
-export type PublicVoiceStateKeys = keyof typeof PublicVoiceStateEnum;
-
-export const PublicVoiceStateProjection = Object.values(
-	PublicVoiceStateEnum,
-).filter((x) => typeof x === "string") as PublicVoiceStateKeys[];
-
-export type PublicVoiceState = Pick<VoiceState, PublicVoiceStateKeys>;
+import { PublicVoiceState, PublicVoiceStateProjection } from "@spacebar/schemas";
 
 //https://gist.github.com/vassjozsef/e482c65df6ee1facaace8b3c9ff66145#file-voice_state-ex
 @Entity({
 	name: "voice_states",
-	engine: dbEngine,
 })
 export class VoiceState extends BaseClass {
 	@Column({ nullable: true })

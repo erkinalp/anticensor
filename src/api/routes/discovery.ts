@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { Categories } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/categories",
@@ -38,9 +38,7 @@ router.get(
 		// const { locale, primary_only } = req.query;
 		const { primary_only } = req.query;
 
-		const out = primary_only
-			? await Categories.find({ where: { is_primary: true } })
-			: await Categories.find();
+		const out = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
 
 		res.send(out);
 	},

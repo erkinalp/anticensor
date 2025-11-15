@@ -17,16 +17,9 @@
 */
 
 import { Request } from "express";
-import {
-	Column,
-	Entity,
-	FindOneOptions,
-	JoinColumn,
-	OneToMany,
-	OneToOne,
-} from "typeorm";
-import { Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { BitField } from "../util/BitField";
+import { Column, Entity, FindOneOptions, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
+import { Random } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
 import { Member } from "./Member";
@@ -34,63 +27,10 @@ import { Relationship } from "./Relationship";
 import { SecurityKey } from "./SecurityKey";
 import { Session } from "./Session";
 import { UserSettings } from "./UserSettings";
-import { dbEngine } from "../util/Database";
-
-export enum PublicUserEnum {
-	username,
-	discriminator,
-	id,
-	public_flags,
-	avatar,
-	accent_color,
-	banner,
-	bio,
-	bot,
-	premium_since,
-	premium_type,
-	theme_colors,
-	pronouns,
-	badge_ids,
-}
-export type PublicUserKeys = keyof typeof PublicUserEnum;
-
-export enum PrivateUserEnum {
-	flags,
-	mfa_enabled,
-	email,
-	phone,
-	verified,
-	nsfw_allowed,
-	premium,
-	premium_type,
-	purchased_flags,
-	premium_usage_flags,
-	disabled,
-	rights, // required for proper handling of user rights for clients that wish to support it
-	// settings,	// now a relation
-	// locale
-}
-export type PrivateUserKeys = keyof typeof PrivateUserEnum | PublicUserKeys;
-
-export const PublicUserProjection = Object.values(PublicUserEnum).filter(
-	(x) => typeof x === "string",
-) as PublicUserKeys[];
-export const PrivateUserProjection = [
-	...PublicUserProjection,
-	...Object.values(PrivateUserEnum).filter((x) => typeof x === "string"),
-] as PrivateUserKeys[];
-
-// Private user data that should never get sent to the client
-export type PublicUser = Pick<User, PublicUserKeys>;
-export type PrivateUser = Pick<User, PrivateUserKeys>;
-
-export interface UserPrivate extends Pick<User, PrivateUserKeys> {
-	locale: string;
-}
+import { ChannelType, PrivateUserProjection, PublicUser, PublicUserProjection, UserPrivate } from "@spacebar/schemas";
 
 @Entity({
 	name: "users",
-	engine: dbEngine,
 })
 export class User extends BaseClass {
 	@Column()
@@ -173,13 +113,13 @@ export class User extends BaseClass {
 	@Column({ nullable: true, select: false })
 	email?: string; // email of the user
 
-	@Column()
+	@Column({ type: "bigint" })
 	flags: number = 0; // UserFlags // TODO: generate
 
-	@Column()
+	@Column({ type: "bigint" })
 	public_flags: number = 0;
 
-	@Column()
+	@Column({ type: "bigint" })
 	purchased_flags: number = 0;
 
 	@Column()
@@ -192,25 +132,17 @@ export class User extends BaseClass {
 	sessions: Session[];
 
 	@JoinColumn({ name: "relationship_ids" })
-	@OneToMany(
-		() => Relationship,
-		(relationship: Relationship) => relationship.from,
-		{
-			cascade: true,
-			orphanedRowAction: "delete",
-		},
-	)
+	@OneToMany(() => Relationship, (relationship: Relationship) => relationship.from, {
+		cascade: true,
+		orphanedRowAction: "delete",
+	})
 	relationships: Relationship[];
 
 	@JoinColumn({ name: "connected_account_ids" })
-	@OneToMany(
-		() => ConnectedAccount,
-		(account: ConnectedAccount) => account.user,
-		{
-			cascade: true,
-			orphanedRowAction: "delete",
-		},
-	)
+	@OneToMany(() => ConnectedAccount, (account: ConnectedAccount) => account.user, {
+		cascade: true,
+		orphanedRowAction: "delete",
+	})
 	connected_accounts: ConnectedAccount[];
 
 	@Column({ type: "simple-json", select: false })
@@ -225,10 +157,10 @@ export class User extends BaseClass {
 	@OneToOne(() => UserSettings, {
 		cascade: true,
 		orphanedRowAction: "delete",
-		eager: false,
+		nullable: true,
 	})
 	@JoinColumn()
-	settings: UserSettings;
+	settings?: UserSettings;
 
 	// workaround to prevent fossord-unaware clients from deleting settings not used by them
 	@Column({ type: "simple-json", select: false })
@@ -244,13 +176,7 @@ export class User extends BaseClass {
 	validate() {
 		if (this.discriminator) {
 			const discrim = Number(this.discriminator);
-			if (
-				isNaN(discrim) ||
-				!(typeof discrim == "number") ||
-				!Number.isInteger(discrim) ||
-				discrim <= 0 ||
-				discrim >= 10000
-			)
+			if (isNaN(discrim) || !(typeof discrim == "number") || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
 				throw FieldErrors({
 					discriminator: {
 						message: "Discriminator must be a number.",
@@ -290,9 +216,7 @@ export class User extends BaseClass {
 		});
 	}
 
-	public static async generateDiscriminator(
-		username: string,
-	): Promise<string | undefined> {
+	public static async generateDiscriminator(username: string): Promise<string | undefined> {
 		if (Config.get().register.incrementingDiscriminators) {
 			// discriminator will be incrementally generated
 
@@ -301,10 +225,7 @@ export class User extends BaseClass {
 				where: { username },
 				select: ["discriminator"],
 			});
-			const highestDiscriminator = Math.max(
-				0,
-				...users.map((u) => Number(u.discriminator)),
-			);
+			const highestDiscriminator = Math.max(0, ...users.map((u) => Number(u.discriminator)));
 
 			const discriminator = highestDiscriminator + 1;
 			if (discriminator >= 10000) {
@@ -318,9 +239,7 @@ export class User extends BaseClass {
 			// randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
 			// TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
 			for (let tries = 0; tries < 5; tries++) {
-				const discriminator = Math.randomIntBetween(1, 9999)
-					.toString()
-					.padStart(4, "0");
+				const discriminator = Random.nextInt(1, 9999).toString().padStart(4, "0");
 				const exists = await User.findOne({
 					where: { discriminator, username: username },
 					select: ["id"],
@@ -355,17 +274,15 @@ export class User extends BaseClass {
 			throw FieldErrors({
 				username: {
 					code: "USERNAME_TOO_MANY_USERS",
-					message:
-						req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
+					message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
 				},
 			});
 		}
 
 		// TODO: save date_of_birth
-		// appearently discord doesn't save the date of birth and just calculate if nsfw is allowed
+		// apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
 		// if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
-		const language =
-			req?.language === "en" ? "en-US" : req?.language || "en-US";
+		const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
 
 		const settings = UserSettings.create({
 			locale: language,
@@ -383,9 +300,7 @@ export class User extends BaseClass {
 			extended_settings: "{}",
 			settings: settings,
 
-			premium_since: Config.get().defaults.user.premium
-				? new Date()
-				: undefined,
+			premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
 			rights: Config.get().register.defaultRights,
 			premium: Config.get().defaults.user.premium ?? false,
 			premium_type: Config.get().defaults.user.premiumType ?? 0,
@@ -399,49 +314,40 @@ export class User extends BaseClass {
 		// send verification email if users aren't verified by default and we have an email
 		if (!Config.get().defaults.user.verified && email) {
 			await Email.sendVerifyEmail(user, email).catch((e) => {
-				console.error(
-					`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`,
-				);
+				console.error(`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`);
 			});
 		}
 
 		setImmediate(async () => {
 			if (Config.get().guild.autoJoin.enabled) {
 				for (const guild of Config.get().guild.autoJoin.guilds || []) {
-					await Member.addToGuild(user.id, guild).catch((e) =>
-						console.error("[Autojoin]", e),
-					);
+					await Member.addToGuild(user.id, guild).catch((e) => console.error("[Autojoin]", e));
 				}
 			}
 		});
 
 		return user;
 	}
-}
 
-export const CUSTOM_USER_FLAG_OFFSET = BigInt(1) << BigInt(32);
+	async getDmChannelWith(user_id: string) {
+		const qry = await Channel.getRepository()
+			.createQueryBuilder()
+			.leftJoinAndSelect("Channel.recipients", "rcp")
+			.where("Channel.type = :type", { type: ChannelType.DM })
+			.andWhere("rcp.user_id IN (:...user_ids)", { user_ids: [this.id, user_id] })
+			.groupBy("Channel.id")
+			.having("COUNT(rcp.user_id) = 2")
+			.getMany();
 
-export class UserFlags extends BitField {
-	static FLAGS = {
-		DISCORD_EMPLOYEE: BigInt(1) << BigInt(0),
-		PARTNERED_SERVER_OWNER: BigInt(1) << BigInt(1),
-		HYPESQUAD_EVENTS: BigInt(1) << BigInt(2),
-		BUGHUNTER_LEVEL_1: BigInt(1) << BigInt(3),
-		MFA_SMS: BigInt(1) << BigInt(4),
-		PREMIUM_PROMO_DISMISSED: BigInt(1) << BigInt(5),
-		HOUSE_BRAVERY: BigInt(1) << BigInt(6),
-		HOUSE_BRILLIANCE: BigInt(1) << BigInt(7),
-		HOUSE_BALANCE: BigInt(1) << BigInt(8),
-		EARLY_SUPPORTER: BigInt(1) << BigInt(9),
-		TEAM_USER: BigInt(1) << BigInt(10),
-		TRUST_AND_SAFETY: BigInt(1) << BigInt(11),
-		SYSTEM: BigInt(1) << BigInt(12),
-		HAS_UNREAD_URGENT_MESSAGES: BigInt(1) << BigInt(13),
-		BUGHUNTER_LEVEL_2: BigInt(1) << BigInt(14),
-		UNDERAGE_DELETED: BigInt(1) << BigInt(15),
-		VERIFIED_BOT: BigInt(1) << BigInt(16),
-		EARLY_VERIFIED_BOT_DEVELOPER: BigInt(1) << BigInt(17),
-		CERTIFIED_MODERATOR: BigInt(1) << BigInt(18),
-		BOT_HTTP_INTERACTIONS: BigInt(1) << BigInt(19),
-	};
+		// Emma [it/its]@Rory&: is this technically a bug, or am I being too over-cautious?
+		if (qry.length > 1) {
+			console.warn(`[WARN] User(${this.id})#getDmChannel(${user_id}) returned multiple channels:`);
+			for (const channel of qry) {
+				console.warn(JSON.stringify(channel));
+			}
+		}
+
+		// throw if multiple
+		return qry.single((_) => true);
+	}
 }
