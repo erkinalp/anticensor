@@ -29,6 +29,53 @@ import { Session } from "./Session";
 import { UserSettings } from "./UserSettings";
 import { ChannelType, PrivateUserProjection, PublicUser, PublicUserProjection, UserPrivate } from "@spacebar/schemas";
 
+export enum PublicUserEnum {
+	username,
+	discriminator,
+	id,
+	public_flags,
+	avatar,
+	accent_color,
+	banner,
+	bio,
+	bot,
+	premium_since,
+	premium_type,
+	theme_colors,
+	pronouns,
+	badge_ids,
+}
+export type PublicUserKeys = keyof typeof PublicUserEnum;
+
+export enum PrivateUserEnum {
+	flags,
+	mfa_enabled,
+	email,
+	phone,
+	verified,
+	nsfw_allowed,
+	premium,
+	premium_type,
+	purchased_flags,
+	premium_usage_flags,
+	disabled,
+	rights, // required for proper handling of user rights for clients that wish to support it
+	// settings,	// now a relation
+	// locale
+}
+export type PrivateUserKeys = keyof typeof PrivateUserEnum | PublicUserKeys;
+
+export const PublicUserProjection_Local = Object.values(PublicUserEnum).filter((x) => typeof x === "string") as PublicUserKeys[];
+export const PrivateUserProjection_Local = [...PublicUserProjection_Local, ...Object.values(PrivateUserEnum).filter((x) => typeof x === "string")] as PrivateUserKeys[];
+
+// Private user data that should never get sent to the client
+export type PublicUser_Local = Pick<User, PublicUserKeys>;
+export type PrivateUser_Local = Pick<User, PrivateUserKeys>;
+
+export interface UserPrivate_Local extends Pick<User, PrivateUserKeys> {
+	locale: string;
+}
+
 @Entity({
 	name: "users",
 })

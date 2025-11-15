@@ -2,23 +2,23 @@ import { NextFunction, Request, Response } from "express";
 import { HTTPError } from ".";
 
 const OPTIONAL_PREFIX = "$";
-const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-export function check(schema: any) {
+export function check(schema: unknown) {
 	return (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const result = instanceOf(schema, req.body, { path: "body" });
 			if (result === true) return next();
 			throw result;
 		} catch (error) {
-			next(new HTTPError((error as any).toString(), 400));
+			next(new HTTPError((error as Error).toString(), 400));
 		}
 	};
 }
 
 export class Tuple {
-	public types: any[];
-	constructor(...types: any[]) {
+	public types: unknown[];
+	constructor(...types: unknown[]) {
 		this.types = types;
 	}
 }
@@ -30,7 +30,7 @@ export class Email {
 	}
 }
 
-export function instanceOf(type: any, value: any, { path = "", optional = false }: { path?: string; optional?: boolean } = {}): Boolean {
+export function instanceOf(type: unknown, value: unknown, { path = "", optional = false }: { path?: string; optional?: boolean } = {}): boolean {
 	if (!type) return true; // no type was specified
 
 	if (value == null) {
@@ -48,9 +48,11 @@ export function instanceOf(type: any, value: any, { path = "", optional = false 
 			throw `${path} must be a number`;
 		case BigInt:
 			try {
-				value = BigInt(value);
+				value = BigInt(value as string | number | bigint | boolean);
 				if (typeof value === "bigint") return true;
-			} catch (error) {}
+			} catch {
+				void 0;
+			}
 			throw `${path} must be a bigint`;
 		case Boolean:
 			if (value == "true") value = true;

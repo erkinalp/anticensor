@@ -18,8 +18,29 @@
 
 import { DiscoveryConfiguration, AutoJoinConfiguration } from ".";
 
+export interface GuildThreadLimitsConfiguration {
+	defaultThreadPageSize?: number;
+	maxThreadPageSize?: number | null;
+	defaultArchivedPageSize?: number;
+	maxArchivedPageSize?: number | null;
+	privateThreadMaxMembers?: number | null;
+}
+
+export interface GuildCrosspostLimitsConfiguration {
+	crosspostMaxTargets?: number | null;
+}
+
+export interface GuildFollowersLimitsConfiguration {
+	followersMaxPerChannel?: number | null;
+}
+
 export class GuildConfiguration {
 	discovery: DiscoveryConfiguration = new DiscoveryConfiguration();
 	autoJoin: AutoJoinConfiguration = new AutoJoinConfiguration();
 	defaultFeatures: string[] = [];
+	limits?: {
+		threads?: GuildThreadLimitsConfiguration;
+		crosspost?: GuildCrosspostLimitsConfiguration;
+		followers?: GuildFollowersLimitsConfiguration;
+	};
 }

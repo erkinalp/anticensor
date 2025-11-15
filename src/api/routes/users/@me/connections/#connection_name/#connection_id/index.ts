@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { ConnectedAccount, DiscordApiErrors, emitEvent } from "@spacebar/util";
+import { ConnectedAccount, Config, DiscordApiErrors, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ConnectionUpdateSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });

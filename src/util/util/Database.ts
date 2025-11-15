@@ -39,7 +39,7 @@ const dbConnectionString = process.env.DATABASE || path.join(process.cwd(), "dat
 export const DatabaseType = dbConnectionString.includes("://") ? dbConnectionString.split(":")[0]?.replace("+srv", "") : "sqlite";
 const isSqlite = DatabaseType.includes("sqlite");
 
-let DataSourceOptions: DataSource;
+export let DataSourceOptions: DataSource;
 
 // Gets the existing database connection
 export function getDatabase(): DataSource | null {
@@ -81,7 +81,7 @@ export async function initDatabase(): Promise<DataSource> {
 	}
 
 	if (!process.env.DB_SYNC && !isVolatileMode) {
-		const supported = ["postgres", "sqlite"];
+		const supported = ["mysql", "mariadb", "postgres", "sqlite"];
 		if (!supported.includes(finalDatabaseType)) {
 			console.log(
 				"[Database]" +

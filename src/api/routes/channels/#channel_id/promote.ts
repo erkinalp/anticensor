@@ -17,10 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelType, Guild, Permissions, emitEvent } from "@spacebar/util";
+import { Channel, Guild, Permissions, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { ChannelPromoteSchema } from "@spacebar/util/schemas/ChannelPromoteSchema";
+import { ChannelPromoteSchema, ChannelType } from "@spacebar/schemas";
 
 const router: Router = Router();
 

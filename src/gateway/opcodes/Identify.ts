@@ -515,9 +515,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		);
 	}
 
-	const promiseResults = await Promise.all(promises);
-	const emitSessionsReplaceTime = promiseResults[0].elapsed;
-	const emitPresenceUpdateTime = promiseResults[1]?.elapsed;
+	const emitResults = await Promise.all(promises);
+	const emitSessionsReplaceTime = emitResults[0].elapsed;
+	const emitPresenceUpdateTime = emitResults[1]?.elapsed;
 
 	// Build READY
 

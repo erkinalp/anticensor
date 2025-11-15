@@ -90,4 +90,5 @@ export type AutomodAction =
 				duration_seconds: number;
 			};
 	  };
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AutomodRuleActionMetadata {}

@@ -9,6 +9,7 @@ import http from "http";
 import chalk from "chalk";
 
 declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Express {
 		interface Request {
 			server: Server;
@@ -21,7 +22,7 @@ export type ServerOptions = {
 	host: string;
 	production: boolean;
 	serverInitLogging: boolean;
-	errorHandler?: { (err: Error, req: Request, res: Response, next: NextFunction): any };
+	errorHandler?: { (err: Error, req: Request, res: Response, next: NextFunction): unknown };
 	jsonBody: boolean;
 	server: http.Server;
 	app: Application;
@@ -114,13 +115,13 @@ export class Server {
 		return result;
 	}
 
-	log(l: "info" | "error" | "warn" | "verbose", ...args: any[]) {
-		// @ts-ignore
+	log(l: "info" | "error" | "warn" | "verbose", ...args: unknown[]) {
+		// @ts-expect-error - checking if console has the method
 		if (!console[l]) l = "verbose";
 
 		const level = l === "verbose" ? "log" : l;
 
-		var color: "red" | "yellow" | "blue" | "reset";
+		let color: "red" | "yellow" | "blue" | "reset";
 
 		switch (level) {
 			case "error":
@@ -131,6 +132,7 @@ export class Server {
 				break;
 			case "info":
 				color = "blue";
+				break;
 			case "log":
 			default:
 				color = "reset";
@@ -141,7 +143,7 @@ export class Server {
 		console[level](chalk[color](`[${new Date().toTimeString().split(" ")[0]}]`), ...args);
 	}
 
-	registerRoute(root: string, file: string): any {
+	registerRoute(root: string, file: string): unknown {
 		if (root.endsWith("/") || root.endsWith("\\")) root = root.slice(0, -1); // removes slash at the end of the root dir
 		let path = file.replace(root, ""); // remove root from path and
 		path = path.split(".").slice(0, -1).join("."); // trancate .js/.ts file extension of path
@@ -150,7 +152,7 @@ export class Server {
 		if (!path.length) path = "/"; // first root index.js file must have a / path
 
 		try {
-			var router = require(file);
+			let router = require(file);
 			if (router.router) router = router.router;
 			if (router.default) router = router.default;
 			if (!router || router?.prototype?.constructor?.name !== "router") throw `File doesn't export any default router`;

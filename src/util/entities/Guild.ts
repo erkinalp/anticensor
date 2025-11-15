@@ -241,6 +241,9 @@ export class Guild extends BaseClass {
 	@Column({ nullable: true })
 	splash?: string;
 
+	@Column({ nullable: true })
+	region?: string;
+
 	@Column({ type: String, nullable: true })
 	@RelationId((guild: Guild) => guild.system_channel)
 	system_channel_id?: string | null;

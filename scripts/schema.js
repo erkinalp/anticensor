@@ -22,7 +22,6 @@
 
 const conWarn = console.warn;
 console.warn = (...args) => {
-	// silence some expected warnings
 	if (args[0] === "initializer is expression for property id") return;
 	if (args[0].startsWith("unknown initializer for property ") && args[0].endsWith("[object Object]")) return;
 	conWarn(...args);
@@ -60,8 +59,6 @@ const Excluded = [
 	"DiagnosticsChannel.Response",
 	"_Response",
 	"ReadableStream<any>",
-
-	// TODO: Figure out how to exclude schemas from node_modules?
 	"SomeJSONSchema",
 	"UncheckedPartialSchema",
 	"PartialSchema",
@@ -71,7 +68,6 @@ const Excluded = [
 	"AnySchema",
 	"SMTPConnection.CustomAuthenticationResponse",
 	"TransportMakeRequestResponse",
-	// Emma [it/its] @ Rory& - 2025-10-14
 	/.*\..*/,
 	/^Axios.*/,
 	/^APIKeyConfiguration\..*/,
@@ -86,6 +82,37 @@ const Excluded = [
 	/^Webhook\..*/,
 	/^(BigDecimal|BigInteger|Blob|Boolean|Document|Error|LazyRequest|List|Map|Normalized|Numeric)Schema/,
 	/^Put/,
+	"TraitsSchema",
+	"ListSchema",
+	"MapSchema",
+	"StructureSchema",
+	"MemberSchema",
+	"OperationSchema",
+	"StringSchema",
+	"TimestampDefaultSchema",
+	"TimestampDateTimeSchema",
+	"TimestampHttpDateSchema",
+	"TimestampEpochSecondsSchema",
+	"SimpleSchema",
+	"UnitSchema",
+	"StreamingBlobSchema",
+	"HttpResponse",
+	"ResolvedHttpResponse",
+	"ConnectedAccountCommonOAuthTokenResponse",
+	/^Clone.*Response$/,
+	/^Create.*Response$/,
+	/^Describe.*Response$/,
+	/^Get.*Response$/,
+	/^List.*Response$/,
+	/^Reorder.*Response$/,
+	/^Send.*Response$/,
+	/^Set.*Response$/,
+	/^Test.*Response$/,
+	/^Update.*Response$/,
+	/^Verify.*Response$/,
+	"SupabaseResponse",
+	"OpenAiResponse",
+	"CopyResponse",
 ];
 
 function main() {
