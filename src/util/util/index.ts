@@ -48,3 +48,5 @@ export * from "./Gifs";
 export * from "./Application";
 export * from "./NameValidation";
 export * from "./ConnectionPrivacy";
+export * from "./AutomodEvaluator";
+export * from "./AutomodActionExecutor";

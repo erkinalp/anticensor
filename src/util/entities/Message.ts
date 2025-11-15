@@ -62,6 +62,7 @@ export enum MessageType {
 	ENCRYPTED = 16,
 	REPLY = 19,
 	APPLICATION_COMMAND = 20, // application command or self command invocation
+	AUTO_MODERATION_ACTION = 24,
 	ROUTE_ADDED = 41, // custom message routing: new route affecting that channel
 	ROUTE_DISABLED = 42, // custom message routing: given route no longer affecting that channel
 	SELF_COMMAND_SCRIPT = 43, // self command scripts
@@ -412,6 +413,7 @@ export enum EmbedType {
 	gifv = "gifv",
 	article = "article",
 	link = "link",
+	auto_moderation_message = "auto_moderation_message",
 }
 
 export interface EmbedImage {
