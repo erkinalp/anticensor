@@ -20,6 +20,8 @@ import { route } from "@spacebar/api";
 import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import tickets from "./tickets";
+import ticket from "./ticket";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -154,4 +156,6 @@ router.patch(
 	},
 );
 
+router.use(tickets);
+router.use(ticket);
 export default router;

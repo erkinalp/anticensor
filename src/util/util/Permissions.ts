@@ -64,6 +64,7 @@ export class Permissions extends BitField {
 		USE_PRIVATE_THREADS: BitFlag(36),
 		USE_EXTERNAL_STICKERS: BitFlag(37),
 		PIN_MESSAGES: BitFlag(38),
+		MANAGE_TICKETS: BitFlag(55),
 
 		/**
 		 * CUSTOM PERMISSIONS ideas:
