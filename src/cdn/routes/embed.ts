@@ -17,10 +17,10 @@
 */
 
 import { Request, Response, Router } from "express";
-import FileType from "file-type";
 import fs from "fs/promises";
 import { HTTPError } from "lambert-server";
 import { join } from "path";
+import { fileTypeFromBuffer } from "file-type";
 
 const defaultAvatarHashMap = new Map([
 	["0", "4a8562cf00887030c416d3ec2d46385a"],
@@ -42,7 +42,7 @@ const defaultGroupDMAvatarHashMap = new Map([
 	["7", "904bf9f1b61f53ef4a3b7a893afeabe3"],
 ]);
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 async function getFile(path: string) {
 	try {
@@ -63,19 +63,11 @@ router.get("/avatars/:id", async (req: Request, res: Response) => {
 	id = id.split(".")[0]; // remove .file extension
 	const hash = defaultAvatarHashMap.get(id);
 	if (!hash) throw new HTTPError("not found", 404);
-	const path = join(
-		__dirname,
-		"..",
-		"..",
-		"..",
-		"assets",
-		"public",
-		`${hash}.png`,
-	);
+	const path = join(__dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
 
 	const file = await getFile(path);
 	if (!file) throw new HTTPError("not found", 404);
-	const type = await FileType.fromBuffer(file);
+	const type = await fileTypeFromBuffer(file);
 
 	res.set("Content-Type", type?.mime);
 	res.set("Cache-Control", "public, max-age=31536000");
@@ -88,19 +80,11 @@ router.get("/group-avatars/:id", async (req: Request, res: Response) => {
 	id = id.split(".")[0]; // remove .file extension
 	const hash = defaultGroupDMAvatarHashMap.get(id);
 	if (!hash) throw new HTTPError("not found", 404);
-	const path = join(
-		__dirname,
-		"..",
-		"..",
-		"..",
-		"assets",
-		"public",
-		`${hash}.png`,
-	);
+	const path = join(__dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
 
 	const file = await getFile(path);
 	if (!file) throw new HTTPError("not found", 404);
-	const type = await FileType.fromBuffer(file);
+	const type = await fileTypeFromBuffer(file);
 
 	res.set("Content-Type", type?.mime);
 	res.set("Cache-Control", "public, max-age=31536000");

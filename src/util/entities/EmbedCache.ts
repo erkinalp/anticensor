@@ -18,12 +18,10 @@
 
 import { BaseClass } from "./BaseClass";
 import { Entity, Column } from "typeorm";
-import { Embed } from "./Message";
-import { dbEngine } from "../util/Database";
+import { Embed } from "@spacebar/schemas";
 
 @Entity({
 	name: "embed_cache",
-	engine: dbEngine,
 })
 export class EmbedCache extends BaseClass {
 	@Column()

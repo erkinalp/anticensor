@@ -33,46 +33,20 @@ try {
 
 let sentImageProxyWarning = false;
 
-const sharpSupported = new Set([
-	"image/jpeg",
-	"image/png",
-	"image/bmp",
-	"image/tiff",
-	"image/gif",
-	"image/webp",
-	"image/avif",
-	"image/svg+xml",
-]);
-const jimpSupported = new Set([
-	"image/jpeg",
-	"image/png",
-	"image/bmp",
-	"image/tiff",
-	"image/gif",
-]);
+const sharpSupported = new Set(["image/jpeg", "image/png", "image/bmp", "image/tiff", "image/gif", "image/webp", "image/avif", "image/svg+xml"]);
+const jimpSupported = new Set(["image/jpeg", "image/png", "image/bmp", "image/tiff", "image/gif"]);
 const resizeSupported = new Set([...sharpSupported, ...jimpSupported]);
 
 export async function ImageProxy(req: Request, res: Response) {
 	const path = req.originalUrl.split("/").slice(2);
 
 	// src/api/util/utility/EmbedHandlers.ts getProxyUrl
-	const hash = crypto
-		.createHmac("sha1", Config.get().security.requestSignature)
-		.update(path.slice(1).join("/"))
-		.digest("base64")
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_");
+	const hash = crypto.createHmac("sha1", Config.get().security.requestSignature).update(path.slice(1).join("/")).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
 
 	try {
-		if (!crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(path[0])))
-			throw new Error("Invalid signature");
+		if (!crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(path[0]))) throw new Error("Invalid signature");
 	} catch {
-		console.log(
-			"[ImageProxy] Invalid signature, expected " +
-				hash +
-				" but got " +
-				path[0],
-		);
+		console.log("[ImageProxy] Invalid signature, expected " + hash + " but got " + path[0]);
 		res.status(403).send("Invalid signature");
 		return;
 	}
@@ -92,30 +66,18 @@ export async function ImageProxy(req: Request, res: Response) {
 	if (!request) return;
 
 	if (request.status !== 200) {
-		res.status(request.status).send(
-			"Origin failed to respond: " +
-				request.status +
-				" " +
-				request.statusText,
-		);
+		res.status(request.status).send("Origin failed to respond: " + request.status + " " + request.statusText);
 		return;
 	}
 
-	if (
-		!request.headers.get("Content-Type") ||
-		!request.headers.get("Content-Length")
-	) {
-		res.status(500).send(
-			"Origin did not provide a Content-Type or Content-Length header",
-		);
+	if (!request.headers.get("Content-Type") || !request.headers.get("Content-Length")) {
+		res.status(500).send("Origin did not provide a Content-Type or Content-Length header");
 		return;
 	}
 
 	// @ts-expect-error TS doesn't believe that the header cannot be null (it's checked for falsiness above)
 	if (parseInt(request.headers.get("Content-Length")) > 1024 * 1024 * 10) {
-		res.status(500).send(
-			"Origin provided a Content-Length header that is too large",
-		);
+		res.status(500).send("Origin provided a Content-Length header that is too large");
 		return;
 	}
 
@@ -125,11 +87,7 @@ export async function ImageProxy(req: Request, res: Response) {
 	const arrayBuffer = await request.arrayBuffer();
 	let resultBuffer = Buffer.from(arrayBuffer);
 
-	if (
-		!sentImageProxyWarning &&
-		resizeSupported.has(contentType) &&
-		/^\d+x\d+$/.test(path[1])
-	) {
+	if (!sentImageProxyWarning && resizeSupported.has(contentType) && /^\d+x\d+$/.test(path[1])) {
 		if (sharp !== false) {
 			try {
 				sharp = await import("sharp");
@@ -145,11 +103,7 @@ export async function ImageProxy(req: Request, res: Response) {
 				Jimp = await import("jimp");
 			} catch {
 				sentImageProxyWarning = true;
-				console.log(
-					`[ImageProxy] ${yellow(
-						'Neither "sharp" or "jimp" NPM packages are installed, image resizing will be disabled',
-					)}`,
-				);
+				console.log(`[ImageProxy] ${yellow('Neither "sharp" or "jimp" NPM packages are installed, image resizing will be disabled')}`);
 			}
 		}
 
@@ -178,10 +132,7 @@ export async function ImageProxy(req: Request, res: Response) {
 	}
 
 	res.header("Content-Type", contentType);
-	res.setHeader(
-		"Cache-Control",
-		"public, max-age=" + Config.get().cdn.proxyCacheHeaderSeconds,
-	);
+	res.setHeader("Cache-Control", "public, max-age=" + Config.get().cdn.proxyCacheHeaderSeconds);
 
 	res.send(resultBuffer);
 }

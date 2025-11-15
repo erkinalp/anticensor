@@ -17,16 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	User,
-	AutomodRuleSchema,
-	AutomodRule,
-	AutomodEvaluator,
-} from "@spacebar/util";
+import { User, AutomodRule, AutomodEvaluator } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { AutomodRuleSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -67,17 +63,9 @@ router.post(
 	}),
 	async (req: Request, res: Response) => {
 		const { guild_id } = req.params;
-		if (req.user_id !== req.body.creator_id)
-			throw new HTTPError(
-				"You can't create a rule for someone else",
-				403,
-			);
+		if (req.user_id !== req.body.creator_id) throw new HTTPError("You can't create a rule for someone else", 403);
 
-		if (guild_id !== req.body.guild_id)
-			throw new HTTPError(
-				"You can't create a rule for another guild",
-				403,
-			);
+		if (guild_id !== req.body.guild_id) throw new HTTPError("You can't create a rule for another guild", 403);
 
 		if (req.body.id) {
 			throw new HTTPError("You can't specify an ID for a new rule", 400);

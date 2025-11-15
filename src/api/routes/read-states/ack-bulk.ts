@@ -17,9 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { AckBulkSchema, ReadState } from "@spacebar/util";
+import { ReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+import { AckBulkSchema } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 router.post(
 	"/",

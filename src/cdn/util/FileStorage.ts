@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -19,7 +19,6 @@
 import { Storage } from "./Storage";
 import fs from "fs";
 import { join, dirname } from "path";
-import "missing-native-js-functions";
 import { Readable } from "stream";
 import ExifTransformer from "exif-be-gone";
 
@@ -30,8 +29,7 @@ function getPath(path: string) {
 	const root = process.env.STORAGE_LOCATION || "../";
 	const filename = join(root, path);
 
-	if (path.indexOf("\0") !== -1 || !filename.startsWith(root))
-		throw new Error("invalid path");
+	if (path.indexOf("\0") !== -1 || !filename.startsWith(root)) throw new Error("invalid path");
 	return filename;
 }
 
@@ -51,10 +49,19 @@ export class FileStorage implements Storage {
 		}
 	}
 
+	async clone(path: string, newPath: string) {
+		path = getPath(path);
+		newPath = getPath(newPath);
+
+		if (!fs.existsSync(dirname(newPath))) fs.mkdirSync(dirname(newPath), { recursive: true });
+
+		// use reflink if possible, in order to not duplicate files at the block layer...
+		fs.copyFileSync(path, newPath, fs.constants.COPYFILE_FICLONE);
+	}
+
 	async set(path: string, value: Buffer) {
 		path = getPath(path);
-		if (!fs.existsSync(dirname(path)))
-			fs.mkdirSync(dirname(path), { recursive: true });
+		if (!fs.existsSync(dirname(path))) fs.mkdirSync(dirname(path), { recursive: true });
 
 		const ret = Readable.from(value);
 		const cleaned_file = fs.createWriteStream(path);

@@ -2,24 +2,12 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import {
-	Channel,
-	ChannelPermissionOverwrite,
-	Guild,
-	Member,
-	Role,
-} from "../entities";
-import { BitField } from "./BitField";
-import "missing-native-js-functions";
-import { BitFieldResolvable, BitFlag } from "./BitField";
+import { Channel, Guild, Member, Role } from "../entities";
+import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
+import { ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "@spacebar/schemas";
 
-export type PermissionResolvable =
-	| bigint
-	| number
-	| Permissions
-	| PermissionResolvable[]
-	| PermissionString;
+export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
 
 type PermissionString = keyof typeof Permissions.FLAGS;
 
@@ -32,7 +20,7 @@ export class Permissions extends BitField {
 	constructor(bits: BitFieldResolvable = 0) {
 		super(bits);
 		if (this.bitfield & Permissions.FLAGS.ADMINISTRATOR) {
-			this.bitfield = ALL_PERMISSIONS;
+			this.bitfield = Permissions.ALL_PERMISSIONS;
 		}
 	}
 
@@ -76,6 +64,7 @@ export class Permissions extends BitField {
 		USE_PRIVATE_THREADS: BitFlag(36),
 		USE_EXTERNAL_STICKERS: BitFlag(37),
 		PIN_MESSAGES: BitFlag(38),
+		MANAGE_TICKETS: BitFlag(55),
 
 		/**
 		 * CUSTOM PERMISSIONS ideas:
@@ -85,21 +74,17 @@ export class Permissions extends BitField {
 		// CUSTOM_PERMISSION: BigInt(1) << BigInt(0) + CUSTOM_PERMISSION_OFFSET
 	};
 
+	static ALL_PERMISSIONS = Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0));
+
 	any(permission: PermissionResolvable, checkAdmin = true) {
-		return (
-			(checkAdmin && super.any(Permissions.FLAGS.ADMINISTRATOR)) ||
-			super.any(permission)
-		);
+		return (checkAdmin && super.any(Permissions.FLAGS.ADMINISTRATOR)) || super.any(permission);
 	}
 
 	/**
 	 * Checks whether the bitfield has a permission, or multiple permissions.
 	 */
 	has(permission: PermissionResolvable, checkAdmin = true) {
-		return (
-			(checkAdmin && super.has(Permissions.FLAGS.ADMINISTRATOR)) ||
-			super.has(permission)
-		);
+		return (checkAdmin && super.has(Permissions.FLAGS.ADMINISTRATOR)) || super.has(permission);
 	}
 
 	/**
@@ -107,30 +92,21 @@ export class Permissions extends BitField {
 	 */
 	hasThrow(permission: PermissionResolvable) {
 		if (this.has(permission) && this.has("VIEW_CHANNEL")) return true;
-		throw new HTTPError(
-			`You are missing the following permissions ${permission}`,
-			403,
-		);
+		throw new HTTPError(`You are missing the following permissions ${permission}`, 403);
 	}
 
 	overwriteChannel(overwrites: ChannelPermissionOverwrite[]) {
 		if (!overwrites) return this;
 		if (!this.cache) throw new Error("permission chache not available");
 		overwrites = overwrites.filter((x) => {
-			if (x.type === 0 && this.cache.roles?.some((r) => r.id === x.id))
-				return true;
-			if (x.type === 1 && x.id == this.cache.user_id) return true;
+			if (x.type === ChannelPermissionOverwriteType.role && this.cache.roles?.some((r) => r.id === x.id)) return true;
+			if (x.type === ChannelPermissionOverwriteType.member && x.id == this.cache.user_id) return true;
 			return false;
 		});
-		return new Permissions(
-			Permissions.channelPermission(overwrites, this.bitfield),
-		);
+		return new Permissions(Permissions.channelPermission(overwrites, this.bitfield));
 	}
 
-	static channelPermission(
-		overwrites: ChannelPermissionOverwrite[],
-		init?: bigint,
-	) {
+	static channelPermission(overwrites: ChannelPermissionOverwrite[], init?: bigint) {
 		// TODO: do not deny any permissions if admin
 		return overwrites.reduce(
 			(permission, overwrite) => {
@@ -138,10 +114,7 @@ export class Permissions extends BitField {
 				// * permission: current calculated permission (e.g. 010)
 				// * deny contains all denied permissions (e.g. 011)
 				// * allow contains all explicitly allowed permisions (e.g. 100)
-				return (
-					(permission & ~BigInt(overwrite.deny)) |
-					BigInt(overwrite.allow)
-				);
+				return (permission & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow);
 				// ~ operator inverts deny (e.g. 011 -> 100)
 				// & operator only allows 1 for both ~deny and permission (e.g. 010 & 100 -> 000)
 				// | operators adds both together (e.g. 000 + 100 -> 100)
@@ -152,10 +125,7 @@ export class Permissions extends BitField {
 
 	static rolePermission(roles: Role[]) {
 		// adds all permissions of all roles together (Bit OR)
-		return roles.reduce(
-			(permission, role) => permission | BigInt(role.permissions),
-			BigInt(0),
-		);
+		return roles.reduce((permission, role) => permission | BigInt(role.permissions), BigInt(0));
 	}
 
 	static finalPermission({
@@ -178,16 +148,15 @@ export class Permissions extends BitField {
 
 		if (channel?.overwrites) {
 			const overwrites = channel.overwrites.filter((x) => {
-				if (x.type === 0 && user.roles.includes(x.id)) return true;
-				if (x.type === 1 && x.id == user.id) return true;
+				if (x.type === ChannelPermissionOverwriteType.role && user.roles.includes(x.id)) return true;
+				if (x.type === ChannelPermissionOverwriteType.member && x.id == user.id) return true;
 				return false;
 			});
 			permission = Permissions.channelPermission(overwrites, permission);
 		}
 
 		if (channel?.recipient_ids) {
-			if (channel?.owner_id === user.id)
-				return new Permissions("ADMINISTRATOR");
+			if (channel?.owner_id === user.id) return new Permissions("ADMINISTRATOR");
 			if (channel.recipient_ids.includes(user.id)) {
 				// Default dm permissions
 				return new Permissions([
@@ -211,12 +180,10 @@ export class Permissions extends BitField {
 
 		return new Permissions(permission);
 	}
-}
 
-const ALL_PERMISSIONS = Object.values(Permissions.FLAGS).reduce(
-	(total, val) => total | val,
-	BigInt(0),
-);
+	static NONE: Permissions = new Permissions(0);
+	static ALL: Permissions = new Permissions(Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0)));
+}
 
 export type PermissionCache = {
 	channel?: Channel | undefined;
@@ -248,14 +215,7 @@ export async function getPermission(
 		channel = await Channel.findOneOrFail({
 			where: { id: channel_id },
 			relations: ["recipients", ...(opts.channel_relations || [])],
-			select: [
-				"id",
-				"recipients",
-				"permission_overwrites",
-				"owner_id",
-				"guild_id",
-				...(opts.channel_select || []),
-			],
+			select: ["id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])],
 		});
 		if (channel.guild_id) guild_id = channel.guild_id; // derive guild_id from the channel
 	}
@@ -266,8 +226,7 @@ export async function getPermission(
 			select: ["id", "owner_id", ...(opts.guild_select || [])],
 			relations: opts.guild_relations,
 		});
-		if (guild.owner_id === user_id)
-			return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
+		if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
 		member = await Member.findOneOrFail({
 			where: { guild_id, id: user_id },

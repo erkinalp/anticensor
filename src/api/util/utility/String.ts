@@ -18,15 +18,9 @@
 
 import { Request } from "express";
 import { ntob } from "./Base64";
-import { FieldErrors } from "@spacebar/util";
+import { FieldErrors, Random } from "@spacebar/util";
 
-export function checkLength(
-	str: string,
-	min: number,
-	max: number,
-	key: string,
-	req: Request,
-) {
+export function checkLength(str: string, min: number, max: number, key: string, req: Request) {
 	if (str.length < min || str.length > max) {
 		throw FieldErrors({
 			[key]: {
@@ -40,5 +34,5 @@ export function checkLength(
 }
 
 export function generateCode() {
-	return ntob(Date.now() + Math.randomIntBetween(0, 10000));
+	return ntob(Date.now() + Random.nextInt(0, 10000));
 }

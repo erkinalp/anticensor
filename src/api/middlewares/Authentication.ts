@@ -16,10 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Sentry from "@sentry/node";
 import { checkToken, Rights } from "@spacebar/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
+import { checkUserIpAccess } from "../util/utility/ipValidation";
+import { getIpAdress } from "../util/utility/ipAddress";
+
+type BannedIpEntry = {
+	ip: string;
+	firstViolation: Date;
+	attempts: number;
+};
+
+const BannedIpCache = new Map<string, BannedIpEntry>();
 
 export const NO_AUTHORIZATION_ROUTES = [
 	// Authentication routes
@@ -30,9 +39,11 @@ export const NO_AUTHORIZATION_ROUTES = [
 	"POST /auth/verify",
 	"POST /auth/forgot",
 	"POST /auth/reset",
+	"POST /auth/fingerprint",
 	"GET /invites/",
 	// Routes with a seperate auth system
 	/^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/\d+\/\w+\/?/, // no token requires auth
+	/^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,
 	// Public information endpoints
 	"GET /ping",
 	"GET /gateway",
@@ -73,31 +84,35 @@ declare global {
 	}
 }
 
-export async function Authentication(
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) {
+export async function Authentication(req: Request, res: Response, next: NextFunction) {
 	if (req.method === "OPTIONS") return res.sendStatus(204);
 	const url = req.url.replace(API_PREFIX, "");
 	if (
 		NO_AUTHORIZATION_ROUTES.some((x) => {
-			if (req.method == "HEAD") {
-				if (typeof x === "string")
-					return url.startsWith(x.split(" ").slice(1).join(" "));
+			if (typeof x !== "string") {
 				return x.test(req.method + " " + url);
 			}
 
-			if (typeof x === "string")
-				return (req.method + " " + url).startsWith(x);
-			return x.test(req.method + " " + url);
+			const fullRoute = req.method + " " + url;
+
+			if (req.method === "HEAD") {
+				const urlPart = x.split(" ").slice(1).join(" ");
+				if (urlPart.endsWith("/")) {
+					return url.startsWith(urlPart);
+				} else {
+					return url === urlPart;
+				}
+			}
+
+			if (x.endsWith("/")) {
+				return fullRoute.startsWith(x);
+			} else {
+				return fullRoute === x;
+			}
 		})
 	)
 		return next();
-	if (!req.headers.authorization)
-		return next(new HTTPError("Missing Authorization Header", 401));
-
-	Sentry.setUser({ id: req.user_id });
+	if (!req.headers.authorization) return next(new HTTPError("Missing Authorization Header", 401));
 
 	try {
 		const { decoded, user } = await checkToken(req.headers.authorization);
@@ -106,6 +121,35 @@ export async function Authentication(
 		req.user_id = decoded.id;
 		req.user_bot = user.bot;
 		req.rights = new Rights(Number(user.rights));
+
+		const currentIp = getIpAdress(req);
+		const ipAllowed = await checkUserIpAccess(user.id, currentIp);
+
+		if (!ipAllowed) {
+			const bannedEntry = BannedIpCache.get(currentIp);
+
+			if (bannedEntry) {
+				bannedEntry.attempts++;
+				req.socket.destroy();
+				return;
+			} else {
+				BannedIpCache.set(currentIp, {
+					ip: currentIp,
+					firstViolation: new Date(),
+					attempts: 1,
+				});
+
+				setTimeout(
+					() => {
+						BannedIpCache.delete(currentIp);
+					},
+					60 * 60 * 1000,
+				);
+
+				return res.status(444).json({ message: "IP address not allowed", code: 20028 });
+			}
+		}
+
 		return next();
 	} catch (error) {
 		return next(new HTTPError(error!.toString(), 400));

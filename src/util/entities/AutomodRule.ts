@@ -16,32 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { dbEngine } from "@spacebar/util";
 import { BaseClass } from "./BaseClass";
 import { Entity, JoinColumn, ManyToOne, Column } from "typeorm";
 import { User } from "./User";
-
-export class AutomodMentionSpamRule {
-	mention_total_limit: number;
-	mention_raid_protection_enabled: boolean;
-}
-
-export class AutomodSuspectedSpamRule {}
-
-export class AutomodCommonlyFlaggedWordsRule {
-	allow_list: [string];
-	presets: [number];
-}
-
-export class AutomodCustomWordsRule {
-	allow_list: [string];
-	keyword_filter: [string];
-	regex_patterns: [string];
-}
+import { AutomodAction, AutomodRuleActionType, AutomodRuleEventType, AutomodRuleTriggerMetadata, AutomodRuleTriggerType } from "@spacebar/schemas";
 
 @Entity({
 	name: "automod_rules",
-	engine: dbEngine,
 })
 export class AutomodRule extends BaseClass {
 	@JoinColumn({ name: "creator_id" })
@@ -52,13 +33,13 @@ export class AutomodRule extends BaseClass {
 	enabled: boolean;
 
 	@Column()
-	event_type: number; // No idea...
+	event_type: AutomodRuleEventType;
 
 	@Column({ type: "simple-array" })
-	exempt_channels: [string];
+	exempt_channels: string[];
 
 	@Column({ type: "simple-array" })
-	exempt_roles: [string];
+	exempt_roles: string[];
 
 	@Column()
 	guild_id: string;
@@ -70,20 +51,17 @@ export class AutomodRule extends BaseClass {
 	position: number;
 
 	@Column()
-	trigger_type: number;
+	trigger_type: AutomodRuleTriggerType;
 
 	@Column({
 		type: "simple-json",
 		nullable: true,
 	})
 	trigger_metadata?: // this is null for "Block suspected spam content"
-	| AutomodMentionSpamRule
-		| AutomodSuspectedSpamRule
-		| AutomodCommonlyFlaggedWordsRule
-		| AutomodCustomWordsRule;
+	AutomodRuleTriggerMetadata;
 
 	@Column({
 		type: "simple-json",
 	})
-	actions: { type: number; metadata: unknown }[];
+	actions: AutomodAction[];
 }

@@ -1,6 +1,7 @@
 import { AutomodActionTypes } from "./Constants";
 import { DiscordApiErrors } from "./Constants";
-import { Channel, Message, Member, MessageType, EmbedType } from "../entities";
+import { Channel, Message, Member } from "../entities";
+import { MessageType, EmbedType } from "@spacebar/schemas";
 import { emitEvent } from "./Event";
 
 interface AutomodAction {
@@ -18,26 +19,17 @@ interface AutomodActionContext {
 }
 
 export class AutomodActionExecutor {
-	static async executeActions(
-		actions: AutomodAction[],
-		context: AutomodActionContext,
-	): Promise<void> {
+	static async executeActions(actions: AutomodAction[], context: AutomodActionContext): Promise<void> {
 		for (const action of actions) {
 			try {
 				await this.executeAction(action, context);
 			} catch (error) {
-				console.error(
-					`Failed to execute automod action ${action.type}:`,
-					error,
-				);
+				console.error(`Failed to execute automod action ${action.type}:`, error);
 			}
 		}
 	}
 
-	private static async executeAction(
-		action: AutomodAction,
-		context: AutomodActionContext,
-	): Promise<void> {
+	private static async executeAction(action: AutomodAction, context: AutomodActionContext): Promise<void> {
 		switch (action.type) {
 			case AutomodActionTypes.BLOCK_MESSAGE:
 				await this.blockMessage(action, context);
@@ -53,17 +45,11 @@ export class AutomodActionExecutor {
 		}
 	}
 
-	private static async blockMessage(
-		action: AutomodAction,
-		context: AutomodActionContext,
-	): Promise<void> {
+	private static async blockMessage(action: AutomodAction, context: AutomodActionContext): Promise<void> {
 		throw DiscordApiErrors.AUTOMODERATOR_BLOCK;
 	}
 
-	private static async sendAlert(
-		action: AutomodAction,
-		context: AutomodActionContext,
-	): Promise<void> {
+	private static async sendAlert(action: AutomodAction, context: AutomodActionContext): Promise<void> {
 		const alertChannelId = action.metadata?.channel_id as string;
 		if (!alertChannelId) return;
 
@@ -72,9 +58,7 @@ export class AutomodActionExecutor {
 		});
 		if (!alertChannel) return;
 
-		const decisionId =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+		const decisionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 		const createdMessage = Message.create({
 			channel_id: alertChannelId,
@@ -88,8 +72,7 @@ export class AutomodActionExecutor {
 			embeds: [
 				{
 					type: EmbedType.auto_moderation_message,
-					description:
-						context.message.content?.substring(0, 500) || "",
+					description: context.message.content?.substring(0, 500) || "",
 					fields: [
 						{
 							name: "rule_name",
@@ -149,20 +132,13 @@ export class AutomodActionExecutor {
 		]);
 	}
 
-	private static async timeoutMember(
-		action: AutomodAction,
-		context: AutomodActionContext,
-	): Promise<void> {
+	private static async timeoutMember(action: AutomodAction, context: AutomodActionContext): Promise<void> {
 		if (!context.member || !context.channel.guild_id) return;
 
-		const durationSeconds =
-			(action.metadata?.duration_seconds as number) || 60;
+		const durationSeconds = (action.metadata?.duration_seconds as number) || 60;
 		const timeoutUntil = new Date(Date.now() + durationSeconds * 1000);
 
-		await Member.update(
-			{ id: context.member.id, guild_id: context.channel.guild_id },
-			{ communication_disabled_until: timeoutUntil },
-		);
+		await Member.update({ id: context.member.id, guild_id: context.channel.guild_id }, { communication_disabled_until: timeoutUntil });
 
 		await emitEvent({
 			event: "GUILD_MEMBER_UPDATE",

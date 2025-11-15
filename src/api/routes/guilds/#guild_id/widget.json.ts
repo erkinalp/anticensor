@@ -16,18 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { random, route } from "@spacebar/api";
-import {
-	Channel,
-	DiscordApiErrors,
-	Guild,
-	Invite,
-	Member,
-	Permissions,
-} from "@spacebar/util";
+import { randomString, route } from "@spacebar/api";
+import { Channel, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 // Undocumented API notes:
 // An invite is created for the widget_channel_id on request (only if an existing one created by the widget doesn't already exist)
@@ -77,7 +70,7 @@ router.get(
 			const expires_at = new Date(max_age * 1000 + Date.now());
 
 			invite = await Invite.create({
-				code: random(),
+				code: randomString(),
 				temporary: false,
 				uses: 0,
 				max_uses: 0,
@@ -95,13 +88,7 @@ router.get(
 
 		(await Channel.getOrderedChannels(guild.id, guild)).filter((doc) => {
 			// Only return channels where @everyone has the CONNECT permission
-			if (
-				doc.permission_overwrites === undefined ||
-				Permissions.channelPermission(
-					doc.permission_overwrites,
-					Permissions.FLAGS.CONNECT,
-				) === Permissions.FLAGS.CONNECT
-			) {
+			if (doc.permission_overwrites === undefined || Permissions.channelPermission(doc.permission_overwrites, Permissions.FLAGS.CONNECT) === Permissions.FLAGS.CONNECT) {
 				channels.push({
 					id: doc.id,
 					name: doc.name ?? "Unknown channel",

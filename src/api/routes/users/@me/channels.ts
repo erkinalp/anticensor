@@ -17,15 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	DmChannelCreateSchema,
-	DmChannelDTO,
-	Recipient,
-} from "@spacebar/util";
+import { Channel, DmChannelDTO, Recipient } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { DmChannelCreateSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -41,13 +37,7 @@ router.get(
 			where: { user_id: req.user_id, closed: false },
 			relations: ["channel", "channel.recipients"],
 		});
-		res.json(
-			await Promise.all(
-				recipients.map((r) =>
-					DmChannelDTO.from(r.channel, [req.user_id]),
-				),
-			),
-		);
+		res.json(await Promise.all(recipients.map((r) => DmChannelDTO.from(r.channel, [req.user_id]))));
 	},
 );
 
@@ -63,13 +53,7 @@ router.post(
 	}),
 	async (req: Request, res: Response) => {
 		const body = req.body as DmChannelCreateSchema;
-		res.json(
-			await Channel.createDMChannel(
-				body.recipients,
-				req.user_id,
-				body.name,
-			),
-		);
+		res.json(await Channel.createDMChannel(body.recipients, req.user_id, body.name));
 	},
 );
 

@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { Email, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.post(
 	"/",
@@ -39,7 +39,7 @@ router.post(
 	async (req: Request, res: Response) => {
 		const user = await User.findOneOrFail({
 			where: { id: req.user_id },
-			select: ["username", "email"],
+			select: ["username", "email", "verified"],
 		});
 
 		if (!user.email) {
@@ -47,14 +47,16 @@ router.post(
 			throw new HTTPError("User does not have an email address", 400);
 		}
 
+		if (user.verified) {
+			throw new HTTPError("Email is already verified", 400);
+		}
+
 		await Email.sendVerifyEmail(user, user.email)
 			.then(() => {
 				return res.sendStatus(204);
 			})
 			.catch((e) => {
-				console.error(
-					`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`,
-				);
+				console.error(`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`);
 				throw new HTTPError("Failed to send verification email", 500);
 			});
 	},

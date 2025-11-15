@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -18,58 +18,31 @@
 
 import fs from "fs/promises";
 import path from "node:path";
-import { SentMessageInfo, Transporter } from "nodemailer";
 import { User } from "../../entities";
 import { Config } from "../Config";
 import { generateToken } from "../Token";
-import MailGun from "./transports/MailGun";
-import MailJet from "./transports/MailJet";
-import SMTP from "./transports/SMTP";
-import SendGrid from "./transports/SendGrid";
+import { IEmail, IEmailClient } from "./clients/IEmailClient";
+import { SendGridEmailClient } from "./clients/SendGridEmailClient";
+import { SMTPEmailClient } from "./clients/SMTPEmailClient";
+import { MailGunEmailClient } from "./clients/MailGunEmailClient";
+import { MailJetEmailClient } from "./clients/MailJetEmailClient";
 
-const ASSET_FOLDER_PATH = path.join(
-	__dirname,
-	"..",
-	"..",
-	"..",
-	"..",
-	"assets",
-);
+const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "..", "assets");
 
-enum MailTypes {
-	verify = "verify",
-	reset = "reset",
-	pwchange = "pwchange",
+export enum MailTypes {
+	verifyEmail = "verifyEmail",
+	resetPassword = "resetPassword",
+	changePassword = "changePassword",
 }
 
-const transporters: {
-	[key: string]: () => Promise<Transporter<unknown> | void>;
-} = {
-	smtp: SMTP,
-	mailgun: MailGun,
-	mailjet: MailJet,
-	sendgrid: SendGrid,
-};
-
 export const Email: {
-	transporter: Transporter | null;
+	transporter: IEmailClient | null;
 	init: () => Promise<void>;
-	generateLink: (
-		type: Omit<MailTypes, "pwchange">,
-		id: string,
-		email: string,
-	) => Promise<string>;
-	sendMail: (
-		type: MailTypes,
-		user: User,
-		email: string,
-	) => Promise<SentMessageInfo>;
-	sendVerifyEmail: (user: User, email: string) => Promise<SentMessageInfo>;
-	sendResetPassword: (user: User, email: string) => Promise<SentMessageInfo>;
-	sendPasswordChanged: (
-		user: User,
-		email: string,
-	) => Promise<SentMessageInfo>;
+	generateLink: (type: Omit<MailTypes, "changePassword">, id: string) => Promise<string>;
+	sendMail: (type: MailTypes, user: User, email: string) => Promise<void>;
+	sendVerifyEmail: (user: User, email: string) => Promise<void>;
+	sendResetPassword: (user: User, email: string) => Promise<void>;
+	sendPasswordChanged: (user: User, email: string) => Promise<void>;
 	doReplacements: (
 		template: string,
 		user: User,
@@ -87,15 +60,30 @@ export const Email: {
 		const { provider } = Config.get().email;
 		if (!provider) return;
 
-		const transporterFn = transporters[provider];
-		if (!transporterFn)
-			return console.error(`[Email] Invalid provider: ${provider}`);
+		switch (provider) {
+			case "smtp":
+				this.transporter = new SMTPEmailClient();
+				break;
+			case "sendgrid":
+				this.transporter = new SendGridEmailClient();
+				break;
+			case "mailgun":
+				this.transporter = new MailGunEmailClient();
+				break;
+			case "mailjet":
+				this.transporter = new MailJetEmailClient();
+				break;
+			default:
+				console.error(`[Email] Invalid provider: ${provider}`);
+				return;
+		}
+
+		if (!this.transporter) return console.error(`[Email] Invalid provider: ${provider}`);
 		console.log(`[Email] Initializing ${provider} transport...`);
-		const transporter = await transporterFn();
-		if (!transporter) return;
-		this.transporter = transporter;
+		await this.transporter.init();
 		console.log(`[Email] ${provider} transport initialized.`);
 	},
+
 	/**
 	 * Replaces all placeholders in an email template with the correct values
 	 */
@@ -134,17 +122,17 @@ export const Email: {
 
 		return template;
 	},
+
 	/**
 	 *
 	 * @param id user id
-	 * @param email user email
 	 */
-	generateLink: async function (type, id, email) {
-		const token = (await generateToken(id, email)) as string;
+	generateLink: async function (type, id) {
+		const token = (await generateToken(id)) as string;
 		// puyodead1: this is set to api endpoint because the verification page is on the server since no clients have one, and not all 3rd party clients will have one
-		const instanceUrl =
-			Config.get().api.endpointPublic || "http://localhost:3001";
-		const link = `${instanceUrl}/${type}#token=${token}`;
+		const instanceUrl = Config.get().api.endpointPublic?.replace("/api", "") || "http://localhost:3001";
+		const dashedType = type.replace(/([A-Z])/g, "-$1").toLowerCase();
+		const link = `${instanceUrl}/${dashedType}#token=${token}`;
 		return link;
 	},
 
@@ -158,41 +146,45 @@ export const Email: {
 	sendMail: async function (type, user, email) {
 		if (!this.transporter) return;
 
-		const templateNames: { [key in MailTypes]: string } = {
-			verify: "verify_email.html",
-			reset: "password_reset_request.html",
-			pwchange: "password_changed.html",
+		const htmlTemplateNames: { [key in MailTypes]: string } = {
+			verifyEmail: "verify_email.html",
+			resetPassword: "password_reset_request.html",
+			changePassword: "password_changed.html",
 		};
 
-		const template = await fs.readFile(
-			path.join(
-				ASSET_FOLDER_PATH,
-				"email_templates",
-				templateNames[type],
-			),
-			{ encoding: "utf-8" },
-		);
+		const textTemplateNames: { [key in MailTypes]: string } = {
+			verifyEmail: "verify_email.txt",
+			resetPassword: "password_reset_request.txt",
+			changePassword: "password_changed.txt",
+		};
+
+		const htmlTemplate = await fs.readFile(path.join(ASSET_FOLDER_PATH, "email_templates", htmlTemplateNames[type]), { encoding: "utf-8" });
+
+		const textTemplate = await fs.readFile(path.join(ASSET_FOLDER_PATH, "email_templates", textTemplateNames[type]), { encoding: "utf-8" });
 
 		// replace email template placeholders
 		const html = this.doReplacements(
-			template,
+			htmlTemplate,
 			user,
 			// password change emails don't have links
-			type != MailTypes.pwchange
-				? await this.generateLink(type, user.id, email)
-				: undefined,
+			type != MailTypes.changePassword ? await this.generateLink(type, user.id) : undefined,
+		);
+
+		const text = this.doReplacements(
+			textTemplate,
+			user,
+			// password change emails don't have links
+			type != MailTypes.changePassword ? await this.generateLink(type, user.id) : undefined,
 		);
 
 		// extract the title from the email template to use as the email subject
 		const subject = html.match(/<title>(.*)<\/title>/)?.[1] || "";
 
-		const message = {
-			from:
-				Config.get().email.senderAddress ||
-				Config.get().general.correspondenceEmail ||
-				"noreply@localhost",
+		const message: IEmail = {
+			from: Config.get().email.senderAddress || Config.get().general.correspondenceEmail || "noreply@localhost",
 			to: email,
 			subject,
+			text,
 			html,
 		};
 
@@ -203,18 +195,20 @@ export const Email: {
 	 * Sends an email to the user with a link to verify their email address
 	 */
 	sendVerifyEmail: async function (user, email) {
-		return this.sendMail(MailTypes.verify, user, email);
+		return this.sendMail(MailTypes.verifyEmail, user, email);
 	},
+
 	/**
 	 * Sends an email to the user with a link to reset their password
 	 */
 	sendResetPassword: async function (user, email) {
-		return this.sendMail(MailTypes.reset, user, email);
+		return this.sendMail(MailTypes.resetPassword, user, email);
 	},
+
 	/**
 	 * Sends an email to the user notifying them that their password has been changed
 	 */
 	sendPasswordChanged: async function (user, email) {
-		return this.sendMail(MailTypes.pwchange, user, email);
+		return this.sendMail(MailTypes.changePassword, user, email);
 	},
 };

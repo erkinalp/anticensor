@@ -17,16 +17,7 @@
 */
 
 import { WebSocket } from "@spacebar/gateway";
-import {
-	emitEvent,
-	PresenceUpdateEvent,
-	PrivateSessionProjection,
-	Session,
-	SessionsReplace,
-	User,
-	VoiceState,
-	VoiceStateUpdateEvent,
-} from "@spacebar/util";
+import { emitEvent, PresenceUpdateEvent, PrivateSessionProjection, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
@@ -45,11 +36,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
 		});
 
 		// clear the voice state for this session if user was in voice channel
-		if (
-			voiceState &&
-			voiceState.session_id === this.session_id &&
-			voiceState.channel_id
-		) {
+		if (voiceState && voiceState.session_id === this.session_id && voiceState.channel_id) {
 			const prevGuildId = voiceState.guild_id;
 			const prevChannelId = voiceState.channel_id;
 

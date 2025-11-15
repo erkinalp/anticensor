@@ -17,21 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	GuildStickersUpdateEvent,
-	Member,
-	ModifyGuildStickerSchema,
-	Snowflake,
-	Sticker,
-	StickerFormatType,
-	StickerType,
-	emitEvent,
-	uploadFile,
-} from "@spacebar/util";
+import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-const router = Router();
+import { ModifyGuildStickerSchema, StickerFormatType, StickerType } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -87,6 +78,13 @@ router.post(
 		const body = req.body as ModifyGuildStickerSchema;
 		const id = Snowflake.generate();
 
+		const sticker_count = await Sticker.count({
+			where: { guild_id: guild_id },
+		});
+		const { maxStickers } = Config.get().limits.guild;
+
+		if (sticker_count >= maxStickers) throw DiscordApiErrors.MAXIMUM_STICKERS.withParams(maxStickers);
+
 		const [sticker] = await Promise.all([
 			Sticker.create({
 				...body,
@@ -116,9 +114,7 @@ function getStickerFormat(mime_type: string) {
 		case "image/gif":
 			return StickerFormatType.GIF;
 		default:
-			throw new HTTPError(
-				"invalid sticker format: must be png, apng or lottie",
-			);
+			throw new HTTPError("invalid sticker format: must be png, apng or lottie");
 	}
 }
 

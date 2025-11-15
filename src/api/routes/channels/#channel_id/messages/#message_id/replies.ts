@@ -16,14 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Message,
-	Channel,
-	getPermission,
-	getRights,
-	emitEvent,
-	MessageDeleteBulkEvent,
-} from "@spacebar/util";
+import { Message, Channel, getPermission, getRights, emitEvent, MessageDeleteBulkEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { route } from "../../../../../util";
@@ -43,11 +36,7 @@ router.get(
 	async (req: Request, res: Response) => {
 		const { message_id, channel_id } = req.params;
 
-		const permissions = await getPermission(
-			req.user_id,
-			undefined,
-			channel_id,
-		);
+		const permissions = await getPermission(req.user_id, undefined, channel_id);
 		permissions.hasThrow("READ_MESSAGE_HISTORY");
 
 		const parentMessage = await Message.findOneOrFail({
@@ -67,10 +56,7 @@ router.get(
 
 			if (replies.length > 0) {
 				parentMessage.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message_id },
-					{ reply_ids: parentMessage.reply_ids },
-				);
+				await Message.update({ id: message_id }, { reply_ids: parentMessage.reply_ids });
 			} else {
 				parentMessage.reply_ids = [];
 				await Message.update({ id: message_id }, { reply_ids: [] });
@@ -82,16 +68,7 @@ router.get(
 				id: In(parentMessage.reply_ids || []),
 				channel_id: channel_id,
 			},
-			relations: [
-				"author",
-				"webhook",
-				"application",
-				"mentions",
-				"mention_roles",
-				"mention_channels",
-				"sticker_items",
-				"attachments",
-			],
+			relations: ["author", "webhook", "application", "mentions", "mention_roles", "mention_channels", "sticker_items", "attachments"],
 			order: { timestamp: "ASC" },
 		});
 
@@ -121,11 +98,7 @@ router.delete(
 			where: { id: channel_id },
 		});
 
-		const permissions = await getPermission(
-			req.user_id,
-			channel.guild_id,
-			channel_id,
-		);
+		const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
 
 		const parentMessage = await Message.findOneOrFail({
 			where: { id: message_id, channel_id },
@@ -144,10 +117,7 @@ router.delete(
 
 			if (replies.length > 0) {
 				parentMessage.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message_id },
-					{ reply_ids: parentMessage.reply_ids },
-				);
+				await Message.update({ id: message_id }, { reply_ids: parentMessage.reply_ids });
 			} else {
 				parentMessage.reply_ids = [];
 				await Message.update({ id: message_id }, { reply_ids: [] });
@@ -160,12 +130,8 @@ router.delete(
 				select: ["id", "author_id"],
 			});
 
-			const userOwnedReplies = replyMessages.filter(
-				(msg) => msg.author_id === req.user_id,
-			);
-			const otherOwnedReplies = replyMessages.filter(
-				(msg) => msg.author_id !== req.user_id,
-			);
+			const userOwnedReplies = replyMessages.filter((msg) => msg.author_id === req.user_id);
+			const otherOwnedReplies = replyMessages.filter((msg) => msg.author_id !== req.user_id);
 
 			const rights = await getRights(req.user_id);
 

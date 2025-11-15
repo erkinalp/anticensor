@@ -19,21 +19,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
-
-export enum TeamMemberState {
-	INVITED = 1,
-	ACCEPTED = 2,
-}
-export enum TeamMemberRole {
-	ADMIN = "admin",
-	DEVELOPER = "developer",
-	READ_ONLY = "read_only",
-}
+import { TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
 
 @Entity({
 	name: "team_members",
-	engine: dbEngine,
 })
 export class TeamMember extends BaseClass {
 	@Column({ type: "int" })
@@ -50,13 +39,9 @@ export class TeamMember extends BaseClass {
 	team_id: string;
 
 	@JoinColumn({ name: "team_id" })
-	@ManyToOne(
-		() => require("./Team").Team,
-		(team: import("./Team").Team) => team.members,
-		{
-			onDelete: "CASCADE",
-		},
-	)
+	@ManyToOne(() => require("./Team").Team, (team: import("./Team").Team) => team.members, {
+		onDelete: "CASCADE",
+	})
 	team: import("./Team").Team;
 
 	@Column({ nullable: true })

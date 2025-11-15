@@ -20,16 +20,9 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { ConnectedAccountTokenData } from "../interfaces";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
-
-export type PublicConnectedAccount = Pick<
-	ConnectedAccount,
-	"name" | "type" | "verified"
->;
 
 @Entity({
 	name: "connected_accounts",
-	engine: dbEngine,
 })
 export class ConnectedAccount extends BaseClass {
 	@Column()
@@ -100,11 +93,7 @@ export class ConnectedAccount extends BaseClass {
 		await this.save();
 	}
 
-	static isVisibleTo(
-		viewerUserId: string,
-		targetUserId: string,
-		account: ConnectedAccount,
-	): boolean {
+	static isVisibleTo(viewerUserId: string, targetUserId: string, account: ConnectedAccount): boolean {
 		return true;
 	}
 }
