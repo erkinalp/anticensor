@@ -64,8 +64,9 @@ export class UserSettingsProtos extends BaseClassWithoutId {
 		if (typeof value === "string" && /^\d+n$/.test(value)) {
 			return BigInt((value as string).slice(0, -1));
 		} else if (typeof value === "object" && value !== null && "__type" in value) {
-			if (value.__type === "Uint8Array" && "data" in value) {
-				return new Uint8Array(value.data.match(/.{1,2}/g)!.map((byte: string) => parseInt(byte, 16)));
+			const obj = value as { __type: string; data?: string };
+			if (obj.__type === "Uint8Array" && typeof obj.data === "string") {
+				return new Uint8Array(obj.data.match(/.{1,2}/g)!.map((byte: string) => parseInt(byte, 16)));
 			}
 		}
 		return value;

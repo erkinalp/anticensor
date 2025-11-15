@@ -90,21 +90,25 @@ export function instanceOf(type: unknown, value: unknown, { path = "", optional 
 				if ((<Email>type).check()) return true;
 				throw `${path} is not a valid E-Mail`;
 			}
-			if (value instanceof type) return true;
+			const constructor = type as { new (...args: unknown[]): unknown };
+			if (value instanceof constructor) return true;
 			throw `${path} must be an instance of ${type}`;
 		}
 		if (typeof value !== "object") throw `${path} must be a object`;
 
-		const diff = Object.keys(value).except(Object.keys(type).map((x) => (x.startsWith(OPTIONAL_PREFIX) ? x.slice(OPTIONAL_PREFIX.length) : x)));
+		const typeObj = type as Record<string, unknown>;
+		const valueObj = value as Record<string, unknown>;
+
+		const diff = Object.keys(valueObj).except(Object.keys(typeObj).map((x) => (x.startsWith(OPTIONAL_PREFIX) ? x.slice(OPTIONAL_PREFIX.length) : x)));
 
 		if (diff.length) throw `Unknown key ${diff}`;
 
-		return Object.keys(type).every((key) => {
+		return Object.keys(typeObj).every((key) => {
 			let newKey = key;
 			const OPTIONAL = key.startsWith(OPTIONAL_PREFIX);
 			if (OPTIONAL) newKey = newKey.slice(OPTIONAL_PREFIX.length);
 
-			return instanceOf(type[key], value[newKey], {
+			return instanceOf(typeObj[key], valueObj[newKey], {
 				path: `${path}.${newKey}`,
 				optional: OPTIONAL,
 			});
@@ -113,7 +117,7 @@ export function instanceOf(type: unknown, value: unknown, { path = "", optional 
 		if (value === type) return true;
 		throw `${path} must be ${value}`;
 	} else if (typeof type === "bigint") {
-		if (BigInt(value) === type) return true;
+		if (BigInt(value as string | number | bigint | boolean) === type) return true;
 		throw `${path} must be ${value}`;
 	}
 
