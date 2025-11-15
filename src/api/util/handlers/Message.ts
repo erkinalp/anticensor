@@ -1,20 +1,23 @@
 /*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+    Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+    Copyright (C) 2023 Spacebar and Spacebar Contributors
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published
-	by the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+import * as Sentry from "@sentry/node";
+import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
 
 import { EmbedHandlers } from "@spacebar/api";
 import {
@@ -260,7 +263,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                     throw new HTTPError("Referenced message not found in the specified channel", 404);
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
-			 otherwise backfilling won't work **/
+             otherwise backfilling won't work **/
             message.type = MessageType.REPLY;
         }
     }
@@ -294,9 +297,9 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         content = content.replace(/ *`[^)]*` */g, ""); // remove codeblocks
         // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
         /*for (const [, mention] of content.matchAll(CHANNEL_MENTION)) {
-			if (!mention_channel_ids.includes(mention))
-				mention_channel_ids.push(mention);
-		}*/
+            if (!mention_channel_ids.includes(mention))
+                mention_channel_ids.push(mention);
+        }*/
 
         for (const [, mention] of content.matchAll(USER_MENTION)) {
             if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
@@ -365,8 +368,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 
     // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
     /*message.mention_channels = mention_channel_ids.map((x) =>
-		Channel.create({ id: x }),
-	);*/
+        Channel.create({ id: x }),
+    );*/
     message.mention_roles = (
         await Promise.all(
             mention_role_ids.map((x) => {
@@ -430,12 +433,12 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const users = new Set<string>([
             ...(message.mention_roles.length
                 ? await Member.find({
-                      where: [
-                          ...message.mention_roles.map((role) => {
-                              return { roles: { id: role.id } };
-                          }),
-                      ],
-                  })
+                    where: [
+                        ...message.mention_roles.map((role) => {
+                            return { roles: { id: role.id } };
+                        }),
+                    ],
+                })
                 : []
             ).map((member) => member.id),
             ...message.mentions.map((user) => user.id),
@@ -454,6 +457,29 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             await repository.increment(condition, "mention_count", 1);
         }
     }
+
+
+    //  Automod enforcement - evaluate message against guild automod rules
+    if (message.guild_id && message.content && message.author) {
+		const automodResult = await AutomodEvaluator.evaluateMessage({
+			content: message.content,
+			channel,
+			author: message.author,
+			guild_id: message.guild_id,
+			member_roles: permission?.cache.member?.roles?.map((r) => r.id),
+		});
+
+		if (automodResult.triggered && automodResult.rule) {
+			await AutomodActionExecutor.executeActions(automodResult.actions, {
+				message,
+				channel,
+				member: permission?.cache.member,
+				rule_name: automodResult.rule.name,
+				matched_content: automodResult.matched_content,
+				keyword: automodResult.keyword,
+			});
+		}
+	}
 
     // TODO: check and put it all in the body
 
