@@ -1,6 +1,4 @@
-#!/usr/bin/env sh
 #!nix-shell -i "bash" -p bash prefetch-npm-deps jq nodejs nix-output-monitor
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Check if nix is available
 if [ -x "$(/usr/bin/env which nix-shell 2>/dev/null)" ]; then
