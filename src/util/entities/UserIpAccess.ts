@@ -19,11 +19,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
 
 @Entity({
 	name: "user_ip_access",
-	engine: dbEngine,
 })
 export class UserIpAccess extends BaseClass {
 	@Column()
