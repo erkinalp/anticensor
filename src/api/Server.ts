@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes } from "@spacebar/util";
+import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, LobbyStore, WebAuthn, initDatabase, initEvent, registerRoutes } from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
@@ -89,10 +89,9 @@ export class SpacebarServer extends Server {
 		await initRateLimits(api);
 		await initTranslation(api);
 
-		const { LobbyStore } = await import("@spacebar/util");
 		LobbyStore.init();
 
-		this.routes = await registerRoutes(this, path.join(__dirname, "routes", "/"));
+		this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))) as Router[];
 
 		// 404 is not an error in express, so this should not be an error middleware
 		// this is a fine place to put the 404 handler because its after we register the routes
