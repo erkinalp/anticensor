@@ -79,7 +79,9 @@ export class AutomodActionExecutor {
 		const createdMessage = Message.create({
 			channel_id: alertChannelId,
 			guild_id: alertChannel.guild_id,
-			author_id: context.message.author_id,
+			// Use Spacebar system account (4) instead of triggering user for privacy
+			// (prevents "victim chasing" where author's friends harass the flagged user)
+			author_id: "4",
 			content: "",
 			type: MessageType.AUTO_MODERATION_ACTION,
 			reactions: [],
