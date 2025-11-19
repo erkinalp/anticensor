@@ -82,14 +82,19 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
 		// which will cause this to throw when they disconnect.
 		// just send the ID of the user instead of the full correct payload for now
 		const userOrId = await User.getPublicUser(this.user_id).catch(() => ({
-			id: this.user_id,
-		}));
+		id: this.user_id,
+	}));
 
-		const u = await User.findOneOrFail({
+	let u: { id: string; rights: number } | undefined;
+	try {
+		u = await User.findOne({
 			where: { id: this.user_id },
 			select: ["id", "rights"],
-		}).catch(() => undefined);
-		if (!u || shouldRoutePresenceFromRights(u.rights)) {
+		});
+	} catch {
+		u = undefined;
+	}
+	if (!u || shouldRoutePresenceFromRights(u.rights)) {
 			await emitEvent({
 				event: "PRESENCE_UPDATE",
 				user_id: this.user_id,
