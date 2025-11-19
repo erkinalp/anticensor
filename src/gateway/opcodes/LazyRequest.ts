@@ -16,15 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions } from "@spacebar/util";
+import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, Config } from "@spacebar/util";
 import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { shouldRoutePresenceFromRights } from "../../util/util/Rights";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
 
-// TODO: only show roles/members that have access to this channel
-// TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
 const getMostRelevantSession = (sessions: Session[]) => {
@@ -43,7 +41,7 @@ const getMostRelevantSession = (sessions: Session[]) => {
 	return sessions.first();
 };
 
-async function getMembers(guild_id: string, range: [number, number]) {
+async function getMembers(guild_id: string, range: [number, number], channel_id?: string) {
 	if (!Array.isArray(range) || range.length !== 2) {
 		throw new Error("range is not a valid array");
 	}
@@ -91,6 +89,42 @@ async function getMembers(guild_id: string, range: [number, number]) {
 			1,
 		)[0],
 	);
+
+	// Filter members by VIEW_CHANNEL permission if channel_id is provided
+	if (channel_id) {
+		const channel = await Channel.findOneOrFail({
+			where: { id: channel_id },
+			select: ["id", "permission_overwrites", "guild_id"],
+		});
+
+		members = await Promise.all(
+			members.map(async (member) => {
+				try {
+					const permission = Permissions.finalPermission({
+						user: {
+							id: member.id,
+							roles: member.roles.map((r) => r.id),
+						},
+						guild: {
+							roles: member.roles,
+						},
+						channel: {
+							overwrites: channel.permission_overwrites,
+						},
+					});
+
+					const perms = new Permissions(permission);
+					return perms.has("VIEW_CHANNEL") ? member : null;
+				} catch (e) {
+					console.error(`Failed to check permission for member ${member.id}:`, e);
+					return null;
+				}
+			}),
+		).then((results) => results.filter((m): m is Member => m !== null));
+	}
+
+	// Check if we should show offline members
+	const showOfflineMembers = Config.get().guild.showOfflineMembers;
 
 	const offlineItems = [];
 
@@ -140,7 +174,7 @@ async function getMembers(guild_id: string, range: [number, number]) {
 		members = other_members;
 	}
 
-	if (offlineItems.length) {
+	if (offlineItems.length && showOfflineMembers) {
 		const group = {
 			count: offlineItems.length,
 			id: "offline",
@@ -227,7 +261,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 	if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
 
 	const member_count = await Member.count({ where: { guild_id } });
-	const ops = await Promise.all(ranges.map((x) => getMembers(guild_id, x as [number, number])));
+	const ops = await Promise.all(ranges.map((x) => getMembers(guild_id, x as [number, number], channel_id)));
 
 	let list_id = "everyone";
 

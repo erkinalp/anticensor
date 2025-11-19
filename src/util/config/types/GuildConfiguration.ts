@@ -43,4 +43,5 @@ export class GuildConfiguration {
 		crosspost?: GuildCrosspostLimitsConfiguration;
 		followers?: GuildFollowersLimitsConfiguration;
 	};
+	showOfflineMembers: boolean = false;
 }
