@@ -455,20 +455,25 @@ async function processRoutingRules(message: Message): Promise<void> {
 		return;
 	}
 
-	const now = Snowflake.generate();
+	const messageSentAt = message.id;
 
-	const activeRules = await RoutingRule.find({
+	const candidateRules = await RoutingRule.find({
 		where: {
 			source_channel_id: message.channel_id,
-			valid_since: LessThanOrEqual(now),
-			valid_until: MoreThanOrEqual(now),
 		},
 		relations: ["sink_channel"],
 	});
 
 	const sinkChannelMap = new Map<string, RoutingRule>();
 
-	for (const rule of activeRules) {
+	for (const rule of candidateRules) {
+		if (
+			BigInt(rule.valid_since) > BigInt(messageSentAt) ||
+			BigInt(messageSentAt) > BigInt(rule.valid_until)
+		) {
+			continue;
+		}
+
 		if (
 			!rule.source_users.includes(message.author_id) &&
 			rule.source_users.length > 0
