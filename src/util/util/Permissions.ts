@@ -73,18 +73,17 @@ export class Permissions extends BitField {
 		// TODO: what is permission 33?
 		MANAGE_THREADS: BitFlag(34),
 		USE_PUBLIC_THREADS: BitFlag(35),
-<<<<<<< HEAD
 		USE_PRIVATE_THREADS: BitFlag(36),
 		USE_EXTERNAL_STICKERS: BitFlag(37),
 		// TODO: what is permission 38?
-		// TODO: what are permissions 39-50?
+		MANAGE_ROUTING: BitFlag(39),
+		// TODO: what are permissions 40-50?
 		PIN_MESSAGES: BitFlag(51),
-=======
-	USE_PRIVATE_THREADS: BitFlag(36),
-	USE_EXTERNAL_STICKERS: BitFlag(37),
-	PIN_MESSAGES: BitFlag(38),
-	MANAGE_TICKETS: BitFlag(55),
->>>>>>> 2a9d7c9c (feat(tickets): add ticket routes, flags, initiator exposure; MANAGE_TICKETS; tracker thread creation)
+		// TODO: what are permissions 52-54?
+		MANAGE_TICKETS: BitFlag(55),
+		// TODO: what are permissions 52-54?
+		MANAGE_TICKETS: BitFlag(55),
+		MANAGE_ROUTING: BitFlag(39),
 
 		/**
 		 * CUSTOM PERMISSIONS ideas:
