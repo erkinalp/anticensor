@@ -81,9 +81,6 @@ export class Permissions extends BitField {
 		PIN_MESSAGES: BitFlag(51),
 		// TODO: what are permissions 52-54?
 		MANAGE_TICKETS: BitFlag(55),
-		// TODO: what are permissions 52-54?
-		MANAGE_TICKETS: BitFlag(55),
-		MANAGE_ROUTING: BitFlag(39),
 
 		/**
 		 * CUSTOM PERMISSIONS ideas:

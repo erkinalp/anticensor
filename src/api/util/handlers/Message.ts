@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Sentry from "@sentry/node";
+import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
 import { EmbedHandlers } from "@spacebar/api";
 import {
 	Application,
 	Attachment,
 	Channel,
 	Config,
-	Embed,
 	EmbedCache,
 	emitEvent,
 	EVERYONE_MENTION,
@@ -33,8 +32,6 @@ import {
 	HERE_MENTION,
 	Message,
 	MessageCreateEvent,
-	MessageCreateSchema,
-	MessageType,
 	MessageUpdateEvent,
 	Role,
 	ROLE_MENTION,
@@ -46,31 +43,40 @@ import {
 	handleFile,
 	Permissions,
 	normalizeUrl,
-	Reaction,
 	RoutingRule,
 	Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
 import fetch from "node-fetch-commonjs";
+import { CloudAttachment } from "../../../util/entities/CloudAttachment";
+import { Embed, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageType, Reaction } from "@spacebar/schemas";
+import { computeProjectionsForMessage } from "../helpers/MessageProjection";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
 
-const LINK_REGEX =
-	/<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)>?/g;
+const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)>?/g;
 
 export async function handleMessage(opts: MessageOptions): Promise<Message> {
 	const channel = await Channel.findOneOrFail({
 		where: { id: opts.channel_id },
 		relations: ["recipients"],
 	});
-	if (!channel || !opts.channel_id)
-		throw new HTTPError("Channel not found", 404);
+	if (!channel || !opts.channel_id) throw new HTTPError("Channel not found", 404);
 
-	const stickers = opts.sticker_ids
-		? await Sticker.find({ where: { id: In(opts.sticker_ids) } })
-		: undefined;
+	const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
+	// cloud attachments with indexes
+	const cloudAttachments = opts.attachments?.reduce(
+		(acc, att, index) => {
+			if ("uploaded_filename" in att) {
+				acc.push({ attachment: att, index });
+			}
+			return acc;
+		},
+		[] as { attachment: MessageCreateCloudAttachment; index: number }[],
+	);
+
 	const message = Message.create({
 		...opts,
 		poll: opts.poll,
@@ -82,12 +88,57 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 		reactions: opts.reactions || [],
 		type: opts.type ?? 0,
 		mentions: [],
+		components: opts.components ?? undefined, // Fix Discord-Go?
 	});
 
-	if (
-		message.content &&
-		message.content.length > Config.get().limits.message.maxCharacters
-	) {
+	if (cloudAttachments && cloudAttachments.length > 0) {
+		console.log("[Message] Processing attachments for message", message.id, ":", message.attachments);
+		const uploadedAttachments = await Promise.all(
+			cloudAttachments.map(async (att) => {
+				const cAtt = att.attachment;
+				const attEnt = await CloudAttachment.findOneOrFail({
+					where: {
+						uploadFilename: cAtt.uploaded_filename,
+					},
+				});
+
+				const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${message.id}`, {
+					method: "POST",
+					headers: {
+						signature: Config.get().security.requestSignature || "",
+					},
+				});
+
+				if (!cloneResponse.ok) {
+					console.error(`[Message] Failed to clone attachment ${attEnt.userFilename} to message ${message.id}`);
+					throw new HTTPError("Failed to process attachment: " + (await cloneResponse.text()), 500);
+				}
+
+				const cloneRespBody = (await cloneResponse.json()) as { success: boolean; new_path: string };
+
+				const realAtt = Attachment.create({
+					filename: attEnt.userFilename,
+					url: `${Config.get().cdn.endpointPublic}/${cloneRespBody.new_path}`,
+					proxy_url: `${Config.get().cdn.endpointPublic}/${cloneRespBody.new_path}`,
+					size: attEnt.size,
+					height: attEnt.height,
+					width: attEnt.width,
+					content_type: attEnt.contentType || attEnt.userOriginalContentType,
+				});
+				await realAtt.save();
+				return { attachment: realAtt, index: att.index };
+			}),
+		);
+		console.log("[Message] Processed attachments for message", message.id, ":", message.attachments);
+
+		for (const att of uploadedAttachments) {
+			message.attachments![att.index] = att.attachment;
+		}
+	} else console.log("[Message] No cloud attachments to process for message", message.id, ":", message.attachments);
+
+	console.log("opts:", opts.attachments, "\nmessage:", message.attachments);
+
+	if (message.content && message.content.length > Config.get().limits.message.maxCharacters) {
 		throw new HTTPError("Content length over max character limit");
 	}
 
@@ -140,28 +191,15 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 		}
 		if (opts.avatar_url) {
 			const avatarData = await fetch(opts.avatar_url);
-			const base64 = await avatarData
-				.buffer()
-				.then((x) => x.toString("base64"));
+			const base64 = await avatarData.buffer().then((x) => x.toString("base64"));
 
-			const dataUri =
-				"data:" +
-				avatarData.headers.get("content-type") +
-				";base64," +
-				base64;
+			const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
 
-			message.avatar = await handleFile(
-				`/avatars/${opts.webhook_id}`,
-				dataUri as string,
-			);
+			message.avatar = await handleFile(`/avatars/${opts.webhook_id}`, dataUri as string);
 			message.author.avatar = message.avatar;
 		}
 	} else {
-		permission = await getPermission(
-			opts.author_id,
-			channel.guild_id,
-			opts.channel_id,
-		);
+		permission = await getPermission(opts.author_id, channel.guild_id, opts.channel_id);
 		permission.hasThrow("SEND_MESSAGES");
 		if (permission.cache.member) {
 			message.member = permission.cache.member;
@@ -175,23 +213,26 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 				const guild = await Guild.findOneOrFail({
 					where: { id: channel.guild_id },
 				});
-				if (!opts.message_reference.guild_id)
-					opts.message_reference.guild_id = channel.guild_id;
-				if (!opts.message_reference.channel_id)
-					opts.message_reference.channel_id = opts.channel_id;
+				if (!opts.message_reference.guild_id) opts.message_reference.guild_id = channel.guild_id;
+				if (!opts.message_reference.channel_id) opts.message_reference.channel_id = opts.channel_id;
 
 				if (!guild.features.includes("CROSS_CHANNEL_REPLIES")) {
-					if (opts.message_reference.guild_id !== channel.guild_id)
-						throw new HTTPError(
-							"You can only reference messages from this guild",
-						);
-					if (opts.message_reference.channel_id !== opts.channel_id)
-						throw new HTTPError(
-							"You can only reference messages from this channel",
-						);
+					if (opts.message_reference.guild_id !== channel.guild_id) throw new HTTPError("You can only reference messages from this guild");
+					if (opts.message_reference.channel_id !== opts.channel_id) throw new HTTPError("You can only reference messages from this channel");
 				}
 
 				message.message_reference = opts.message_reference;
+				message.referenced_message = await Message.findOneOrFail({
+					where: {
+						id: opts.message_reference.message_id,
+					},
+					relations: ["author", "webhook", "application", "mentions", "mention_roles", "mention_channels", "sticker_items", "attachments"],
+				});
+
+				if (message.referenced_message.channel_id && message.referenced_message.channel_id !== opts.message_reference.channel_id)
+					throw new HTTPError("Referenced message not found in the specified channel", 404);
+				if (message.referenced_message.guild_id && message.referenced_message.guild_id !== opts.message_reference.guild_id)
+					throw new HTTPError("Referenced message not found in the specified channel", 404);
 			}
 			/** Q: should be checked if the referenced message exists? ANSWER: NO
 			 otherwise backfilling won't work **/
@@ -200,15 +241,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 	}
 
 	// TODO: stickers/activity
-	if (
-		!allow_empty &&
-		!opts.content &&
-		!opts.embeds?.length &&
-		!opts.attachments?.length &&
-		!opts.sticker_ids?.length &&
-		!opts.poll &&
-		!opts.components?.length
-	) {
+	if (!allow_empty && !opts.content && !opts.embeds?.length && !opts.attachments?.length && !opts.sticker_ids?.length && !opts.poll && !opts.components?.length) {
+		console.log("[Message] Rejecting empty message:", opts, message);
 		throw new HTTPError("Empty messages are not allowed", 50006);
 	}
 
@@ -231,31 +265,22 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 		}*/
 
 		for (const [, mention] of content.matchAll(USER_MENTION)) {
-			if (!mention_user_ids.includes(mention))
-				mention_user_ids.push(mention);
+			if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
 		}
 
 		await Promise.all(
-			Array.from(content.matchAll(ROLE_MENTION)).map(
-				async ([, mention]) => {
-					const role = await Role.findOneOrFail({
-						where: { id: mention, guild_id: channel.guild_id },
-					});
-					if (
-						role.mentionable ||
-						opts.webhook_id ||
-						permission?.has("MANAGE_ROLES")
-					) {
-						mention_role_ids.push(mention);
-					}
-				},
-			),
+			Array.from(content.matchAll(ROLE_MENTION)).map(async ([, mention]) => {
+				const role = await Role.findOneOrFail({
+					where: { id: mention, guild_id: channel.guild_id },
+				});
+				if (role.mentionable || opts.webhook_id || permission?.has("MANAGE_ROLES")) {
+					mention_role_ids.push(mention);
+				}
+			}),
 		);
 
 		if (opts.webhook_id || permission?.has("MENTION_EVERYONE")) {
-			mention_everyone =
-				!!content.match(EVERYONE_MENTION) ||
-				!!content.match(HERE_MENTION);
+			mention_everyone = !!content.match(EVERYONE_MENTION) || !!content.match(HERE_MENTION);
 		}
 	}
 
@@ -266,10 +291,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 				channel_id: message.channel_id,
 			},
 		});
-		if (
-			referencedMessage &&
-			referencedMessage.author_id !== message.author_id
-		) {
+		if (referencedMessage && referencedMessage.author_id !== message.author_id) {
 			message.mentions.push(
 				User.create({
 					id: referencedMessage.author_id,
@@ -283,10 +305,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 			}
 			if (!referencedMessage.reply_ids.includes(message.id)) {
 				referencedMessage.reply_ids.push(message.id);
-				await Message.update(
-					{ id: referencedMessage.id },
-					{ reply_ids: referencedMessage.reply_ids },
-				);
+				await Message.update({ id: referencedMessage.id }, { reply_ids: referencedMessage.reply_ids });
 			}
 		}
 	}
@@ -296,14 +315,32 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 		Channel.create({ id: x }),
 	);*/
 	message.mention_roles = mention_role_ids.map((x) => Role.create({ id: x }));
-	message.mentions = [
-		...message.mentions,
-		...mention_user_ids.map((x) => User.create({ id: x })),
-	];
+	message.mentions = [...message.mentions, ...mention_user_ids.map((x) => User.create({ id: x }))];
 
 	message.mention_everyone = mention_everyone;
 
 	// TODO: check and put it all in the body
+
+	if (message.guild_id && message.content && message.author) {
+		const automodResult = await AutomodEvaluator.evaluateMessage({
+			content: message.content,
+			channel,
+			author: message.author,
+			guild_id: message.guild_id,
+			member_roles: permission?.cache.member?.roles?.map((r) => r.id),
+		});
+
+		if (automodResult.triggered && automodResult.rule) {
+			await AutomodActionExecutor.executeActions(automodResult.actions, {
+				message,
+				channel,
+				member: permission?.cache.member,
+				rule_name: automodResult.rule.name,
+				matched_content: automodResult.matched_content,
+				keyword: automodResult.keyword,
+			});
+		}
+	}
 
 	return message;
 }
@@ -360,17 +397,16 @@ export async function postHandleMessage(message: Message) {
 			const hasUrl = !!embed.url;
 			return !hasUrl;
 		});
-		await Promise.all([
-			emitEvent({
-				event: "MESSAGE_UPDATE",
-				channel_id: message.channel_id,
-				data,
-			} as MessageUpdateEvent),
-			Message.update(
-				{ id: message.id, channel_id: message.channel_id },
-				{ embeds: data.embeds },
-			),
-		]);
+		const author = data.author?.toPublicUser();
+		const event = {
+			event: "MESSAGE_UPDATE",
+			channel_id: message.channel_id,
+			data: {
+				...data,
+				author,
+			},
+		} as MessageUpdateEvent;
+		await Promise.all([emitEvent(event), Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: data.embeds })]);
 		return;
 	}
 
@@ -398,12 +434,8 @@ export async function postHandleMessage(message: Message) {
 		}
 
 		// bit gross, but whatever!
-		const endpointPublic =
-			Config.get().cdn.endpointPublic || "http://127.0.0.1"; // lol
-		const handler =
-			url.hostname === new URL(endpointPublic).hostname
-				? EmbedHandlers["self"]
-				: EmbedHandlers[url.hostname] || EmbedHandlers["default"];
+		const endpointPublic = Config.get().cdn.endpointPublic || "http://127.0.0.1"; // lol
+		const handler = url.hostname === new URL(endpointPublic).hostname ? EmbedHandlers["self"] : EmbedHandlers[url.hostname] || EmbedHandlers["default"];
 
 		try {
 			let res = await handler(url);
@@ -421,16 +453,7 @@ export async function postHandleMessage(message: Message) {
 				data.embeds.push(embed);
 			}
 		} catch (e) {
-			console.error(
-				`[Embeds] Error while generating embed for ${link}`,
-				e,
-			);
-			Sentry.captureException(e, (scope) => {
-				scope.clear();
-				scope.setContext("request", { url: link });
-				return scope;
-			});
-			continue;
+			console.error(`[Embeds] Error while generating embed for ${link}`, e);
 		}
 	}
 
@@ -440,140 +463,72 @@ export async function postHandleMessage(message: Message) {
 			channel_id: message.channel_id,
 			data,
 		} as MessageUpdateEvent),
-		Message.update(
-			{ id: message.id, channel_id: message.channel_id },
-			{ embeds: data.embeds },
-		),
+		Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: data.embeds }),
 		...cachePromises,
 	]);
 }
 
-async function processRoutingRules(message: Message): Promise<void> {
-	if (!message.author_id || !message.channel_id) return;
-
-	if (message.nonce?.startsWith("route:")) {
-		return;
-	}
-
-	const messageSentAt = message.id;
-
-	const candidateRules = await RoutingRule.find({
+async function evaluateRoutingForMessage(sourceChannelId: string, authorId: string, messageId: string): Promise<{ storageChannelId: string; sourceChannelId: string }> {
+	const rules = await RoutingRule.find({
 		where: {
-			source_channel_id: message.channel_id,
+			source_channel_id: sourceChannelId,
 		},
-		relations: ["sink_channel"],
 	});
 
-	const sinkChannelMap = new Map<string, RoutingRule>();
+	for (const rule of rules) {
+		const isValid = BigInt(rule.valid_since) <= BigInt(messageId) && BigInt(messageId) <= BigInt(rule.valid_until);
 
-	for (const rule of candidateRules) {
-		if (
-			BigInt(rule.valid_since) > BigInt(messageSentAt) ||
-			BigInt(messageSentAt) > BigInt(rule.valid_until)
-		) {
+		if (!isValid) {
 			continue;
 		}
 
-		if (
-			!rule.source_users.includes(message.author_id) &&
-			rule.source_users.length > 0
-		) {
+		if (rule.source_users.length > 0 && !rule.source_users.includes(authorId)) {
 			continue;
 		}
 
-		if (!rule.sink_channel) {
-			continue;
-		}
-
-		if (rule.sink_channel_id === message.channel_id) {
-			continue;
-		}
-
-		if (sinkChannelMap.has(rule.sink_channel_id)) {
-			continue;
-		}
-
-		try {
-			const permission = await getPermission(
-				message.author_id,
-				rule.sink_channel.guild_id,
-				rule.sink_channel_id,
-			);
-			if (!permission.has("VIEW_CHANNEL")) {
-				continue;
-			}
-		} catch (e) {
-			continue;
-		}
-
-		sinkChannelMap.set(rule.sink_channel_id, rule);
+		return {
+			storageChannelId: rule.storage_channel_id,
+			sourceChannelId: sourceChannelId,
+		};
 	}
 
-	if (sinkChannelMap.size === 0) {
-		return;
-	}
-
-	const routedMessages: Message[] = [];
-
-	for (const [sinkChannelId, rule] of sinkChannelMap.entries()) {
-		const idempotencyNonce = `route:${message.id}:${sinkChannelId}`;
-
-		const existingMessage = await Message.findOne({
-			where: {
-				channel_id: sinkChannelId,
-				nonce: idempotencyNonce,
-			},
-		});
-
-		if (existingMessage) {
-			continue;
-		}
-
-		const routedMessage = Message.create({
-			...message,
-			id: Snowflake.generate(),
-			channel_id: sinkChannelId,
-			guild_id: rule.sink_channel?.guild_id,
-			type: MessageType.DEFAULT,
-			nonce: idempotencyNonce,
-		});
-
-		routedMessages.push(routedMessage);
-	}
-
-	if (routedMessages.length > 0) {
-		await Promise.all([
-			...routedMessages.map((msg) => Message.insert(msg)),
-			...routedMessages.map((msg) =>
-				emitEvent({
-					event: "MESSAGE_CREATE",
-					channel_id: msg.channel_id,
-					data: msg.toJSON(),
-				} as MessageCreateEvent),
-			),
-		]);
-	}
+	return {
+		storageChannelId: sourceChannelId,
+		sourceChannelId: sourceChannelId,
+	};
 }
 
 export async function sendMessage(opts: MessageOptions) {
-	const message = await handleMessage({ ...opts, timestamp: new Date() });
+	const messageId = opts.id || Snowflake.generate();
+	const sourceChannelId = opts.channel_id!;
+	const authorId = opts.author_id!;
 
-	await Promise.all([
-		Message.insert(message),
-		emitEvent({
-			event: "MESSAGE_CREATE",
-			channel_id: opts.channel_id,
-			data: message.toJSON(),
-		} as MessageCreateEvent),
-	]);
+	const routing = await evaluateRoutingForMessage(sourceChannelId, authorId, messageId);
 
-	postHandleMessage(message).catch((e) =>
-		console.error("[Message] post-message handler failed", e),
+	const message = await handleMessage({
+		...opts,
+		id: messageId,
+		timestamp: new Date(),
+	});
+
+	message.channel_id = routing.storageChannelId;
+	message.source_channel_id = routing.sourceChannelId;
+
+	await Message.insert(message);
+
+	const projections = await computeProjectionsForMessage(message);
+
+	await Promise.all(
+		projections.map((projection) =>
+			emitEvent({
+				event: "MESSAGE_CREATE",
+				channel_id: projection.channelId,
+				data: message.toProjectedJSON(projection.channelId),
+			} as MessageCreateEvent),
+		),
 	);
 
-	processRoutingRules(message).catch((e) =>
-		console.error("[Message] routing rules processing failed", e),
-	);
+	postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
 	return message;
 }
@@ -588,7 +543,7 @@ interface MessageOptions extends MessageCreateSchema {
 	embeds?: Embed[];
 	reactions?: Reaction[];
 	channel_id?: string;
-	attachments?: Attachment[];
+	attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
 	edited_timestamp?: Date;
 	timestamp?: Date;
 	username?: string;
