@@ -17,13 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	RoutingRule,
-	Snowflake,
-	Channel,
-	getPermission,
-	getRights,
-} from "@spacebar/util";
+import { RoutingRule, Snowflake, Channel, getPermission, getRights } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -49,31 +43,47 @@ router.get(
 
 		if (hasManageRoutingRight) {
 			rules = await RoutingRule.find({
-				relations: [
-					"source_channel",
-					"storage_channel",
-					"sink_channel",
-				],
+				relations: ["source_channel", "storage_channel", "sink_channel"],
 			});
 		} else {
 			const allRules = await RoutingRule.find({
-				relations: [
-					"source_channel",
-					"storage_channel",
-					"sink_channel",
-				],
+				relations: ["source_channel", "storage_channel", "sink_channel"],
 			});
 
 			rules = [];
 			for (const rule of allRules) {
 				try {
 					if (rule.source_channel?.guild_id) {
-						const permission = await getPermission(
-							user_id,
-							rule.source_channel.guild_id,
-							rule.source_channel_id,
-						);
+						const permission = await getPermission(user_id, rule.source_channel.guild_id, rule.source_channel_id);
 						if (permission.has("VIEW_CHANNEL")) {
+							let canViewStorage = true;
+							let canViewSink = true;
+
+							if (rule.storage_channel?.guild_id) {
+								try {
+									const storagePermission = await getPermission(user_id, rule.storage_channel.guild_id, rule.storage_channel_id);
+									canViewStorage = storagePermission.has("VIEW_CHANNEL");
+								} catch (e) {
+									canViewStorage = false;
+								}
+							}
+
+							if (rule.sink_channel?.guild_id) {
+								try {
+									const sinkPermission = await getPermission(user_id, rule.sink_channel.guild_id, rule.sink_channel_id);
+									canViewSink = sinkPermission.has("VIEW_CHANNEL");
+								} catch (e) {
+									canViewSink = false;
+								}
+							}
+
+							if (!canViewStorage) {
+								rule.storage_channel = undefined;
+							}
+							if (!canViewSink) {
+								rule.sink_channel = undefined;
+							}
+
 							rules.push(rule);
 						}
 					}
@@ -107,25 +117,9 @@ router.post(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const {
-			source_channel_id,
-			storage_channel_id,
-			sink_channel_id,
-			source_users,
-			target_users,
-			valid_since,
-			valid_until,
-		} = req.body;
+		const { source_channel_id, storage_channel_id, sink_channel_id, source_users, target_users, valid_since, valid_until } = req.body;
 
-		if (
-			!source_channel_id ||
-			!storage_channel_id ||
-			!sink_channel_id ||
-			!source_users ||
-			!target_users ||
-			!valid_since ||
-			!valid_until
-		) {
+		if (!source_channel_id || !storage_channel_id || !sink_channel_id || !source_users || !target_users || !valid_since || !valid_until) {
 			throw new HTTPError("Missing required fields", 400);
 		}
 
@@ -148,12 +142,8 @@ router.post(
 			source_channel_id,
 			storage_channel_id,
 			sink_channel_id,
-			source_users: Array.isArray(source_users)
-				? source_users
-				: [source_users],
-			target_users: Array.isArray(target_users)
-				? target_users
-				: [target_users],
+			source_users: Array.isArray(source_users) ? source_users : [source_users],
+			target_users: Array.isArray(target_users) ? target_users : [target_users],
 			valid_since,
 			valid_until,
 		});
@@ -190,10 +180,7 @@ router.patch(
 		const { valid_until } = req.body;
 
 		if (!valid_until) {
-			throw new HTTPError(
-				"Only valid_until can be updated on routing rules",
-				400,
-			);
+			throw new HTTPError("Only valid_until can be updated on routing rules", 400);
 		}
 
 		const rule = await RoutingRule.findOne({
@@ -205,21 +192,12 @@ router.patch(
 		}
 
 		const now = Snowflake.generate();
-		if (
-			BigInt(rule.valid_since) > BigInt(now) ||
-			BigInt(now) > BigInt(rule.valid_until)
-		) {
-			throw new HTTPError(
-				"Cannot update routing rule that is not currently in effect",
-				400,
-			);
+		if (BigInt(rule.valid_since) > BigInt(now) || BigInt(now) > BigInt(rule.valid_until)) {
+			throw new HTTPError("Cannot update routing rule that is not currently in effect", 400);
 		}
 
 		if (BigInt(valid_until) < BigInt(rule.valid_since)) {
-			throw new HTTPError(
-				"valid_until cannot be earlier than valid_since",
-				400,
-			);
+			throw new HTTPError("valid_until cannot be earlier than valid_since", 400);
 		}
 
 		rule.valid_until = valid_until;
@@ -252,10 +230,7 @@ router.delete(
 		const canDelete = await RoutingRule.canDelete(rule_id);
 
 		if (!canDelete) {
-			throw new HTTPError(
-				"Cannot delete routing rule: rule is in effect or has affected messages",
-				400,
-			);
+			throw new HTTPError("Cannot delete routing rule: rule is in effect or has affected messages", 400);
 		}
 
 		await RoutingRule.delete({ id: rule_id });

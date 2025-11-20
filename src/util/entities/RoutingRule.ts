@@ -176,7 +176,8 @@ export class RoutingRule extends BaseClass {
 
 		const affectedMessages = await Message.count({
 			where: {
-				channel_id: rule.sink_channel_id,
+				channel_id: rule.storage_channel_id,
+				source_channel_id: rule.source_channel_id,
 			},
 		});
 

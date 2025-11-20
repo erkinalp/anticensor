@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message, RoutingRule, Snowflake } from "@spacebar/util";
+import { Message, RoutingRule, Snowflake, Channel, getPermission } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { FindOperator, In, IsNull } from "typeorm";
 
@@ -77,6 +77,20 @@ export async function isMessageVisibleInChannelForUser(message: Message, channel
 
 	for (const projection of projections) {
 		if (projection.channelId === channelId) {
+			const channel = await Channel.findOne({ where: { id: channelId } });
+			if (!channel) {
+				return false;
+			}
+
+			try {
+				const permission = await getPermission(userId, channel.guild_id, channelId);
+				if (!permission.has("VIEW_CHANNEL")) {
+					return false;
+				}
+			} catch (e) {
+				return false;
+			}
+
 			if (!projection.allowedUserIds) {
 				return true;
 			}
