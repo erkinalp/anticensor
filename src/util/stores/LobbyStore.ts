@@ -53,9 +53,7 @@ export class LobbyStore {
 		}, 60000);
 	}
 
-	public static createLobby(
-		lobby: Omit<Lobby, "created_at" | "last_activity">,
-	): Lobby {
+	public static createLobby(lobby: Omit<Lobby, "created_at" | "last_activity">): Lobby {
 		const now = new Date();
 		const fullLobby: Lobby = {
 			...lobby,
@@ -77,18 +75,7 @@ export class LobbyStore {
 		return this.lobbies.get(id);
 	}
 
-	public static updateLobby(
-		id: string,
-		updates: Partial<
-			Pick<
-				Lobby,
-				| "metadata"
-				| "members"
-				| "idle_timeout_seconds"
-				| "linked_channel"
-			>
-		>,
-	): Lobby | undefined {
+	public static updateLobby(id: string, updates: Partial<Pick<Lobby, "metadata" | "members" | "idle_timeout_seconds" | "linked_channel">>): Lobby | undefined {
 		const lobby = this.lobbies.get(id);
 		if (!lobby) return undefined;
 
@@ -115,9 +102,7 @@ export class LobbyStore {
 		const lobby = this.lobbies.get(lobbyId);
 		if (!lobby) return false;
 
-		const existingIndex = lobby.members.findIndex(
-			(m) => m.id === member.id,
-		);
+		const existingIndex = lobby.members.findIndex((m) => m.id === member.id);
 		if (existingIndex >= 0) {
 			lobby.members[existingIndex] = member;
 		} else {
@@ -188,9 +173,7 @@ export class LobbyStore {
 			application_id: lobby.application_id,
 			metadata: lobby.metadata,
 			members: lobby.members,
-			linked_channel: lobby.linked_channel
-				? { id: lobby.linked_channel }
-				: undefined,
+			linked_channel: lobby.linked_channel ? { id: lobby.linked_channel } : undefined,
 		};
 	}
 

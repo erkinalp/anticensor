@@ -20,11 +20,10 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
-import { dbEngine } from "../util/Database";
+import { RoleColors } from "@spacebar/schemas";
 
 @Entity({
 	name: "roles",
-	engine: dbEngine,
 })
 export class Role extends BaseClass {
 	@Column()
@@ -73,6 +72,9 @@ export class Role extends BaseClass {
 
 	@Column({ default: 0 })
 	flags: number;
+
+	@Column({ nullable: false, type: "simple-json" })
+	colors: RoleColors;
 
 	toJSON(): Role {
 		return {

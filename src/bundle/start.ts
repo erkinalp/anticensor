@@ -18,7 +18,6 @@
 
 // process.env.MONGOMS_DEBUG = "true";
 import moduleAlias from "module-alias";
-
 moduleAlias(__dirname + "../../../package.json");
 
 import "reflect-metadata";
@@ -28,7 +27,7 @@ import { red, bold, yellow, cyan, blueBright, redBright } from "picocolors";
 import { initStats } from "./stats";
 import { config } from "dotenv";
 
-config();
+config({ quiet: true });
 import { execSync } from "child_process";
 import { centerString, Logo } from "@spacebar/util";
 
@@ -47,28 +46,15 @@ if (cluster.isPrimary) {
 	Logo.printLogo().then(() => {
 		const unformatted = `spacebar-server | !! Pre-release build !!`;
 		const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
-		console.log(
-			bold(centerString(unformatted, 86).replace(unformatted, formatted)),
-		);
+		console.log(bold(centerString(unformatted, 86).replace(unformatted, formatted)));
 
 		const unformattedGitHeader = `Commit Hash: ${commit !== null ? `${commit} (${commit.slice(0, 7)})` : "Unknown (Git cannot be found)"}`;
 		const formattedGitHeader = `Commit Hash: ${commit !== null ? `${cyan(commit)} (${yellow(commit.slice(0, 7))})` : "Unknown (Git cannot be found)"}`;
-		console.log(
-			bold(
-				centerString(unformattedGitHeader, 86).replace(
-					unformattedGitHeader,
-					formattedGitHeader,
-				),
-			),
-		);
-		console.log(
-			`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`,
-		);
+		console.log(bold(centerString(unformattedGitHeader, 86).replace(unformattedGitHeader, formattedGitHeader)));
+		console.log(`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`);
 
 		if (commit == null) {
-			console.log(
-				yellow(`Warning: Git is not installed or not in PATH.`),
-			);
+			console.log(yellow(`Warning: Git is not installed or not in PATH.`));
 		}
 
 		initStats();
@@ -83,9 +69,7 @@ if (cluster.isPrimary) {
 			// Fork workers.
 			for (let i = 0; i < cores; i++) {
 				// Delay each worker start if using sqlite database to prevent locking it
-				const delay = process.env.DATABASE?.includes("://")
-					? 0
-					: i * 1000;
+				const delay = process.env.DATABASE?.includes("://") ? 0 : i * 1000;
 				setTimeout(() => {
 					cluster.fork();
 					console.log(`[Process] Worker ${cyan(i)} started.`);
@@ -101,11 +85,7 @@ if (cluster.isPrimary) {
 			});
 
 			cluster.on("exit", (worker) => {
-				console.log(
-					`[Worker] ${red(
-						`PID ${worker.process.pid} died, restarting ...`,
-					)}`,
-				);
+				console.log(`[Worker] ${red(`PID ${worker.process.pid} died, restarting ...`)}`);
 				cluster.fork();
 			});
 		}

@@ -17,7 +17,7 @@
 */
 
 export * from "./ApiError";
-export * from "./Array";
+export * from "./extensions/Array";
 export * from "./BitField";
 //export * from "./Categories";
 export * from "./cdn";
@@ -37,14 +37,18 @@ export * from "./Permissions";
 export * from "./RabbitMQ";
 export * from "./Regex";
 export * from "./Rights";
-export * from "./Sentry";
 export * from "./Snowflake";
+export * from "./Stopwatch";
 export * from "./String";
 export * from "./Token";
 export * from "./TraverseDirectory";
 export * from "./WebAuthn";
-export * from "./Url";
 export * from "./Gifs";
 export * from "./Application";
 export * from "./NameValidation";
 export * from "./ConnectionPrivacy";
+export * from "./AutomodEvaluator";
+export * from "./AutomodActionExecutor";
+export * from "../../schemas/HelperTypes";
+export * from "./extensions";
+export * from "./Random";

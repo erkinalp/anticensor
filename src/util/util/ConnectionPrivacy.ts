@@ -35,28 +35,11 @@ export class ConnectionPrivacy {
 		viewerSettings?: UserSettings,
 		targetSettings?: UserSettings,
 	): ConnectedAccount[] {
-		return accounts.filter((account) =>
-			this.isConnectionVisible(
-				account,
-				viewerUserId,
-				targetUserId,
-				viewerSettings,
-				targetSettings,
-			),
-		);
+		return accounts.filter((account) => this.isConnectionVisible(account, viewerUserId, targetUserId, viewerSettings, targetSettings));
 	}
 
-	static isConnectionVisible(
-		account: ConnectedAccount,
-		viewerUserId: string,
-		targetUserId: string,
-		viewerSettings?: UserSettings,
-		targetSettings?: UserSettings,
-	): boolean {
-		const effectiveVisibility = this.getEffectiveVisibility(
-			account,
-			targetSettings,
-		);
+	static isConnectionVisible(account: ConnectedAccount, viewerUserId: string, targetUserId: string, viewerSettings?: UserSettings, targetSettings?: UserSettings): boolean {
+		const effectiveVisibility = this.getEffectiveVisibility(account, targetSettings);
 
 		if (effectiveVisibility === VisibilityLevel.PRIVATE) {
 			return viewerUserId === targetUserId;
@@ -66,36 +49,18 @@ export class ConnectionPrivacy {
 			return true;
 		}
 
-		return (
-			viewerUserId === targetUserId ||
-			effectiveVisibility >= VisibilityLevel.MUTUAL_GUILDS
-		);
+		return viewerUserId === targetUserId || effectiveVisibility >= VisibilityLevel.MUTUAL_GUILDS;
 	}
 
-	static shouldShareActivity(
-		account: ConnectedAccount,
-		targetSettings?: UserSettings,
-	): boolean {
-		return (
-			targetSettings?.connections_activity_sharing !== false &&
-			account.show_activity !== 0
-		);
+	static shouldShareActivity(account: ConnectedAccount, targetSettings?: UserSettings): boolean {
+		return targetSettings?.connections_activity_sharing !== false && account.show_activity !== 0;
 	}
 
-	static shouldShareMetadata(
-		account: ConnectedAccount,
-		targetSettings?: UserSettings,
-	): boolean {
-		return (
-			targetSettings?.connections_metadata_sharing !== false &&
-			account.metadata_visibility !== 0
-		);
+	static shouldShareMetadata(account: ConnectedAccount, targetSettings?: UserSettings): boolean {
+		return targetSettings?.connections_metadata_sharing !== false && account.metadata_visibility !== 0;
 	}
 
-	static getEffectiveVisibility(
-		account: ConnectedAccount,
-		userSettings?: UserSettings,
-	): number {
+	static getEffectiveVisibility(account: ConnectedAccount, userSettings?: UserSettings): number {
 		const config = Config.get().connections;
 
 		if (account.privacy_override) {
@@ -106,10 +71,6 @@ export class ConnectionPrivacy {
 			return config.defaultVisibility;
 		}
 
-		return (
-			account.visibility ??
-			userSettings?.connections_default_visibility ??
-			config.defaultVisibility
-		);
+		return account.visibility ?? userSettings?.connections_default_visibility ?? config.defaultVisibility;
 	}
 }

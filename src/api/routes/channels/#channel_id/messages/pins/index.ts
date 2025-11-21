@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -17,19 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	ChannelPinsUpdateEvent,
-	Config,
-	DiscordApiErrors,
-	emitEvent,
-	Message,
-	MessageCreateEvent,
-	MessageUpdateEvent,
-	User,
-} from "@spacebar/util";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { IsNull, Not } from "typeorm";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.put(
 	"/:message_id",
@@ -56,13 +48,13 @@ router.put(
 		if (message.guild_id) req.permission?.hasThrow("PIN_MESSAGES");
 
 		const pinned_count = await Message.count({
-			where: { channel: { id: channel_id }, pinned: true },
+			where: { channel: { id: channel_id }, pinned_at: Not(IsNull()) },
 		});
-		const { maxPins } = Config.get().limits.channel;
-		if (pinned_count >= maxPins)
-			throw DiscordApiErrors.MAXIMUM_PINS.withParams(maxPins);
 
-		message.pinned = true;
+		const { maxPins } = Config.get().limits.channel;
+		if (pinned_count >= maxPins) throw DiscordApiErrors.MAXIMUM_PINS.withParams(maxPins);
+
+		message.pinned_at = new Date();
 
 		const author = await User.getPublicUser(req.user_id);
 
@@ -139,7 +131,7 @@ router.delete(
 
 		if (message.guild_id) req.permission?.hasThrow("PIN_MESSAGES");
 
-		message.pinned = false;
+		message.pinned_at = null;
 
 		await Promise.all([
 			message.save(),
@@ -180,11 +172,20 @@ router.get(
 		const { channel_id } = req.params;
 
 		const pins = await Message.find({
-			where: { channel_id: channel_id, pinned: true },
+			where: { channel_id: channel_id, pinned_at: Not(IsNull()) },
 			relations: ["author"],
+			order: { pinned_at: "DESC" },
 		});
 
-		res.send(pins);
+		const items = pins.map((message: Message) => ({
+			message,
+			pinned_at: message.pinned_at,
+		}));
+
+		res.send({
+			items,
+			has_more: false,
+		});
 	},
 );
 

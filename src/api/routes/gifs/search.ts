@@ -17,18 +17,14 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	TenorMediaTypes,
-	getGifApiKey,
-	parseGifResult,
-	TenorGif,
-} from "@spacebar/util";
+import { getGifApiKey, parseGifResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import fetch from "node-fetch-commonjs";
 import { ProxyAgent } from "proxy-agent";
 import http from "http";
+import { TenorGif, TenorMediaTypes } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -42,9 +38,7 @@ router.get(
 			media_format: {
 				type: "string",
 				description: "Media format",
-				values: Object.keys(TenorMediaTypes).filter((key) =>
-					isNaN(Number(key)),
-				),
+				values: Object.keys(TenorMediaTypes).filter((key) => isNaN(Number(key))),
 			},
 			locale: {
 				type: "string",
@@ -65,14 +59,11 @@ router.get(
 
 		const agent = new ProxyAgent();
 
-		const response = await fetch(
-			`https://g.tenor.com/v1/search?q=${q}&media_format=${media_format}&locale=${locale}&key=${apiKey}`,
-			{
-				agent: agent as http.Agent,
-				method: "get",
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		const response = await fetch(`https://g.tenor.com/v1/search?q=${q}&media_format=${media_format}&locale=${locale}&key=${apiKey}`, {
+			agent: agent as http.Agent,
+			method: "get",
+			headers: { "Content-Type": "application/json" },
+		});
 
 		const { results } = (await response.json()) as { results: TenorGif[] };
 

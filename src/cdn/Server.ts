@@ -17,20 +17,14 @@
 */
 
 import { Server, ServerOptions } from "lambert-server";
-import {
-	Attachment,
-	Config,
-	initDatabase,
-	registerRoutes,
-	Sentry,
-} from "@spacebar/util";
+import { Attachment, Config, initDatabase, registerRoutes } from "@spacebar/util";
 import { CORS, BodyParser } from "@spacebar/api";
 import path from "path";
 import avatarsRoute from "./routes/avatars";
 import guildProfilesRoute from "./routes/guild-profiles";
 import iconsRoute from "./routes/role-icons";
 import morgan from "morgan";
-import { Like, Or } from "typeorm";
+import { Like } from "typeorm";
 
 export type CDNServerOptions = ServerOptions;
 
@@ -45,20 +39,14 @@ export class CDNServer extends Server {
 		await initDatabase();
 		await Config.init();
 		await this.cleanupSignaturesInDb();
-		await Sentry.init(this.app);
 
 		const logRequests = process.env["LOG_REQUESTS"] != undefined;
 		if (logRequests) {
 			this.app.use(
 				morgan("combined", {
 					skip: (req, res) => {
-						let skip = !(
-							process.env["LOG_REQUESTS"]?.includes(
-								res.statusCode.toString(),
-							) ?? false
-						);
-						if (process.env["LOG_REQUESTS"]?.charAt(0) == "-")
-							skip = !skip;
+						let skip = !(process.env["LOG_REQUESTS"]?.includes(res.statusCode.toString()) ?? false);
+						if (process.env["LOG_REQUESTS"]?.charAt(0) == "-") skip = !skip;
 						return skip;
 					},
 				}),
@@ -111,19 +99,11 @@ export class CDNServer extends Server {
 		this.app.use("/channel-icons/", avatarsRoute);
 		this.log("verbose", "[Server] Route /channel-icons registered");
 
-		this.app.use(
-			"/guilds/:guild_id/users/:user_id/avatars",
-			guildProfilesRoute,
-		);
+		this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
 		this.log("verbose", "[Server] Route /guilds/avatars registered");
 
-		this.app.use(
-			"/guilds/:guild_id/users/:user_id/banners",
-			guildProfilesRoute,
-		);
+		this.app.use("/guilds/:guild_id/users/:user_id/banners", guildProfilesRoute);
 		this.log("verbose", "[Server] Route /guilds/banners registered");
-
-		Sentry.errorHandler(this.app);
 
 		return super.start();
 	}
@@ -133,7 +113,7 @@ export class CDNServer extends Server {
 	}
 
 	async cleanupSignaturesInDb() {
-		this.log("verbose", "[Server] Cleaning up signatures in database");
+		this.log("verbose", "[CDN] Cleaning up signatures in database");
 		const attachmentsToFix = await Attachment.find({
 			where: { url: Like("%?ex=%") },
 		});
@@ -142,10 +122,7 @@ export class CDNServer extends Server {
 			return;
 		}
 
-		this.log(
-			"verbose",
-			`[CDN] Found ${attachmentsToFix.length} attachments to fix`,
-		);
+		this.log("verbose", `[CDN] Found ${attachmentsToFix.length} attachments to fix`);
 		for (const attachment of attachmentsToFix) {
 			attachment.url = attachment.url.split("?ex=")[0];
 			attachment.proxy_url = attachment.proxy_url?.split("?ex=")[0];

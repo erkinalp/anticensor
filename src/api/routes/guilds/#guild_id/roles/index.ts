@@ -17,22 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Config,
-	DiscordApiErrors,
-	emitEvent,
-	GuildRoleCreateEvent,
-	GuildRoleUpdateEvent,
-	Member,
-	Role,
-	RoleModifySchema,
-	RolePositionUpdateSchema,
-	Snowflake,
-} from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, GuildRoleCreateEvent, GuildRoleUpdateEvent, Member, Role, Snowflake } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { Not } from "typeorm";
+import { RoleModifySchema, RolePositionUpdateSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get("/", route({}), async (req: Request, res: Response) => {
 	const guild_id = req.params.guild_id;
@@ -68,11 +58,10 @@ router.post(
 		const role_count = await Role.count({ where: { guild_id } });
 		const { maxRoles } = Config.get().limits.guild;
 
-		if (role_count > maxRoles)
-			throw DiscordApiErrors.MAXIMUM_ROLES.withParams(maxRoles);
+		if (role_count > maxRoles) throw DiscordApiErrors.MAXIMUM_ROLES.withParams(maxRoles);
 
 		const role = Role.create({
-			// values before ...body are default and can be overriden
+			// values before ...body are default and can be overridden
 			position: 1,
 			hoist: false,
 			color: 0,
@@ -80,14 +69,16 @@ router.post(
 			...body,
 			guild_id: guild_id,
 			managed: false,
-			permissions: String(
-				(req.permission?.bitfield || BigInt(0)) &
-					BigInt(body.permissions || "0"),
-			),
+			permissions: String((req.permission?.bitfield || BigInt(0)) & BigInt(body.permissions || "0")),
 			tags: undefined,
 			icon: undefined,
 			unicode_emoji: undefined,
 			id: Snowflake.generate(),
+			colors: {
+				primary_color: body.colors?.primary_color || body.color || 0,
+				secondary_color: body.colors?.secondary_color || undefined, // gradient
+				tertiary_color: body.colors?.tertiary_color || undefined, // "holographic"
+			},
 		});
 
 		await Promise.all([
@@ -136,11 +127,7 @@ router.patch(
 		const { guild_id } = req.params;
 		const body = req.body as RolePositionUpdateSchema;
 
-		await Promise.all(
-			body.map(async (x) =>
-				Role.update({ guild_id, id: x.id }, { position: x.position }),
-			),
-		);
+		await Promise.all(body.map(async (x) => Role.update({ guild_id, id: x.id }, { position: x.position })));
 
 		const roles = await Role.find({
 			where: body.map((x) => ({ id: x.id, guild_id })),

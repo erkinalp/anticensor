@@ -43,10 +43,7 @@ export class ConnectionLoader {
 			const mod = new (require(modPath).default)() as Connection;
 
 			const config = Config.get().connections;
-			if (
-				config.providers.length > 0 &&
-				!config.providers.includes(mod.id)
-			) {
+			if (config.providers.length > 0 && !config.providers.includes(mod.id)) {
 				return;
 			}
 
@@ -76,18 +73,11 @@ export class ConnectionLoader {
 		return cfg;
 	}
 
-	public static async setConnectionConfig(
-		id: string,
-		config: Partial<unknown>,
-	): Promise<void> {
-		if (!config)
-			console.warn(`[Connections/WARN] ${id} tried to set config=null!`);
+	public static async setConnectionConfig(id: string, config: Partial<unknown>): Promise<void> {
+		if (!config) console.warn(`[Connections/WARN] ${id} tried to set config=null!`);
 
 		await ConnectionConfig.set({
-			[id]: Object.assign(
-				config,
-				ConnectionLoader.getConnectionConfig(id) || {},
-			),
+			[id]: Object.assign(config, ConnectionLoader.getConnectionConfig(id) || {}),
 		});
 	}
 }

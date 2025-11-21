@@ -19,7 +19,7 @@
 import { route } from "@spacebar/api";
 import { SecurityKey, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.delete(
 	"/",
@@ -41,8 +41,7 @@ router.delete(
 		});
 
 		// disable webauthn if there are no keys left
-		if (keys === 0)
-			await User.update({ id: req.user_id }, { webauthn_enabled: false });
+		if (keys === 0) await User.update({ id: req.user_id }, { webauthn_enabled: false });
 
 		res.sendStatus(204);
 	},

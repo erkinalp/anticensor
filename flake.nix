@@ -26,6 +26,7 @@
           default = pkgs.buildNpmPackage {
             pname = "spacebar-server-ts";
             name = "spacebar-server-ts";
+            nodejs = pkgs.nodejs_24;
 
             meta = with lib; {
               description = "Spacebar server, a FOSS reimplementation of the Discord backend.";
@@ -38,6 +39,7 @@
             src = ./.;
             nativeBuildInputs = with pkgs; [ python3 ];
             npmDepsHash = hashesFile.npmDepsHash;
+            npmBuildScript = "build:src";
             makeCacheWritable = true;
             postPatch = ''
               substituteInPlace package.json --replace 'npx patch-package' '${pkgs.nodePackages.patch-package}/bin/patch-package'
@@ -53,15 +55,34 @@
               cp -r assets dist node_modules package.json $out/
               for i in dist/**/start.js
               do
-                makeWrapper ${pkgs.nodejs}/bin/node $out/bin/start-`dirname ''${i/dist\//}` --prefix NODE_PATH : $out/node_modules --add-flags $out/$i
+                makeWrapper ${pkgs.nodejs_24}/bin/node $out/bin/start-`dirname ''${i/dist\//}` --prefix NODE_PATH : $out/node_modules --add-flags $out/$i
               done
 
               set +x
               runHook postInstall
             '';
+
+            passthru.tests = pkgs.testers.runNixOSTest (import ./nix/tests/test_1.nix self);
           };
 
-          update-nix = pkgs.writeShellApplication {
+          update-nix-hashes = pkgs.writeShellApplication {
+            name = "update-nix";
+            runtimeInputs = with pkgs; [
+              prefetch-npm-deps
+              nix
+              jq
+            ];
+            text = ''
+              rm -rf node_modules
+              ${pkgs.nodejs_24}/bin/npm install --save --no-audit --no-fund --prefer-offline
+              DEPS_HASH=$(prefetch-npm-deps package-lock.json)
+              TMPFILE=$(mktemp)
+              jq '.npmDepsHash = "'"$DEPS_HASH"'"' hashes.json > "$TMPFILE"
+              mv -- "$TMPFILE" hashes.json
+            '';
+          };
+
+          update-nix-flake = pkgs.writeShellApplication {
             name = "update-nix";
             runtimeInputs = with pkgs; [
               prefetch-npm-deps
@@ -70,17 +91,23 @@
             ];
             text = ''
               nix flake update --extra-experimental-features 'nix-command flakes'
-              DEPS_HASH=$(prefetch-npm-deps package-lock.json)
-              TMPFILE=$(mktemp)
-              jq '.npmDepsHash = "'"$DEPS_HASH"'"' hashes.json > "$TMPFILE"
-              mv -- "$TMPFILE" hashes.json
             '';
+          };
+        };
+
+        containers.docker = pkgs.dockerTools.buildLayeredImage {
+          name = "spacebar-server-ts";
+          tag = "latest";
+          contents = [ self.packages.${system}.default ];
+          config = {
+            Cmd = [ "${self.outputs.packages.x86_64-linux.default}/bin/start-bundle" ];
+            Expose = [ "3001" ];
           };
         };
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            nodejs
+            nodejs_24
             nodePackages.typescript
             nodePackages.ts-node
             nodePackages.patch-package
@@ -88,5 +115,9 @@
           ];
         };
       }
-    );
+    )
+    //
+    {
+      nixosModules.default = import ./nix/modules/default self;
+    };
 }

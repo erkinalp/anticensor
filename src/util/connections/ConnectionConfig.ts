@@ -18,6 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ConnectionConfigEntity } from "../entities/ConnectionConfigEntity";
+import { OrmUtils } from "../imports";
 
 let config: any;
 let pairs: ConnectionConfigEntity[];
@@ -39,7 +40,7 @@ export const ConnectionConfig = {
 	},
 	set: function set(val: Partial<any>) {
 		if (!config || !val) return;
-		config = val.merge(config);
+		config = OrmUtils.mergeDeep(config, val);
 
 		// return applyConfig(config);
 		return applyConfig(val);
@@ -48,12 +49,7 @@ export const ConnectionConfig = {
 
 function applyConfig(val: any) {
 	async function apply(obj: any, key = ""): Promise<any> {
-		if (typeof obj === "object" && obj !== null && !(obj instanceof Date))
-			return Promise.all(
-				Object.keys(obj).map((k) =>
-					apply(obj[k], key ? `${key}_${k}` : k),
-				),
-			);
+		if (typeof obj === "object" && obj !== null && !(obj instanceof Date)) return Promise.all(Object.keys(obj).map((k) => apply(obj[k], key ? `${key}_${k}` : k)));
 
 		let pair = pairs.find((x) => x.key === key);
 		if (!pair) pair = new ConnectionConfigEntity();
@@ -83,8 +79,7 @@ function pairsToConfig(pairs: ConnectionConfigEntity[]) {
 		let i = 0;
 
 		for (const key of keys) {
-			if (!isNaN(Number(key)) && !prevObj[prev]?.length)
-				prevObj[prev] = obj = [];
+			if (!isNaN(Number(key)) && !prevObj[prev]?.length) prevObj[prev] = obj = [];
 			if (i++ === keys.length - 1) obj[key] = p.value;
 			else if (!obj[key]) obj[key] = {};
 

@@ -8,8 +8,7 @@ router.delete(
 	"/",
 	route({
 		right: "MANAGE_USERS",
-		summary:
-			"Revoke consent for a service for the specified user (admin only)",
+		summary: "Revoke consent for a service for the specified user (admin only)",
 		responses: { 204: { body: "null" } },
 	}),
 	async (req: Request, res: Response) => {

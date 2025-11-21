@@ -17,16 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	ChannelType,
-	Guild,
-	Permissions,
-	emitEvent,
-} from "@spacebar/util";
+import { Channel, Guild, Permissions, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { ChannelPromoteSchema } from "@spacebar/util/schemas/ChannelPromoteSchema";
+import { ChannelPromoteSchema, ChannelType } from "@spacebar/schemas";
 
 const router: Router = Router();
 
@@ -71,10 +65,7 @@ router.post(
 			case ChannelType.GUILD_PRIVATE_THREAD:
 				throw new HTTPError("Private threads cannot be promoted", 400);
 			default:
-				throw new HTTPError(
-					"Unsupported channel type for promotion",
-					400,
-				);
+				throw new HTTPError("Unsupported channel type for promotion", 400);
 		}
 
 		const oldParentId = channel.parent_id;
@@ -86,16 +77,12 @@ router.post(
 		});
 
 		const threadOverwrites = channel.permission_overwrites ?? [];
-		const computedOverwrites = [] as NonNullable<
-			Channel["permission_overwrites"]
-		>;
+		const computedOverwrites = [] as NonNullable<Channel["permission_overwrites"]>;
 
 		for (const role of guild.roles) {
 			const base = BigInt(role.permissions);
 			const desired = Permissions.channelPermission(
-				threadOverwrites.filter(
-					(ow) => ow.type === 0 && ow.id === role.id,
-				),
+				threadOverwrites.filter((ow) => ow.type === 0 && ow.id === role.id),
 				base,
 			);
 
@@ -131,24 +118,12 @@ router.post(
 		await channel.save();
 
 		if (typeof body.position === "number") {
-			await Guild.insertChannelInOrder(
-				guildId,
-				channel.id,
-				body.position,
-			);
+			await Guild.insertChannelInOrder(guildId, channel.id, body.position);
 		} else {
-			await Guild.insertChannelInOrder(
-				guildId,
-				channel.id,
-				oldParentId as string,
-			);
+			await Guild.insertChannelInOrder(guildId, channel.id, oldParentId as string);
 		}
 
-		channel.position = await Channel.calculatePosition(
-			channel.id,
-			guildId,
-			channel.guild,
-		);
+		channel.position = await Channel.calculatePosition(channel.id, guildId, channel.guild);
 
 		await emitEvent({
 			event: "CHANNEL_UPDATE",

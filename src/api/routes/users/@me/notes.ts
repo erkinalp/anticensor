@@ -20,10 +20,10 @@ import { route } from "@spacebar/api";
 import { Note, Snowflake, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/:id",
+	"/:user_id",
 	route({
 		responses: {
 			200: {
@@ -35,25 +35,25 @@ router.get(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { user_id } = req.params;
 
 		const note = await Note.findOneOrFail({
 			where: {
 				owner: { id: req.user_id },
-				target: { id: id },
+				target: { id: user_id },
 			},
 		});
 
 		return res.json({
 			note: note?.content,
-			note_user_id: id,
+			note_user_id: user_id,
 			user_id: req.user_id,
 		});
 	},
 );
 
 router.put(
-	"/:id",
+	"/:user_id",
 	route({
 		requestBody: "UserNoteUpdateSchema",
 		responses: {
@@ -64,9 +64,9 @@ router.put(
 		},
 	}),
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { user_id } = req.params;
 		const owner = await User.findOneOrFail({ where: { id: req.user_id } });
-		const target = await User.findOneOrFail({ where: { id: id } }); //if noted user does not exist throw
+		const target = await User.findOneOrFail({ where: { id: user_id } }); //if noted user does not exist throw
 		const { note } = req.body;
 
 		if (note && note.length) {
@@ -79,10 +79,7 @@ router.put(
 					},
 				})
 			) {
-				Note.update(
-					{ owner: { id: owner.id }, target: { id: target.id } },
-					{ owner, target, content: note },
-				);
+				Note.update({ owner: { id: owner.id }, target: { id: target.id } }, { owner, target, content: note });
 			} else {
 				Note.insert({
 					id: Snowflake.generate(),

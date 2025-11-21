@@ -18,42 +18,48 @@
 
 import { handleMessage, postHandleMessage, route } from "@spacebar/api";
 import {
+	ApiError,
 	Attachment,
+	AutomodRule,
+	AutomodTriggerTypes,
 	Channel,
 	Config,
-	DmChannelDTO,
 	DiscordApiErrors,
+	DmChannelDTO,
+	emitEvent,
 	FieldErrors,
+	getPermission,
+	getUrlSignature,
 	Member,
 	Message,
 	MessageCreateEvent,
-	MessageCreateSchema,
-	Reaction,
-	ReadState,
-	Rights,
-	Snowflake,
-	User,
-	emitEvent,
-	getPermission,
-	isTextChannel,
-	getUrlSignature,
-	uploadFile,
 	NewUrlSignatureData,
 	NewUrlUserSignatureData,
+	ReadState,
+	Relationship,
+	Rights,
+	Snowflake,
+	uploadFile,
+	User,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import {
-	FindManyOptions,
-	FindOperator,
-	LessThan,
-	MoreThan,
-	MoreThanOrEqual,
-} from "typeorm";
+import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { URL } from "url";
+import {
+	AutomodCustomWordsRule,
+	AutomodRuleActionType,
+	AutomodRuleEventType,
+	isTextChannel,
+	MessageCreateAttachment,
+	MessageCreateCloudAttachment,
+	MessageCreateSchema,
+	Reaction,
+	RelationshipType,
+} from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 async function populateForwardLinks(messages: Message[]): Promise<void> {
 	for (const message of messages) {
@@ -70,10 +76,7 @@ async function populateForwardLinks(messages: Message[]): Promise<void> {
 
 			if (replies.length > 0) {
 				message.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message.id },
-					{ reply_ids: message.reply_ids },
-				);
+				await Message.update({ id: message.id }, { reply_ids: message.reply_ids });
 			} else {
 				message.reply_ids = [];
 				await Message.update({ id: message.id }, { reply_ids: [] });
@@ -103,8 +106,7 @@ router.get(
 			limit: {
 				type: "number",
 				required: false,
-				description:
-					"max number of messages to return (1-100). defaults to 50",
+				description: "max number of messages to return (1-100). defaults to 50",
 			},
 		},
 		responses: {
@@ -130,14 +132,9 @@ router.get(
 		const before = req.query.before ? `${req.query.before}` : undefined;
 		const after = req.query.after ? `${req.query.after}` : undefined;
 		const limit = Number(req.query.limit) || 50;
-		if (limit < 1 || limit > 100)
-			throw new HTTPError("limit must be between 1 and 100", 422);
+		if (limit < 1 || limit > 100) throw new HTTPError("limit must be between 1 and 100", 422);
 
-		const permissions = await getPermission(
-			req.user_id,
-			channel.guild_id,
-			channel_id,
-		);
+		const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
 		permissions.hasThrow("VIEW_CHANNEL");
 		if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json([]);
 
@@ -156,6 +153,15 @@ router.get(
 				"mention_channels",
 				"sticker_items",
 				"attachments",
+				"referenced_message",
+				"referenced_message.author",
+				"referenced_message.webhook",
+				"referenced_message.application",
+				"referenced_message.mentions",
+				"referenced_message.mention_roles",
+				"referenced_message.mention_channels",
+				"referenced_message.sticker_items",
+				"referenced_message.attachments",
 			],
 		};
 
@@ -176,9 +182,7 @@ router.get(
 					}),
 				]);
 				left.push(...right);
-				messages = left.sort(
-					(a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
-				);
+				messages = left.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 			} else {
 				query.take = 1;
 				const message = await Message.findOne({
@@ -189,20 +193,12 @@ router.get(
 			}
 		} else {
 			if (after) {
-				if (BigInt(after) > BigInt(Snowflake.generate()))
-					throw new HTTPError(
-						"after parameter must not be greater than current time",
-						422,
-					);
+				if (BigInt(after) > BigInt(Snowflake.generate())) throw new HTTPError("after parameter must not be greater than current time", 422);
 
 				query.where.id = MoreThan(after);
 				query.order = { timestamp: "ASC" };
 			} else if (before) {
-				if (BigInt(before) > BigInt(Snowflake.generate()))
-					throw new HTTPError(
-						"before parameter must not be greater than current time",
-						422,
-					);
+				if (BigInt(before) > BigInt(Snowflake.generate())) throw new HTTPError("before parameter must not be greater than current time", 422);
 
 				query.where.id = LessThan(before);
 			}
@@ -232,9 +228,7 @@ router.get(
 				});
 			x.attachments?.forEach((y: Attachment) => {
 				// dynamically set attachment proxy_url in case the endpoint changed
-				const uri = y.proxy_url.startsWith("http")
-					? y.proxy_url
-					: `https://example.org${y.proxy_url}`;
+				const uri = y.proxy_url.startsWith("http") ? y.proxy_url : `https://example.org${y.proxy_url}`;
 
 				const url = new URL(uri);
 				if (endpoint) {
@@ -279,6 +273,25 @@ router.get(
 
 			return x;
 		});
+
+		await ret
+			.filter((x: MessageCreateSchema) => x.interaction_metadata && !x.interaction_metadata.user)
+			.forEachAsync(async (x: MessageCreateSchema) => {
+				x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: (x as Message).interaction_metadata!.user_id } });
+			});
+
+		// polyfill message references for old messages
+		await ret
+			.filter((msg) => msg.message_reference && !msg.referenced_message?.id)
+			.forEachAsync(async (msg) => {
+				const whereOptions: { id: string; guild_id?: string; channel_id?: string } = {
+					id: msg.message_reference!.message_id,
+				};
+				if (msg.message_reference!.guild_id) whereOptions.guild_id = msg.message_reference!.guild_id;
+				if (msg.message_reference!.channel_id) whereOptions.channel_id = msg.message_reference!.channel_id;
+
+				msg.referenced_message = await Message.findOne({ where: whereOptions, relations: ["author", "mentions", "mention_roles", "mention_channels"] });
+			});
 
 		return res.json(ret);
 	},
@@ -330,17 +343,31 @@ router.post(
 	async (req: Request, res: Response) => {
 		const { channel_id } = req.params;
 		const body = req.body as MessageCreateSchema;
-		const attachments: Attachment[] = [];
+		const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
 
 		const channel = await Channel.findOneOrFail({
 			where: { id: channel_id },
 			relations: ["recipients", "recipients.user"],
 		});
 		if (!channel.isWritable()) {
-			throw new HTTPError(
-				`Cannot send messages to channel of type ${channel.type}`,
-				400,
-			);
+			throw new HTTPError(`Cannot send messages to channel of type ${channel.type}`, 400);
+		}
+
+		// handle blocked users in dms
+		if (channel.recipients?.length == 2) {
+			const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
+			if (otherUser) {
+				const relationship = await Relationship.findOne({
+					where: [
+						{ from_id: req.user_id, to_id: otherUser.id },
+						{ from_id: otherUser.id, to_id: req.user_id },
+					],
+				});
+
+				if (relationship?.type === RelationshipType.blocked) {
+					throw DiscordApiErrors.CANNOT_MESSAGE_USER;
+				}
+			}
 		}
 
 		if (body.nonce) {
@@ -358,16 +385,11 @@ router.post(
 
 		if (!req.rights.has(Rights.FLAGS.BYPASS_RATE_LIMITS)) {
 			const limits = Config.get().limits;
-			if (limits.absoluteRate.register.enabled) {
+			if (limits.absoluteRate.sendMessage.enabled) {
 				const count = await Message.count({
 					where: {
 						channel_id,
-						timestamp: MoreThan(
-							new Date(
-								Date.now() -
-									limits.absoluteRate.sendMessage.window,
-							),
-						),
+						timestamp: MoreThan(new Date(Date.now() - limits.absoluteRate.sendMessage.window)),
 					},
 				});
 
@@ -380,10 +402,7 @@ router.post(
 					});
 			}
 
-			if (
-				channel.rate_limit_per_user &&
-				channel.rate_limit_per_user > 0
-			) {
+			if (channel.rate_limit_per_user && channel.rate_limit_per_user > 0) {
 				const lastMessage = await Message.findOne({
 					where: {
 						channel_id,
@@ -394,8 +413,7 @@ router.post(
 				});
 
 				if (lastMessage) {
-					const timeSinceLastMessage =
-						Date.now() - lastMessage.timestamp.getTime();
+					const timeSinceLastMessage = Date.now() - lastMessage.timestamp.getTime();
 					const slowmodeMs = channel.rate_limit_per_user * 1000;
 
 					if (timeSinceLastMessage < slowmodeMs) {
@@ -408,13 +426,8 @@ router.post(
 		const files = (req.files as Express.Multer.File[]) ?? [];
 		for (const currFile of files) {
 			try {
-				const file = await uploadFile(
-					`/attachments/${channel.id}`,
-					currFile,
-				);
-				attachments.push(
-					Attachment.create({ ...file, proxy_url: file.url }),
-				);
+				const file = await uploadFile(`/attachments/${channel.id}`, currFile);
+				attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
 			} catch (error) {
 				return res.status(400).json({ message: error?.toString() });
 			}
@@ -422,6 +435,7 @@ router.post(
 
 		const embeds = body.embeds || [];
 		if (body.embed) embeds.push(body.embed);
+		console.log("messages/index.ts: attachments:", attachments);
 		const message = await handleMessage({
 			...body,
 			type: 0,
@@ -450,9 +464,7 @@ router.post(
 							recipient.save(),
 							emitEvent({
 								event: "CHANNEL_CREATE",
-								data: channel_dto.excludedRecipients([
-									recipient.user_id,
-								]),
+								data: channel_dto.excludedRecipients([recipient.user_id]),
 								user_id: recipient.user_id,
 							}),
 						]);
@@ -472,17 +484,69 @@ router.post(
 			}
 
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			message.member.roles = message.member.roles
-				.filter((x) => x.id != x.guild_id)
-				.map((x) => x.id);
+			// @ts-ignore
+			message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
+
+			if (message.content)
+				try {
+					const matchingRules = await AutomodRule.find({
+						where: { guild_id: message.guild_id, enabled: true, event_type: AutomodRuleEventType.MESSAGE_SEND },
+						order: { position: "ASC" },
+					});
+					for (const rule of matchingRules) {
+						if (rule.exempt_channels.includes(channel_id)) continue;
+						if (message.member.roles.some((x) => rule.exempt_roles.includes(x.id))) continue;
+
+						if (rule.trigger_type == AutomodTriggerTypes.CUSTOM_WORDS) {
+							const triggerMeta = rule.trigger_metadata as AutomodCustomWordsRule;
+							const regexes = triggerMeta.regex_patterns.map((x) => new RegExp(x, "i")).concat(triggerMeta.keyword_filter.map((k) => k.globToRegexp("i")));
+							const allowedRegexes = triggerMeta.allow_list.map((k) => k.globToRegexp("i"));
+
+							const matches = regexes
+								.map((r) => message.content!.match(r))
+								.filter((x) => x !== null && x.length > 0)
+								.filter((x) => !allowedRegexes.some((ar) => ar.test(x![0])));
+
+							if (matches.length > 0) {
+								console.log("Automod triggered by message:", message.id, "matches:", matches);
+								if (rule.actions.some((x) => x.type == AutomodRuleActionType.SEND_ALERT_MESSAGE && x.metadata.channel_id)) {
+									const alertActions = rule.actions.filter((x) => x.type == AutomodRuleActionType.SEND_ALERT_MESSAGE);
+									for (const action of alertActions) {
+										const alertChannel = await Channel.findOne({ where: { id: action.metadata.channel_id } });
+										if (!alertChannel) continue;
+										const msg = await Message.createWithDefaults({
+											content: `Automod Alert: Message ${message.id} by <@${message.author_id}> in <#${channel.id}> triggered automod rule "${rule.name}".\nMatched terms: ${matches
+												.map((x) => `\`${x![0]}\``)
+												.join(", ")}`,
+											author: message.author,
+											channel_id: alertChannel.id,
+											guild_id: message.guild_id,
+											member_id: message.member_id,
+											author_id: message.author_id,
+										});
+
+										await message.save();
+										// await Promise.all([
+										await emitEvent({
+											event: "MESSAGE_CREATE",
+											channel_id: msg.channel_id,
+											data: msg.toJSON(),
+										} as MessageCreateEvent);
+										// ]);
+									}
+								}
+							}
+						}
+					}
+				} catch (e) {
+					console.log("[Automod] failed to process message:", e);
+				}
 		}
 
 		let read_state = await ReadState.findOne({
 			where: { user_id: req.user_id, channel_id },
 		});
-		if (!read_state)
-			read_state = ReadState.create({ user_id: req.user_id, channel_id });
+		if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
 		read_state.last_message_id = message.id;
 
 		await Promise.all([
@@ -493,19 +557,12 @@ router.post(
 				channel_id: channel_id,
 				data: message,
 			} as MessageCreateEvent),
-			message.guild_id
-				? Member.update(
-						{ id: req.user_id, guild_id: message.guild_id },
-						{ last_message_id: message.id },
-					)
-				: null,
+			message.guild_id ? Member.update({ id: req.user_id, guild_id: message.guild_id }, { last_message_id: message.id }) : null,
 			channel.save(),
 		]);
 
 		// no await as it shouldnt block the message send function and silently catch error
-		postHandleMessage(message).catch((e) =>
-			console.error("[Message] post-message handler failed", e),
-		);
+		postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
 		return res.json(
 			message.withSignedAttachments(

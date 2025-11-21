@@ -17,13 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	RefreshUrlsRequestSchema,
-	getUrlSignature,
-	NewUrlSignatureData,
-} from "@spacebar/util";
+import { getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+import { RefreshUrlsRequestSchema } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 router.post(
 	"/",

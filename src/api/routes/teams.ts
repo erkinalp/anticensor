@@ -18,17 +18,11 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
-import {
-	Team,
-	TeamCreateSchema,
-	TeamMember,
-	TeamMemberRole,
-	TeamMemberState,
-	User,
-} from "@spacebar/util";
+import { Team, TeamMember, User } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
+import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
 	"/",
@@ -36,8 +30,7 @@ router.get(
 		query: {
 			include_payout_account_status: {
 				type: "boolean",
-				description:
-					"Whether to include team payout account status in the response (default false)",
+				description: "Whether to include team payout account status in the response (default false)",
 			},
 		},
 		responses: {
@@ -73,8 +66,7 @@ router.post(
 			where: [{ id: req.user_id }],
 			select: ["mfa_enabled"],
 		});
-		if (!user.mfa_enabled)
-			throw new HTTPError("You must enable MFA to create a team");
+		if (!user.mfa_enabled) throw new HTTPError("You must enable MFA to create a team");
 
 		const body = req.body as TeamCreateSchema;
 
