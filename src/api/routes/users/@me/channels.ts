@@ -44,6 +44,7 @@ router.get(
 router.post(
 	"/",
 	route({
+		right: "CREATE_DMS",
 		requestBody: "DmChannelCreateSchema",
 		responses: {
 			200: {
