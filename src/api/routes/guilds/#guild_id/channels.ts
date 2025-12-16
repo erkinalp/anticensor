@@ -57,6 +57,7 @@ router.get(
 router.post(
 	"/",
 	route({
+		right: "CREATE_CHANNELS",
 		requestBody: "ChannelModifySchema",
 		permission: "MANAGE_CHANNELS",
 		responses: {
