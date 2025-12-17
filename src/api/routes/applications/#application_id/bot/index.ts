@@ -28,6 +28,7 @@ const router: Router = Router({ mergeParams: true });
 router.post(
 	"/",
 	route({
+		right: "MANAGE_APPLICATIONS",
 		responses: {
 			204: {
 				body: "TokenOnlyResponse",
@@ -56,6 +57,7 @@ router.post(
 router.post(
 	"/reset",
 	route({
+		right: "MANAGE_APPLICATIONS",
 		responses: {
 			200: {
 				body: "TokenResponse",
@@ -86,6 +88,7 @@ router.post(
 router.patch(
 	"/",
 	route({
+		right: "MANAGE_APPLICATIONS",
 		requestBody: "BotModifySchema",
 		responses: {
 			200: {

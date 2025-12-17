@@ -51,6 +51,7 @@ router.get(
 router.patch(
 	"/",
 	route({
+		right: "MANAGE_APPLICATIONS",
 		requestBody: "ApplicationModifySchema",
 		responses: {
 			200: {
@@ -104,6 +105,7 @@ router.patch(
 router.post(
 	"/delete",
 	route({
+		right: "MANAGE_APPLICATIONS",
 		responses: {
 			200: {},
 			400: {
