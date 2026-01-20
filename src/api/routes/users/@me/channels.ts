@@ -24,37 +24,44 @@ import { DmChannelCreateSchema } from "@spacebar/schemas";
 const router: Router = Router({ mergeParams: true });
 
 router.get(
-    "/",
-    route({
-        responses: {
-            200: {
-                body: "APIDMChannelArray",
-            },
-        },
-    }),
-    async (req: Request, res: Response) => {
-        const recipients = await Recipient.find({
-            where: { user_id: req.user_id, closed: false },
-            relations: { channel: { recipients: true } },
-        });
-        res.json(await Promise.all(recipients.map((r) => DmChannelDTO.from(r.channel, [req.user_id]))));
-    },
+	"/",
+	route({
+		responses: {
+			200: {
+				body: "APIDMChannelArray",
+			},
+		},
+	}),
+	async (req: Request, res: Response) => {
+		const recipients = await Recipient.find({
+			where: { user_id: req.user_id, closed: false },
+			relations: { channel: { recipients: true } },
+		});
+		res.json(await Promise.all(recipients.map((r) => DmChannelDTO.from(r.channel, [req.user_id]))));
+	},
 );
 
 router.post(
-    "/",
-    route({
-        requestBody: "DmChannelCreateSchema",
-        responses: {
-            200: {
-                body: "DmChannelDTO",
-            },
-        },
-    }),
-    async (req: Request, res: Response) => {
-        const body = req.body as DmChannelCreateSchema;
-        res.json(await Channel.createDMChannel(body.recipients || (body.recipient_id ? [body.recipient_id] : []), req.user_id, body.name));
-    },
+	"/",
+	route({
+		right: "CREATE_DMS",
+		requestBody: "DmChannelCreateSchema",
+		responses: {
+			200: {
+				body: "DmChannelDTO",
+			},
+		},
+	}),
+	async (req: Request, res: Response) => {
+		const body = req.body as DmChannelCreateSchema;
+		res.json(
+			await Channel.createDMChannel(
+				body.recipients || (body.recipient_id ? [body.recipient_id] : []),
+				req.user_id,
+				body.name,
+			),
+		);
+	},
 );
 
 export default router;
