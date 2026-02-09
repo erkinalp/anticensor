@@ -4,7 +4,6 @@
 
 import { Channel, ChannelPermissionOverwrite, Guild, Member, Role, User } from "../entities";
 import { BitField } from "./BitField";
-import "missing-native-js-functions";
 import { BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import { ChannelType } from "@spacebar/schemas";
