@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelReorderSchema } from "@spacebar/schemas";
+import { ChannelCreateSchema } from "../../../../schemas/uncategorised/ChannelCreateSchema";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -32,7 +33,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const { guild_id } = req.params;
+        const { guild_id } = req.params as { [key: string]: string };
         const channels = await Channel.find({ where: { guild_id } });
 
         for await (const channel of channels) {
@@ -48,7 +49,7 @@ router.post(
     "/",
     route({
         right: "CREATE_CHANNELS",
-        requestBody: "ChannelModifySchema",
+        requestBody: "ChannelCreateSchema",
         permission: "MANAGE_CHANNELS",
         responses: {
             201: {
@@ -64,8 +65,8 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         // creates a new guild channel https://discord.com/developers/docs/resources/guild#create-guild-channel
-        const { guild_id } = req.params;
-        const body = req.body as ChannelModifySchema;
+        const { guild_id } = req.params as { [key: string]: string };
+        const body = req.body as ChannelCreateSchema;
 
         const channel = await Channel.createChannel({ ...body, guild_id }, req.user_id);
         channel.position = await Channel.calculatePosition(channel.id, guild_id, channel.guild);
@@ -91,7 +92,7 @@ router.patch(
     }),
     async (req: Request, res: Response) => {
         // changes guild channel position
-        const { guild_id } = req.params;
+        const { guild_id } = req.params as { [key: string]: string };
         let body = req.body as ChannelReorderSchema;
 
         const guild = await Guild.findOneOrFail({
@@ -135,12 +136,12 @@ router.patch(
                 }),
                 opt.parent_id
                     ? Channel.findOneOrFail({
-                        where: { id: opt.parent_id },
-                        select: {
-                            permission_overwrites: true,
-                            id: true,
-                        },
-                    })
+                          where: { id: opt.parent_id },
+                          select: {
+                              permission_overwrites: true,
+                              id: true,
+                          },
+                      })
                     : null,
             ]);
 

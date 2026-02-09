@@ -8,31 +8,44 @@ self:
 }:
 
 let
+  secrets = import ./secrets.nix { inherit lib config; };
   cfg = config.services.spacebarchat-server;
   jsonFormat = pkgs.formats.json { };
-  configFile = jsonFormat.generate "spacebarchat-server.json" (
-    lib.recursiveUpdate {
-      api = {
-        endpointPublic = "http${if cfg.apiEndpoint.useSsl then "s" else ""}://${cfg.apiEndpoint.host}:${toString cfg.apiEndpoint.publicPort}";
-      };
-      cdn = {
-        endpointPublic = "http${if cfg.cdnEndpoint.useSsl then "s" else ""}://${cfg.cdnEndpoint.host}:${toString cfg.cdnEndpoint.publicPort}";
-        endpointPrivate = "http://127.0.0.1:${toString cfg.cdnEndpoint.localPort}";
-      };
-      gateway = {
-        endpointPublic = "ws${if cfg.gatewayEndpoint.useSsl then "s" else ""}://${cfg.gatewayEndpoint.host}:${toString cfg.gatewayEndpoint.publicPort}";
-      };
-      general = {
-        serverName = cfg.serverName;
-      };
-    } cfg.settings
-  );
+  configFile =
+    let
+      endpointSettings = {
+        api = {
+          endpointPublic = "http${if cfg.apiEndpoint.useSsl then "s" else ""}://${cfg.apiEndpoint.host}:${toString cfg.apiEndpoint.publicPort}";
+        };
+        cdn = {
+          endpointPublic = "http${if cfg.cdnEndpoint.useSsl then "s" else ""}://${cfg.cdnEndpoint.host}:${toString cfg.cdnEndpoint.publicPort}";
+          endpointPrivate = "http://127.0.0.1:${toString cfg.cdnEndpoint.localPort}";
+        };
+        gateway = {
+          endpointPublic = "ws${if cfg.gatewayEndpoint.useSsl then "s" else ""}://${cfg.gatewayEndpoint.host}:${toString cfg.gatewayEndpoint.publicPort}";
+        };
+        general = {
+          serverName = cfg.serverName;
+        };
+      }
+      // (
+        if cfg.enableAdminApi then
+          {
+            adminApi = {
+              endpointPublic = "http${if cfg.adminApiEndpoint.useSsl then "s" else ""}://${cfg.adminApiEndpoint.host}:${toString cfg.adminApiEndpoint.publicPort}";
+            };
+          }
+        else
+          { }
+      );
+    in
+    jsonFormat.generate "spacebarchat-server.json" (lib.recursiveUpdate endpointSettings cfg.settings);
 in
 {
   imports = [
     ./integration-nginx.nix
-    ./secrets.nix
     ./users.nix
+    (import ./cs/gateway-offload-cs.nix self)
   ];
   options.services.spacebarchat-server =
     let
@@ -41,6 +54,7 @@ in
     {
       enable = lib.mkEnableOption "Spacebar server";
       enableAdminApi = lib.mkEnableOption "Spacebar server Admin API";
+      enableCdnCs = lib.mkEnableOption "Spacebar's experimental CDN rewrite";
       package = lib.mkPackageOption self.packages.${pkgs.stdenv.hostPlatform.system} "spacebar-server" { default = "default"; };
       databaseFile = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
@@ -56,6 +70,7 @@ in
         type = lib.types.str;
         description = "The server name for this Spacebar instance (aka. common name, usually the domain where your well known is hosted).";
       };
+      adminApiEndpoint = mkEndpointOptions "admin-api.sb.localhost" 3004;
       apiEndpoint = mkEndpointOptions "api.sb.localhost" 3001;
       gatewayEndpoint = mkEndpointOptions "gateway.sb.localhost" 3003;
       cdnEndpoint = mkEndpointOptions "cdn.sb.localhost" 3003;
@@ -97,7 +112,8 @@ in
           See https://docs.spacebar.chat/setup/server/configuration for supported values.
         '';
       };
-    };
+    }
+    // secrets.options;
 
   config = lib.mkIf cfg.enable (
     let
@@ -109,35 +125,9 @@ in
             wantedBy = [ "multi-user.target" ];
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ];
-            environment =
-              { }
-              // (if cfg.cdnSignaturePath != null then { CDN_SIGNATURE_PATH = "%d/cdnSignature"; } else { })
-              // (if cfg.legacyJwtSecretPath != null then { LEGACY_JWT_SECRET_PATH = "%d/legacyJwtSecret"; } else { })
-              // (if cfg.mailjetApiKeyPath != null then { MAILJET_API_KEY_PATH = "%d/mailjetApiKey"; } else { })
-              // (if cfg.mailjetApiSecretPath != null then { MAILJET_API_SECRET_PATH = "%d/mailjetApiSecret"; } else { })
-              // (if cfg.smtpPasswordPath != null then { SMTP_PASSWORD_PATH = "%d/smtpPassword"; } else { })
-              // (if cfg.gifApiKeyPath != null then { GIF_API_KEY_PATH = "%d/gifApiKey"; } else { })
-              // (if cfg.rabbitmqHostPath != null then { RABBITMQ_HOST_PATH = "%d/rabbitmqHost"; } else { })
-              // (if cfg.abuseIpDbApiKeyPath != null then { ABUSE_IP_DB_API_KEY_PATH = "%d/abuseIpDbApiKey"; } else { })
-              // (if cfg.captchaSecretKeyPath != null then { CAPTCHA_SECRET_KEY_PATH = "%d/captchaSecretKey"; } else { })
-              // (if cfg.captchaSiteKeyPath != null then { CAPTCHA_SITE_KEY_PATH = "%d/captchaSiteKey"; } else { })
-              // (if cfg.ipdataApiKeyPath != null then { IPDATA_API_KEY_PATH = "%d/ipdataApiKey"; } else { })
-              // (if cfg.requestSignaturePath != null then { REQUEST_SIGNATURE_PATH = "%d/requestSignature"; } else { });
+            environment = secrets.systemdEnvironment;
             serviceConfig = {
-              LoadCredential =
-                [ ]
-                ++ (if cfg.cdnSignaturePath != null then [ "cdnSignature:${cfg.cdnSignaturePath}" ] else [ ])
-                ++ (if cfg.legacyJwtSecretPath != null then [ "legacyJwtSecret:${cfg.legacyJwtSecretPath}" ] else [ ])
-                ++ (if cfg.mailjetApiKeyPath != null then [ "mailjetApiKey:${cfg.mailjetApiKeyPath}" ] else [ ])
-                ++ (if cfg.mailjetApiSecretPath != null then [ "mailjetApiSecret:${cfg.mailjetApiSecretPath}" ] else [ ])
-                ++ (if cfg.smtpPasswordPath != null then [ "smtpPassword:${cfg.smtpPasswordPath}" ] else [ ])
-                ++ (if cfg.gifApiKeyPath != null then [ "gifApiKey:${cfg.gifApiKeyPath}" ] else [ ])
-                ++ (if cfg.rabbitmqHostPath != null then [ "rabbitmqHost:${cfg.rabbitmqHostPath}" ] else [ ])
-                ++ (if cfg.abuseIpDbApiKeyPath != null then [ "abuseIpDbApiKey:${cfg.abuseIpDbApiKeyPath}" ] else [ ])
-                ++ (if cfg.captchaSecretKeyPath != null then [ "captchaSecretKey:${cfg.captchaSecretKeyPath}" ] else [ ])
-                ++ (if cfg.captchaSiteKeyPath != null then [ "captchaSiteKey:${cfg.captchaSiteKeyPath}" ] else [ ])
-                ++ (if cfg.ipdataApiKeyPath != null then [ "ipdataApiKey:${cfg.ipdataApiKeyPath}" ] else [ ])
-                ++ (if cfg.requestSignaturePath != null then [ "requestSignature:${cfg.requestSignaturePath}" ] else [ ]);
+              LoadCredential = secrets.systemdLoadCredentials;
 
               User = "spacebarchat";
               Group = "spacebarchat";
@@ -221,28 +211,8 @@ in
         #        }
       ];
 
-      systemd.services.spacebar-apply-migrations = makeServerTsService {
-        description = "Spacebar Server - Apply DB migrations";
-        after = [ "network-online.target" "postgresql.service" ];
-        environment = builtins.mapAttrs (_: val: builtins.toString val) (
-          cfg.extraEnvironment
-          // {
-            # things we force...
-            CONFIG_PATH = configFile;
-            CONFIG_READONLY = 1;
-          }
-        );
-        serviceConfig = {
-          ExecStart = "${cfg.package}/bin/apply-migrations";
-          Type = "oneshot";
-          RemainAfterExit = true;
-        };
-      };
-
       systemd.services.spacebar-api = makeServerTsService {
         description = "Spacebar Server - API";
-        after = [ "spacebar-apply-migrations.service" ];
-        requires = [ "spacebar-apply-migrations.service" ];
         environment = builtins.mapAttrs (_: val: builtins.toString val) (
           {
             # things we set by default...
@@ -265,8 +235,6 @@ in
 
       systemd.services.spacebar-gateway = makeServerTsService {
         description = "Spacebar Server - Gateway";
-        after = [ "spacebar-apply-migrations.service" ];
-        requires = [ "spacebar-apply-migrations.service" ];
         environment = builtins.mapAttrs (_: val: builtins.toString val) (
           {
             # things we set by default...
@@ -280,6 +248,7 @@ in
             CONFIG_READONLY = 1;
             PORT = toString cfg.gatewayEndpoint.localPort;
             STORAGE_LOCATION = cfg.cdnPath;
+            APPLY_DB_MIGRATIONS = "false";
           }
         );
         serviceConfig = {
@@ -287,10 +256,8 @@ in
         };
       };
 
-      systemd.services.spacebar-cdn = makeServerTsService {
+      systemd.services.spacebar-cdn = lib.mkIf (!cfg.enableCdnCs) (makeServerTsService {
         description = "Spacebar Server - CDN";
-        after = [ "spacebar-apply-migrations.service" ];
-        requires = [ "spacebar-apply-migrations.service" ];
         environment = builtins.mapAttrs (_: val: builtins.toString val) (
           {
             # things we set by default...
@@ -304,12 +271,13 @@ in
             CONFIG_READONLY = 1;
             PORT = toString cfg.cdnEndpoint.localPort;
             STORAGE_LOCATION = cfg.cdnPath;
+            APPLY_DB_MIGRATIONS = "false";
           }
         );
         serviceConfig = {
           ExecStart = "${cfg.package}/bin/start-cdn";
         };
-      };
+      });
     }
   );
 }

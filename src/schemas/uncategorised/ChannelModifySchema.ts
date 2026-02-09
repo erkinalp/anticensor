@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
+import { ChannelPermissionOverwriteType, ChannelType, TagCreateSchema } from "@spacebar/schemas";
 
 export interface ChannelModifySchema {
     /**
@@ -30,12 +30,14 @@ export interface ChannelModifySchema {
     user_limit?: number;
     rate_limit_per_user?: number;
     position?: number;
+    invitable?: boolean;
     permission_overwrites?: {
         id: string;
         type: ChannelPermissionOverwriteType;
         allow: string;
         deny: string;
     }[];
+    applied_tags?: string[];
     parent_id?: string;
     id?: string; // is not used (only for guild create)
     nsfw?: boolean;
@@ -45,4 +47,8 @@ export interface ChannelModifySchema {
     flags?: number;
     default_thread_rate_limit_per_user?: number;
     video_quality_mode?: number;
+    auto_archive_duration?: number;
+    archived?: boolean;
+    locked?: boolean;
+    available_tags?: (TagCreateSchema & { id: string })[];
 }

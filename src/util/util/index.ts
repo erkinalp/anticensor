@@ -44,6 +44,7 @@ export * from "./Token";
 export * from "./TraverseDirectory";
 export * from "./WebAuthn";
 export * from "./Url";
+export * from "./ChannelFlags";
 export * from "./Gifs";
 export * from "./Application";
 export * from "./NameValidation";

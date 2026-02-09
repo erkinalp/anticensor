@@ -7,41 +7,23 @@ using ArcaneLibs;
 using ArcaneLibs.Extensions;
 using System.Text.Json;
 
-ProjectDef[] projects = [
-    new("Spacebar-Models-AdminApi", "Models/Spacebar-Models-AdminApi"),
-    new("Spacebar-Models-Config", "Models/Spacebar-Models-Config"),
-    new("Spacebar-Models-Db", "Models/Spacebar-Models-Db"),
-    new("Spacebar-Interop-Replication-Abstractions", "Interop/Spacebar-Interop-Replication-Abstractions"),
-    new("Spacebar-Interop-Replication-RabbitMq", "Interop/Spacebar-Interop-Replication-RabbitMq"),
-    new("Spacebar-Interop-Replication-UnixSocket", "Interop/Spacebar-Interop-Replication-UnixSocket"),
-    new("Spacebar-CleanSettingsRows", "Utilities/Spacebar-CleanSettingsRows"),
-    new("Spacebar-AdminApi", "Spacebar-AdminApi"),
-    new("Spacebar-Cdn", "Spacebar-Cdn"),
-];
-
 Console.WriteLine("==> Getting outputs...");
 var outs = JsonSerializer.Deserialize<string[]>(Util.GetCommandOutputSync("nix", $"eval --json .#packages.x86_64-linux --apply builtins.attrNames", silent: true, stderr: false));
-Console.WriteLine("==> Updating project dependencies...");
+if (args.Length > 0) {
+    var filter = args[0];
+    outs = outs.Where(x => x.Contains(filter)).ToArray();
+}
 
-
-// foreach (var proj in projects) {
-//     Console.WriteLine(ConsoleUtils.ColoredString($"  ==> Updating {proj.NixName} ({proj.Path})", 0x80, 0x80, 0xff));
-//     Console.Write(ConsoleUtils.ColoredString($"    ==> Getting project files... ", 0x80, 0xff, 0xff));
-//     var projectFiles = JsonSerializer.Deserialize<string[]>(Util.GetCommandOutputSync("nix", $"eval --json .#packages.x86_64-linux.{proj.NixName}.dotnetProjectFiles", silent: true, stderr: false));
-//     Console.WriteLine(ConsoleUtils.ColoredString($"{string.Join(", ", projectFiles)}", 0x80, 0xff, 0xff));
-//     if (projectFiles.Length != 1) throw new Exception("Invalid project file count?");
-//     // Util.RunCommandSync("nix", $"build .#{proj.NixName}.passthru.fetch-deps");
-//     // await Task.Delay(250);
-// }
+Console.WriteLine($"==> Updating dependencies for {outs.Length} projects...");
 
 foreach (var outp in outs) {
     Console.WriteLine(ConsoleUtils.ColoredString($"  ==> Updating {outp}...", 0x80, 0x80, 0xff));
-    Console.Write(ConsoleUtils.ColoredString($"    ==> Getting project files... ", 0x80, 0xff, 0xff));
-    var projectFiles = JsonSerializer.Deserialize<string[]>(Util.GetCommandOutputSync("nix", $"eval --json .#packages.x86_64-linux.{outp}.dotnetProjectFiles", silent: true, stderr: false));
-    Console.WriteLine(ConsoleUtils.ColoredString($"{string.Join(", ", projectFiles)}", 0x80, 0xff, 0xff));
-    if (projectFiles.Length != 1) throw new Exception("Invalid project file count?");
+    Console.Write(ConsoleUtils.ColoredString($"    ==> Getting project root directory... ", 0x80, 0xff, 0xff));
+    var rootDir = JsonSerializer.Deserialize<string>(Util.GetCommandOutputSync("nix", $"eval --json .#packages.x86_64-linux.{outp}.srcRoot", silent: true, stderr: false)).Split("/extra/admin-api/",2)[1];
+    Console.WriteLine(ConsoleUtils.ColoredString($"{rootDir}", 0x80, 0xff, 0xff));
+    if (rootDir.Length <= 1) throw new Exception("Invalid project file count?");
 
-    var nugetDepsFilePath = Path.Combine(Path.GetDirectoryName(projectFiles[0]), "deps.json");
+    var nugetDepsFilePath = Path.Combine(rootDir, "deps.json");
     Console.WriteLine(ConsoleUtils.ColoredString($"    ==> {nugetDepsFilePath} exists: {File.Exists(nugetDepsFilePath)}", 0x80, 0xff, 0xff));
     if (!File.Exists(nugetDepsFilePath)) {
         Console.WriteLine(ConsoleUtils.ColoredString($"      ==> No NuGet deps file, skipping!", 0xff, 0x80, 0x80));
@@ -60,7 +42,3 @@ foreach (var outp in outs) {
 
     // await Task.Delay(250);
 }
-
-
-
-public record ProjectDef(string NixName, string Path);

@@ -109,6 +109,15 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         components: opts.components ?? undefined, // Fix Discord-Go?
     });
     const ephermal = (message.flags & (1 << 6)) !== 0;
+    if (!ephermal && channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
+        const rep = Channel.getRepository();
+        console.log(channel.id);
+        await rep.increment({ id: channel.id }, "message_count", 1);
+        await rep.increment({ id: channel.id }, "total_message_sent", 1);
+    }
+    if (!ephermal) {
+        channel.last_message_id = message.id;
+    }
 
     if (cloudAttachments && cloudAttachments.length > 0) {
         console.log("[Message] Processing attachments for message", message.id, ":", message.attachments);
@@ -237,34 +246,45 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 
                 if (opts.message_reference.type != 1) {
                     if (opts.message_reference.guild_id !== channel.guild_id) throw new HTTPError("You can only reference messages from this guild");
-                    if (opts.message_reference.channel_id !== opts.channel_id) throw new HTTPError("You can only reference messages from this channel");
+                    if (opts.message_reference.channel_id !== opts.channel_id && opts.type !== MessageType.THREAD_STARTER_MESSAGE && opts.type !== MessageType.THREAD_CREATED)
+                        throw new HTTPError("You can only reference messages from this channel");
                 }
 
                 message.message_reference = opts.message_reference;
-                message.referenced_message = await Message.findOneOrFail({
-                    where: {
-                        id: opts.message_reference.message_id,
-                    },
-                    relations: {
-                        author: true,
-                        webhook: true,
-                        application: true,
-                        mentions: true,
-                        mention_roles: true,
-                        mention_channels: true,
-                        sticker_items: true,
-                        attachments: true,
-                    },
-                });
+                if (message.message_reference.message_id) {
+                    message.referenced_message = await Message.findOneOrFail({
+                        where: {
+                            id: opts.message_reference.message_id,
+                        },
+                        relations: {
+                            author: true,
+                            webhook: true,
+                            application: true,
+                            mentions: true,
+                            mention_roles: true,
+                            mention_channels: true,
+                            sticker_items: true,
+                            attachments: true,
+                        },
+                    });
 
-                if (message.referenced_message.channel_id && message.referenced_message.channel_id !== opts.message_reference.channel_id)
-                    throw new HTTPError("Referenced message not found in the specified channel", 404);
-                if (message.referenced_message.guild_id && message.referenced_message.guild_id !== opts.message_reference.guild_id)
-                    throw new HTTPError("Referenced message not found in the specified channel", 404);
+                    if (
+                        message.referenced_message.channel_id &&
+                        message.referenced_message.channel_id !== opts.message_reference.channel_id &&
+                        opts.type !== MessageType.THREAD_STARTER_MESSAGE
+                    )
+                        throw new HTTPError("Referenced message not found in the specified channel", 404);
+                    if (
+                        message.referenced_message.guild_id &&
+                        message.referenced_message.guild_id !== opts.message_reference.guild_id &&
+                        opts.type !== MessageType.THREAD_STARTER_MESSAGE
+                    )
+                        throw new HTTPError("Referenced message not found in the specified channel", 404);
+                }
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
              otherwise backfilling won't work **/
-            message.type = MessageType.REPLY;
+            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
         }
     }
 
@@ -277,7 +297,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         !opts.sticker_ids?.length &&
         !opts.poll &&
         !opts.components?.length &&
-        opts.message_reference?.type != 1
+        opts.message_reference?.type != 1 &&
+        opts.type !== MessageType.THREAD_STARTER_MESSAGE
     ) {
         console.log("[Message] Rejecting empty message:", opts, message);
         throw new HTTPError("Empty messages are not allowed", 50006);
@@ -330,9 +351,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         });
         if (referencedMessage && referencedMessage.author_id !== message.author_id) {
             message.mentions.push(
-                User.create({
-                    id: referencedMessage.author_id,
-                }),
+                // @ts-expect-error it does not like the .toPublicUser() lol
+                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
             );
         }
 
@@ -433,12 +453,12 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const users = new Set<string>([
             ...(message.mention_roles.length
                 ? await Member.find({
-                    where: [
-                        ...message.mention_roles.map((role) => {
-                            return { roles: { id: role.id } };
-                        }),
-                    ],
-                })
+                      where: [
+                          ...message.mention_roles.map((role) => {
+                              return { roles: { id: role.id } };
+                          }),
+                      ],
+                  })
                 : []
             ).map((member) => member.id),
             ...message.mentions.map((user) => user.id),
@@ -458,28 +478,27 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         }
     }
 
-
     //  Automod enforcement - evaluate message against guild automod rules
     if (message.guild_id && message.content && message.author) {
-		const automodResult = await AutomodEvaluator.evaluateMessage({
-			content: message.content,
-			channel,
-			author: message.author,
-			guild_id: message.guild_id,
-			member_roles: permission?.cache.member?.roles?.map((r) => r.id),
-		});
+        const automodResult = await AutomodEvaluator.evaluateMessage({
+            content: message.content,
+            channel,
+            author: message.author,
+            guild_id: message.guild_id,
+            member_roles: permission?.cache.member?.roles?.map((r) => r.id),
+        });
 
-		if (automodResult.triggered && automodResult.rule) {
-			await AutomodActionExecutor.executeActions(automodResult.actions, {
-				message,
-				channel,
-				member: permission?.cache.member,
-				rule_name: automodResult.rule.name,
-				matched_content: automodResult.matched_content,
-				keyword: automodResult.keyword,
-			});
-		}
-	}
+        if (automodResult.triggered && automodResult.rule) {
+            await AutomodActionExecutor.executeActions(automodResult.actions, {
+                message,
+                channel,
+                member: permission?.cache.member,
+                rule_name: automodResult.rule.name,
+                matched_content: automodResult.matched_content,
+                keyword: automodResult.keyword,
+            });
+        }
+    }
 
     // TODO: check and put it all in the body
 
@@ -617,6 +636,7 @@ export async function sendMessage(opts: MessageOptions) {
     const ephemeral = (message.flags & Number(MessageFlags.FLAGS.EPHEMERAL)) !== 0;
     await Promise.all([
         Message.insert(message),
+        Channel.update(message.channel.id, message.channel),
         emitEvent({
             event: "MESSAGE_CREATE",
             ...(ephemeral ? { user_id: message.interaction_metadata?.user_id } : { channel_id: message.channel_id }),

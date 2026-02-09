@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelModifySchema } from "@spacebar/schemas";
+import { ChannelCreateSchema } from "@spacebar/schemas";
 
 export interface GuildCreateSchema {
     /**
@@ -25,7 +25,7 @@ export interface GuildCreateSchema {
     name?: string;
     region?: string;
     icon?: string | null;
-    channels?: ChannelModifySchema[];
+    channels?: ChannelCreateSchema[];
     system_channel_id?: string;
     rules_channel_id?: string;
     guild_template_code?: string;
