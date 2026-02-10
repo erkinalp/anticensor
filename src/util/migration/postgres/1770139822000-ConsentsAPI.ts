@@ -22,6 +22,17 @@ export class ConsentsAPI1770139822000 implements MigrationInterface {
     name = "ConsentsAPI1770139822000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // Create the table if it doesn't exist (fresh database case)
+        await queryRunner.query(`
+			CREATE TABLE IF NOT EXISTS "user_consents" (
+				"id" character varying NOT NULL,
+				"user_id" character varying NOT NULL,
+				"service_id" character varying NOT NULL,
+				"created_at" timestamp NOT NULL DEFAULT now(),
+				CONSTRAINT "PK_user_consents" PRIMARY KEY ("id")
+			)
+		`);
+
         await queryRunner.query(`
 			ALTER TABLE "user_consents" 
 			ADD COLUMN IF NOT EXISTS "consent_type" character varying DEFAULT 'custom',
