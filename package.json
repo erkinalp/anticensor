@@ -77,6 +77,8 @@
         "typescript-json-schema": "^0.65.1"
     },
     "dependencies": {
+        "@protobuf-ts/runtime": "^2.11.1",
+        "@sentry/node": "^10.38.0",
         "@toondepauw/node-zstd": "^1.2.0",
         "ajv": "^8.17.1",
         "ajv-formats": "^3.0.1",

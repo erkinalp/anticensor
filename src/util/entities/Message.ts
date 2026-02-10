@@ -22,14 +22,15 @@ import { Role } from "./Role";
 import { Channel } from "./Channel";
 import { InteractionType } from "../interfaces/Interaction";
 import { Application } from "./Application";
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, CreateDateColumn, Entity, FindOneOptions, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, OneToMany, Raw, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
 import { Attachment } from "./Attachment";
-import { dbEngine } from "../util/Database";
 import { NewUrlUserSignatureData } from "../Signing";
+import { MessageFlags } from "../util/MessageFlags";
+import { PartialMessage } from "@spacebar/schemas";
 
 export enum MessageType {
     DEFAULT = 0,
@@ -68,7 +69,6 @@ export enum MessageType {
 
 @Entity({
     name: "messages",
-    engine: dbEngine,
 })
 @Index(["channel_id", "id"], { unique: true })
 export class Message extends BaseClass {

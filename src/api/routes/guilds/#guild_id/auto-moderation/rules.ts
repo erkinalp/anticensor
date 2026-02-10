@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { User, AutomodRuleSchema, AutomodRule, AutomodEvaluator } from "@spacebar/util";
+import { User, AutomodRule, AutomodEvaluator } from "@spacebar/util";
+import { AutomodRuleSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

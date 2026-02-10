@@ -2,7 +2,8 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import { Channel, ChannelPermissionOverwrite, Guild, Member, Role, User } from "../entities";
+import { Channel, Guild, Member, Role, User } from "../entities";
+import { ChannelPermissionOverwrite } from "@spacebar/schemas";
 import { BitField } from "./BitField";
 import { BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
@@ -17,6 +18,12 @@ type PermissionString = keyof typeof Permissions.FLAGS;
 // const CUSTOM_PERMISSION_OFFSET = BigInt(1) << BigInt(64); // 27 permission bits left for discord to add new ones
 
 export class Permissions extends BitField {
+    static get NONE(): Permissions {
+        return new Permissions(0);
+    }
+    static get ALL(): Permissions {
+        return new Permissions(Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0)));
+    }
     cache: PermissionCache = {};
 
     constructor(bits: BitFieldResolvable = 0) {
