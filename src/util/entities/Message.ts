@@ -190,7 +190,7 @@ export class Message extends BaseClass {
     @Column({ nullable: true })
     pinned?: boolean;
 
-    @Column({ nullable: true })
+    @Column({ type: "timestamp", nullable: true })
     pinned_at?: Date | null;
 
     @Column({ type: "int" })
