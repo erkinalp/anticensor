@@ -84,6 +84,12 @@ export enum MessageType {
     REPORT_TO_MOD_BAN_USER = 61,
     REPORT_TO_MOD_CLOSED_REPORT = 62,
     EMOJI_ADDED = 63,
+    CUSTOM_START = 64, // start custom message types from here
+    ENCRYPTED = 65,
+    ROUTE_ADDED = 66, // custom message routing: new route affecting that channel
+    ROUTE_DISABLED = 67, // custom message routing: given route no longer affecting that channel
+    SELF_COMMAND_SCRIPT = 68, // self command scripts
+    ENCRYPTION = 69,
     UNHANDLED = 255,
 }
 
@@ -130,7 +136,7 @@ export interface PartialEmoji {
 }
 
 export interface AllowedMentions {
-    parse?: ("users" | "roles" | "everyone")[];
+    parse?: string[];
     roles?: Snowflake[];
     users?: Snowflake[];
     replied_user?: boolean;
