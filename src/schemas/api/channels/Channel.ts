@@ -74,6 +74,8 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_PUBLIC_THREAD:
         case ChannelType.GUILD_PRIVATE_THREAD:
         case ChannelType.GUILD_TEXT:
+        case ChannelType.ENCRYPTED:
+        case ChannelType.ENCRYPTED_THREAD:
             return true;
         default:
             throw new HTTPError("unimplemented", 400);
