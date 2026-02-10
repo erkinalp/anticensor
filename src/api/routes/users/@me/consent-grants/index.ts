@@ -131,7 +131,7 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const grant_id = req.params.grant_id;
+        const grant_id = req.params.grant_id as string;
 
         const grant = await ConsentGrant.findOne({
             where: [
@@ -161,7 +161,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const grant_id = req.params.grant_id;
+        const grant_id = req.params.grant_id as string;
         const { granted_access, provisional, expires_at, extra_data } = req.body;
 
         const grant = await ConsentGrant.findOne({
@@ -215,7 +215,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const grant_id = req.params.grant_id;
+        const grant_id = req.params.grant_id as string;
 
         const grant = await ConsentGrant.findOne({
             where: { id: grant_id, user_id, status: ConsentGrantStatus.PENDING },
@@ -246,7 +246,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const grant_id = req.params.grant_id;
+        const grant_id = req.params.grant_id as string;
         const { continue_token, updated_access, interaction_ref } = req.body;
 
         const grant = await ConsentGrant.findOne({
@@ -291,7 +291,7 @@ router.delete(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const grant_id = req.params.grant_id;
+        const grant_id = req.params.grant_id as string;
 
         const grant = await ConsentGrant.findOne({
             where: [

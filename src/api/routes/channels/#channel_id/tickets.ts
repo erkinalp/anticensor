@@ -10,51 +10,51 @@ import { Request, Response, Router } from "express";
 const router: Router = Router();
 
 router.post(
-	"/tickets",
-	route({
-		requestBody: "TicketCreateSchema",
-		responses: { 200: { body: "Channel" }, 400: {}, 403: {}, 404: {} },
-	}),
-	async (req: Request, res: Response) => {
-		const { channel_id } = req.params;
+    "/tickets",
+    route({
+        requestBody: "TicketCreateSchema",
+        responses: { 200: { body: "Channel" }, 400: {}, 403: {}, 404: {} },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { channel_id: string };
 
-		const tracker = await Channel.findOneOrFail({
-			where: { id: channel_id },
-		});
+        const tracker = await Channel.findOneOrFail({
+            where: { id: channel_id },
+        });
 
-		if (tracker.type !== ChannelType.TICKET_TRACKER) return res.status(400).send({ message: "Channel is not a ticket tracker" });
+        if (tracker.type !== ChannelType.TICKET_TRACKER) return res.status(400).send({ message: "Channel is not a ticket tracker" });
 
-		const perm = await getPermission(req.user_id, tracker.guild_id, tracker.id);
-		if (!perm.has("SEND_MESSAGES")) return res.status(403).send({ message: "Missing SEND_MESSAGES in tracker" });
+        const perm = await getPermission(req.user_id, tracker.guild_id, tracker.id);
+        if (!perm.has("SEND_MESSAGES")) return res.status(403).send({ message: "Missing SEND_MESSAGES in tracker" });
 
-		const name = (req.body?.name as string | undefined)?.trim() || `ticket-${Snowflake.generate()}`;
+        const name = (req.body?.name as string | undefined)?.trim() || `ticket-${Snowflake.generate()}`;
 
-		const ticket = await Channel.createChannel(
-			{
-				id: Snowflake.generate(),
-				name,
-				type: ChannelType.GUILD_PRIVATE_THREAD,
-				parent_id: tracker.id,
-				guild_id: tracker.guild_id!,
-				owner_id: req.user_id,
-				nsfw: false,
-				position: 0,
-				topic: `ticket:initiator:${req.user_id}`,
-			},
-			req.user_id,
-			{ skipNameChecks: false },
-		);
+        const ticket = await Channel.createChannel(
+            {
+                id: Snowflake.generate(),
+                name,
+                type: ChannelType.GUILD_PRIVATE_THREAD,
+                parent_id: tracker.id,
+                guild_id: tracker.guild_id!,
+                owner_id: req.user_id,
+                nsfw: false,
+                position: 0,
+                topic: `ticket:initiator:${req.user_id}`,
+            },
+            req.user_id,
+            { skipNameChecks: false },
+        );
 
-		if (ticket.guild_id) {
-			await emitEvent({
-				event: "CHANNEL_CREATE",
-				data: ticket,
-				guild_id: ticket.guild_id,
-			} as ChannelCreateEvent);
-		}
+        if (ticket.guild_id) {
+            await emitEvent({
+                event: "CHANNEL_CREATE",
+                data: ticket,
+                guild_id: ticket.guild_id,
+            } as ChannelCreateEvent);
+        }
 
-		return res.send(ticket);
-	},
+        return res.send(ticket);
+    },
 );
 
 export default router;
