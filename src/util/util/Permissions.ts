@@ -154,8 +154,8 @@ export class Permissions extends BitField {
         guild,
         channel,
     }: {
-        user: { id: string; roles: string[] };
-        guild: { roles: Role[] };
+        user: { id: string; roles: string[]; communication_disabled_until?: Date | null; flags?: number };
+        guild: { roles: Role[]; id?: string; owner_id?: string };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
             recipient_ids?: string[] | null;
@@ -216,7 +216,7 @@ export type PermissionCache = {
 export async function getPermission(
     user_id?: string,
     guild_id?: string,
-    channel_id?: string,
+    channel_id?: string | Channel,
     opts: {
         guild_select?: (keyof Guild)[];
         guild_relations?: string[];

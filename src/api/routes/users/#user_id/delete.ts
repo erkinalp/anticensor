@@ -71,7 +71,7 @@ router.post(
             console.log(`[Instance ban] Deleting DM channel ${channel.id} for user ${user.id}`);
             await emitEvent({
                 event: "CHANNEL_DELETE",
-                data: channel.toJSON(),
+                data: channel,
                 channel_id: channel.id,
             } as ChannelDeleteEvent);
             await Recipient.delete({ channel_id: channel.id });
@@ -113,7 +113,7 @@ router.post(
                 if (remainingRecipients.length === 0) {
                     await emitEvent({
                         event: "CHANNEL_DELETE",
-                        data: channel.toJSON(),
+                        data: channel,
                         channel_id: channel.id,
                     } as ChannelDeleteEvent);
                     await Channel.deleteChannel(channel);

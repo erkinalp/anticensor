@@ -34,6 +34,7 @@ import {
     HERE_MENTION,
     Message,
     MessageCreateEvent,
+    MessageType,
     MessageUpdateEvent,
     Role,
     ROLE_MENTION,
@@ -54,7 +55,7 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
-import { ChannelType, Embed, EmbedType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageType, Reaction } from "@spacebar/schemas";
+import { ChannelType, Embed, EmbedType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, Reaction } from "@spacebar/schemas";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -75,7 +76,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: opts.author_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
             ?.timestamp;
         if (lastMsgTime && Date.now() - limit * 1000 < +lastMsgTime) {
-            permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
+            permission ||= await getPermission(opts.author_id, channel.guild_id, channel.id);
             //FIXME MANAGE_MESSAGES and MANAGE_CHANNELS will need to be removed once they're gone as checks
             if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
                 throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
@@ -95,8 +96,9 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         [] as { attachment: MessageCreateCloudAttachment; index: number }[],
     );
 
-    const message = Message.create({
-        ...opts,
+    const { interaction_metadata: _im, ...restOpts } = opts;
+    const message: Message = Message.create({
+        ...restOpts,
         poll: opts.poll,
         sticker_items: stickers,
         guild_id: channel.guild_id,
@@ -107,7 +109,18 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         type: opts.type ?? 0,
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
-    });
+        interaction_metadata: opts.interaction_metadata
+            ? {
+                  id: String(opts.interaction_metadata.id),
+                  type: opts.interaction_metadata.type,
+                  user_id: String(opts.interaction_metadata.user_id),
+                  authorizing_integration_owners: opts.interaction_metadata.authorizing_integration_owners,
+                  original_response_message_id: opts.interaction_metadata.original_response_message_id ? String(opts.interaction_metadata.original_response_message_id) : undefined,
+                  interacted_message_id: opts.interaction_metadata.interacted_message_id ? String(opts.interaction_metadata.interacted_message_id) : undefined,
+                  name: opts.interaction_metadata.name,
+              }
+            : undefined,
+    }) as Message;
     const ephermal = (message.flags & (1 << 6)) !== 0;
     if (!ephermal && channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
         const rep = Channel.getRepository();
@@ -227,7 +240,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.author.avatar = message.avatar;
         }
     } else {
-        permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
+        permission ||= await getPermission(opts.author_id, channel.guild_id, channel.id);
         permission.hasThrow("SEND_MESSAGES");
         if (permission.cache.member) {
             message.member = permission.cache.member;
@@ -350,10 +363,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             },
         });
         if (referencedMessage && referencedMessage.author_id !== message.author_id) {
-            message.mentions.push(
-                // @ts-expect-error it does not like the .toPublicUser() lol
-                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
-            );
+            const referencedAuthor = await User.findOne({ where: { id: referencedMessage.author_id } });
+            if (referencedAuthor) message.mentions.push(referencedAuthor);
         }
 
         // FORWARD
@@ -430,8 +441,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const id = message.interaction_metadata?.user_id;
         if (id) {
             let pinged = mention_everyone || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
-            if (!pinged) pinged = !!message.mentions.find((user) => user.id === id);
-            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }) => Equal(id))) } }));
+            if (!pinged) pinged = !!message.mentions.find((user: User) => user.id === id);
+            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }: { id: string }) => Equal(id))) } }));
             if (pinged) {
                 //stuff
             }
@@ -454,14 +465,14 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             ...(message.mention_roles.length
                 ? await Member.find({
                       where: [
-                          ...message.mention_roles.map((role) => {
+                          ...message.mention_roles.map((role: Role) => {
                               return { roles: { id: role.id } };
                           }),
                       ],
                   })
                 : []
             ).map((member) => member.id),
-            ...message.mentions.map((user) => user.id),
+            ...message.mentions.map((user: User) => user.id),
         ]);
         if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
             const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);

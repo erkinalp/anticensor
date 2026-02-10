@@ -17,8 +17,8 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent, Recipient } from "@spacebar/util";
-import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, MessageType, Recipient } from "@spacebar/util";
+import { MessageThreadCreationSchema, ChannelType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 

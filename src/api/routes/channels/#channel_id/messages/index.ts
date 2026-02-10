@@ -287,10 +287,11 @@ router.get(
                     if (msg.message_reference!.guild_id) whereOptions.guild_id = msg.message_reference!.guild_id;
                     if (msg.message_reference!.channel_id) whereOptions.channel_id = msg.message_reference!.channel_id;
 
-                    msg.referenced_message = await Message.findOne({
-                        where: whereOptions,
-                        relations: { author: true, mentions: true, mention_roles: true, mention_channels: true },
-                    });
+                    msg.referenced_message =
+                        (await Message.findOne({
+                            where: whereOptions,
+                            relations: { author: true, mentions: true, mention_roles: true, mention_channels: true },
+                        })) ?? undefined;
                 }),
         );
 

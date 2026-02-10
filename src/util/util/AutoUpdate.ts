@@ -60,7 +60,7 @@ async function download(url: string, dir: string) {
         // TODO: use file stream instead of buffer (to prevent crash because of high memory usage for big files)
         // TODO check file hash
         const response = await fetch(url);
-        const buffer = await response.bytes();
+        const buffer = Buffer.from(await response.arrayBuffer());
         const tempDir = await fs.mkdtemp("spacebar");
         await fs.writeFile(path.join(tempDir, "Spacebar.zip"), buffer);
     } catch (error) {

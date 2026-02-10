@@ -190,6 +190,9 @@ export class Message extends BaseClass {
     @Column({ nullable: true })
     pinned?: boolean;
 
+    @Column({ nullable: true })
+    pinned_at?: Date | null;
+
     @Column({ type: "int" })
     type: MessageType;
 
@@ -204,9 +207,10 @@ export class Message extends BaseClass {
 
     @Column({ type: "simple-json", nullable: true })
     message_reference?: {
-        message_id: string;
+        message_id?: string;
         channel_id?: string;
         guild_id?: string;
+        type?: number;
     };
 
     @JoinColumn({ name: "message_reference_id" })
@@ -227,6 +231,20 @@ export class Message extends BaseClass {
 
     @Column({ type: "simple-json", nullable: true })
     poll?: Poll;
+
+    @Column({ type: "simple-json", nullable: true })
+    interaction_metadata?: {
+        id: string;
+        type: InteractionType;
+        user_id: string;
+        authorizing_integration_owners?: Record<string, string>;
+        original_response_message_id?: string;
+        interacted_message_id?: string;
+        name?: string;
+    };
+
+    @Column({ type: "simple-json", nullable: true })
+    message_snapshots?: MessageSnapshot[];
 
     @Column({ type: "simple-json", nullable: true })
     reply_ids?: string[];
@@ -544,4 +562,19 @@ export interface PollAnswerCount {
     id: string;
     count: number;
     me_voted: boolean;
+}
+
+export interface MessageSnapshot {
+    message: {
+        attachments?: Attachment[];
+        components?: ActionRowComponent[];
+        content: string;
+        edited_timestamp?: Date;
+        embeds: Embed[];
+        flags?: number;
+        mention_roles: string[];
+        mentions: string[];
+        timestamp?: Date;
+        type?: MessageType;
+    };
 }

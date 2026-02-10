@@ -32,8 +32,9 @@ import {
     Message,
     ChannelFlags,
     DiscordApiErrors,
+    MessageType,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { ChannelType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -251,7 +252,7 @@ router.get(
             },
         });
 
-        const permissions = await getPermission(req.user_id, channel.guild_id, channel);
+        const permissions = await getPermission(req.user_id, channel.guild_id, channel.id);
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });

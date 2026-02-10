@@ -98,7 +98,7 @@ router.patch(
             channel_id,
             id: message_id,
             edited_timestamp: new Date(),
-        });
+        } as Parameters<typeof handleMessage>[0]);
 
         await Promise.all([
             new_message.save(),
