@@ -57,12 +57,12 @@ export enum MessageType {
     GUILD_INVITE_REMINDER = 22,
     CONTEXT_MENU_COMMAND = 23,
     AUTO_MODERATION_ACTION = 24,
-    CUSTOM_START = 64, // start custom message types from here
-    ENCRYPTED = 65,
-    ROUTE_ADDED = 66, // custom message routing: new route affecting that channel
-    ROUTE_DISABLED = 67, // custom message routing: given route no longer affecting that channel
-    SELF_COMMAND_SCRIPT = 68, // self command scripts
-    ENCRYPTION = 69,
+    CUSTOM_START = 127, // start custom message types from here
+    ENCRYPTED = 128,
+    ROUTE_ADDED = 129, // custom message routing: new route affecting that channel
+    ROUTE_DISABLED = 130, // custom message routing: given route no longer affecting that channel
+    SELF_COMMAND_SCRIPT = 131, // self command scripts
+    ENCRYPTION = 132,
     UNHANDLED = 255,
 }
 
