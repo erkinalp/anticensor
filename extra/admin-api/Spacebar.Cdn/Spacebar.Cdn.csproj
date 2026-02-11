@@ -7,14 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArcaneLibs" Version="1.0.0-preview.20251207-164820" />
+        <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260126-091403" />
 <!--        <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.10.1" />-->
-        <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-x64" Version="14.10.1" />
+        <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-x64" Version="14.10.2" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Models\Spacebar.Models.Db\Spacebar.Models.Db.csproj" />
+      <ProjectReference Include="..\Interop\Spacebar.Interop.Cdn.Abstractions\Spacebar.Interop.Cdn.Abstractions.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
+        <PackageReference Include="Spacebar.Interop.Cdn.Abstractions" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
+      <ProjectReference Include="..\Models\Spacebar.Models.Db\Spacebar.Models.Db.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
+        <PackageReference Include="Spacebar.Models.Db" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
     </ItemGroup>
 
 </Project>

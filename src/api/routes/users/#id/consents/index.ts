@@ -15,7 +15,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const target_user_id = req.params.id;
+        const target_user_id = req.params.id as string;
         const consents = await UserConsent.find({
             where: { user_id: target_user_id },
         });
@@ -39,7 +39,7 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const target_user_id = req.params.id;
+        const target_user_id = req.params.id as string;
         await UserConsent.delete({ user_id: target_user_id });
         return res.status(204).send();
     },

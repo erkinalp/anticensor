@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.AdminApi.Middleware;
-using Spacebar.AdminApi.Services;
+using Spacebar.Interop.Authentication;
+using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.UnixSocket;
 using Spacebar.Models.Db.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
+if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPSETTINGS_PATH")))
+    builder.Configuration.AddJsonFile(Environment.GetEnvironmentVariable("APPSETTINGS_PATH")!);
 
 // Add services to the container.
 
@@ -18,9 +21,7 @@ builder.Services.AddControllers(options => {
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     options.JsonSerializerOptions.WriteIndented = true;
     // options.JsonSerializerOptions.DefaultBufferSize = ;
-}).AddMvcOptions(o=> {
-    o.SuppressOutputFormatterBuffering = true;
-});
+}).AddMvcOptions(o => { o.SuppressOutputFormatterBuffering = true; });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -29,8 +30,9 @@ builder.Services.AddDbContextPool<SpacebarDbContext>(options => {
         .UseNpgsql(builder.Configuration.GetConnectionString("Spacebar"))
         .EnableDetailedErrors();
 });
-builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddScoped<Configuration>();
+builder.Services.AddScoped<SpacebarAuthenticationConfiguration>();
+builder.Services.AddScoped<SpacebarAuthenticationService>();
+builder.Services.AddScoped<SpacebarAspNetAuthenticationService>();
 // builder.Services.AddSingleton<RabbitMQConfiguration>();
 // builder.Services.AddSingleton<RabbitMQService>();
 // builder.Services.AddSingleton<ISpacebarReplication, RabbitMqSpacebarReplication>();

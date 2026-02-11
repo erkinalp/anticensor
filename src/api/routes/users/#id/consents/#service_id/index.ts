@@ -12,8 +12,8 @@ router.delete(
         responses: { 204: { body: "null" } },
     }),
     async (req: Request, res: Response) => {
-        const user_id = req.params.id;
-        const service_id = req.params.service_id;
+        const user_id = req.params.id as string;
+        const service_id = req.params.service_id as string;
         const existing = await UserConsent.findOne({
             where: { user_id, service_id },
         });

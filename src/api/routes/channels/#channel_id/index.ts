@@ -39,7 +39,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const { channel_id } = req.params;
+        const { channel_id } = req.params as { [key: string]: string };
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -63,7 +63,7 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { channel_id } = req.params;
+        const { channel_id } = req.params as { [key: string]: string };
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -85,6 +85,20 @@ router.delete(
             ]);
         } else if (channel.type === ChannelType.GROUP_DM) {
             await Channel.removeRecipientFromChannel(channel, req.user_id);
+        } else if (channel.isThread()) {
+            await Promise.all([
+                Channel.delete({ id: channel_id }),
+                emitEvent({
+                    event: "THREAD_DELETE",
+                    data: {
+                        id: channel_id,
+                        guild_id: channel.guild_id,
+                        parent_id: channel.parent_id,
+                        type: channel.type,
+                    },
+                    guild_id: channel.guild_id,
+                }),
+            ]);
         } else {
             if (channel.type == ChannelType.GUILD_CATEGORY) {
                 const channels = await Channel.find({
@@ -122,7 +136,7 @@ router.patch(
     "/",
     route({
         requestBody: "ChannelModifySchema",
-        permission: "MANAGE_CHANNELS",
+        permission: "VIEW_CHANNEL",
         responses: {
             200: {
                 body: "Channel",
@@ -135,13 +149,74 @@ router.patch(
     }),
     async (req: Request, res: Response) => {
         const payload = req.body as ChannelModifySchema;
-        const { channel_id } = req.params;
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
-
+        const { channel_id } = req.params as { [key: string]: string };
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
+            relations: ["available_tags"],
         });
+
+        if (channel.isThread()) {
+            if (channel.owner_id !== req.user.id) {
+                req.permission!.hasThrow("MANAGE_THREADS");
+            }
+            if (payload.permission_overwrites) {
+                //TODO better error maybe?
+                throw new Error("You can't change permission overwrites for threads");
+            }
+        } else {
+            req.permission!.hasThrow("MANAGE_CHANNELS");
+        }
+
+        if (payload.available_tags) {
+            if (channel.isForum() && channel.available_tags) {
+                //TODO maybe error if this fails, and maybe handle creating tags?
+                const filter = new Set(payload.available_tags.map(({ id }) => id));
+                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
+                tags.forEach((_) => _.remove());
+                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
+            }
+        }
+        if (payload.applied_tags) {
+            if (channel.isThread()) {
+                const parent = await Channel.findOneOrFail({
+                    where: {
+                        id: channel.parent_id as string,
+                    },
+                    relations: ["available_tags"],
+                });
+                if (!parent.available_tags) throw new Error("shoot, internetal error");
+                const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
+                const bad = payload.applied_tags.find((tag) => !realTags.has(tag));
+                //TODO better error
+                if (bad) throw new Error("Invalid tag " + bad);
+                const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
+                const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
+                if (permsNeeded) {
+                    req.permission?.hasThrow("MANAGE_THREADS");
+                }
+                channel.applied_tags = payload.applied_tags;
+            } else {
+                //TODO maybe error instead?
+                payload.applied_tags = undefined;
+            }
+        }
+
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
+
         channel.assign(payload);
+        if (channel.thread_metadata) {
+            if (payload.archived !== undefined) {
+                channel.thread_metadata.archived = payload.archived;
+                channel.thread_metadata.archive_timestamp = new Date().toISOString();
+            }
+            if (payload.locked !== undefined) channel.thread_metadata.locked = payload.locked;
+            if (payload.auto_archive_duration !== undefined) channel.thread_metadata.auto_archive_duration = payload.auto_archive_duration;
+            if (payload.invitable !== undefined) channel.thread_metadata.invitable = payload.invitable;
+            if (payload.locked !== undefined) {
+                req.permission!.hasThrow("MANAGE_THREADS");
+                channel.thread_metadata.locked = payload.locked;
+            }
+        }
 
         await Promise.all([
             channel.save(),

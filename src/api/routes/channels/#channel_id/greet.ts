@@ -17,10 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
+import { Channel, emitEvent, Message, MessageCreateEvent, MessageType, Permissions, Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
+import { GreetRequestSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -41,7 +41,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const payload = req.body as GreetRequestSchema;
-        const { channel_id } = req.params;
+        const { channel_id } = req.params as { [key: string]: string };
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -79,14 +79,14 @@ router.post(
 
         const randomSticker = stickers[Math.floor(Math.random() * stickers.length)];
 
-        const message = Message.create({
+        const message: Message = Message.create({
             channel_id: channel_id,
             author_id: req.user_id,
             type: MessageType.REPLY,
             message_reference: { ...payload.message_reference, type: 0 },
             referenced_message: targetMessage,
             sticker_items: randomSticker ? [{ id: randomSticker.id, name: randomSticker.name, format_type: randomSticker.format_type }] : [],
-        });
+        }) as Message;
 
         channel.last_message_id = message.id;
 

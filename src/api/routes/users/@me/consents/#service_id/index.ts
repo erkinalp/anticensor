@@ -53,7 +53,7 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const service_id = req.params.service_id;
+        const service_id = req.params.service_id as string;
         const consent_type = (req.query.consent_type as ConsentType) || ConsentType.CUSTOM;
         const item_id = req.query.item_id as string | undefined;
         const target_user_id = req.query.target_user_id as string | undefined;
@@ -90,7 +90,7 @@ router.put(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const service_id = req.params.service_id;
+        const service_id = req.params.service_id as string;
         const { consent_type = ConsentType.CUSTOM, item_id, target_user_id, basis_document_url, basis_document_hash, expires_at, provisional, extra_data } = req.body;
 
         const existing = await UserConsent.findOne({
@@ -129,7 +129,7 @@ router.put(
             granted_at: new Date(),
             expires_at: expires_at ? new Date(expires_at) : undefined,
             extra_data,
-        });
+        }) as UserConsent;
         await consent.save();
         return res.json(consent.toJSON());
     },
@@ -163,7 +163,7 @@ router.delete(
     }),
     async (req: Request, res: Response) => {
         const user_id = req.user_id!;
-        const service_id = req.params.service_id;
+        const service_id = req.params.service_id as string;
         const consent_type = (req.query.consent_type as ConsentType) || ConsentType.CUSTOM;
         const item_id = req.query.item_id as string | undefined;
         const target_user_id = req.query.target_user_id as string | undefined;

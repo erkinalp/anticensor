@@ -16,11 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, Capabilities, OPCODES, Payload, Send, WebSocket, setupListener } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
 import {
     Application,
+    Channel,
+    checkToken,
     Config,
+    CurrentTokenFormatVersion,
+    ElapsedTime,
+    emitEvent,
+    Emoji,
     EVENTEnum,
+    generateToken,
+    getDatabase,
     Guild,
     GuildOrUnavailable,
     Intents,
@@ -33,32 +41,25 @@ import {
     ReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
     Recipient,
+    Relationship,
+    Role,
     Session,
     SessionsReplace,
-    UserSettings,
-    checkToken,
-    emitEvent,
-    getDatabase,
+    Sticker,
+    Stopwatch,
+    ThreadMember,
+    timeFunction,
+    timePromise,
     TraceNode,
     TraceRoot,
-    Stopwatch,
-    timePromise,
-    ElapsedTime,
-    Channel,
-    Emoji,
-    Role,
-    Sticker,
-    VoiceState,
+    UserSettings,
     UserSettingsProtos,
-    generateToken,
-    CurrentTokenFormatVersion,
-    Relationship,
-    timeFunction,
+    VoiceState,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "@spacebar/schemas";
+import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "@spacebar/schemas";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -95,6 +96,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             select: [...PrivateUserProjection, "rights"],
         }),
     );
+
+    this.accessToken = identify.token;
 
     taskSw.reset(); // don't include checkToken time...
 
@@ -206,7 +209,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 where: { id: this.user_id },
                 select: {
                     // We only want some member props
-                    ...Object.fromEntries(MemberPrivateProjection.map((x) => [x, true])),
+                    ...Object.fromEntries(["index", ...MemberPrivateProjection].map((x) => [x, true])),
                     settings: true, // guild settings
                     roles: { id: true }, // the full role is fetched from the `guild` relation
                     guild: { id: true },
@@ -296,8 +299,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     ] = await Promise.all([
         timePromise(() =>
             Channel.find({
-                where: { guild_id: In(guildIds) },
+                where: {
+                    guild_id: In(guildIds),
+                    type: Not(In([ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD, ChannelType.GUILD_NEWS_THREAD])),
+                },
                 order: { guild_id: "ASC" },
+                relations: ["available_tags"],
             }),
         ),
         timePromise(() =>
@@ -409,10 +416,27 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         ];
     });
     const mergedMembersTime = taskSw.getElapsedAndReset();
+    const member_idx = members.map(({ index }) => index);
+
+    const threadMembers = await ThreadMember.find({
+        where: { member_idx: In(member_idx) },
+    });
+    const threadMemberMap = new Map(threadMembers.map((member) => [member.id, member] as const));
+    const threadMemberTime = taskSw.getElapsedAndReset();
 
     // Populated with guilds 'unavailable' currently
     // Just for bots
-    const pending_guilds: Guild[] = [];
+    //TODO get this a better type
+    const pending_guilds: { id: string }[] = [];
+
+    const allThreads = (
+        await Channel.find({
+            where: {
+                type: In([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD]),
+                guild_id: In(members.map(({ guild }) => guild.id)),
+            },
+        })
+    ).filter(({ thread_metadata }) => thread_metadata?.archived === false);
 
     // Generate guilds list ( make them unavailable if user is bot )
     const guilds: GuildOrUnavailable[] = members.map((member) => {
@@ -438,17 +462,27 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             })
             .sort((a, b) => a.position - b.position);
 
-        if (user.bot) {
-            pending_guilds.push(member.guild);
-            return { id: member.guild.id, unavailable: true };
-        }
+        const threads: Channel[] = allThreads.filter((_) => _.guild_id === member.guild_id);
 
-        return {
+        const guildjson = {
             ...member.guild.toJSON(),
             joined_at: member.joined_at,
 
-            threads: [],
+            threads: threads.map((thread) => {
+                const member = threadMemberMap.get(thread.id)?.toJSON();
+                return {
+                    ...thread.toJSON(),
+                    member,
+                };
+            }),
         };
+
+        if (user.bot) {
+            pending_guilds.push(guildjson);
+            return { id: member.guild.id, unavailable: true };
+        }
+
+        return guildjson;
     });
     const generateGuildsListTime = taskSw.getElapsedAndReset();
 
@@ -479,9 +513,17 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             // Remove ourself from the list of other users in dm channel
             channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
 
-            const channelUsers = channel.recipients?.map((recipient) => recipient.user.toPublicUser());
+            let channelUsers = channel.recipients?.map((recipient) => recipient.user.toPublicUser());
 
             if (channelUsers && channelUsers.length > 0) channelUsers.forEach((user) => users.add(user));
+            // HACK: insert self into recipients for DMs with users that no longer exist
+            else if (channel.type === ChannelType.DM) {
+                const selfUser = user.toPublicUser();
+                users.add(selfUser);
+                channelUsers ??= [];
+                channelUsers.push(selfUser);
+            }
+
             return {
                 id: channel.id,
                 flags: channel.flags,
@@ -623,7 +665,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     });
 
     if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && tokenData.tokenVersion != CurrentTokenFormatVersion) {
-        d.auth_token = await generateToken(this.user_id);
+        d.auth_token = this.accessToken = (await generateToken(this.user_id))!;
     }
     // const buildReadyEventDataTime = taskSw.getElapsedAndReset();
 
@@ -654,6 +696,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         emitPresenceUpdateTime,
         remapReadStateIdsTime,
         buildReadyEventDataTime,
+        threadMemberTime,
     };
     for (const [key, value] of Object.entries(times)) {
         if (value) {
@@ -726,7 +769,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 t: EVENTEnum.GuildCreate,
                 s: this.sequence++,
                 d: {
-                    ...x.toJSON(),
+                    ...x,
                     members: botMemberObject
                         ? [
                               {

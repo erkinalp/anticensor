@@ -23,6 +23,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
 import crypto from "crypto";
 import { multer } from "../util/multer";
+import { cache } from "../util/cache";
 
 //Role icons ---> avatars.ts modified
 
@@ -39,7 +40,7 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
-    const { role_id } = req.params;
+    const { role_id } = req.params as { [key: string]: string };
 
     const hash = crypto.createHash("md5").update(Snowflake.generate()).digest("hex");
 
@@ -59,8 +60,8 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
     });
 });
 
-router.get("/:role_id", async (req: Request, res: Response) => {
-    const { role_id } = req.params;
+router.get("/:role_id", cache, async (req: Request, res: Response) => {
+    const { role_id } = req.params as { [key: string]: string };
     //role_id = role_id.split(".")[0]; // remove .file extension
     const path = `role-icons/${role_id}`;
 
@@ -69,13 +70,12 @@ router.get("/:role_id", async (req: Request, res: Response) => {
     const type = await fileTypeFromBuffer(file);
 
     res.set("Content-Type", type?.mime);
-    res.set("Cache-Control", "public, max-age=31536000, must-revalidate");
 
     return res.send(file);
 });
 
-router.get("/:role_id/:hash", async (req: Request, res: Response) => {
-    const { role_id, hash } = req.params;
+router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
+    const { role_id, hash } = req.params as { [key: string]: string };
     //hash = hash.split(".")[0]; // remove .file extension
     const requested_extension = hash.split(".")[1];
     const role_icon_hash = hash.split(".")[0];
@@ -92,14 +92,13 @@ router.get("/:role_id/:hash", async (req: Request, res: Response) => {
     const type = await fileTypeFromBuffer(file);
 
     res.set("Content-Type", type?.mime);
-    res.set("Cache-Control", "public, max-age=31536000, must-revalidate");
 
     return res.send(file);
 });
 
 router.delete("/:role_id/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    const { role_id, id } = req.params;
+    const { role_id, id } = req.params as { [key: string]: string };
     const path = `role-icons/${role_id}/${id}`;
 
     await storage.delete(path);

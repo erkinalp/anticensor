@@ -1,8 +1,10 @@
 using ArcaneLibs.Extensions.Streams;
 using Microsoft.AspNetCore.Mvc;
 using Spacebar.AdminApi.TestClient.Services.Services;
+using Spacebar.Cdn.Extensions;
+using Spacebar.Interop.Cdn.Abstractions;
 
-namespace Spacebar.AdminApi.TestClient.Services.Controllers;
+namespace Spacebar.Cdn.Controllers;
 
 [ApiController]
 public class GetImageController(LruFileCache lfc, IFileSource fs, DiscordImageResizeService dirs) : ControllerBase {
@@ -50,5 +52,13 @@ public class GetImageController(LruFileCache lfc, IFileSource fs, DiscordImageRe
 
         // byte array with mime type result
         return new FileContentResult(entry.Data, entry.MimeType);
+    }
+
+    // TODO: is message_id required? Can't tell from discord.food: /attachments/{channel_id}/[{message_id]/attachment_id}/{attachment_filename}
+    [HttpGet("/attachments/{channel_id:required}/{message_id:required}/{attachment_id:required}/{filename:required}")]
+    [HttpGet("/ephemeral-attachments/{application_id:required}/{attachment_id:required}/{attachment_filename:required}")]
+    public async Task<IActionResult> GetAttachmentImage() {
+        // TODO: url signing, file type checks
+        return await GetImage("");
     }
 }

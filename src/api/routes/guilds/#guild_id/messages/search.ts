@@ -51,7 +51,7 @@ router.get(
             // sort_by, // TODO: Handle 'relevance'
             limit,
             author_id,
-        } = req.query;
+        } = req.query as Record<string, string>;
 
         const parsedLimit = Number(limit) || 50;
         if (parsedLimit < 1 || parsedLimit > 100) throw new HTTPError("limit must be between 1 and 100", 422);
@@ -66,7 +66,7 @@ router.get(
                 }); // todo this is wrong
         }
 
-        const permissions = await getPermission(req.user_id, req.params.guild_id, channel_id as string | undefined);
+        const permissions = await getPermission(req.user_id, req.params.guild_id as string, channel_id as string | undefined);
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ messages: [], total_results: 0 });
 
@@ -74,40 +74,38 @@ router.get(
             order: {
                 timestamp: sort_order ? (sort_order.toUpperCase() as "ASC" | "DESC") : "DESC",
             },
-            take: parsedLimit || 0,
             where: {
                 guild: {
-                    id: req.params.guild_id,
+                    id: req.params.guild_id as string,
                 },
+                ...(content ? { content: Like(`%${content}%`) } : {}),
+                ...(author_id ? { author_id } : {}),
+                ...(channel_id
+                    ? { channel_id }
+                    : {
+                          channel_id: In(
+                              (
+                                  await Promise.all(
+                                      (
+                                          await Channel.find({
+                                              where: { guild_id: req.params.guild_id as string },
+                                              select: { id: true },
+                                          })
+                                      ).map(async (channel) => {
+                                          const perm = await getPermission(req.user_id, req.params.guild_id as string, channel.id);
+                                          return perm.has("VIEW_CHANNEL") && perm.has("READ_MESSAGE_HISTORY") ? channel : undefined;
+                                      }),
+                                  )
+                              )
+                                  .filter((_) => _ !== undefined)
+                                  .map(({ id }) => id),
+                          ),
+                      }),
             },
             relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
-            skip: offset ? Number(offset) : 0,
         };
-        //@ts-ignore
-        if (channel_id) query.where.channel = { id: channel_id };
-        else {
-            // get all channel IDs that this user can access
-            const channels = await Channel.find({
-                where: { guild_id: req.params.guild_id },
-                select: { id: true },
-            });
-            const ids = [];
 
-            for (const channel of channels) {
-                const perm = await getPermission(req.user_id, req.params.guild_id, channel.id);
-                if (!perm.has("VIEW_CHANNEL") || !perm.has("READ_MESSAGE_HISTORY")) continue;
-                ids.push(channel.id);
-            }
-
-            //@ts-ignore
-            query.where.channel = { id: In(ids) };
-        }
-        //@ts-ignore
-        if (author_id) query.where.author = { id: author_id };
-        //@ts-ignore
-        if (content) query.where.content = Like(`%${content}%`);
-
-        const messages: Message[] = await Message.find(query);
+        const messages: Message[] = await Message.find({ ...query, take: parsedLimit || 0, skip: offset ? Number(offset) : 0 });
         delete query.take;
         const total_results = await Message.count(query);
 
