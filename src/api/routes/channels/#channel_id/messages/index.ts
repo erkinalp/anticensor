@@ -137,6 +137,7 @@ router.get(
         const query: FindManyOptions<Message> & {
             where: { id?: FindOperator<string> | FindOperator<string>[] };
         } = {
+            relationLoadStrategy: "query",
             order: { timestamp: "DESC" },
             take: limit,
             where: { channel_id },
@@ -149,16 +150,6 @@ router.get(
                 mention_channels: true,
                 sticker_items: true,
                 attachments: true,
-                referenced_message: {
-                    author: true,
-                    webhook: true,
-                    application: true,
-                    mentions: true,
-                    mention_roles: true,
-                    mention_channels: true,
-                    sticker_items: true,
-                    attachments: true,
-                },
                 thread: {
                     recipients: {
                         user: true,
@@ -208,6 +199,7 @@ router.get(
             messages = await Message.find(query);
         }
 
+        await Message.fillReplies(messages);
         const endpoint = Config.get().cdn.endpointPublic;
 
         await populateForwardLinks(messages);
@@ -275,25 +267,6 @@ router.get(
 
             return x;
         });
-
-        // polyfill message references for old messages
-        await Promise.all(
-            ret
-                .filter((msg) => msg.message_reference && !msg.referenced_message?.id && msg.message_reference.message_id)
-                .map(async (msg) => {
-                    const whereOptions: { id: string; guild_id?: string; channel_id?: string } = {
-                        id: msg.message_reference!.message_id as string,
-                    };
-                    if (msg.message_reference!.guild_id) whereOptions.guild_id = msg.message_reference!.guild_id;
-                    if (msg.message_reference!.channel_id) whereOptions.channel_id = msg.message_reference!.channel_id;
-
-                    msg.referenced_message =
-                        (await Message.findOne({
-                            where: whereOptions,
-                            relations: { author: true, mentions: true, mention_roles: true, mention_channels: true },
-                        })) ?? undefined;
-                }),
-        );
 
         return res.json(ret);
     },
