@@ -27,6 +27,8 @@ export interface Storage {
     clone(path: string, newPath: string): Promise<void>;
     get(path: string): Promise<Buffer | null>;
     delete(path: string): Promise<void>;
+    exists(path: string): Promise<boolean>;
+    move(path: string, newPath: string): Promise<void>;
 }
 
 let storage: Storage;
@@ -60,6 +62,12 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
         process.exit(1);
     }
 
+    let endpoint = process.env.STORAGE_ENDPOINT;
+
+    if (!endpoint) {
+        endpoint = `https://s3.${region}.amazonaws.com`;
+    }
+
     if (!bucket) {
         console.error(`[CDN] You must provide a bucket when using the S3 storage provider.`);
         process.exit(1);
@@ -74,7 +82,7 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
     }
 
     const { S3Storage } = require("S3Storage");
-    storage = new S3Storage(region, bucket, location);
+    storage = new S3Storage(region, bucket, endpoint, location);
 }
 
 export { storage };

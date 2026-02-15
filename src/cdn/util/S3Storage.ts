@@ -32,10 +32,11 @@ export class S3Storage implements Storage {
     public constructor(
         private region: string,
         private bucket: string,
+        private endpoint: string,
         private basePath?: string,
     ) {
         const { S3 } = require("@aws-sdk/client-s3");
-        this.client = new S3({ region });
+        this.client = new S3({ region: region, endpoint: endpoint });
     }
 
     /**
@@ -94,5 +95,29 @@ export class S3Storage implements Storage {
             Bucket: this.bucket,
             Key: `${this.bucketBasePath}${path}`,
         });
+    }
+
+    async exists(path: string): Promise<boolean> {
+        try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            await this.client.headObject({
+                Bucket: this.bucket,
+                Key: `${this.bucketBasePath}${path}`,
+            });
+            return true;
+        } catch (err) {
+            if (err && typeof err === "object" && "name" in err && (err as { [key: string]: string }).name === "NotFound") {
+                return false;
+            }
+            console.error(`[CDN] Unable to check existence of S3 object at path ${path}.`);
+            console.error(err);
+            return false;
+        }
+    }
+
+    async move(path: string, newPath: string): Promise<void> {
+        await this.clone(path, newPath);
+        await this.delete(path);
     }
 }

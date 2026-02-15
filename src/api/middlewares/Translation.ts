@@ -21,7 +21,7 @@ import path from "path";
 import i18next from "i18next";
 import i18nextMiddleware from "i18next-http-middleware";
 import i18nextBackend from "i18next-fs-backend";
-import { Router } from "express";
+import { RequestHandler, Router } from "express";
 
 const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "assets");
 
@@ -44,5 +44,5 @@ export async function initTranslation(router: Router) {
             load: "all",
         });
 
-    router.use(i18nextMiddleware.handle(i18next, {}));
+    router.use(i18nextMiddleware.handle(i18next, {}) as unknown as RequestHandler);
 }

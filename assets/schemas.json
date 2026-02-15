@@ -4336,6 +4336,12 @@
                 "items": {
                     "type": "string"
                 }
+            },
+            "discovery_weight": {
+                "type": "integer"
+            },
+            "discovery_excluded": {
+                "type": "boolean"
             }
         },
         "additionalProperties": false,
@@ -4343,6 +4349,8 @@
             "bans",
             "channel_ordering",
             "channels",
+            "discovery_excluded",
+            "discovery_weight",
             "emojis",
             "features",
             "id",
@@ -5840,7 +5848,6 @@
         "type": "object",
         "properties": {
             "name": {
-                "maxLength": 100,
                 "type": "string"
             },
             "type": {
@@ -9296,7 +9303,6 @@
         "type": "object",
         "properties": {
             "name": {
-                "maxLength": 100,
                 "type": "string"
             },
             "type": {
@@ -10415,7 +10421,7 @@
             "byteLength": {
                 "type": "integer"
             },
-            "__@species@16433": {
+            "__@species@16534": {
                 "$ref": "#/definitions/SharedArrayBuffer"
             },
             "__@toStringTag@1293": {
@@ -10425,7 +10431,7 @@
         },
         "additionalProperties": false,
         "required": [
-            "__@species@16433",
+            "__@species@16534",
             "__@toStringTag@1293",
             "byteLength"
         ],
@@ -12626,6 +12632,14 @@
                     "type": "string"
                 }
             },
+            "discovery_weight": {
+                "type": "integer",
+                "default": 0
+            },
+            "discovery_excluded": {
+                "type": "boolean",
+                "default": false
+            },
             "id": {
                 "type": "string"
             }
@@ -12635,6 +12649,8 @@
             "bans",
             "channel_ordering",
             "channels",
+            "discovery_excluded",
+            "discovery_weight",
             "emojis",
             "features",
             "id",
@@ -17346,10 +17362,15 @@
             "maxWebhooks": {
                 "type": "integer",
                 "default": 100
+            },
+            "maxName": {
+                "type": "integer",
+                "default": 32
             }
         },
         "additionalProperties": false,
         "required": [
+            "maxName",
             "maxPins",
             "maxTopic",
             "maxWebhooks"
