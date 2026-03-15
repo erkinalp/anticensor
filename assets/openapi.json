@@ -17351,6 +17351,23 @@
                 ]
             }
         },
+        "/users/@me/billing/country-code/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/applications/{app_id}/entitlements/": {
             "get": {
                 "security": [
