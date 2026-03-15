@@ -5562,6 +5562,12 @@
                                         },
                                         "filename": {
                                             "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "inline": {
+                                            "type": "boolean"
                                         }
                                     },
                                     "additionalProperties": false,
@@ -5836,9 +5842,6 @@
                             4
                         ],
                         "type": "number"
-                    },
-                    "confirm_stranger_request": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -8029,15 +8032,7 @@
                         "$ref": "#/components/schemas/User"
                     },
                     "last_pin_timestamp": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
+                        "type": "integer"
                     },
                     "default_auto_archive_duration": {
                         "type": "integer"
@@ -8138,19 +8133,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "created_at",
                     "flags",
                     "id",
@@ -8183,6 +8168,13 @@
                     16,
                     17,
                     18,
+                    19,
+                    20,
+                    21,
+                    33,
+                    34,
+                    35,
+                    64,
                     255
                 ]
             },
@@ -8206,19 +8198,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "channel",
                     "channel_id",
                     "closed",
@@ -8417,19 +8399,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "bio",
                     "bot",
                     "connected_accounts",
@@ -8526,19 +8498,9 @@
                     },
                     "session_nickname": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "activities",
                     "client_info",
                     "client_status",
@@ -8829,19 +8791,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "from",
                     "from_id",
                     "id",
@@ -8925,19 +8877,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "external_id",
                     "id",
                     "name",
@@ -9139,19 +9081,9 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "afk_timeout",
                     "allow_accessibility_detection",
                     "animate_emoji",
@@ -9265,19 +9197,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "counter",
                     "id",
                     "key_id",
@@ -9434,19 +9356,9 @@
                     },
                     "flags": {
                         "$ref": "#/components/schemas/ThreadMemberFlags"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "channel",
                     "flags",
                     "id",
@@ -9546,28 +9458,13 @@
                     },
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
-                    },
-                    "flags": {
-                        "type": "integer",
-                        "default": 0
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "banner",
                     "bio",
                     "communication_disabled_until",
                     "deaf",
-                    "flags",
                     "guild",
                     "guild_id",
                     "id",
@@ -9806,19 +9703,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "bans",
                     "channel_ordering",
                     "channels",
@@ -9872,19 +9759,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "executor",
                     "executor_id",
                     "guild",
@@ -9953,19 +9830,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "color",
                     "colors",
                     "flags",
@@ -10037,19 +9904,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "code",
                     "created_at",
                     "creator",
@@ -10106,19 +9963,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "animated",
                     "available",
                     "groups",
@@ -10174,19 +10021,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "format_type",
                     "id",
                     "name",
@@ -10220,19 +10057,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "id",
                     "name",
                     "stickers"
@@ -10312,19 +10139,9 @@
                     },
                     "flags": {
                         "type": "integer"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "channel",
                     "channel_id",
                     "code",
@@ -10397,19 +10214,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "channel",
                     "channel_id",
                     "deaf",
@@ -10483,19 +10290,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "application",
                     "application_id",
                     "avatar",
@@ -10651,19 +10448,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "description",
                     "discoverability_state",
                     "discovery_eligibility_flags",
@@ -10705,19 +10492,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "id",
                     "members",
                     "name",
@@ -10754,19 +10531,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "id",
                     "membership_state",
                     "permissions",
@@ -11021,51 +10788,35 @@
                     "last_message_id": {
                         "type": "string"
                     },
-                    "last_acked_id": {
+                    "public_ack": {
                         "type": "string"
                     },
                     "notifications_cursor": {
                         "type": "string"
                     },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "badge_count": {
-                        "type": "integer"
-                    },
                     "last_pin_timestamp": {
                         "type": "string",
                         "format": "date-time"
                     },
-                    "read_state_type": {
-                        "$ref": "#/components/schemas/ReadStateType"
+                    "mention_count": {
+                        "type": "integer"
                     },
-                    "flags": {
-                        "$ref": "#/components/schemas/ReadStateFlags"
+                    "manual": {
+                        "type": "boolean"
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
-                    "badge_count",
                     "channel",
                     "channel_id",
-                    "flags",
                     "id",
+                    "last_message_id",
+                    "manual",
                     "mention_count",
                     "notifications_cursor",
-                    "read_state_type",
+                    "public_ack",
                     "user",
                     "user_id"
                 ]
@@ -11143,19 +10894,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "channel",
                     "channel_id",
                     "id",
@@ -11195,19 +10936,9 @@
                     },
                     "id": {
                         "type": "string"
-                    },
-                    "__@annotationsKey@11689": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
                     "filename",
                     "id",
                     "message",
@@ -11226,6 +10957,7 @@
                     "type": {
                         "enum": [
                             "article",
+                            "auto_moderation_message",
                             "gifv",
                             "image",
                             "link",
@@ -11368,43 +11100,20 @@
                 ]
             },
             "PartialEmoji": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "animated": {
-                                "type": "boolean"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "name"
-                        ]
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
                     },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "animated": {
-                                "type": "boolean"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "id"
-                        ]
+                    "name": {
+                        "type": "string"
+                    },
+                    "animated": {
+                        "type": "boolean"
                     }
+                },
+                "required": [
+                    "name"
                 ]
             },
             "MessageType": {
@@ -11435,45 +11144,12 @@
                     22,
                     23,
                     24,
-                    25,
-                    26,
-                    27,
-                    28,
-                    29,
-                    30,
-                    31,
-                    32,
-                    33,
-                    34,
-                    35,
-                    36,
-                    37,
-                    38,
-                    39,
-                    40,
-                    41,
-                    42,
-                    43,
-                    44,
-                    45,
-                    46,
-                    47,
-                    48,
-                    49,
-                    50,
-                    51,
-                    52,
-                    53,
-                    54,
-                    55,
-                    56,
-                    57,
-                    58,
-                    59,
-                    60,
-                    61,
-                    62,
-                    63,
+                    127,
+                    128,
+                    129,
+                    130,
+                    131,
+                    132,
                     255
                 ]
             },
@@ -11534,44 +11210,7 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "name"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "id"
-                                ]
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PartialEmoji"
                     },
                     "custom_id": {
                         "type": "string"
@@ -11735,44 +11374,7 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "name"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "id"
-                                ]
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PartialEmoji"
                     },
                     "default": {
                         "type": "boolean"
@@ -11869,44 +11471,7 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "name"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "animated": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "id"
-                                ]
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PartialEmoji"
                     }
                 }
             },
@@ -11967,36 +11532,6 @@
                     "message": {
                         "type": "object",
                         "properties": {
-                            "content": {
-                                "type": "string"
-                            },
-                            "timestamp": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "edited_timestamp": {
-                                "anyOf": [
-                                    {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    {
-                                        "type": "null"
-                                    }
-                                ]
-                            },
-                            "mentions": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "mention_roles": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
                             "attachments": {
                                 "type": "array",
                                 "items": {
@@ -16545,6 +16080,358 @@
                 ]
             }
         },
+        "/users/@me/consent-grants/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns all consent grant requests for the authenticated user (both as grantor and requester). Based on GNAP (RFC 9635) grant negotiation principles.",
+                "summary": "List consent grant requests",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantListResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter by grant status"
+                    },
+                    {
+                        "name": "consent_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter by consent type"
+                    },
+                    {
+                        "name": "as_requester",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "If true, list grants where user is the requester; if false, list grants where user is the grantor"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Initiates a consent grant request to another user. Based on GNAP (RFC 9635) grant negotiation. The target user will receive the request and can approve, deny, or negotiate.",
+                "summary": "Request a consent grant (GNAP-like)",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsentGrantRequestSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consent-grants/{grant_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns details of a specific consent grant request. Only accessible by the grantor or requester.",
+                "summary": "Get consent grant details",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "grant_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "grant_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Cancels a pending grant request (if requester) or revokes an approved grant (if grantor). Per GDPR Article 7(3), revocation is as easy as granting.",
+                "summary": "Cancel/revoke a consent grant",
+                "responses": {
+                    "204": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/null"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "grant_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "grant_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consent-grants/{grant_id}/approve": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Approves a pending consent grant request. Creates the corresponding UserConsent record. Only the target user (grantor) can approve.",
+                "summary": "Approve a consent grant request",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsentGrantApproveSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "grant_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "grant_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consent-grants/{grant_id}/deny": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Denies a pending consent grant request. Only the target user (grantor) can deny.",
+                "summary": "Deny a consent grant request",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "grant_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "grant_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consent-grants/{grant_id}/continue": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Continues the grant negotiation process using the continuation token. Used for multi-step negotiation flows per GNAP (RFC 9635).",
+                "summary": "Continue grant negotiation (GNAP-like)",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsentGrantContinueSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentGrantResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "grant_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "grant_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/connections/": {
             "get": {
                 "security": [
@@ -16948,6 +16835,23 @@
                         "description": "payment_source_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/billing/location-info/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
                 "tags": [
                     "users"
                 ]
@@ -24655,6 +24559,114 @@
                 ],
                 "responses": {
                     "204": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/tickets/tickets": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TicketCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Channel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/ticket/ticket": {
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TicketPatchSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Channel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
                         "description": "No description available"
                     },
                     "403": {

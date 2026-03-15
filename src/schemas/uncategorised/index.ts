@@ -63,6 +63,7 @@ export * from "./PruneSchema";
 export * from "./PurgeSchema";
 export * from "./RefreshUrlsRequestSchema";
 export * from "./RegisterSchema";
+export * from "./RelationshipPatchSchema";
 export * from "./RelationshipPostSchema";
 export * from "./RelationshipPatchSchema";
 export * from "./RelationshipPutSchema";
