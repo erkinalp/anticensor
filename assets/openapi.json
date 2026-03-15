@@ -2489,7 +2489,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11689": {
+                    "__@annotationsKey@11706": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -2698,7 +2698,7 @@
                 },
                 "required": [
                     "ToGuildSource",
-                    "__@annotationsKey@11689",
+                    "__@annotationsKey@11706",
                     "bans",
                     "channel_ordering",
                     "channels",
@@ -5562,12 +5562,6 @@
                                         },
                                         "filename": {
                                             "type": "string"
-                                        },
-                                        "value": {
-                                            "type": "string"
-                                        },
-                                        "inline": {
-                                            "type": "boolean"
                                         }
                                     },
                                     "additionalProperties": false,
@@ -5808,6 +5802,14 @@
                     "username"
                 ]
             },
+            "RelationshipPatchSchema": {
+                "type": "object",
+                "properties": {
+                    "nickname": {
+                        "type": "string"
+                    }
+                }
+            },
             "RelationshipPostSchema": {
                 "type": "object",
                 "properties": {
@@ -5823,14 +5825,6 @@
                     "username"
                 ]
             },
-            "RelationshipPatchSchema": {
-                "type": "object",
-                "properties": {
-                    "nickname": {
-                        "type": "string"
-                    }
-                }
-            },
             "RelationshipPutSchema": {
                 "type": "object",
                 "properties": {
@@ -5842,6 +5836,9 @@
                             4
                         ],
                         "type": "number"
+                    },
+                    "confirm_stranger_request": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -7508,6 +7505,35 @@
                     }
                 }
             },
+            "TicketCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TicketPatchSchema": {
+                "type": "object",
+                "properties": {
+                    "owner_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "resolved": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "public": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "closed": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
+                }
+            },
             "ApplicationCommandOption": {
                 "type": "object",
                 "properties": {
@@ -7954,7 +7980,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11689": {
+                    "__@annotationsKey@11706": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -7965,7 +7991,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
+                    "__@annotationsKey@11706",
                     "channel",
                     "embeds",
                     "flags",
@@ -8032,7 +8058,15 @@
                         "$ref": "#/components/schemas/User"
                     },
                     "last_pin_timestamp": {
-                        "type": "integer"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "default_auto_archive_duration": {
                         "type": "integer"
@@ -8133,9 +8167,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "created_at",
                     "flags",
                     "id",
@@ -8168,13 +8212,6 @@
                     16,
                     17,
                     18,
-                    19,
-                    20,
-                    21,
-                    33,
-                    34,
-                    35,
-                    64,
                     255
                 ]
             },
@@ -8198,9 +8235,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "channel",
                     "channel_id",
                     "closed",
@@ -8399,9 +8446,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "bio",
                     "bot",
                     "connected_accounts",
@@ -8498,9 +8555,19 @@
                     },
                     "session_nickname": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "activities",
                     "client_info",
                     "client_status",
@@ -8791,9 +8858,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "from",
                     "from_id",
                     "id",
@@ -8877,9 +8954,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "external_id",
                     "id",
                     "name",
@@ -9081,9 +9168,19 @@
                     "view_nsfw_guilds": {
                         "type": "boolean",
                         "default": true
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "afk_timeout",
                     "allow_accessibility_detection",
                     "animate_emoji",
@@ -9197,9 +9294,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "counter",
                     "id",
                     "key_id",
@@ -9356,9 +9463,19 @@
                     },
                     "flags": {
                         "$ref": "#/components/schemas/ThreadMemberFlags"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "channel",
                     "flags",
                     "id",
@@ -9458,13 +9575,28 @@
                     },
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
+                    },
+                    "flags": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "banner",
                     "bio",
                     "communication_disabled_until",
                     "deaf",
+                    "flags",
                     "guild",
                     "guild_id",
                     "id",
@@ -9703,9 +9835,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "bans",
                     "channel_ordering",
                     "channels",
@@ -9759,9 +9901,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "executor",
                     "executor_id",
                     "guild",
@@ -9830,9 +9982,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "color",
                     "colors",
                     "flags",
@@ -9904,9 +10066,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "code",
                     "created_at",
                     "creator",
@@ -9963,9 +10135,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "animated",
                     "available",
                     "groups",
@@ -10021,9 +10203,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "format_type",
                     "id",
                     "name",
@@ -10057,9 +10249,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "id",
                     "name",
                     "stickers"
@@ -10139,9 +10341,19 @@
                     },
                     "flags": {
                         "type": "integer"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "channel",
                     "channel_id",
                     "code",
@@ -10214,9 +10426,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "channel",
                     "channel_id",
                     "deaf",
@@ -10290,9 +10512,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "application",
                     "application_id",
                     "avatar",
@@ -10448,9 +10680,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "description",
                     "discoverability_state",
                     "discovery_eligibility_flags",
@@ -10492,9 +10734,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "id",
                     "members",
                     "name",
@@ -10531,9 +10783,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "id",
                     "membership_state",
                     "permissions",
@@ -10788,35 +11050,51 @@
                     "last_message_id": {
                         "type": "string"
                     },
-                    "public_ack": {
+                    "last_acked_id": {
                         "type": "string"
                     },
                     "notifications_cursor": {
                         "type": "string"
                     },
+                    "mention_count": {
+                        "type": "integer"
+                    },
+                    "badge_count": {
+                        "type": "integer"
+                    },
                     "last_pin_timestamp": {
                         "type": "string",
                         "format": "date-time"
                     },
-                    "mention_count": {
-                        "type": "integer"
+                    "read_state_type": {
+                        "$ref": "#/components/schemas/ReadStateType"
                     },
-                    "manual": {
-                        "type": "boolean"
+                    "flags": {
+                        "$ref": "#/components/schemas/ReadStateFlags"
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
+                    "badge_count",
                     "channel",
                     "channel_id",
+                    "flags",
                     "id",
-                    "last_message_id",
-                    "manual",
                     "mention_count",
                     "notifications_cursor",
-                    "public_ack",
+                    "read_state_type",
                     "user",
                     "user_id"
                 ]
@@ -10894,9 +11172,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "channel",
                     "channel_id",
                     "id",
@@ -10936,9 +11224,19 @@
                     },
                     "id": {
                         "type": "string"
+                    },
+                    "__@annotationsKey@11706": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "required": [
+                    "__@annotationsKey@11706",
                     "filename",
                     "id",
                     "message",
@@ -10957,7 +11255,6 @@
                     "type": {
                         "enum": [
                             "article",
-                            "auto_moderation_message",
                             "gifv",
                             "image",
                             "link",
@@ -11100,20 +11397,43 @@
                 ]
             },
             "PartialEmoji": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "animated": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name"
+                        ]
                     },
-                    "name": {
-                        "type": "string"
-                    },
-                    "animated": {
-                        "type": "boolean"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "animated": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id"
+                        ]
                     }
-                },
-                "required": [
-                    "name"
                 ]
             },
             "MessageType": {
@@ -11144,12 +11464,45 @@
                     22,
                     23,
                     24,
-                    127,
-                    128,
-                    129,
-                    130,
-                    131,
-                    132,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                    59,
+                    60,
+                    61,
+                    62,
+                    63,
                     255
                 ]
             },
@@ -11210,7 +11563,44 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "$ref": "#/components/schemas/PartialEmoji"
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "name"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "id"
+                                ]
+                            }
+                        ]
                     },
                     "custom_id": {
                         "type": "string"
@@ -11374,7 +11764,44 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "$ref": "#/components/schemas/PartialEmoji"
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "name"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "id"
+                                ]
+                            }
+                        ]
                     },
                     "default": {
                         "type": "boolean"
@@ -11471,7 +11898,44 @@
                         "type": "string"
                     },
                     "emoji": {
-                        "$ref": "#/components/schemas/PartialEmoji"
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "name"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "animated": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "id"
+                                ]
+                            }
+                        ]
                     }
                 }
             },
@@ -11532,6 +11996,36 @@
                     "message": {
                         "type": "object",
                         "properties": {
+                            "content": {
+                                "type": "string"
+                            },
+                            "timestamp": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "edited_timestamp": {
+                                "anyOf": [
+                                    {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "mentions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "mention_roles": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
                             "attachments": {
                                 "type": "array",
                                 "items": {
@@ -13330,7 +13824,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11689": {
+                    "__@annotationsKey@11706": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -13341,7 +13835,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
+                    "__@annotationsKey@11706",
                     "code",
                     "consumed",
                     "expired",
@@ -13452,7 +13946,7 @@
                     "icon": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11689": {
+                    "__@annotationsKey@11706": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -13463,7 +13957,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
+                    "__@annotationsKey@11706",
                     "id",
                     "is_primary",
                     "localizations",
@@ -13841,7 +14335,7 @@
                     "link": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11689": {
+                    "__@annotationsKey@11706": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -13852,7 +14346,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11689",
+                    "__@annotationsKey@11706",
                     "description",
                     "icon",
                     "id"
