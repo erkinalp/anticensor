@@ -16,61 +16,64 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild } from "@spacebar/util";
+import { Config, Guild, Member } from "@spacebar/util";
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Like } from "typeorm";
+import { In, Like, Not } from "typeorm";
+import { DiscoverableGuildsResponse } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "DiscoverableGuildsResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { offset, limit, categories } = req.query;
-		const showAllGuilds = Config.get().guild.discovery.showAllGuilds;
-		const configLimit = Config.get().guild.discovery.limit;
-		let guilds;
-		if (categories == undefined) {
-			guilds = showAllGuilds
-				? await Guild.find({
-						take: Math.abs(Number(limit || configLimit)),
-					})
-				: await Guild.find({
-						where: { features: Like(`%DISCOVERABLE%`) },
-						take: Math.abs(Number(limit || configLimit)),
-					});
-		} else {
-			guilds = showAllGuilds
-				? await Guild.find({
-						where: { primary_category_id: categories.toString() },
-						take: Math.abs(Number(limit || configLimit)),
-					})
-				: await Guild.find({
-						where: {
-							primary_category_id: categories.toString(),
-							features: Like("%DISCOVERABLE%"),
-						},
-						take: Math.abs(Number(limit || configLimit)),
-					});
-		}
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "DiscoverableGuildsResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { offset, limit, categories } = req.query;
+        const showAllGuilds = Config.get().guild.discovery.showAllGuilds;
+        const configLimit = Config.get().guild.discovery.limit;
+        const hideJoinedGuilds = Config.get().guild.discovery.hideJoinedGuilds;
+        const hiddenGuildIds = hideJoinedGuilds
+            ? await Member.find({
+                  where: { id: req.user_id },
+                  select: { guild_id: true },
+              }).then((members) => members.map((member) => member.guild_id))
+            : [];
 
-		const total = guilds ? guilds.length : undefined;
+        const guilds = await Guild.find({
+            where: {
+                id: Not(In(hiddenGuildIds)),
+                discovery_excluded: false,
+                ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
+                ...(showAllGuilds ? {} : { features: Like("%DISCOVERABLE%") }),
+            },
+            order: {
+                discovery_weight: "DESC",
+                member_count: "DESC",
+            },
+            skip: Math.abs(Number(offset || Config.get().guild.discovery.offset)),
+            take: Math.abs(Number(limit || configLimit)),
+        });
 
-		res.send({
-			total: total,
-			guilds: guilds,
-			offset: Number(offset || Config.get().guild.discovery.offset),
-			limit: Number(limit || configLimit),
-		});
-	},
+        const total = guilds ? guilds.length : undefined;
+
+        res.send({
+            total: total,
+            guilds: guilds.map((g) => ({
+                ...g,
+                discovery_weight: undefined,
+                discovery_splash: undefined,
+            })),
+            offset: Number(offset || Config.get().guild.discovery.offset),
+            limit: Number(limit || configLimit),
+        });
+    },
 );
 
 export default router;

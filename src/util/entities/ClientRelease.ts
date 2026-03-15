@@ -18,28 +18,26 @@
 
 import { Column, Entity } from "typeorm";
 import { BaseClass } from "./BaseClass";
-import { dbEngine } from "../util/Database";
 
 @Entity({
-	name: "client_release",
-	engine: dbEngine,
+    name: "client_release",
 })
-export class Release extends BaseClass {
-	@Column()
-	name: string;
+export class ClientRelease extends BaseClass {
+    @Column()
+    name: string;
 
-	@Column()
-	pub_date: Date;
+    @Column()
+    pub_date: Date;
 
-	@Column()
-	url: string;
+    @Column()
+    url: string;
 
-	@Column()
-	platform: string;
+    @Column()
+    platform: string;
 
-	@Column()
-	enabled: boolean;
+    @Column()
+    enabled: boolean;
 
-	@Column({ nullable: true })
-	notes?: string;
+    @Column({ nullable: true })
+    notes?: string;
 }

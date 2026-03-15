@@ -18,16 +18,14 @@
 
 import { Column, Entity } from "typeorm";
 import { BaseClassWithoutId, PrimaryIdColumn } from "./BaseClass";
-import { dbEngine } from "../util/Database";
 
 @Entity({
-	name: "config",
-	engine: dbEngine,
+    name: "config",
 })
 export class ConfigEntity extends BaseClassWithoutId {
-	@PrimaryIdColumn()
-	key: string;
+    @PrimaryIdColumn()
+    key: string;
 
-	@Column({ type: "simple-json", nullable: true })
-	value: number | boolean | null | string | undefined;
+    @Column({ type: "simple-json", nullable: true })
+    value: number | boolean | null | string | undefined;
 }

@@ -17,99 +17,42 @@
 */
 
 import { ConnectedAccount } from "../entities/ConnectedAccount";
-import { UserSettings } from "../entities/UserSettings";
-import { Config } from "../util/Config";
 
 export enum VisibilityLevel {
-	PRIVATE = 0,
-	FRIENDS_ONLY = 1,
-	MUTUAL_GUILDS = 2,
-	PUBLIC = 3,
+    PRIVATE = 0,
+    FRIENDS_ONLY = 1,
+    MUTUAL_GUILDS = 2,
+    PUBLIC = 3,
 }
 
 export class ConnectionPrivacy {
-	static filterConnectedAccounts(
-		accounts: ConnectedAccount[],
-		viewerUserId: string,
-		targetUserId: string,
-		viewerSettings?: UserSettings,
-		targetSettings?: UserSettings,
-	): ConnectedAccount[] {
-		return accounts.filter((account) =>
-			this.isConnectionVisible(
-				account,
-				viewerUserId,
-				targetUserId,
-				viewerSettings,
-				targetSettings,
-			),
-		);
-	}
+    static filterConnectedAccounts(accounts: ConnectedAccount[], viewerUserId: string, targetUserId: string): ConnectedAccount[] {
+        return accounts.filter((account) => this.isConnectionVisible(account, viewerUserId, targetUserId));
+    }
 
-	static isConnectionVisible(
-		account: ConnectedAccount,
-		viewerUserId: string,
-		targetUserId: string,
-		viewerSettings?: UserSettings,
-		targetSettings?: UserSettings,
-	): boolean {
-		const effectiveVisibility = this.getEffectiveVisibility(
-			account,
-			targetSettings,
-		);
+    static isConnectionVisible(account: ConnectedAccount, viewerUserId: string, targetUserId: string): boolean {
+        const effectiveVisibility = this.getEffectiveVisibility(account);
 
-		if (effectiveVisibility === VisibilityLevel.PRIVATE) {
-			return viewerUserId === targetUserId;
-		}
+        if (effectiveVisibility === VisibilityLevel.PRIVATE) {
+            return viewerUserId === targetUserId;
+        }
 
-		if (effectiveVisibility === VisibilityLevel.PUBLIC) {
-			return true;
-		}
+        if (effectiveVisibility === VisibilityLevel.PUBLIC) {
+            return true;
+        }
 
-		return (
-			viewerUserId === targetUserId ||
-			effectiveVisibility >= VisibilityLevel.MUTUAL_GUILDS
-		);
-	}
+        return viewerUserId === targetUserId || effectiveVisibility >= VisibilityLevel.MUTUAL_GUILDS;
+    }
 
-	static shouldShareActivity(
-		account: ConnectedAccount,
-		targetSettings?: UserSettings,
-	): boolean {
-		return (
-			targetSettings?.connections_activity_sharing !== false &&
-			account.show_activity !== 0
-		);
-	}
+    static shouldShareActivity(account: ConnectedAccount): boolean {
+        return account.show_activity !== 0;
+    }
 
-	static shouldShareMetadata(
-		account: ConnectedAccount,
-		targetSettings?: UserSettings,
-	): boolean {
-		return (
-			targetSettings?.connections_metadata_sharing !== false &&
-			account.metadata_visibility !== 0
-		);
-	}
+    static shouldShareMetadata(account: ConnectedAccount): boolean {
+        return account.metadata_visibility !== 0;
+    }
 
-	static getEffectiveVisibility(
-		account: ConnectedAccount,
-		userSettings?: UserSettings,
-	): number {
-		const config = Config.get().connections;
-
-		if (account.privacy_override) {
-			return account.visibility || 0;
-		}
-
-		if (!config.allowUserOverride) {
-			return config.defaultVisibility;
-		}
-
-		return (
-			account.visibility ??
-			userSettings?.connections_default_visibility ??
-			config.defaultVisibility
-		);
-	}
+    static getEffectiveVisibility(account: ConnectedAccount): number {
+        return account.visibility ?? 0;
+    }
 }

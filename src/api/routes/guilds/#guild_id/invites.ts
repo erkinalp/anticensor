@@ -20,28 +20,36 @@ import { route } from "@spacebar/api";
 import { Invite, PublicInviteRelation } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		permission: "MANAGE_GUILD",
-		responses: {
-			200: {
-				body: "APIInviteArray",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { guild_id } = req.params;
+    "/",
+    route({
+        permission: "MANAGE_GUILD",
+        responses: {
+            200: {
+                body: "APIInviteArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id } = req.params as { [key: string]: string };
 
-		const invites = await Invite.find({
-			where: { guild_id },
-			relations: PublicInviteRelation,
-		});
+        const invites = await Invite.find({
+            where: { guild_id },
+            relations: PublicInviteRelation,
+        });
 
-		return res.json(invites);
-	},
+        await Promise.all(
+            invites
+                .filter((i) => i.isExpired())
+                .map(async (i) => {
+                    await Invite.delete({ code: i.code });
+                }),
+        );
+
+        return res.json(invites.filter((i) => !i.isExpired()));
+    },
 );
 
 export default router;

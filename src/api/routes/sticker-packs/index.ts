@@ -20,24 +20,24 @@ import { route } from "@spacebar/api";
 import { StickerPack } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIStickerPackArray",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const sticker_packs = await StickerPack.find({
-			relations: ["stickers"],
-		});
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIStickerPackArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const sticker_packs = await StickerPack.find({
+            relations: { stickers: true },
+        });
 
-		res.json({ sticker_packs });
-	},
+        res.json({ sticker_packs });
+    },
 );
 
 export default router;

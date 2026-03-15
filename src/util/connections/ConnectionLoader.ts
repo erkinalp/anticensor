@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Connection, Config } from "@spacebar/util";
+import { Connection } from "@spacebar/util";
 import fs from "fs";
 import path from "path";
 import { ConnectionConfig } from "./ConnectionConfig";
@@ -26,68 +26,52 @@ const root = path.join(__dirname, "..", "..", "connections");
 const connectionsLoaded = false;
 
 export class ConnectionLoader {
-	public static async loadConnections() {
-		if (connectionsLoaded) return;
-		ConnectionConfig.init();
-		const dirs = fs.readdirSync(root).filter((x) => {
-			try {
-				fs.readdirSync(path.join(root, x));
-				return true;
-			} catch (e) {
-				return false;
-			}
-		});
+    public static async loadConnections() {
+        if (connectionsLoaded) return;
+        await ConnectionConfig.init();
+        const dirs = fs.readdirSync(root).filter((x) => {
+            try {
+                fs.readdirSync(path.join(root, x));
+                return true;
+            } catch (e) {
+                return false;
+            }
+        });
 
-		dirs.forEach(async (x) => {
-			const modPath = path.resolve(path.join(root, x));
-			const mod = new (require(modPath).default)() as Connection;
+        dirs.forEach((x) => {
+            const modPath = path.resolve(path.join(root, x));
+            const mod = new (require(modPath).default)() as Connection;
+            ConnectionStore.connections.set(mod.id, mod);
 
-			const config = Config.get().connections;
-			if (
-				config.providers.length > 0 &&
-				!config.providers.includes(mod.id)
-			) {
-				return;
-			}
+            mod.init();
+            // console.log(`[Connections] Loaded connection '${mod.id}'`);
+        });
+    }
 
-			ConnectionStore.connections.set(mod.id, mod);
+    public static getConnectionConfig<T>(id: string, defaults?: unknown): T {
+        let cfg = ConnectionConfig.get()[id];
+        if (defaults) {
+            if (cfg) cfg = Object.assign({}, defaults, cfg);
+            else {
+                cfg = defaults;
+                this.setConnectionConfig(id, cfg).catch((e) => console.error(`[Connections/ERROR] Failed to set default config for '${id}'!`, e));
+            }
+        }
 
-			mod.init();
-			// console.log(`[Connections] Loaded connection '${mod.id}'`);
-		});
-	}
+        if (cfg?.enabled) console.log(`[Connections] ${id} enabled`);
 
-	public static getConnectionConfig<T>(id: string, defaults?: unknown): T {
-		let cfg = ConnectionConfig.get()[id];
-		if (defaults) {
-			if (cfg) cfg = Object.assign({}, defaults, cfg);
-			else {
-				cfg = defaults;
-				this.setConnectionConfig(id, cfg);
-			}
-		}
+        // if (!cfg)
+        // 	console.log(
+        // 		`[ConnectionConfig/WARN] Getting connection settings for '${id}' returned null! (Did you forget to add settings?)`,
+        // 	);
+        return cfg;
+    }
 
-		if (cfg?.enabled) console.log(`[Connections] ${id} enabled`);
+    public static async setConnectionConfig(id: string, config: Partial<unknown>): Promise<void> {
+        if (!config) console.warn(`[Connections/WARN] ${id} tried to set config=null!`);
 
-		// if (!cfg)
-		// 	console.log(
-		// 		`[ConnectionConfig/WARN] Getting connection settings for '${id}' returned null! (Did you forget to add settings?)`,
-		// 	);
-		return cfg;
-	}
-
-	public static async setConnectionConfig(
-		id: string,
-		config: Partial<unknown>,
-	): Promise<void> {
-		if (!config)
-			console.warn(`[Connections/WARN] ${id} tried to set config=null!`);
-
-		await ConnectionConfig.set({
-			[id]: Object.assign(
-				config,
-				ConnectionLoader.getConnectionConfig(id) || {},
-			),
-		});
-	}
+        await ConnectionConfig.set({
+            [id]: Object.assign(config, ConnectionLoader.getConnectionConfig(id) || {}),
+        });
+    }
 }

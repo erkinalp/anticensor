@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -17,175 +17,191 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	ChannelPinsUpdateEvent,
-	Config,
-	DiscordApiErrors,
-	emitEvent,
-	Message,
-	MessageCreateEvent,
-	MessageUpdateEvent,
-	User,
-} from "@spacebar/util";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { IsNull, Not } from "typeorm";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.put(
-	"/:message_id",
-	route({
-		permission: "VIEW_CHANNEL",
-		responses: {
-			204: {},
-			403: {},
-			404: {},
-			400: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { channel_id, message_id } = req.params;
+    "/:message_id",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            204: {},
+            403: {},
+            404: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id, message_id } = req.params as { [key: string]: string };
 
-		const message = await Message.findOneOrFail({
-			where: { id: message_id },
-			relations: ["author"],
-		});
+        const message = await Message.findOneOrFail({
+            where: { id: message_id },
+            relations: { author: true },
+        });
 
-		// * in dm channels anyone can pin messages -> only check for guilds
-		if (message.guild_id) req.permission?.hasThrow("PIN_MESSAGES");
+        // * in dm channels anyone can pin messages -> only check for guilds
+        if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
 
-		const pinned_count = await Message.count({
-			where: { channel: { id: channel_id }, pinned: true },
-		});
-		const { maxPins } = Config.get().limits.channel;
-		if (pinned_count >= maxPins)
-			throw DiscordApiErrors.MAXIMUM_PINS.withParams(maxPins);
+        const pinned_count = await Message.count({
+            where: { channel: { id: channel_id }, pinned_at: Not(IsNull()) },
+        });
 
-		message.pinned = true;
+        const { maxPins } = Config.get().limits.channel;
+        if (pinned_count >= maxPins) throw DiscordApiErrors.MAXIMUM_PINS.withParams(maxPins);
 
-		const author = await User.getPublicUser(req.user_id);
+        message.pinned_at = new Date();
 
-		const systemPinMessage = Message.create({
-			timestamp: new Date(),
-			type: 6,
-			guild_id: message.guild_id,
-			channel_id: message.channel_id,
-			author,
-			message_reference: {
-				message_id: message.id,
-				channel_id: message.channel_id,
-				guild_id: message.guild_id,
-			},
-			reactions: [],
-			attachments: [],
-			embeds: [],
-			sticker_items: [],
-			edited_timestamp: undefined,
-			mentions: [],
-			mention_channels: [],
-			mention_roles: [],
-			mention_everyone: false,
-		});
+        const author = await User.getPublicUser(req.user_id);
 
-		await Promise.all([
-			message.save(),
-			emitEvent({
-				event: "MESSAGE_UPDATE",
-				channel_id,
-				data: message,
-			} as MessageUpdateEvent),
-			emitEvent({
-				event: "CHANNEL_PINS_UPDATE",
-				channel_id,
-				data: {
-					channel_id,
-					guild_id: message.guild_id,
-					last_pin_timestamp: undefined,
-				},
-			} as ChannelPinsUpdateEvent),
-			systemPinMessage.save(),
-			emitEvent({
-				event: "MESSAGE_CREATE",
-				channel_id: message.channel_id,
-				data: systemPinMessage,
-			} as MessageCreateEvent),
-		]);
+        const systemPinMessage = Message.create({
+            timestamp: new Date(),
+            type: 6,
+            guild_id: message.guild_id,
+            channel_id: message.channel_id,
+            author,
+            message_reference: {
+                message_id: message.id,
+                channel_id: message.channel_id,
+                guild_id: message.guild_id,
+            },
+            reactions: [],
+            attachments: [],
+            embeds: [],
+            sticker_items: [],
+            edited_timestamp: undefined,
+            mentions: [],
+            mention_channels: [],
+            mention_roles: [],
+            mention_everyone: false,
+        });
 
-		res.sendStatus(204);
-	},
+        await Promise.all([
+            message.save(),
+            emitEvent({
+                event: "MESSAGE_UPDATE",
+                channel_id,
+                data: message,
+            } as MessageUpdateEvent),
+            emitEvent({
+                event: "CHANNEL_PINS_UPDATE",
+                channel_id,
+                data: {
+                    channel_id,
+                    guild_id: message.guild_id,
+                    last_pin_timestamp: undefined,
+                },
+            } as ChannelPinsUpdateEvent),
+            systemPinMessage.save(),
+            emitEvent({
+                event: "MESSAGE_CREATE",
+                channel_id: message.channel_id,
+                data: systemPinMessage,
+            } as MessageCreateEvent),
+        ]);
+
+        res.sendStatus(204);
+    },
 );
 
 router.delete(
-	"/:message_id",
-	route({
-		permission: "VIEW_CHANNEL",
-		responses: {
-			204: {},
-			403: {},
-			404: {},
-			400: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { channel_id, message_id } = req.params;
+    "/:message_id",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            204: {},
+            403: {},
+            404: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id, message_id } = req.params as { [key: string]: string };
 
-		const message = await Message.findOneOrFail({
-			where: { id: message_id },
-			relations: ["author"],
-		});
+        const message = await Message.findOneOrFail({
+            where: { id: message_id },
+            relations: { author: true },
+        });
 
-		if (message.guild_id) req.permission?.hasThrow("PIN_MESSAGES");
+        if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
 
-		message.pinned = false;
+        message.pinned_at = null;
 
-		await Promise.all([
-			message.save(),
-			emitEvent({
-				event: "MESSAGE_UPDATE",
-				channel_id,
-				data: message,
-			} as MessageUpdateEvent),
-			emitEvent({
-				event: "CHANNEL_PINS_UPDATE",
-				channel_id,
-				data: {
-					channel_id,
-					guild_id: message.guild_id,
-					last_pin_timestamp: undefined,
-				},
-			} as ChannelPinsUpdateEvent),
-		]);
+        await Promise.all([
+            message.save(),
+            emitEvent({
+                event: "MESSAGE_UPDATE",
+                channel_id,
+                data: message,
+            } as MessageUpdateEvent),
+            emitEvent({
+                event: "CHANNEL_PINS_UPDATE",
+                channel_id,
+                data: {
+                    channel_id,
+                    guild_id: message.guild_id,
+                    last_pin_timestamp: undefined,
+                },
+            } as ChannelPinsUpdateEvent),
+        ]);
 
-		res.sendStatus(204);
-	},
+        res.sendStatus(204);
+    },
 );
 
 router.get(
-	"/",
-	route({
-		permission: ["READ_MESSAGE_HISTORY"],
-		responses: {
-			200: {
-				body: "APIMessageArray",
-			},
-			400: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { channel_id } = req.params;
+    "/",
+    route({
+        permission: ["READ_MESSAGE_HISTORY"],
+        responses: {
+            200: {
+                body: "APIMessageArray",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
 
-		const pins = await Message.find({
-			where: { channel_id: channel_id, pinned: true },
-			relations: ["author"],
-		});
+        const pins = await Message.find({
+            where: { channel_id: channel_id, pinned_at: Not(IsNull()) },
+            relations: {
+                author: true,
+                webhook: true,
+                application: true,
+                mentions: true,
+                mention_roles: true,
+                mention_channels: true,
+                sticker_items: true,
+                attachments: true,
+                thread: {
+                    recipients: {
+                        user: true,
+                    },
+                },
+            },
+            order: { pinned_at: "DESC" },
+        });
+        await Message.fillReplies(pins);
 
-		res.send(pins);
-	},
+        const items = pins.map((message: Message) => ({
+            message: message.toJSON(),
+            pinned_at: message.pinned_at,
+        }));
+
+        res.send({
+            items,
+            has_more: false,
+        });
+    },
 );
 
 export default router;

@@ -20,28 +20,28 @@ import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
 import { ConnectedAccount, ConnectedAccountDTO } from "@spacebar/util";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get("/", route({}), async (req: Request, res: Response) => {
-	const connections = await ConnectedAccount.find({
-		where: {
-			user_id: req.user_id,
-		},
-		select: [
-			"external_id",
-			"type",
-			"name",
-			"verified",
-			"visibility",
-			"show_activity",
-			"revoked",
-			"token_data",
-			"friend_sync",
-			"integrations",
-		],
-	});
+    const connections = await ConnectedAccount.find({
+        where: {
+            user_id: req.user_id,
+        },
+        select: {
+            external_id: true,
+            type: true,
+            name: true,
+            verified: true,
+            visibility: true,
+            show_activity: true,
+            revoked: true,
+            token_data: true,
+            friend_sync: true,
+            integrations: true,
+        },
+    });
 
-	res.json(connections.map((x) => new ConnectedAccountDTO(x, true)));
+    res.json(connections.map((x) => new ConnectedAccountDTO(x, true)));
 });
 
 export default router;

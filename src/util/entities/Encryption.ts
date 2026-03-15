@@ -18,28 +18,26 @@
 
 import { Column, Entity } from "typeorm";
 import { BaseClass } from "./BaseClass";
-import { dbEngine } from "../util/Database";
 
 @Entity({
-	name: "security_settings",
-	engine: dbEngine,
+    name: "security_settings",
 })
 export class SecuritySettings extends BaseClass {
-	@Column({ nullable: true })
-	guild_id: string;
+    @Column({ nullable: true })
+    guild_id: string;
 
-	@Column({ nullable: true })
-	channel_id: string;
+    @Column({ nullable: true })
+    channel_id: string;
 
-	@Column()
-	encryption_permission_mask: number;
+    @Column()
+    encryption_permission_mask: number;
 
-	@Column({ type: "simple-array" })
-	allowed_algorithms: string[];
+    @Column({ type: "simple-array" })
+    allowed_algorithms: string[];
 
-	@Column()
-	current_algorithm: string;
+    @Column()
+    current_algorithm: string;
 
-	@Column({ nullable: true })
-	used_since_message: string;
+    @Column({ nullable: true })
+    used_since_message: string;
 }

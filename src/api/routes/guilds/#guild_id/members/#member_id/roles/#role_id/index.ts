@@ -20,42 +20,42 @@ import { route } from "@spacebar/api";
 import { Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.delete(
-	"/",
-	route({
-		permission: "MANAGE_ROLES",
-		responses: {
-			204: {},
-			403: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { guild_id, role_id, member_id } = req.params;
+    "/",
+    route({
+        permission: "MANAGE_ROLES",
+        responses: {
+            204: {},
+            403: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id, role_id, member_id } = req.params as { [key: string]: string };
 
-		await Member.removeRole(member_id, guild_id, role_id);
-		res.sendStatus(204);
-	},
+        await Member.removeRole(member_id, guild_id, role_id);
+        res.sendStatus(204);
+    },
 );
 
 router.put(
-	"/",
-	route({
-		permission: "MANAGE_ROLES",
-		responses: {
-			204: {},
-			403: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { guild_id, role_id, member_id } = req.params;
+    "/",
+    route({
+        permission: "MANAGE_ROLES",
+        responses: {
+            204: {},
+            403: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id, role_id, member_id } = req.params as { [key: string]: string };
 
-		await Member.addRole(member_id, guild_id, role_id);
-		res.sendStatus(204);
-	},
+        await Member.addRole(member_id, guild_id, role_id);
+        res.sendStatus(204);
+    },
 );
 
 export default router;

@@ -17,16 +17,9 @@
 */
 
 import { Request } from "express";
-import {
-	Column,
-	Entity,
-	FindOneOptions,
-	JoinColumn,
-	OneToMany,
-	OneToOne,
-} from "typeorm";
-import { Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { BitField } from "../util/BitField";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
+import { Random } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
 import { Member } from "./Member";
@@ -34,414 +27,379 @@ import { Relationship } from "./Relationship";
 import { SecurityKey } from "./SecurityKey";
 import { Session } from "./Session";
 import { UserSettings } from "./UserSettings";
-import { dbEngine } from "../util/Database";
-
-export enum PublicUserEnum {
-	username,
-	discriminator,
-	id,
-	public_flags,
-	avatar,
-	accent_color,
-	banner,
-	bio,
-	bot,
-	premium_since,
-	premium_type,
-	theme_colors,
-	pronouns,
-	badge_ids,
-}
-export type PublicUserKeys = keyof typeof PublicUserEnum;
-
-export enum PrivateUserEnum {
-	flags,
-	mfa_enabled,
-	email,
-	phone,
-	verified,
-	nsfw_allowed,
-	premium,
-	premium_type,
-	purchased_flags,
-	premium_usage_flags,
-	disabled,
-	rights, // required for proper handling of user rights for clients that wish to support it
-	// settings,	// now a relation
-	// locale
-}
-export type PrivateUserKeys = keyof typeof PrivateUserEnum | PublicUserKeys;
-
-export const PublicUserProjection = Object.values(PublicUserEnum).filter(
-	(x) => typeof x === "string",
-) as PublicUserKeys[];
-export const PrivateUserProjection = [
-	...PublicUserProjection,
-	...Object.values(PrivateUserEnum).filter((x) => typeof x === "string"),
-] as PrivateUserKeys[];
-
-// Private user data that should never get sent to the client
-export type PublicUser = Pick<User, PublicUserKeys>;
-export type PrivateUser = Pick<User, PrivateUserKeys>;
-
-export interface UserPrivate extends Pick<User, PrivateUserKeys> {
-	locale: string;
-}
+import {
+    AvatarDecorationData,
+    ChannelType,
+    Collectibles,
+    DisplayNameStyle,
+    PrimaryGuild,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    UserPrivate,
+} from "@spacebar/schemas";
+import { JsonNumber } from "../util/Decorators";
 
 @Entity({
-	name: "users",
-	engine: dbEngine,
+    name: "users",
 })
 export class User extends BaseClass {
-	@Column()
-	username: string; // username max length 32, min 2 (should be configurable)
+    @Column()
+    username: string; // username max length 32, min 2 (should be configurable)
 
-	@Column()
-	discriminator: string; // opaque string: 4 digits on discord.com
+    @Column()
+    discriminator: string; // opaque string: 4 digits on discord.com
 
-	@Column({ nullable: true })
-	avatar?: string; // hash of the user avatar
+    @Column({ nullable: true })
+    avatar?: string; // hash of the user avatar
 
-	@Column({ nullable: true })
-	accent_color?: number; // banner color of user
+    @Column({ nullable: true })
+    accent_color?: number; // banner color of user
 
-	@Column({ nullable: true })
-	banner?: string; // hash of the user banner
+    @Column({ nullable: true })
+    banner?: string; // hash of the user banner
 
-	// TODO: Separate `User` and `UserProfile` models
-	// puyo: changed from [number, number] because it breaks openapi
-	@Column({ nullable: true, type: "simple-array" })
-	theme_colors?: number[];
+    // TODO: Separate `User` and `UserProfile` models
+    // puyo: changed from [number, number] because it breaks openapi
+    @Column({ nullable: true, type: "simple-array" })
+    theme_colors?: number[];
 
-	@Column({ nullable: true })
-	pronouns?: string;
+    @Column({ nullable: true })
+    pronouns?: string;
 
-	@Column({ nullable: true, select: false })
-	phone?: string; // phone number of the user
+    @Column({ nullable: true, select: false })
+    phone?: string; // phone number of the user
 
-	@Column({ select: false })
-	desktop: boolean = false; // if the user has desktop app installed
+    @Column({ select: false })
+    desktop: boolean = false; // if the user has desktop app installed
 
-	@Column({ select: false })
-	mobile: boolean = false; // if the user has mobile app installed
+    @Column({ select: false })
+    mobile: boolean = false; // if the user has mobile app installed
 
-	@Column()
-	premium: boolean; // if user bought individual premium
+    @Column()
+    premium: boolean; // if user bought individual premium
 
-	@Column()
-	premium_type: number; // individual premium level
+    @Column()
+    premium_type: number; // individual premium level
 
-	@Column()
-	bot: boolean = false; // if user is bot
+    @Column()
+    bot: boolean = false; // if user is bot
 
-	@Column()
-	bio: string = ""; // short description of the user
+    @Column()
+    bio: string = ""; // short description of the user
 
-	@Column()
-	system: boolean = false; // shouldn't be used, the api sends this field type true, if the generated message comes from a system generated author
+    @Column()
+    system: boolean = false; // shouldn't be used, the api sends this field type true, if the generated message comes from a system generated author
 
-	@Column({ select: false })
-	nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
+    @Column({ select: false })
+    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
 
-	@Column({ select: false })
-	mfa_enabled: boolean = false; // if multi factor authentication is enabled
+    @Column({ select: false })
+    mfa_enabled: boolean = false; // if multi factor authentication is enabled
 
-	@Column({ select: false, default: false })
-	webauthn_enabled: boolean = false; // if webauthn multi factor authentication is enabled
+    @Column({ select: false, default: false })
+    webauthn_enabled: boolean = false; // if webauthn multi factor authentication is enabled
 
-	@Column({ select: false, nullable: true })
-	totp_secret?: string = "";
+    @Column({ select: false, nullable: true })
+    totp_secret?: string = "";
 
-	@Column({ nullable: true, select: false })
-	totp_last_ticket?: string = "";
+    @Column({ nullable: true, select: false })
+    totp_last_ticket?: string = "";
 
-	@Column()
-	created_at: Date; // registration date
+    @Column()
+    created_at: Date; // registration date
 
-	@Column({ nullable: true })
-	premium_since: Date; // premium date
+    @Column({ nullable: true })
+    premium_since: Date; // premium date
 
-	@Column({ select: false })
-	verified: boolean; // email is verified
+    @Column({ select: false })
+    verified: boolean; // email is verified
 
-	@Column()
-	disabled: boolean = false; // if the account is disabled
+    @Column()
+    disabled: boolean = false; // if the account is disabled
 
-	@Column()
-	deleted: boolean = false; // if the user was deleted
+    @Column()
+    deleted: boolean = false; // if the user was deleted
 
-	@Column({ nullable: true, select: false })
-	email?: string; // email of the user
+    @Column({ nullable: true, select: false })
+    email?: string; // email of the user
 
-	@Column()
-	flags: number = 0; // UserFlags // TODO: generate
+    @Column({ type: "bigint" })
+    @JsonNumber
+    flags: number = 0; // UserFlags // TODO: generate
 
-	@Column()
-	public_flags: number = 0;
+    @Column({ type: "bigint" })
+    @JsonNumber
+    public_flags: number = 0;
 
-	@Column()
-	purchased_flags: number = 0;
+    @Column({ type: "bigint" })
+    @JsonNumber
+    purchased_flags: number = 0;
 
-	@Column()
-	premium_usage_flags: number = 0;
+    @Column()
+    premium_usage_flags: number = 0;
 
-	@Column({ type: "bigint" })
-	rights: string;
+    @Column({ type: "bigint" })
+    @JsonNumber
+    rights: string;
 
-	@OneToMany(() => Session, (session: Session) => session.user)
-	sessions: Session[];
+    @OneToMany(() => Session, (session: Session) => session.user)
+    sessions: Session[];
 
-	@JoinColumn({ name: "relationship_ids" })
-	@OneToMany(
-		() => Relationship,
-		(relationship: Relationship) => relationship.from,
-		{
-			cascade: true,
-			orphanedRowAction: "delete",
-		},
-	)
-	relationships: Relationship[];
+    @JoinColumn({ name: "relationship_ids" })
+    @OneToMany(() => Relationship, (relationship: Relationship) => relationship.from, {
+        cascade: true,
+        orphanedRowAction: "delete",
+    })
+    relationships: Relationship[];
 
-	@JoinColumn({ name: "connected_account_ids" })
-	@OneToMany(
-		() => ConnectedAccount,
-		(account: ConnectedAccount) => account.user,
-		{
-			cascade: true,
-			orphanedRowAction: "delete",
-		},
-	)
-	connected_accounts: ConnectedAccount[];
+    @JoinColumn({ name: "connected_account_ids" })
+    @OneToMany(() => ConnectedAccount, (account: ConnectedAccount) => account.user, {
+        cascade: true,
+        orphanedRowAction: "delete",
+    })
+    connected_accounts: ConnectedAccount[];
 
-	@Column({ type: "simple-json", select: false })
-	data: {
-		valid_tokens_since: Date; // all tokens with a previous issue date are invalid
-		hash?: string; // hash of the password, salt is saved in password (bcrypt)
-	};
+    @Column({ type: "simple-json", select: false })
+    data: {
+        valid_tokens_since: Date; // all tokens with a previous issue date are invalid
+        hash?: string; // hash of the password, salt is saved in password (bcrypt)
+    };
 
-	@Column({ type: "simple-array", select: false })
-	fingerprints: string[] = []; // array of fingerprints -> used to prevent multiple accounts
+    @Column({ type: "simple-array", select: false })
+    fingerprints: string[] = []; // array of fingerprints -> used to prevent multiple accounts
 
-	@OneToOne(() => UserSettings, {
-		cascade: true,
-		orphanedRowAction: "delete",
-		eager: false,
-	})
-	@JoinColumn()
-	settings: UserSettings;
+    @OneToOne(() => UserSettings, {
+        cascade: true,
+        orphanedRowAction: "delete",
+        nullable: true,
+    })
+    @JoinColumn()
+    settings?: UserSettings;
 
-	// workaround to prevent fossord-unaware clients from deleting settings not used by them
-	@Column({ type: "simple-json", select: false })
-	extended_settings: string = "{}";
+    @OneToMany(() => SecurityKey, (key: SecurityKey) => key.user)
+    security_keys: SecurityKey[];
 
-	@OneToMany(() => SecurityKey, (key: SecurityKey) => key.user)
-	security_keys: SecurityKey[];
+    @Column({ type: "simple-array", nullable: true })
+    badge_ids?: string[];
 
-	@Column({ type: "simple-array", nullable: true })
-	badge_ids?: string[];
+    @Column({ type: "simple-json", nullable: true })
+    avatar_decoration_data?: AvatarDecorationData;
 
-	// TODO: I don't like this method?
-	validate() {
-		if (this.discriminator) {
-			const discrim = Number(this.discriminator);
-			if (
-				isNaN(discrim) ||
-				!(typeof discrim == "number") ||
-				!Number.isInteger(discrim) ||
-				discrim <= 0 ||
-				discrim >= 10000
-			)
-				throw FieldErrors({
-					discriminator: {
-						message: "Discriminator must be a number.",
-						code: "DISCRIMINATOR_INVALID",
-					},
-				});
+    @Column({ type: "simple-json", nullable: true })
+    display_name_styles?: DisplayNameStyle;
 
-			this.discriminator = discrim.toString().padStart(4, "0");
-		}
-	}
+    @Column({ type: "simple-json", nullable: true })
+    collectibles?: Collectibles;
 
-	toPublicUser() {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const user: any = {};
-		PublicUserProjection.forEach((x) => {
-			user[x] = this[x];
-		});
-		return user as PublicUser;
-	}
+    @Column({ type: "simple-json", nullable: true })
+    primary_guild?: PrimaryGuild;
 
-	toPrivateUser() {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const user: any = {};
-		PrivateUserProjection.forEach((x) => {
-			user[x] = this[x];
-		});
-		return user as UserPrivate;
-	}
+    // TODO: I don't like this method?
+    validate() {
+        if (this.discriminator) {
+            const discrim = Number(this.discriminator);
+            if (isNaN(discrim) || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
+                throw FieldErrors({
+                    discriminator: {
+                        message: "Discriminator must be a number.",
+                        code: "DISCRIMINATOR_INVALID",
+                    },
+                });
 
-	static async getPublicUser(user_id: string, opts?: FindOneOptions<User>) {
-		return await User.findOneOrFail({
-			where: { id: user_id },
-			...opts,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			select: [...PublicUserProjection, ...(opts?.select || [])], // TODO: fix
-		});
-	}
+            this.discriminator = discrim.toString().padStart(4, "0");
+        }
+    }
 
-	public static async generateDiscriminator(
-		username: string,
-	): Promise<string | undefined> {
-		if (Config.get().register.incrementingDiscriminators) {
-			// discriminator will be incrementally generated
+    toPublicUser() {
+        this.clean_data();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user: any = {};
+        PublicUserProjection.forEach((x) => {
+            user[x] = this[x];
+        });
+        return user as PublicUser;
+    }
 
-			// First we need to figure out the currently highest discrimnator for the given username and then increment it
-			const users = await User.find({
-				where: { username },
-				select: ["discriminator"],
-			});
-			const highestDiscriminator = Math.max(
-				0,
-				...users.map((u) => Number(u.discriminator)),
-			);
+    toPrivateUser(extraFields: (keyof User)[] = []) {
+        this.clean_data();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user: any = {};
+        [...PrivateUserProjection, ...extraFields].forEach((x) => {
+            user[x] = this[x];
+        });
+        return user as UserPrivate;
+    }
 
-			const discriminator = highestDiscriminator + 1;
-			if (discriminator >= 10000) {
-				return undefined;
-			}
+    static async getPublicUser(user_id: string): Promise<PublicUser> {
+        const user = await User.findOneOrFail({
+            where: { id: user_id },
+            select: PublicUserProjection,
+        });
+        return user.toPublicUser();
+    }
 
-			return discriminator.toString().padStart(4, "0");
-		} else {
-			// discriminator will be randomly generated
+    public static async generateDiscriminator(username: string): Promise<string | undefined> {
+        if (Config.get().register.incrementingDiscriminators) {
+            // discriminator will be incrementally generated
 
-			// randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
-			// TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
-			for (let tries = 0; tries < 5; tries++) {
-				const discriminator = Math.randomIntBetween(1, 9999)
-					.toString()
-					.padStart(4, "0");
-				const exists = await User.findOne({
-					where: { discriminator, username: username },
-					select: ["id"],
-				});
-				if (!exists) return discriminator;
-			}
+            // First we need to figure out the currently highest discrimnator for the given username and then increment it
+            const users = await User.find({
+                where: { username },
+                select: { discriminator: true },
+            });
+            const highestDiscriminator = Math.max(0, ...users.map((u) => Number(u.discriminator)));
 
-			return undefined;
-		}
-	}
+            const discriminator = highestDiscriminator + 1;
+            if (discriminator >= 10000) {
+                return undefined;
+            }
 
-	static async register({
-		email,
-		username,
-		password,
-		id,
-		req,
-	}: {
-		username: string;
-		password?: string;
-		email?: string;
-		date_of_birth?: Date; // "2000-04-03"
-		id?: string;
-		req?: Request;
-	}) {
-		// trim special uf8 control characters -> Backspace, Newline, ...
-		username = trimSpecial(username);
+            return discriminator.toString().padStart(4, "0");
+        } else {
+            // discriminator will be randomly generated
 
-		const discriminator = await User.generateDiscriminator(username);
-		if (!discriminator) {
-			// We've failed to generate a valid and unused discriminator
-			throw FieldErrors({
-				username: {
-					code: "USERNAME_TOO_MANY_USERS",
-					message:
-						req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
-				},
-			});
-		}
+            // randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
+            // TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
+            for (let tries = 0; tries < 5; tries++) {
+                const discriminator = Random.nextInt(1, 9999).toString().padStart(4, "0");
+                const exists = await User.findOne({
+                    where: { discriminator, username: username },
+                    select: { id: true },
+                });
+                if (!exists) return discriminator;
+            }
 
-		// TODO: save date_of_birth
-		// appearently discord doesn't save the date of birth and just calculate if nsfw is allowed
-		// if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
-		const language =
-			req?.language === "en" ? "en-US" : req?.language || "en-US";
+            return undefined;
+        }
+    }
 
-		const settings = UserSettings.create({
-			locale: language,
-		});
+    public get tag(): string {
+        //const { uniqueUsernames } = Config.get().general;
+        const uniqueUsernames = false;
 
-		const user = User.create({
-			username: username,
-			discriminator,
-			id: id || Snowflake.generate(),
-			email: email,
-			data: {
-				hash: password,
-				valid_tokens_since: new Date(),
-			},
-			extended_settings: "{}",
-			settings: settings,
+        return uniqueUsernames ? this.username : `${this.username}#${this.discriminator}`;
+    }
 
-			premium_since: Config.get().defaults.user.premium
-				? new Date()
-				: undefined,
-			rights: Config.get().register.defaultRights,
-			premium: Config.get().defaults.user.premium ?? false,
-			premium_type: Config.get().defaults.user.premiumType ?? 0,
-			verified: Config.get().defaults.user.verified ?? true,
-			created_at: new Date(),
-		});
+    static async register({
+        email,
+        username,
+        password,
+        id,
+        req,
+        bot,
+    }: {
+        username: string;
+        password?: string;
+        email?: string;
+        date_of_birth?: Date; // "2000-04-03"
+        id?: string;
+        req?: Request;
+        bot?: boolean;
+    }) {
+        // trim special uf8 control characters -> Backspace, Newline, ...
+        username = trimSpecial(username);
 
-		user.validate();
-		await Promise.all([user.save(), settings.save()]);
+        const discriminator = await User.generateDiscriminator(username);
+        if (!discriminator) {
+            // We've failed to generate a valid and unused discriminator
+            throw FieldErrors({
+                username: {
+                    code: "USERNAME_TOO_MANY_USERS",
+                    message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
+                },
+            });
+        }
 
-		// send verification email if users aren't verified by default and we have an email
-		if (!Config.get().defaults.user.verified && email) {
-			await Email.sendVerifyEmail(user, email).catch((e) => {
-				console.error(
-					`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`,
-				);
-			});
-		}
+        // TODO: save date_of_birth
+        // apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
+        // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
+        const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
 
-		setImmediate(async () => {
-			if (Config.get().guild.autoJoin.enabled) {
-				for (const guild of Config.get().guild.autoJoin.guilds || []) {
-					await Member.addToGuild(user.id, guild).catch((e) =>
-						console.error("[Autojoin]", e),
-					);
-				}
-			}
-		});
+        const settings = UserSettings.create({
+            locale: language,
+        });
 
-		return user;
-	}
-}
+        const user = User.create({
+            username: username,
+            discriminator,
+            id: id || Snowflake.generate(),
+            email: email,
+            data: {
+                hash: password,
+                valid_tokens_since: new Date(),
+            },
+            settings: settings,
 
-export const CUSTOM_USER_FLAG_OFFSET = BigInt(1) << BigInt(32);
+            premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
+            rights: Config.get().register.defaultRights,
+            premium: Config.get().defaults.user.premium ?? false,
+            premium_type: Config.get().defaults.user.premiumType ?? 0,
+            verified: Config.get().defaults.user.verified ?? true,
+            created_at: new Date(),
+            bot: !!bot,
+        });
 
-export class UserFlags extends BitField {
-	static FLAGS = {
-		DISCORD_EMPLOYEE: BigInt(1) << BigInt(0),
-		PARTNERED_SERVER_OWNER: BigInt(1) << BigInt(1),
-		HYPESQUAD_EVENTS: BigInt(1) << BigInt(2),
-		BUGHUNTER_LEVEL_1: BigInt(1) << BigInt(3),
-		MFA_SMS: BigInt(1) << BigInt(4),
-		PREMIUM_PROMO_DISMISSED: BigInt(1) << BigInt(5),
-		HOUSE_BRAVERY: BigInt(1) << BigInt(6),
-		HOUSE_BRILLIANCE: BigInt(1) << BigInt(7),
-		HOUSE_BALANCE: BigInt(1) << BigInt(8),
-		EARLY_SUPPORTER: BigInt(1) << BigInt(9),
-		TEAM_USER: BigInt(1) << BigInt(10),
-		TRUST_AND_SAFETY: BigInt(1) << BigInt(11),
-		SYSTEM: BigInt(1) << BigInt(12),
-		HAS_UNREAD_URGENT_MESSAGES: BigInt(1) << BigInt(13),
-		BUGHUNTER_LEVEL_2: BigInt(1) << BigInt(14),
-		UNDERAGE_DELETED: BigInt(1) << BigInt(15),
-		VERIFIED_BOT: BigInt(1) << BigInt(16),
-		EARLY_VERIFIED_BOT_DEVELOPER: BigInt(1) << BigInt(17),
-		CERTIFIED_MODERATOR: BigInt(1) << BigInt(18),
-		BOT_HTTP_INTERACTIONS: BigInt(1) << BigInt(19),
-	};
+        user.validate();
+        await Promise.all([user.save(), settings.save()]);
+
+        // send verification email if users aren't verified by default and we have an email
+        if (!Config.get().defaults.user.verified && email) {
+            await Email.sendVerifyEmail(user, email).catch((e) => {
+                console.error(`Failed to send verification email to ${user.tag}: ${e}`);
+            });
+        }
+
+        setImmediate(async () => {
+            if (bot) {
+                const { guild } = Config.get();
+                if (!guild.autoJoin.bots) {
+                    return;
+                }
+            }
+            if (Config.get().guild.autoJoin.enabled) {
+                for (const guild of Config.get().guild.autoJoin.guilds || []) {
+                    await Member.addToGuild(user.id, guild).catch((e) => console.error("[Autojoin]", e));
+                }
+            }
+        });
+
+        return user;
+    }
+
+    async getDmChannelWith(user_id: string) {
+        const qry = await Channel.getRepository()
+            .createQueryBuilder()
+            .leftJoinAndSelect("Channel.recipients", "rcp")
+            .where("Channel.type = :type", { type: ChannelType.DM })
+            .andWhere("rcp.user_id IN (:...user_ids)", { user_ids: [this.id, user_id] })
+            .groupBy("Channel.id")
+            .having("COUNT(rcp.user_id) = 2")
+            .getMany();
+
+        // Emma [it/its]@Rory&: is this technically a bug, or am I being too over-cautious?
+        if (qry.length > 1) {
+            console.warn(`[WARN] User(${this.id})#getDmChannel(${user_id}) returned multiple channels:`);
+            for (const channel of qry) {
+                console.warn(JSON.stringify(channel));
+            }
+            throw new Error("Array contains more than one matching element");
+        }
+
+        return qry[0];
+    }
+
+    async getDmChannels() {
+        const qry = await Channel.getRepository()
+            .createQueryBuilder("channel")
+            .leftJoinAndSelect("channel.recipients", "rcp")
+            .where("channel.type = :type", { type: ChannelType.DM })
+            .andWhere("rcp.user_id = :user_id", { user_id: this.id })
+            .groupBy("channel.id")
+            .addGroupBy("rcp.id")
+            .having("COUNT(rcp.id) = 2")
+            .getMany();
+
+        return qry;
+    }
 }

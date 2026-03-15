@@ -16,161 +16,194 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Config,
-	ConnectionConfig,
-	ConnectionLoader,
-	Email,
-	JSONReplacer,
-	Sentry,
-	WebAuthn,
-	initDatabase,
-	initEvent,
-	registerRoutes,
-} from "@spacebar/util";
-import {
-	Authentication,
-	CORS,
-	ImageProxy,
-	BodyParser,
-	ErrorHandler,
-	initRateLimits,
-	initTranslation,
-} from "./middlewares";
+import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "@spacebar/util";
+import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
-import "missing-native-js-functions";
 import morgan from "morgan";
 import path from "path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
+import { route } from "./util";
 
-const PUBLIC_ASSETS_FOLDER = path.join(
-	__dirname,
-	"..",
-	"..",
-	"assets",
-	"public",
-);
+const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
+const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 
 export type SpacebarServerOptions = ServerOptions;
 
 declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace Express {
-		interface Request {
-			server: SpacebarServer;
-		}
-	}
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Express {
+        interface Request {
+            server: SpacebarServer;
+        }
+    }
 }
 
 export class SpacebarServer extends Server {
-	declare public options: SpacebarServerOptions;
+    declare public options: SpacebarServerOptions;
 
-	constructor(opts?: Partial<SpacebarServerOptions>) {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		super({ ...opts, errorHandler: false, jsonBody: false });
-	}
+    constructor(opts?: Partial<SpacebarServerOptions>) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        super({ ...opts, errorHandler: false, jsonBody: false });
+    }
 
-	async start() {
-		await initDatabase();
-		await Config.init();
-		await initEvent();
-		await Email.init();
-		await ConnectionConfig.init();
-		await initInstance();
-		await Sentry.init(this.app);
-		WebAuthn.init();
+    async start() {
+        await initDatabase();
+        await Config.init();
+        await initEvent();
+        await Email.init();
+        await ConnectionConfig.init();
+        await initInstance();
+        WebAuthn.init();
 
-		const logRequests = process.env["LOG_REQUESTS"] != undefined;
-		if (logRequests) {
-			this.app.use(
-				morgan("combined", {
-					skip: (req, res) => {
-						let skip = !(
-							process.env["LOG_REQUESTS"]?.includes(
-								res.statusCode.toString(),
-							) ?? false
-						);
-						if (process.env["LOG_REQUESTS"]?.charAt(0) == "-")
-							skip = !skip;
-						return skip;
-					},
-				}),
-			);
-		}
+        const logRequests = process.env["LOG_REQUESTS"] != undefined;
+        if (logRequests) {
+            this.app.use(
+                morgan("combined", {
+                    skip: (req, res) => {
+                        let skip = !(process.env["LOG_REQUESTS"]?.includes(res.statusCode.toString()) ?? false);
+                        if (process.env["LOG_REQUESTS"]?.charAt(0) == "-") skip = !skip;
+                        return skip;
+                    },
+                }),
+            );
+        }
 
-		this.app.set("json replacer", JSONReplacer);
-		this.app.disable("x-powered-by");
+        this.app.set("json replacer", JSONReplacer);
+        this.app.disable("x-powered-by");
 
-		const trustedProxies = Config.get().security.trustedProxies;
-		if (trustedProxies) this.app.set("trust proxy", trustedProxies);
+        const trustedProxies = Config.get().security.trustedProxies;
+        if (trustedProxies) this.app.set("trust proxy", trustedProxies);
 
-		this.app.use(CORS);
-		this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        this.app.use(CORS);
+        this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
 
-		const app = this.app;
-		const api = Router();
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		this.app = api;
+        const app = this.app;
+        const api = Router({ mergeParams: true });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.app = api;
 
-		api.use(Authentication);
-		await initRateLimits(api);
-		await initTranslation(api);
+        api.use(Authentication);
+        await initRateLimits(api);
+        await initTranslation(api);
 
-		const { LobbyStore } = await import("@spacebar/util");
-		LobbyStore.init();
+        this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))).filter((r) => !!r);
 
-		this.routes = await registerRoutes(
-			this,
-			path.join(__dirname, "routes", "/"),
-		);
+        // 404 is not an error in express, so this should not be an error middleware
+        // this is a fine place to put the 404 handler because its after we register the routes
+        // and since its not an error middleware, our error handler below still works.
+        // Emma [it/its] @ Rory& - the _ is required now, as pillarjs throw an error if you don't pass a param name now
+        api.use("*_", (req: Request, res: Response) => {
+            res.status(404).json({
+                message: "Endpoint not found",
+                code: 404,
+                request: `${req.method} ${req.url}`,
+            });
+        });
 
-		// 404 is not an error in express, so this should not be an error middleware
-		// this is a fine place to put the 404 handler because its after we register the routes
-		// and since its not an error middleware, our error handler below still works.
-		api.use("*", (req: Request, res: Response) => {
-			res.status(404).json({
-				message: "404 endpoint not found",
-				code: 0,
-			});
-		});
+        this.app = app;
 
-		this.app = app;
+        //app.use("/__development", )
+        //app.use("/__internals", )
 
-		//app.use("/__development", )
-		//app.use("/__internals", )
-		app.use("/api/v6", api);
-		app.use("/api/v7", api);
-		app.use("/api/v8", api);
-		app.use("/api/v9", api);
-		app.use("/api", api); // allow unversioned requests
+        app.use("/api/v6", api);
+        app.use("/api/v7", api);
+        app.use("/api/v8", api);
+        app.use("/api/v9", api);
+        app.use("/api/v10", api); // https://discord.com/developers/docs/change-log#api-v10
+        app.use("/api", api); // allow unversioned requests
 
-		app.use("/imageproxy/:hash/:size/:url", ImageProxy);
+        app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
-		app.get("/", (req, res) =>
-			res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "index.html")),
-		);
+        app.get("/", (req, res) => {
+            res.set("Cache-Control", "public, max-age=21600");
+            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "index.html"));
+        });
 
-		app.get("/verify", (req, res) =>
-			res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "verify.html")),
-		);
+        app.get("/verify-email", (req, res) => {
+            res.set("Cache-Control", "public, max-age=21600");
+            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "verify.html"));
+        });
 
-		this.app.use(ErrorHandler);
+        app.get("/widget", (req, res) => {
+            res.set("Cache-Control", "public, max-age=21600");
+            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "widget.html"));
+        });
 
-		Sentry.errorHandler(this.app);
+        app.get("/_spacebar/api/schemas.json", (req, res) => {
+            res.sendFile(path.join(ASSETS_FOLDER, "schemas.json"));
+        });
 
-		ConnectionLoader.loadConnections();
+        app.get("/_spacebar/api/openapi.json", (req, res) => {
+            res.sendFile(path.join(ASSETS_FOLDER, "openapi.json"));
+        });
 
-		if (logRequests)
-			console.log(
-				red(
-					`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`,
-				),
-			);
+        app.get("/_spacebar/api/version", (req, res) => {
+            res.json({
+                implementation: "spacebar-server-ts",
+                version: getRevInfoOrFail(),
+            });
+        });
 
-		return super.start();
-	}
+        // current well-known location
+        app.get("/.well-known/spacebar", (req, res) => {
+            res.json({
+                api: (Config.get().api.endpointPublic + "/api/").replace("//api/", "/api/"),
+            });
+        });
+
+        // new well-known location
+        app.get("/.well-known/spacebar/client", (req, res) => {
+            let erlpackSupported = false;
+            try {
+                require("@yukikaze-bot/erlpack");
+                erlpackSupported = true;
+            } catch (e) {
+                // empty
+            }
+
+            res.json({
+                api: {
+                    baseUrl: Config.get().api.endpointPublic?.split("/api/")[0],
+                    apiVersions: {
+                        default: Config.get().api.defaultVersion,
+                        active: Config.get().api.activeVersions,
+                    },
+                },
+                cdn: {
+                    baseUrl: Config.get().cdn.endpointPublic,
+                },
+                gateway: {
+                    baseUrl: Config.get().gateway.endpointPublic,
+                    encoding: [...(erlpackSupported ? ["etf"] : []), "json"],
+                    compression: ["zstd-stream", "zlib-stream", null],
+                },
+                admin:
+                    Config.get().admin.endpointPublic === null
+                        ? undefined
+                        : {
+                              baseUrl: Config.get().admin.endpointPublic,
+                          },
+            });
+        });
+
+        function isReady(req: Request, res: Response) {
+            if (!getDatabase()) return res.sendStatus(503);
+            return res.sendStatus(200);
+        }
+
+        app.get("/readyz", route({ description: "Get the ready state of the server" }), isReady);
+        app.get("/healthz", route({ description: "Get the ready state of the server" }), isReady);
+
+        this.app.use(ErrorHandler);
+
+        await ConnectionLoader.loadConnections();
+
+        if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
+
+        return super.start();
+    }
 }

@@ -18,29 +18,36 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
+import { emitEvent, Session } from "@spacebar/util";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 export default router;
 
 router.post(
-	"/",
-	route({
-		responses: {
-			204: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		if (req.body.provider != null || req.body.voip_provider != null) {
-			console.log(
-				`[LOGOUT]: provider or voip provider not null!`,
-				req.body,
-			);
-		} else {
-			delete req.body.provider;
-			delete req.body.voip_provider;
-			if (Object.keys(req.body).length != 0)
-				console.log(`[LOGOUT]: Extra fields sent in logout!`, req.body);
-		}
-		res.status(204).send();
-	},
+    "/",
+    route({
+        responses: {
+            204: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        if (req.body.provider != null || req.body.voip_provider != null) {
+            console.log(`[LOGOUT]: provider or voip provider not null!`, req.body);
+        } else {
+            delete req.body.provider;
+            delete req.body.voip_provider;
+            if (Object.keys(req.body).length != 0) console.log(`[LOGOUT]: Extra fields sent in logout!`, req.body);
+        }
+
+        if (req.session) await Session.remove(req.session);
+
+        res.status(204).send();
+
+        if (req.session)
+            await emitEvent({
+                session_id: req.session.session_id,
+                event: "SB_SESSION_REMOVE",
+                origin: "Self logout",
+            });
+    },
 );

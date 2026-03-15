@@ -17,6 +17,8 @@
 */
 
 export class MailGunConfiguration {
-	apiKey: string | null = null;
-	domain: string | null = null;
+    username: string | null = null;
+    apiKey: string | null = null;
+    domain: string | null = null;
+    isEuropean: boolean = true;
 }

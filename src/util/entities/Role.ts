@@ -20,64 +20,66 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
-import { dbEngine } from "../util/Database";
+import { RoleColors } from "@spacebar/schemas";
 
 @Entity({
-	name: "roles",
-	engine: dbEngine,
+    name: "roles",
 })
 export class Role extends BaseClass {
-	@Column()
-	@RelationId((role: Role) => role.guild)
-	guild_id: string;
+    @Column()
+    @RelationId((role: Role) => role.guild)
+    guild_id: string;
 
-	@JoinColumn({ name: "guild_id" })
-	@ManyToOne(() => Guild, (guild) => guild.roles, {
-		onDelete: "CASCADE",
-	})
-	guild: Guild;
+    @JoinColumn({ name: "guild_id" })
+    @ManyToOne(() => Guild, (guild) => guild.roles, {
+        onDelete: "CASCADE",
+    })
+    guild: Guild;
 
-	@Column()
-	color: number;
+    @Column()
+    color: number;
 
-	@Column()
-	hoist: boolean;
+    @Column()
+    hoist: boolean;
 
-	@Column()
-	managed: boolean;
+    @Column({ default: false })
+    managed: boolean;
 
-	@Column()
-	mentionable: boolean;
+    @Column()
+    mentionable: boolean;
 
-	@Column()
-	name: string;
+    @Column()
+    name: string;
 
-	@Column()
-	permissions: string;
+    @Column()
+    permissions: string;
 
-	@Column()
-	position: number;
+    @Column()
+    position: number;
 
-	@Column({ nullable: true })
-	icon?: string;
+    @Column({ nullable: true })
+    icon?: string;
 
-	@Column({ nullable: true })
-	unicode_emoji?: string;
+    @Column({ nullable: true })
+    unicode_emoji?: string;
 
-	@Column({ type: "simple-json", nullable: true })
-	tags?: {
-		bot_id?: string;
-		integration_id?: string;
-		premium_subscriber?: boolean;
-	};
+    @Column({ type: "simple-json", nullable: true })
+    tags?: {
+        bot_id?: string;
+        integration_id?: string;
+        premium_subscriber?: boolean;
+    };
 
-	@Column({ default: 0 })
-	flags: number;
+    @Column({ default: 0 })
+    flags: number;
 
-	toJSON(): Role {
-		return {
-			...this,
-			tags: this.tags ?? undefined,
-		};
-	}
+    @Column({ nullable: false, type: "simple-json" })
+    colors: RoleColors;
+
+    toJSON(): Role {
+        return {
+            ...this,
+            tags: this.tags ?? undefined,
+        };
+    }
 }

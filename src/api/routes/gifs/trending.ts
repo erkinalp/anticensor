@@ -17,76 +17,57 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	TenorCategoriesResults,
-	TenorTrendingResults,
-	getGifApiKey,
-	parseGifResult,
-} from "@spacebar/util";
+import { getGifApiKey, parseGifResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import fetch from "node-fetch-commonjs";
-import { ProxyAgent } from "proxy-agent";
-import http from "http";
+import { TenorCategoriesResults, TenorTrendingResults } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		query: {
-			locale: {
-				type: "string",
-				description: "Locale",
-			},
-		},
-		responses: {
-			200: {
-				body: "TenorTrendingResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		// TODO: Custom providers
-		// TODO: return gifs as mp4
-		// const { media_format, locale } = req.query;
-		const { locale } = req.query;
+    "/",
+    route({
+        query: {
+            locale: {
+                type: "string",
+                description: "Locale",
+            },
+        },
+        responses: {
+            200: {
+                body: "TenorTrendingResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        // TODO: Custom providers
+        // TODO: return gifs as mp4
+        // const { media_format, locale } = req.query;
+        const { locale } = req.query;
 
-		const apiKey = getGifApiKey();
+        const apiKey = getGifApiKey();
 
-		const agent = new ProxyAgent();
+        const [responseSource, trendGifSource] = await Promise.all([
+            fetch(`https://g.tenor.com/v1/categories?locale=${locale}&key=${apiKey}`, {
+                method: "get",
+                headers: { "Content-Type": "application/json" },
+            }),
+            fetch(`https://g.tenor.com/v1/trending?locale=${locale}&key=${apiKey}`, {
+                method: "get",
+                headers: { "Content-Type": "application/json" },
+            }),
+        ]);
 
-		const [responseSource, trendGifSource] = await Promise.all([
-			fetch(
-				`https://g.tenor.com/v1/categories?locale=${locale}&key=${apiKey}`,
-				{
-					agent: agent as http.Agent,
-					method: "get",
-					headers: { "Content-Type": "application/json" },
-				},
-			),
-			fetch(
-				`https://g.tenor.com/v1/trending?locale=${locale}&key=${apiKey}`,
-				{
-					agent: agent as http.Agent,
-					method: "get",
-					headers: { "Content-Type": "application/json" },
-				},
-			),
-		]);
+        const { tags } = (await responseSource.json()) as TenorCategoriesResults;
+        const { results } = (await trendGifSource.json()) as TenorTrendingResults;
 
-		const { tags } =
-			(await responseSource.json()) as TenorCategoriesResults;
-		const { results } =
-			(await trendGifSource.json()) as TenorTrendingResults;
-
-		res.json({
-			categories: tags.map((x) => ({
-				name: x.searchterm,
-				src: x.image,
-			})),
-			gifs: [parseGifResult(results[0])],
-		}).status(200);
-	},
+        res.json({
+            categories: tags.map((x) => ({
+                name: x.searchterm,
+                src: x.image,
+            })),
+            gifs: [parseGifResult(results[0])],
+        }).status(200);
+    },
 );
 
 export default router;

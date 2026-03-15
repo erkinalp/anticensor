@@ -19,22 +19,37 @@
 import { route } from "@spacebar/api";
 import { Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "Sticker",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { sticker_id } = req.params;
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "Sticker",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { sticker_id } = req.params as { [key: string]: string };
 
-		res.json(await Sticker.find({ where: { id: sticker_id } }));
-	},
+        res.json(await Sticker.findOne({ where: { id: sticker_id } }));
+    },
+);
+router.get(
+    "/guild",
+    route({
+        responses: {
+            200: {
+                body: "Sticker",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { sticker_id } = req.params as { [key: string]: string };
+        const sticker = await Sticker.findOne({ where: { id: sticker_id }, relations: { guild: true } });
+        res.json(await sticker?.guild?.ToGuildSource());
+    },
 );
 
 export default router;

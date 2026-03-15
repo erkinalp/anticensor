@@ -23,28 +23,28 @@ import { LobbyStore, DiscordApiErrors } from "@spacebar/util";
 const router = Router();
 
 router.delete(
-	"/@me",
-	route({
-		responses: {
-			204: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { lobby_id } = req.params;
+    "/@me",
+    route({
+        responses: {
+            204: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const lobby_id = req.params.lobby_id as string;
 
-		const lobby = LobbyStore.getLobby(lobby_id);
-		if (!lobby) {
-			throw DiscordApiErrors.UNKNOWN_LOBBY;
-		}
+        const lobby = LobbyStore.getLobby(lobby_id);
+        if (!lobby) {
+            throw DiscordApiErrors.UNKNOWN_LOBBY;
+        }
 
-		const success = LobbyStore.removeMember(lobby_id, req.user_id);
-		if (!success) {
-			throw new Error("Unknown member");
-		}
+        const success = LobbyStore.removeMember(lobby_id, req.user_id);
+        if (!success) {
+            throw new Error("Unknown member");
+        }
 
-		return res.status(204).send();
-	},
+        return res.status(204).send();
+    },
 );
 
 export default router;

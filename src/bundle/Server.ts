@@ -28,7 +28,9 @@ import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
-import { Config, initDatabase, Sentry } from "@spacebar/util";
+import { Config, initDatabase } from "@spacebar/util";
+import fs from "fs";
+import cluster from "cluster";
 
 const app = express();
 const server = http.createServer();
@@ -41,57 +43,44 @@ const api = new Api.SpacebarServer({ server, port, production, app });
 const cdn = new CDNServer({ server, port, production, app });
 const gateway = new Gateway.Server({ server, port, production });
 const webrtc = new Webrtc.Server({
-	server: undefined,
-	port: wrtcWsPort,
-	production,
+    server: undefined,
+    port: wrtcWsPort,
+    production,
 });
 
 process.on("SIGTERM", async () => {
-	console.log("Shutting down due to SIGTERM");
-	await gateway.stop();
-	await cdn.stop();
-	await api.stop();
-	await webrtc.stop();
-	server.close();
-	Sentry.close();
+    console.log("Shutting down due to SIGTERM");
+    await gateway.stop();
+    await cdn.stop();
+    await api.stop();
+    await webrtc.stop();
+    server.close();
 });
 
 async function main() {
-	await initDatabase();
-	await Config.init();
-	await Sentry.init(app);
+    await initDatabase();
+    await Config.init();
 
-	const logRequests = process.env["LOG_REQUESTS"] != undefined;
-	if (logRequests) {
-		app.use(
-			morgan("combined", {
-				skip: (req, res) => {
-					let skip = !(
-						process.env["LOG_REQUESTS"]?.includes(
-							res.statusCode.toString(),
-						) ?? false
-					);
-					if (process.env["LOG_REQUESTS"]?.charAt(0) == "-")
-						skip = !skip;
-					return skip;
-				},
-			}),
-		);
-	}
+    const logRequests = process.env["LOG_REQUESTS"] != undefined;
+    if (logRequests) {
+        app.use(
+            morgan("combined", {
+                skip: (req, res) => {
+                    let skip = !(process.env["LOG_REQUESTS"]?.includes(res.statusCode.toString()) ?? false);
+                    if (process.env["LOG_REQUESTS"]?.charAt(0) == "-") skip = !skip;
+                    return skip;
+                },
+            }),
+        );
+    }
 
-	await new Promise((resolve) =>
-		server.listen({ port }, () => resolve(undefined)),
-	);
-	await Promise.all([
-		api.start(),
-		cdn.start(),
-		gateway.start(),
-		webrtc.start(),
-	]);
+    await new Promise((resolve) => server.listen({ port }, () => resolve(undefined)));
+    await Promise.all([api.start(), cdn.start(), gateway.start(), webrtc.start()]);
 
-	Sentry.errorHandler(app);
+    if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-bundle-${cluster.worker ? cluster.worker.id : port}`);
+    process.title = `sb-bundle-${cluster.worker ? cluster.worker.id : port}`;
 
-	console.log(`[Server] ${green(`Listening on port ${bold(port)}`)}`);
+    console.log(`[Server] ${green(`Listening on port ${bold(port)}`)}`);
 }
 
 main().catch(console.error);

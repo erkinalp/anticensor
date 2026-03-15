@@ -17,67 +17,63 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	checkToken,
-	Email,
-	FieldErrors,
-	generateToken,
-	PasswordResetSchema,
-	User,
-} from "@spacebar/util";
+import { checkToken, Email, FieldErrors, generateToken, User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
+import { PasswordResetSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
-	"/",
-	route({
-		requestBody: "PasswordResetSchema",
-		responses: {
-			200: {
-				body: "TokenOnlyResponse",
-			},
-			400: {
-				body: "APIErrorOrCaptchaResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { password, token } = req.body as PasswordResetSchema;
+    "/",
+    route({
+        requestBody: "PasswordResetSchema",
+        responses: {
+            200: {
+                body: "TokenOnlyResponse",
+            },
+            400: {
+                body: "APIErrorOrCaptchaResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { password, token } = req.body as PasswordResetSchema;
 
-		let user;
-		try {
-			const userTokenData = await checkToken(token, {
-				select: ["email"],
-			});
-			user = userTokenData.user;
-		} catch {
-			throw FieldErrors({
-				password: {
-					message: req.t("auth:password_reset.INVALID_TOKEN"),
-					code: "INVALID_TOKEN",
-				},
-			});
-		}
+        let user;
+        try {
+            const userTokenData = await checkToken(token, {
+                select: ["email"],
+                fingerprint: req.fingerprint,
+                ipAddress: req.ip,
+            });
+            user = userTokenData.user;
+        } catch {
+            throw FieldErrors({
+                password: {
+                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    code: "INVALID_TOKEN",
+                },
+            });
+        }
 
-		// the salt is saved in the password refer to bcrypt docs
-		const hash = await bcrypt.hash(password, 12);
+        // the salt is saved in the password refer to bcrypt docs
+        const hash = await bcrypt.hash(password, 12);
 
-		const data = {
-			data: {
-				hash,
-				valid_tokens_since: new Date(),
-			},
-		};
-		await User.update({ id: user.id }, data);
+        const data = {
+            data: {
+                hash,
+                valid_tokens_since: new Date(),
+            },
+        };
+        await User.update({ id: user.id }, data);
 
-		// come on, the user has to have an email to reset their password in the first place
-		await Email.sendPasswordChanged(user, user.email!);
+        // come on, the user has to have an email to reset their password in the first place
+        await Email.sendPasswordChanged(user, user.email!);
 
-		res.json({ token: await generateToken(user.id) });
-	},
+        res.json({ token: await generateToken(user.id) });
+    },
 );
 
 export default router;

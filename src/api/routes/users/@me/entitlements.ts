@@ -19,11 +19,11 @@
 import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get("/gifts", route({}), (req: Request, res: Response) => {
-	// TODO:
-	res.json([]).status(200);
+    // TODO:
+    res.json([]).status(200);
 });
 
 export default router;

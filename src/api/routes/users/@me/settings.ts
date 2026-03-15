@@ -17,63 +17,88 @@
 */
 
 import { route } from "@spacebar/api";
-import { User, UserSettingsSchema } from "@spacebar/util";
+import { User, UserSettings, emitEvent, Session, PresenceUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { UserSettingsUpdateSchema } from "@spacebar/schemas";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "UserSettings",
-			},
-			404: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const user = await User.findOneOrFail({
-			where: { id: req.user_id },
-			relations: ["settings"],
-		});
-		return res.json(user.settings);
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "UserSettings",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const settings = await UserSettings.getOrDefault(req.user_id);
+        return res.json(settings);
+    },
 );
 
 router.patch(
-	"/",
-	route({
-		requestBody: "UserSettingsSchema",
-		responses: {
-			200: {
-				body: "UserSettings",
-			},
-			400: {
-				body: "APIErrorResponse",
-			},
-			404: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const body = req.body as UserSettingsSchema;
-		if (body.locale === "en") body.locale = "en-US"; // fix discord client crash on unkown locale
+    "/",
+    route({
+        requestBody: "UserSettingsUpdateSchema",
+        responses: {
+            200: {
+                body: "UserSettings",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const body = req.body as UserSettingsUpdateSchema;
+        if (!body) return res.status(400).json({ code: 400, message: "Invalid request body" });
+        if (body.locale === "en") body.locale = "en-US"; // fix discord client crash on unknown locale
 
-		const user = await User.findOneOrFail({
-			where: { id: req.user_id, bot: false },
-			relations: ["settings"],
-		});
+        const user = await User.findOneOrFail({
+            where: { id: req.user_id, bot: false },
+            relations: { settings: true },
+        });
 
-		user.settings.assign(body);
+        if (!user.settings) user.settings = UserSettings.create<UserSettings>(body);
+        else user.settings.assign(body);
 
-		await user.settings.save();
+        if (body.guild_folders) user.settings.guild_folders = body.guild_folders;
 
-		res.json({ ...user.settings, index: undefined });
-	},
+        await user.settings.save();
+        await user.save();
+        if (body.status) {
+            const [session] = (await Session.find({
+                where: { user_id: user.id },
+            })) as [Session | undefined];
+            if (session) {
+                session.status = body.status;
+
+                await Promise.all([
+                    emitEvent({
+                        event: "PRESENCE_UPDATE",
+                        user_id: user.id,
+                        data: {
+                            user: user.toPublicUser(),
+                            activities: session.activities,
+                            client_status: session?.client_status,
+                            status: session.getPublicStatus(),
+                        },
+                    } as PresenceUpdateEvent),
+                    session.save(),
+                ]);
+            }
+        }
+
+        res.json({ ...user.settings, index: undefined });
+    },
 );
 
 export default router;

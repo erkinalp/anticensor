@@ -16,37 +16,27 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	mediaServer,
-	VoiceOPCodes,
-	VoicePayload,
-	WebRtcWebSocket,
-	Send,
-} from "../util";
+import { mediaServer, VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util";
 
 // {"speaking":1,"delay":5,"ssrc":2805246727}
 
 export async function onSpeaking(this: WebRtcWebSocket, data: VoicePayload) {
-	if (!this.webRtcClient) return;
+    if (!this.webRtcClient) return;
 
-	await Promise.all(
-		Array.from(
-			mediaServer.getClientsForRtcServer<WebRtcWebSocket>(
-				this.webRtcClient.voiceRoomId,
-			),
-		).map((client) => {
-			if (client.user_id === this.user_id) return Promise.resolve();
+    await Promise.all(
+        Array.from(mediaServer.getClientsForRtcServer<WebRtcWebSocket>(this.webRtcClient.voiceRoomId)).map((client) => {
+            if (client.user_id === this.user_id) return Promise.resolve();
 
-			const ssrc = client.getOutgoingStreamSSRCsForUser(this.user_id);
+            const ssrc = client.getOutgoingStreamSSRCsForUser(this.user_id);
 
-			return Send(client.websocket, {
-				op: VoiceOPCodes.SPEAKING,
-				d: {
-					user_id: this.user_id,
-					speaking: data.d.speaking,
-					ssrc: ssrc.audio_ssrc ?? 0,
-				},
-			});
-		}),
-	);
+            return Send(client.websocket, {
+                op: VoiceOPCodes.SPEAKING,
+                d: {
+                    user_id: this.user_id,
+                    speaking: data.d.speaking,
+                    ssrc: ssrc.audio_ssrc ?? 0,
+                },
+            });
+        }),
+    );
 }

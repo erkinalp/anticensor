@@ -18,25 +18,25 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			404: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		// TODO: member verification
+    "/",
+    route({
+        responses: {
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        // TODO: member verification
 
-		res.status(404).json({
-			message: "Unknown Guild Member Verification Form",
-			code: 10068,
-		});
-	},
+        res.status(404).json({
+            message: "Unknown Guild Member Verification Form",
+            code: 10068,
+        });
+    },
 );
 
 export default router;

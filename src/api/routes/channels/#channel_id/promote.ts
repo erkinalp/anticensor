@@ -17,148 +17,120 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	ChannelType,
-	Guild,
-	Permissions,
-	emitEvent,
-} from "@spacebar/util";
+import { Channel, Guild, Permissions, emitEvent } from "@spacebar/util";
+import { ChannelType, ChannelPromoteSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { ChannelPromoteSchema } from "@spacebar/util/schemas/ChannelPromoteSchema";
 
 const router: Router = Router();
 
 router.post(
-	"/",
-	route({
-		requestBody: "ChannelPromoteSchema",
-		permission: "MANAGE_CHANNELS",
-		responses: {
-			200: { body: "Channel" },
-			400: { body: "APIErrorResponse" },
-			403: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { channel_id } = req.params;
-		const body = (req.body || {}) as ChannelPromoteSchema;
+    "/",
+    route({
+        requestBody: "ChannelPromoteSchema",
+        permission: "MANAGE_CHANNELS",
+        responses: {
+            200: { body: "Channel" },
+            400: { body: "APIErrorResponse" },
+            403: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const channel_id = req.params.channel_id as string;
+        const body = (req.body || {}) as ChannelPromoteSchema;
 
-		const channel = await Channel.findOneOrFail({
-			where: { id: channel_id },
-		});
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+        });
 
-		if (!channel.guild_id) {
-			throw new HTTPError("Only guild threads can be promoted", 400);
-		}
-		if (channel.parent_id == null) {
-			throw new HTTPError("Channel is not a thread", 400);
-		}
+        if (!channel.guild_id) {
+            throw new HTTPError("Only guild threads can be promoted", 400);
+        }
+        if (channel.parent_id == null) {
+            throw new HTTPError("Channel is not a thread", 400);
+        }
 
-		let newType: ChannelType | null = null;
-		switch (channel.type) {
-			case ChannelType.GUILD_PUBLIC_THREAD:
-				newType = ChannelType.GUILD_TEXT;
-				break;
-			case ChannelType.GUILD_NEWS_THREAD:
-				newType = ChannelType.GUILD_NEWS;
-				break;
-			case ChannelType.ENCRYPTED_THREAD:
-				newType = ChannelType.ENCRYPTED;
-				break;
-			case ChannelType.GUILD_PRIVATE_THREAD:
-				throw new HTTPError("Private threads cannot be promoted", 400);
-			default:
-				throw new HTTPError(
-					"Unsupported channel type for promotion",
-					400,
-				);
-		}
+        let newType: ChannelType | null = null;
+        switch (channel.type) {
+            case ChannelType.GUILD_PUBLIC_THREAD:
+                newType = ChannelType.GUILD_TEXT;
+                break;
+            case ChannelType.GUILD_NEWS_THREAD:
+                newType = ChannelType.GUILD_NEWS;
+                break;
+            case ChannelType.GUILD_PRIVATE_THREAD:
+                throw new HTTPError("Private threads cannot be promoted", 400);
+            default:
+                throw new HTTPError("Unsupported channel type for promotion", 400);
+        }
 
-		const oldParentId = channel.parent_id;
-		const guildId = channel.guild_id;
+        const oldParentId = channel.parent_id;
+        const guildId = channel.guild_id;
 
-		const guild = await Guild.findOneOrFail({
-			where: { id: guildId },
-			relations: ["roles"],
-		});
+        const guild = await Guild.findOneOrFail({
+            where: { id: guildId },
+            relations: ["roles"],
+        });
 
-		const threadOverwrites = channel.permission_overwrites ?? [];
-		const computedOverwrites = [] as NonNullable<
-			Channel["permission_overwrites"]
-		>;
+        const threadOverwrites = channel.permission_overwrites ?? [];
+        const computedOverwrites = [] as NonNullable<Channel["permission_overwrites"]>;
 
-		for (const role of guild.roles) {
-			const base = BigInt(role.permissions);
-			const desired = Permissions.channelPermission(
-				threadOverwrites.filter(
-					(ow) => ow.type === 0 && ow.id === role.id,
-				),
-				base,
-			);
+        for (const role of guild.roles) {
+            const base = BigInt(role.permissions);
+            const desired = Permissions.channelPermission(
+                threadOverwrites.filter((ow) => ow.type === 0 && ow.id === role.id),
+                base,
+            );
 
-			const allow = desired & ~base;
-			const deny = base & ~desired;
+            const allow = desired & ~base;
+            const deny = base & ~desired;
 
-			if (allow !== BigInt(0) || deny !== BigInt(0)) {
-				computedOverwrites.push({
-					id: role.id,
-					type: 0,
-					allow: String(allow),
-					deny: String(deny),
-				});
-			}
-		}
+            if (allow !== BigInt(0) || deny !== BigInt(0)) {
+                computedOverwrites.push({
+                    id: role.id,
+                    type: 0,
+                    allow: String(allow),
+                    deny: String(deny),
+                });
+            }
+        }
 
-		for (const ow of threadOverwrites.filter((o) => o.type === 1)) {
-			const allow = BigInt(ow.allow || "0");
-			const deny = BigInt(ow.deny || "0");
-			if (allow === BigInt(0) && deny === BigInt(0)) continue;
-			computedOverwrites.push({
-				id: ow.id,
-				type: 1,
-				allow: String(allow),
-				deny: String(deny),
-			});
-		}
+        for (const ow of threadOverwrites.filter((o) => o.type === 1)) {
+            const allow = BigInt(ow.allow || "0");
+            const deny = BigInt(ow.deny || "0");
+            if (allow === BigInt(0) && deny === BigInt(0)) continue;
+            computedOverwrites.push({
+                id: ow.id,
+                type: 1,
+                allow: String(allow),
+                deny: String(deny),
+            });
+        }
 
-		channel.type = newType;
-		channel.parent_id = null;
-		channel.permission_overwrites = computedOverwrites;
+        channel.type = newType;
+        channel.parent_id = null;
+        channel.permission_overwrites = computedOverwrites;
 
-		await channel.save();
+        await channel.save();
 
-		if (typeof body.position === "number") {
-			await Guild.insertChannelInOrder(
-				guildId,
-				channel.id,
-				body.position,
-			);
-		} else {
-			await Guild.insertChannelInOrder(
-				guildId,
-				channel.id,
-				oldParentId as string,
-			);
-		}
+        if (typeof body.position === "number") {
+            await Guild.insertChannelInOrder(guildId, channel.id, body.position);
+        } else {
+            await Guild.insertChannelInOrder(guildId, channel.id, oldParentId as string);
+        }
 
-		channel.position = await Channel.calculatePosition(
-			channel.id,
-			guildId,
-			channel.guild,
-		);
+        channel.position = await Channel.calculatePosition(channel.id, guildId, channel.guild);
 
-		await emitEvent({
-			event: "CHANNEL_UPDATE",
-			data: channel,
-			channel_id: channel.id,
-			guild_id: guildId,
-		});
+        await emitEvent({
+            event: "CHANNEL_UPDATE",
+            data: channel,
+            channel_id: channel.id,
+            guild_id: guildId,
+        });
 
-		return res.json(channel);
-	},
+        return res.json(channel);
+    },
 );
 
 export default router;

@@ -23,65 +23,67 @@ import { LobbyStore, DiscordApiErrors, LobbyMemberDTO } from "@spacebar/util";
 const router = Router();
 
 router.put(
-	"/",
-	route({
-		requestBody: "LobbyMemberUpdateSchema",
-		responses: {
-			200: {},
-			400: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { lobby_id, user_id } = req.params;
-		const body = req.body as {
-			metadata?: Record<string, string>;
-			flags?: number;
-		};
+    "/",
+    route({
+        requestBody: "LobbyMemberUpdateSchema",
+        responses: {
+            200: {},
+            400: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const lobby_id = req.params.lobby_id as string;
+        const user_id = req.params.user_id as string;
+        const body = req.body as {
+            metadata?: Record<string, string>;
+            flags?: number;
+        };
 
-		const lobby = LobbyStore.getLobby(lobby_id);
-		if (!lobby) {
-			throw DiscordApiErrors.UNKNOWN_LOBBY;
-		}
+        const lobby = LobbyStore.getLobby(lobby_id);
+        if (!lobby) {
+            throw DiscordApiErrors.UNKNOWN_LOBBY;
+        }
 
-		const member: LobbyMemberDTO = {
-			id: user_id,
-			metadata: body.metadata,
-			flags: body.flags,
-		};
+        const member: LobbyMemberDTO = {
+            id: user_id,
+            metadata: body.metadata,
+            flags: body.flags,
+        };
 
-		const success = LobbyStore.addMember(lobby_id, member);
-		if (!success) {
-			throw DiscordApiErrors.UNKNOWN_LOBBY;
-		}
+        const success = LobbyStore.addMember(lobby_id, member);
+        if (!success) {
+            throw DiscordApiErrors.UNKNOWN_LOBBY;
+        }
 
-		return res.json(member);
-	},
+        return res.json(member);
+    },
 );
 
 router.delete(
-	"/",
-	route({
-		responses: {
-			204: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { lobby_id, user_id } = req.params;
+    "/",
+    route({
+        responses: {
+            204: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const lobby_id = req.params.lobby_id as string;
+        const user_id = req.params.user_id as string;
 
-		const lobby = LobbyStore.getLobby(lobby_id);
-		if (!lobby) {
-			throw DiscordApiErrors.UNKNOWN_LOBBY;
-		}
+        const lobby = LobbyStore.getLobby(lobby_id);
+        if (!lobby) {
+            throw DiscordApiErrors.UNKNOWN_LOBBY;
+        }
 
-		const success = LobbyStore.removeMember(lobby_id, user_id);
-		if (!success) {
-			throw new Error("Unknown member");
-		}
+        const success = LobbyStore.removeMember(lobby_id, user_id);
+        if (!success) {
+            throw new Error("Unknown member");
+        }
 
-		return res.status(204).send();
-	},
+        return res.status(204).send();
+    },
 );
 
 export default router;

@@ -4,8 +4,14 @@
 <h1 align="center">Spacebar Server</h1>
 
 <p align="center">
+  <a href="https://matrix.to/#/#spacebar:rory.gay">
+    <img src="https://img.shields.io/matrix/spacebar%3Arory.gay?server_fqdn=matrix.rory.gay&fetchMode=summary&logo=matrix&logoColor=fffffff&label=Matrix" />
+  </a>
+  <a href="https://fermi.chat/invite/spacebar?instance=spacebar.chat">
+    <img src="https://api.old.server.spacebar.chat/api/guilds/1006649183970562092/shield.svg" />
+  </a>
   <a href="https://discord.gg/ZrnGQP6p3d">
-    <img src="https://img.shields.io/discord/806142446094385153?color=7489d5&logo=discord&logoColor=ffffff" />
+    <img src="https://img.shields.io/discord/806142446094385153?color=7489d5&logo=discord&logoColor=ffffff&label=Discord" />
   </a>
   <img src="https://img.shields.io/static/v1?label=Status&message=Development&color=blue">
   <a title="Crowdin" target="_blank" href="https://translate.spacebar.chat/"><img src="https://badges.crowdin.net/fosscord/localized.svg"></a>
@@ -21,10 +27,13 @@ We aim to reverse engineer and add additional features to the Discord backend, w
 
 This repository contains:
 
+- [API Request/Response Types](/src/schemas)
 - [Spacebar HTTP API Server](/src/api)
 - [WebSocket Gateway Server](/src/gateway)
 - [HTTP CDN Server](/src/cdn)
+- [WebRTC Server](/src/webrtc)
 - [Utility and Database Models](/src/util)
+- [Spacebar Admin API (C#)](/extra/admin-api) (Emma [it/its]@Rory& was here)
 
 ## [Documentation](https://docs.spacebar.chat)
 
@@ -34,7 +43,6 @@ And with documentation on how to set up your own server [here](https://docs.spac
 
 ## Clients
 
-You _should_ be able to use any client designed for Discord.com to connect to a Spacebar instance.  
+You _should_ be able to use any client designed for Discord.com to connect to a Spacebar instance.
 However, some incompatibilities still exist between Spacebar and Discord. For this reason, not every client will connect.  
-The [WIP official Spacebar client](https://github.com/spacebarchat/client) will always work.
-You can find a [live version here](https://app.spacebar.chat).
+We recommend using [Fermi](https://fermi.chat/login?instance=https%3A%2F%2Fspacebar.chat) as a solid starting point on your adventure in the SpaceBar!

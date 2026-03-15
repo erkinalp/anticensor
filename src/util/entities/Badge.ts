@@ -18,22 +18,20 @@
 
 import { Column, Entity } from "typeorm";
 import { BaseClassWithoutId } from "./BaseClass";
-import { dbEngine } from "../util/Database";
 
 @Entity({
-	name: "badges",
-	engine: dbEngine,
+    name: "badges",
 })
 export class Badge extends BaseClassWithoutId {
-	@Column({ primary: true })
-	id: string;
+    @Column({ primary: true })
+    id: string;
 
-	@Column()
-	description: string;
+    @Column()
+    description: string;
 
-	@Column()
-	icon: string;
+    @Column()
+    icon: string;
 
-	@Column({ nullable: true })
-	link?: string;
+    @Column({ nullable: true })
+    link?: string;
 }

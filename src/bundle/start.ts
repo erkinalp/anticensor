@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// process.env.MONGOMS_DEBUG = "true";
 import moduleAlias from "module-alias";
-
 moduleAlias(__dirname + "../../../package.json");
 
 import "reflect-metadata";
@@ -28,88 +26,66 @@ import { red, bold, yellow, cyan, blueBright, redBright } from "picocolors";
 import { initStats } from "./stats";
 import { config } from "dotenv";
 
-config();
-import { execSync } from "child_process";
-import { centerString, Logo } from "@spacebar/util";
+config({ quiet: true });
+import { centerString, getRevInfoOrFail, Logo } from "@spacebar/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 
-function getCommitOrFail() {
-	try {
-		return execSync("git rev-parse HEAD").toString().trim();
-	} catch (e) {
-		return null;
-	}
-}
-
 if (cluster.isPrimary) {
-	const commit = getCommitOrFail();
-	Logo.printLogo().then(() => {
-		const unformatted = `spacebar-server | !! Pre-release build !!`;
-		const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
-		console.log(
-			bold(centerString(unformatted, 86).replace(unformatted, formatted)),
-		);
+    const revInfo = getRevInfoOrFail();
+    Logo.printLogo().then(() => {
+        const unformatted = `spacebar-server | !! Pre-release build !!`;
+        const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
+        console.log(bold(centerString(unformatted, 86).replace(unformatted, formatted)));
 
-		const unformattedGitHeader = `Commit Hash: ${commit !== null ? `${commit} (${commit.slice(0, 7)})` : "Unknown (Git cannot be found)"}`;
-		const formattedGitHeader = `Commit Hash: ${commit !== null ? `${cyan(commit)} (${yellow(commit.slice(0, 7))})` : "Unknown (Git cannot be found)"}`;
-		console.log(
-			bold(
-				centerString(unformattedGitHeader, 86).replace(
-					unformattedGitHeader,
-					formattedGitHeader,
-				),
-			),
-		);
-		console.log(
-			`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`,
-		);
+        const shortRev = revInfo.rev ? revInfo.rev.slice(0, 7) : "unknown";
+        const unformattedRevisionHeader = `Commit Hash: ${revInfo.rev !== null ? `${revInfo.rev} (${shortRev})` : "Unknown"}`;
+        const formattedRevisionHeader = `Commit Hash: ${revInfo.rev !== null ? `${cyan(revInfo.rev)} (${yellow(shortRev)})` : "Unknown"}`;
+        console.log(bold(centerString(unformattedRevisionHeader, 86).replace(unformattedRevisionHeader, formattedRevisionHeader)));
 
-		if (commit == null) {
-			console.log(
-				yellow(`Warning: Git is not installed or not in PATH.`),
-			);
-		}
+        const modifiedTime = new Date(revInfo.lastModified * 1000);
+        const unformattedLastModified = `Last Updated: ${revInfo.lastModified !== 0 ? `${modifiedTime.toUTCString()}` : "Unknown"}`;
+        const formattedLastModified = `Last Updated: ${revInfo.lastModified !== 0 ? `${cyan(modifiedTime.toUTCString())}` : "Unknown"}`;
+        console.log(bold(centerString(unformattedLastModified, 86).replace(unformattedLastModified, formattedLastModified)));
 
-		initStats();
+        if (revInfo.rev == null) {
+            console.log(yellow(`Warning: Git is not installed or not in PATH, or the server is not running from a Git repository.`));
+        }
 
-		console.log(`[Process] Starting with ${cores} threads`);
+        console.log(`Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)`);
+        initStats();
 
-		if (cores === 1) {
-			require("./Server");
-		} else {
-			process.env.EVENT_TRANSMISSION = "process";
+        console.log(`[Process] Starting with ${cores} threads`);
 
-			// Fork workers.
-			for (let i = 0; i < cores; i++) {
-				// Delay each worker start if using sqlite database to prevent locking it
-				const delay = process.env.DATABASE?.includes("://")
-					? 0
-					: i * 1000;
-				setTimeout(() => {
-					cluster.fork();
-					console.log(`[Process] Worker ${cyan(i)} started.`);
-				}, delay);
-			}
+        if (cores === 1) {
+            require("./Server");
+        } else {
+            process.env.EVENT_TRANSMISSION = "process";
 
-			cluster.on("message", (sender: Worker, message) => {
-				for (const id in cluster.workers) {
-					const worker = cluster.workers[id];
-					if (worker === sender || !worker) continue;
-					worker.send(message);
-				}
-			});
+            // Fork workers.
+            for (let i = 0; i < cores; i++) {
+                // Delay each worker start if using sqlite database to prevent locking it
+                const delay = process.env.DATABASE?.includes("://") ? 0 : i * 1000;
+                setTimeout(() => {
+                    cluster.fork();
+                    console.log(`[Process] Worker ${cyan(i)} started.`);
+                }, delay);
+            }
 
-			cluster.on("exit", (worker) => {
-				console.log(
-					`[Worker] ${red(
-						`PID ${worker.process.pid} died, restarting ...`,
-					)}`,
-				);
-				cluster.fork();
-			});
-		}
-	});
+            cluster.on("message", (sender: Worker, message) => {
+                for (const id in cluster.workers) {
+                    const worker = cluster.workers[id];
+                    if (worker === sender || !worker) continue;
+                    worker.send(message);
+                }
+            });
+
+            cluster.on("exit", (worker) => {
+                console.log(`[Worker] ${red(`PID ${worker.process.pid} died, restarting ...`)}`);
+                cluster.fork();
+            });
+        }
+    });
 } else {
-	require("./Server");
+    require("./Server");
 }

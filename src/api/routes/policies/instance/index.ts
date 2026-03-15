@@ -19,21 +19,22 @@
 import { route } from "@spacebar/api";
 import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIGeneralConfiguration",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { general } = Config.get();
-		res.json(general);
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIGeneralConfiguration",
+            },
+        },
+        spacebarOnly: true,
+    }),
+    (req: Request, res: Response) => {
+        const { general } = Config.get();
+        res.json(general);
+    },
 );
 
 export default router;

@@ -19,35 +19,30 @@
 import { route } from "@spacebar/api";
 import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "InstanceDomainsResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { cdn, gateway, api } = Config.get();
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "InstanceDomainsResponse",
+            },
+        },
+        spacebarOnly: true,
+    }),
+    (req: Request, res: Response) => {
+        const { cdn, gateway, api } = Config.get();
 
-		const IdentityForm = {
-			cdn:
-				cdn.endpointPublic ||
-				process.env.CDN ||
-				"http://localhost:3001",
-			gateway:
-				gateway.endpointPublic ||
-				process.env.GATEWAY ||
-				"ws://localhost:3001",
-			defaultApiVersion: api.defaultVersion ?? 9,
-			apiEndpoint: api.endpointPublic ?? "http://localhost:3001/api/",
-		};
-
-		res.json(IdentityForm);
-	},
+        res.json({
+            admin: Config.get().admin.endpointPublic,
+            api: (Config.get().api.endpointPublic + "/api/").replace("//api/", "/api/"), // Transitional, see /.well-known/spacebar/client
+            apiEndpoint: api.endpointPublic,
+            cdn: cdn.endpointPublic,
+            defaultApiVersion: api.defaultVersion,
+            gateway: gateway.endpointPublic,
+        });
+    },
 );
 
 export default router;

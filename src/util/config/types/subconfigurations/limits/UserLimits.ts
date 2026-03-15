@@ -17,11 +17,8 @@
 */
 
 export class UserLimits {
-	maxGuilds: number = 1048576;
-	maxUsername: number = 32;
-	maxFriends: number = 5000;
-	maxBio: number = 190;
-	maxDisplayNameLength: number = 32;
-	maxPronounsLength: number = 40;
-	maxStatusTextLength: number = 128;
+    maxGuilds: number = 1048576;
+    maxUsername: number = 32;
+    maxFriends: number = 5000;
+    maxBio: number = 190;
 }

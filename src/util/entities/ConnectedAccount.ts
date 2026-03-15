@@ -17,94 +17,67 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { ConnectedAccountTokenData } from "../interfaces";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
-
-export type PublicConnectedAccount = Pick<
-	ConnectedAccount,
-	"name" | "type" | "verified"
->;
+import { ConnectedAccountTokenData } from "@spacebar/schemas";
 
 @Entity({
-	name: "connected_accounts",
-	engine: dbEngine,
+    name: "connected_accounts",
 })
 export class ConnectedAccount extends BaseClass {
-	@Column()
-	external_id: string;
+    @Column()
+    external_id: string;
 
-	@Column({ nullable: true })
-	@RelationId((account: ConnectedAccount) => account.user)
-	user_id: string;
+    @Column({ nullable: true })
+    @RelationId((account: ConnectedAccount) => account.user)
+    user_id: string;
 
-	@JoinColumn({ name: "user_id" })
-	@ManyToOne(() => User, {
-		onDelete: "CASCADE",
-	})
-	user: User;
+    @JoinColumn({ name: "user_id" })
+    @ManyToOne(() => User, {
+        onDelete: "CASCADE",
+    })
+    user: User;
 
-	@Column({ select: false })
-	friend_sync?: boolean = false;
+    @Column({ select: false })
+    friend_sync?: boolean = false;
 
-	@Column()
-	name: string;
+    @Column()
+    name: string;
 
-	@Column({ select: false })
-	revoked?: boolean = false;
+    @Column({ select: false })
+    revoked?: boolean = false;
 
-	@Column({ select: false })
-	show_activity?: number = 0;
+    @Column({ select: false })
+    show_activity?: number = 0;
 
-	@Column()
-	type: string;
+    @Column()
+    type: string;
 
-	@Column()
-	verified?: boolean = true;
+    @Column()
+    verified?: boolean = true;
 
-	@Column({ select: false })
-	visibility?: number = 0;
+    @Column({ select: false })
+    visibility?: number = 0;
 
-	@Column({ type: "simple-array" })
-	integrations?: string[] = [];
+    @Column({ type: "simple-array" })
+    integrations?: string[] = [];
 
-	@Column({ type: "simple-json", name: "metadata", nullable: true })
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	metadata_?: any;
+    @Column({ type: "simple-json", name: "metadata", nullable: true })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata_?: any;
 
-	@Column()
-	metadata_visibility?: number = 0;
+    @Column()
+    metadata_visibility?: number = 0;
 
-	@Column()
-	two_way_link?: boolean = false;
+    @Column()
+    two_way_link?: boolean = false;
 
-	@Column({ select: false, nullable: true, type: "simple-json" })
-	token_data?: ConnectedAccountTokenData | null;
+    @Column({ select: false, nullable: true, type: "simple-json" })
+    token_data?: ConnectedAccountTokenData | null;
 
-	@Column({ nullable: true })
-	consent_given_at?: Date;
-
-	@Column({ nullable: true })
-	data_sharing_level?: number = 1;
-
-	@Column({ nullable: true })
-	last_activity_sync?: Date;
-
-	@Column({ nullable: true })
-	privacy_override?: boolean = false;
-
-	async revoke() {
-		this.revoked = true;
-		this.token_data = null;
-		await this.save();
-	}
-
-	static isVisibleTo(
-		viewerUserId: string,
-		targetUserId: string,
-		account: ConnectedAccount,
-	): boolean {
-		return true;
-	}
+    async revoke() {
+        this.revoked = true;
+        this.token_data = null;
+        await this.save();
+    }
 }

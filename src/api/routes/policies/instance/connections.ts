@@ -17,22 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router();
 
 router.get("/", route({}), async (req: Request, res: Response) => {
-	const config = Config.get().connections;
-	res.json(config);
-});
-
-router.patch("/", route({}), async (req: Request, res: Response) => {
-	const updates = req.body;
-	await Config.set({
-		connections: { ...Config.get().connections, ...updates },
-	});
-	res.json(Config.get().connections);
+    res.json({});
 });
 
 export default router;

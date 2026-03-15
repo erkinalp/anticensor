@@ -16,23 +16,23 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getIpAdress, getVoiceRegions, route } from "@spacebar/api";
+import { getVoiceRegions, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIGuildVoiceRegion",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		res.json(await getVoiceRegions(getIpAdress(req), true)); //vip true?
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIGuildVoiceRegion",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        res.json(await getVoiceRegions(req.ip!, true)); //vip true?
+    },
 );
 
 export default router;

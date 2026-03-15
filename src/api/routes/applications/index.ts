@@ -17,67 +17,59 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Application,
-	ApplicationCreateSchema,
-	Config,
-	User,
-	createAppBotUser,
-	trimSpecial,
-} from "@spacebar/util";
+import { Application, Config, createAppBotUser, trimSpecial } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { ApplicationCreateSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIApplicationArray",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const results = await Application.find({
-			where: { owner: { id: req.user_id } },
-			relations: ["owner", "bot"],
-		});
-		res.json(results).status(200);
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIApplicationArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const results = await Application.find({
+            where: { owner: { id: req.user_id } },
+            relations: { owner: true, bot: true },
+        });
+        res.json(results).status(200);
+    },
 );
 
 router.post(
-	"/",
-	route({
-		requestBody: "ApplicationCreateSchema",
-		responses: {
-			200: {
-				body: "Application",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const body = req.body as ApplicationCreateSchema;
-		const user = await User.findOneOrFail({ where: { id: req.user_id } });
+    "/",
+    route({
+        requestBody: "ApplicationCreateSchema",
+        responses: {
+            200: {
+                body: "Application",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const body = req.body as ApplicationCreateSchema;
 
-		const app = Application.create({
-			name: trimSpecial(body.name),
-			description: "",
-			bot_public: true,
-			owner: user,
-			verify_key: "IMPLEMENTME",
-			flags: 0,
-		});
+        const app = Application.create({
+            name: trimSpecial(body.name),
+            description: "",
+            bot_public: true,
+            owner: req.user,
+            verify_key: "IMPLEMENTME",
+            flags: 0,
+        });
 
-		// april 14, 2023: discord made bot users be automatically added to all new apps
-		const { autoCreateBotUsers } = Config.get().general;
-		if (autoCreateBotUsers) {
-			await createAppBotUser(app, req);
-		} else await app.save();
+        // april 14, 2023: discord made bot users be automatically added to all new apps
+        if (Config.get().general.autoCreateBotUsers) {
+            await createAppBotUser(app, req);
+        } else await app.save();
 
-		res.json(app);
-	},
+        res.json(app);
+    },
 );
 
 export default router;

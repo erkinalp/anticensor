@@ -16,41 +16,32 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Column,
-	Entity,
-	JoinColumn,
-	ManyToOne,
-	OneToMany,
-	RelationId,
-} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { TeamMember } from "./TeamMember";
 import { User } from "./User";
-import { dbEngine } from "../util/Database";
 
 @Entity({
-	name: "teams",
-	engine: dbEngine,
+    name: "teams",
 })
 export class Team extends BaseClass {
-	@Column({ nullable: true })
-	icon?: string;
+    @Column({ nullable: true })
+    icon?: string;
 
-	@JoinColumn({ name: "member_ids" })
-	@OneToMany(() => TeamMember, (member: TeamMember) => member.team, {
-		orphanedRowAction: "delete",
-	})
-	members: TeamMember[];
+    @JoinColumn({ name: "member_ids" })
+    @OneToMany(() => TeamMember, (member: TeamMember) => member.team, {
+        orphanedRowAction: "delete",
+    })
+    members: TeamMember[];
 
-	@Column()
-	name: string;
+    @Column()
+    name: string;
 
-	@Column({ nullable: true })
-	@RelationId((team: Team) => team.owner_user)
-	owner_user_id: string;
+    @Column({ nullable: true })
+    @RelationId((team: Team) => team.owner_user)
+    owner_user_id: string;
 
-	@JoinColumn({ name: "owner_user_id" })
-	@ManyToOne(() => User)
-	owner_user: User;
+    @JoinColumn({ name: "owner_user_id" })
+    @ManyToOne(() => User)
+    owner_user: User;
 }

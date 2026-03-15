@@ -18,10 +18,10 @@
 
 import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 //TODO: implement integrations list
-router.get("/", route({}), async (req: Request, res: Response) => {
-	res.json([]);
+router.get("/", route({}), (req: Request, res: Response) => {
+    res.json([]);
 });
 export default router;

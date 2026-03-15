@@ -20,23 +20,23 @@ import { route } from "@spacebar/api";
 import { Config } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "GatewayResponse",
-			},
-		},
-	}),
-	(req: Request, res: Response) => {
-		const { endpointPublic } = Config.get().gateway;
-		res.json({
-			url: endpointPublic || process.env.GATEWAY || "ws://localhost:3001",
-		});
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "GatewayResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        const { endpointPublic } = Config.get().gateway;
+        res.json({
+            url: endpointPublic,
+        });
+    },
 );
 
 export default router;

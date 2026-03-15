@@ -17,52 +17,46 @@
 */
 
 import {
-	ApiConfiguration,
-	CdnConfiguration,
-	ConnectionsConfiguration,
-	DefaultsConfiguration,
-	EmailConfiguration,
-	EndpointConfiguration,
-	ExternalTokensConfiguration,
-	GeneralConfiguration,
-	GifConfiguration,
-	GuildConfiguration,
-	KafkaConfiguration,
-	LimitsConfiguration,
-	LoginConfiguration,
-	MetricsConfiguration,
-	PasswordResetConfiguration,
-	RabbitMQConfiguration,
-	RegionConfiguration,
-	RegisterConfiguration,
-	SecurityConfiguration,
-	SentryConfiguration,
-	TemplateConfiguration,
-	UserConfiguration,
-} from "../config";
+    ApiConfiguration,
+    CdnConfiguration,
+    DefaultsConfiguration,
+    EmailConfiguration,
+    EndpointConfiguration,
+    ExternalTokensConfiguration,
+    GeneralConfiguration,
+    GifConfiguration,
+    GuildConfiguration,
+    LimitsConfiguration,
+    LoginConfiguration,
+    OffloadConfiguration,
+    PasswordResetConfiguration,
+    RabbitMQConfiguration,
+    RegionConfiguration,
+    RegisterConfiguration,
+    SecurityConfiguration,
+    TemplateConfiguration,
+    UserConfiguration,
+} from "./types";
 
 export class ConfigValue {
-	gateway: EndpointConfiguration = new EndpointConfiguration();
-	cdn: CdnConfiguration = new CdnConfiguration();
-	api: ApiConfiguration = new ApiConfiguration();
-	connections: ConnectionsConfiguration = new ConnectionsConfiguration();
-	general: GeneralConfiguration = new GeneralConfiguration();
-	limits: LimitsConfiguration = new LimitsConfiguration();
-	security: SecurityConfiguration = new SecurityConfiguration();
-	login: LoginConfiguration = new LoginConfiguration();
-	register: RegisterConfiguration = new RegisterConfiguration();
-	regions: RegionConfiguration = new RegionConfiguration();
-	guild: GuildConfiguration = new GuildConfiguration();
-	gif: GifConfiguration = new GifConfiguration();
-	rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
-	kafka: KafkaConfiguration = new KafkaConfiguration();
-	templates: TemplateConfiguration = new TemplateConfiguration();
-	metrics: MetricsConfiguration = new MetricsConfiguration();
-	sentry: SentryConfiguration = new SentryConfiguration();
-	defaults: DefaultsConfiguration = new DefaultsConfiguration();
-	external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
-	email: EmailConfiguration = new EmailConfiguration();
-	passwordReset: PasswordResetConfiguration =
-		new PasswordResetConfiguration();
-	user: UserConfiguration = new UserConfiguration();
+    admin: EndpointConfiguration = new EndpointConfiguration();
+    gateway: EndpointConfiguration = new EndpointConfiguration();
+    cdn: CdnConfiguration = new CdnConfiguration();
+    api: ApiConfiguration = new ApiConfiguration();
+    general: GeneralConfiguration = new GeneralConfiguration();
+    limits: LimitsConfiguration = new LimitsConfiguration();
+    security: SecurityConfiguration = new SecurityConfiguration();
+    login: LoginConfiguration = new LoginConfiguration();
+    register: RegisterConfiguration = new RegisterConfiguration();
+    regions: RegionConfiguration = new RegionConfiguration();
+    guild: GuildConfiguration = new GuildConfiguration();
+    gif: GifConfiguration = new GifConfiguration();
+    rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
+    templates: TemplateConfiguration = new TemplateConfiguration();
+    defaults: DefaultsConfiguration = new DefaultsConfiguration();
+    external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
+    email: EmailConfiguration = new EmailConfiguration();
+    passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
+    user: UserConfiguration = new UserConfiguration();
+    offload: OffloadConfiguration = new OffloadConfiguration();
 }

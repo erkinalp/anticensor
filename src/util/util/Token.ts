@@ -16,88 +16,248 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import jwt, { VerifyOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Config } from "./Config";
-import { User } from "../entities";
+import { InstanceBan, Session, User } from "../entities";
+import crypto from "node:crypto";
+import fs from "fs/promises";
+import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
-import {
-	FindOptionsRelationByString,
-	FindOptionsSelectByString,
-} from "typeorm";
+import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
+import { randomUpperString } from "@spacebar/api";
+import { TimeSpan } from "./Timespan";
+import { HTTPError } from "lambert-server";
+import path from "path";
 
-export const JWTOptions: VerifyOptions = { algorithms: ["HS256"] };
+/// Change history:
+/// 1 - Initial version with HS256
+/// 2 - Switched to ES512
+/// 3 - Add version, device id to token payload
+export const CurrentTokenFormatVersion: number = 3;
 
 export type UserTokenData = {
-	user: User;
-	decoded: { id: string; iat: number; email?: string };
+    user: User;
+    session?: Session;
+    tokenVersion: number;
+    decoded: {
+        id: string;
+        iat: number;
+        // token format version
+        ver?: number;
+        // device id
+        did?: string;
+    };
 };
 
+function logAuth(text: string) {
+    if (process.env.LOG_AUTH !== "true") return;
+    console.log(`[AUTH] ${text}`);
+}
+
+function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: number | undefined, reason: string) {
+    console.error(reason);
+    rejectFunction(new HTTPError(reason, httpCode ?? 400));
+}
+
 export const checkToken = (
-	token: string,
-	opts?: {
-		select?: FindOptionsSelectByString<User>;
-		relations?: FindOptionsRelationByString;
-	},
-): Promise<UserTokenData> =>
-	new Promise((resolve, reject) => {
-		token = token.replace("Bot ", ""); // there is no bot distinction in sb
-		token = token.replace("Bearer ", ""); // allow bearer tokens
+    token: string,
+    opts?: {
+        select?: FindOptionsSelectByString<User>;
+        relations?: FindOptionsRelationByString;
+        ipAddress?: string;
+        fingerprint?: string;
+    },
+): Promise<UserTokenData> => {
+    return new Promise((resolve, reject) => {
+        token = token.replace("Bot ", ""); // there is no bot distinction in sb
+        token = token.replace("Bearer ", ""); // allow bearer tokens
 
-		jwt.verify(
-			token,
-			Config.get().security.jwtSecret,
-			JWTOptions,
-			async (err, out) => {
-				const decoded = out as UserTokenData["decoded"];
-				if (err || !decoded) return reject("Invalid Token");
+        let legacyVersion: number | undefined = undefined;
 
-				const user = await User.findOne({
-					where: decoded.email
-						? { email: decoded.email }
-						: { id: decoded.id },
-					select: [
-						...(opts?.select || []),
-						"bot",
-						"disabled",
-						"deleted",
-						"rights",
-						"data",
-					],
-					relations: opts?.relations,
-				});
+        const validateUser: jwt.VerifyCallback = async (err, out) => {
+            const decoded = out as UserTokenData["decoded"];
+            if (err || !decoded) {
+                logAuth("validateUser rejected: " + err);
+                return rejectAndLog(reject, 401, "Invalid Token meow " + err);
+            }
 
-				if (!user) return reject("User not found");
+            // eslint-disable-next-line prefer-const
+            let [user, session] = await Promise.all([
+                User.findOne({
+                    where: { id: decoded.id },
+                    select: [...(opts?.select || []), "id", "bot", "disabled", "deleted", "rights", "data"],
+                    relations: opts?.relations,
+                }),
+                decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
+            ]);
 
-				// we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
-				if (
-					decoded.iat * 1000 <
-					new Date(user.data.valid_tokens_since).setSeconds(0, 0)
-				)
-					return reject("Invalid Token");
+            if (!user) {
+                logAuth("validateUser rejected: User not found");
+                return rejectAndLog(reject, 401, "User not found");
+            }
 
-				if (user.disabled) return reject("User disabled");
-				if (user.deleted) return reject("User not found");
+            if (decoded.did && !session) {
+                // temporary hack: create new session
+                session = Session.create({
+                    session_id: decoded.did,
+                    user_id: user.id,
+                    is_admin_session: false,
+                    client_status: {},
+                    status: "online",
+                    client_info: {},
+                });
+                await session.save();
+                logAuth("validateUser rejected: Session not found");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
 
-				return resolve({ decoded, user });
-			},
-		);
-	});
+            // we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
+            if (decoded.iat * 1000 < new Date(user.data.valid_tokens_since).setSeconds(0, 0)) {
+                logAuth("validateUser rejected: Token not yet valid");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
 
-export async function generateToken(id: string, email?: string) {
-	const iat = Math.floor(Date.now() / 1000);
-	const algorithm = "HS256";
+            if (user.disabled) {
+                logAuth("validateUser rejected: User disabled");
+                return rejectAndLog(reject, 401, "User disabled");
+            }
 
-	return new Promise((res, rej) => {
-		jwt.sign(
-			{ id, iat, email },
-			Config.get().security.jwtSecret,
-			{
-				algorithm,
-			},
-			(err, token) => {
-				if (err) return rej(err);
-				return res(token);
-			},
-		);
-	});
+            if (user.deleted) {
+                logAuth("validateUser rejected: User deleted");
+                return rejectAndLog(reject, 401, "User not found");
+            }
+
+            const banReasons = await InstanceBan.findInstanceBans({ userId: user.id, ipAddress: opts?.ipAddress, fingerprint: opts?.fingerprint, propagateBan: true });
+            if (banReasons.length > 0) {
+                logAuth("validateUser rejected: User banned for reasons: " + banReasons.join(", "));
+                return rejectAndLog(reject, 418, "Invalid Token");
+            }
+
+            if (session && TimeSpan.fromDates(session.last_seen?.getTime() ?? 0, new Date().getTime()).totalSeconds >= 15) {
+                session.last_seen = new Date();
+                let updateIpInfoPromise;
+                if (opts?.ipAddress && opts?.ipAddress !== session.last_seen_ip) {
+                    session.last_seen_ip = opts.ipAddress;
+                    updateIpInfoPromise = session.updateIpInfo();
+                }
+                await Promise.all([session.save(), updateIpInfoPromise]);
+            }
+
+            const result: UserTokenData = {
+                decoded,
+                session: session ?? undefined,
+                user,
+                // v1 can be told apart, v2 cant outside of missing device id and version
+                tokenVersion: decoded.ver ?? legacyVersion ?? 2,
+            };
+
+            if (process.env.LOG_TOKEN_VERSION) console.log("User", user.id, "logged in with token version", result.tokenVersion);
+
+            logAuth("validateUser success: " + JSON.stringify(result));
+            return resolve(result);
+        };
+
+        const dec = jwt.decode(token, { complete: true });
+        if (!dec) return rejectAndLog(reject, 500, "Failed to decode token");
+        logAuth("Decoded token: " + JSON.stringify(dec));
+
+        if (dec.header.alg == "HS256" && Config.get().security.jwtSecret !== null) {
+            legacyVersion = 1;
+            jwt.verify(token, Config.get().security.jwtSecret!, { algorithms: ["HS256"] }, validateUser);
+        } else if (dec.header.alg == "ES512") {
+            loadOrGenerateKeypair().then((keyPair) => {
+                jwt.verify(token, keyPair.publicKey, { algorithms: ["ES512"] }, validateUser);
+            });
+        } else return rejectAndLog(reject, 400, "Unsupported token algorithm: " + dec.header.alg);
+    });
+};
+
+export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
+    const iat = Math.floor(Date.now() / 1000);
+    const keyPair = await loadOrGenerateKeypair();
+
+    let newSession;
+    do {
+        newSession = Session.create({
+            session_id: randomUpperString(10), // readable at a glance
+            user_id: id,
+            is_admin_session: isAdminSession,
+            client_status: {},
+            status: "online",
+            client_info: {},
+        });
+    } while (await Session.findOne({ where: { session_id: newSession.session_id } }));
+
+    await newSession.save();
+
+    return new Promise((res, rej) => {
+        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
+        jwt.sign(
+            payload,
+            keyPair.privateKey,
+            {
+                algorithm: "ES512",
+            },
+            (err, token) => {
+                if (err) return rej(err);
+                return res(token);
+            },
+        );
+    });
+}
+
+let lastFsCheck: number;
+let cachedKeypair: {
+    privateKey: crypto.KeyObject;
+    publicKey: crypto.KeyObject;
+    fingerprint: string;
+};
+
+// Get ECDSA keypair from file or generate it
+export async function loadOrGenerateKeypair() {
+    if (cachedKeypair) {
+        // check for file deletion every minute
+        if (Date.now() - lastFsCheck > 60000) {
+            if (!existsSync("jwt.key") || !existsSync("jwt.key.pub")) {
+                console.log("[JWT] Keypair files disappeared... Saving them again.");
+                await Promise.all([
+                    fs.writeFile("jwt.key", cachedKeypair.privateKey.export({ format: "pem", type: "sec1" })),
+                    fs.writeFile("jwt.key.pub", cachedKeypair.publicKey.export({ format: "pem", type: "spki" })),
+                ]);
+            }
+            lastFsCheck = Date.now();
+        }
+
+        return cachedKeypair;
+    }
+
+    let privateKey: crypto.KeyObject;
+    let publicKey: crypto.KeyObject;
+
+    if (existsSync("jwt.key") && existsSync("jwt.key.pub")) {
+        const [loadedPrivateKey, loadedPublicKey] = await Promise.all([fs.readFile("jwt.key"), fs.readFile("jwt.key.pub")]);
+
+        privateKey = crypto.createPrivateKey(loadedPrivateKey);
+        publicKey = crypto.createPublicKey(loadedPublicKey);
+    } else {
+        console.log("[JWT] Generating new keypair:", path.resolve("jwt.key"), "- PWD:", process.cwd());
+        const res = crypto.generateKeyPairSync("ec", {
+            namedCurve: "secp521r1",
+        });
+        privateKey = res.privateKey;
+        publicKey = res.publicKey;
+
+        await Promise.all([
+            fs.writeFile("jwt.key", privateKey.export({ format: "pem", type: "sec1" })),
+            fs.writeFile("jwt.key.pub", publicKey.export({ format: "pem", type: "spki" })),
+        ]);
+    }
+
+    const fingerprint = crypto
+        .createHash("sha256")
+        .update(publicKey.export({ format: "pem", type: "spki" }))
+        .digest("hex");
+
+    lastFsCheck = Date.now();
+    return (cachedKeypair = { privateKey, publicKey, fingerprint });
 }

@@ -16,14 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	Message,
-	Channel,
-	getPermission,
-	getRights,
-	emitEvent,
-	MessageDeleteBulkEvent,
-} from "@spacebar/util";
+import { Message, Channel, getPermission, getRights, emitEvent, MessageDeleteBulkEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { route } from "../../../../../util";
@@ -31,172 +24,147 @@ import { route } from "../../../../../util";
 const router = Router();
 
 router.get(
-	"/",
-	route({
-		permission: "VIEW_CHANNEL",
-		responses: {
-			200: { body: "APIMessageArray" },
-			403: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { message_id, channel_id } = req.params;
+    "/",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            200: { body: "APIMessageArray" },
+            403: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const message_id = req.params.message_id as string;
+        const channel_id = req.params.channel_id as string;
 
-		const permissions = await getPermission(
-			req.user_id,
-			undefined,
-			channel_id,
-		);
-		permissions.hasThrow("READ_MESSAGE_HISTORY");
+        const permissions = await getPermission(req.user_id, undefined, channel_id);
+        permissions.hasThrow("READ_MESSAGE_HISTORY");
 
-		const parentMessage = await Message.findOneOrFail({
-			where: { id: message_id, channel_id },
-		});
+        const parentMessage = await Message.findOneOrFail({
+            where: { id: message_id, channel_id },
+        });
 
-		if (!parentMessage.reply_ids) {
-			const replies = await Message.find({
-				where: {
-					channel_id: channel_id,
-					message_reference: {
-						message_id: message_id,
-					},
-				},
-				select: ["id"],
-			});
+        if (!parentMessage.reply_ids) {
+            const replies = await Message.find({
+                where: {
+                    channel_id: channel_id,
+                    message_reference: {
+                        message_id: message_id,
+                    },
+                },
+                select: ["id"],
+            });
 
-			if (replies.length > 0) {
-				parentMessage.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message_id },
-					{ reply_ids: parentMessage.reply_ids },
-				);
-			} else {
-				parentMessage.reply_ids = [];
-				await Message.update({ id: message_id }, { reply_ids: [] });
-			}
-		}
+            if (replies.length > 0) {
+                parentMessage.reply_ids = replies.map((r) => r.id);
+                await Message.update({ id: message_id }, { reply_ids: parentMessage.reply_ids });
+            } else {
+                parentMessage.reply_ids = [];
+                await Message.update({ id: message_id }, { reply_ids: [] });
+            }
+        }
 
-		const replyMessages = await Message.find({
-			where: {
-				id: In(parentMessage.reply_ids || []),
-				channel_id: channel_id,
-			},
-			relations: [
-				"author",
-				"webhook",
-				"application",
-				"mentions",
-				"mention_roles",
-				"mention_channels",
-				"sticker_items",
-				"attachments",
-			],
-			order: { timestamp: "ASC" },
-		});
+        const replyMessages = await Message.find({
+            where: {
+                id: In(parentMessage.reply_ids || []),
+                channel_id: channel_id,
+            },
+            relations: ["author", "webhook", "application", "mentions", "mention_roles", "mention_channels", "sticker_items", "attachments"],
+            order: { timestamp: "ASC" },
+        });
 
-		return res.json(
-			replyMessages.map((m) => {
-				const json = m.toJSON();
-				json.reply_ids = m.reply_ids ?? undefined;
-				return json;
-			}),
-		);
-	},
+        return res.json(
+            replyMessages.map((m) => {
+                const json = m.toJSON();
+                json.reply_ids = m.reply_ids ?? undefined;
+                return json;
+            }),
+        );
+    },
 );
 
 router.delete(
-	"/",
-	route({
-		responses: {
-			204: {},
-			403: {},
-			404: {},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { message_id, channel_id } = req.params;
+    "/",
+    route({
+        responses: {
+            204: {},
+            403: {},
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const message_id = req.params.message_id as string;
+        const channel_id = req.params.channel_id as string;
 
-		const channel = await Channel.findOneOrFail({
-			where: { id: channel_id },
-		});
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+        });
 
-		const permissions = await getPermission(
-			req.user_id,
-			channel.guild_id,
-			channel_id,
-		);
+        const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
 
-		const parentMessage = await Message.findOneOrFail({
-			where: { id: message_id, channel_id },
-		});
+        const parentMessage = await Message.findOneOrFail({
+            where: { id: message_id, channel_id },
+        });
 
-		if (!parentMessage.reply_ids) {
-			const replies = await Message.find({
-				where: {
-					channel_id: channel_id,
-					message_reference: {
-						message_id: message_id,
-					},
-				},
-				select: ["id"],
-			});
+        if (!parentMessage.reply_ids) {
+            const replies = await Message.find({
+                where: {
+                    channel_id: channel_id,
+                    message_reference: {
+                        message_id: message_id,
+                    },
+                },
+                select: ["id"],
+            });
 
-			if (replies.length > 0) {
-				parentMessage.reply_ids = replies.map((r) => r.id);
-				await Message.update(
-					{ id: message_id },
-					{ reply_ids: parentMessage.reply_ids },
-				);
-			} else {
-				parentMessage.reply_ids = [];
-				await Message.update({ id: message_id }, { reply_ids: [] });
-			}
-		}
+            if (replies.length > 0) {
+                parentMessage.reply_ids = replies.map((r) => r.id);
+                await Message.update({ id: message_id }, { reply_ids: parentMessage.reply_ids });
+            } else {
+                parentMessage.reply_ids = [];
+                await Message.update({ id: message_id }, { reply_ids: [] });
+            }
+        }
 
-		if (parentMessage.reply_ids?.length) {
-			const replyMessages = await Message.find({
-				where: { id: In(parentMessage.reply_ids) },
-				select: ["id", "author_id"],
-			});
+        if (parentMessage.reply_ids?.length) {
+            const replyMessages = await Message.find({
+                where: { id: In(parentMessage.reply_ids) },
+                select: ["id", "author_id"],
+            });
 
-			const userOwnedReplies = replyMessages.filter(
-				(msg) => msg.author_id === req.user_id,
-			);
-			const otherOwnedReplies = replyMessages.filter(
-				(msg) => msg.author_id !== req.user_id,
-			);
+            const userOwnedReplies = replyMessages.filter((msg) => msg.author_id === req.user_id);
+            const otherOwnedReplies = replyMessages.filter((msg) => msg.author_id !== req.user_id);
 
-			const rights = await getRights(req.user_id);
+            const rights = await getRights(req.user_id);
 
-			if (userOwnedReplies.length > 0) {
-				rights.hasThrow("SELF_DELETE_MESSAGES");
-			}
+            if (userOwnedReplies.length > 0) {
+                rights.hasThrow("SELF_DELETE_MESSAGES");
+            }
 
-			if (otherOwnedReplies.length > 0) {
-				if (!rights.has("MANAGE_MESSAGES")) {
-					permissions.hasThrow("MANAGE_MESSAGES");
-				}
-			}
+            if (otherOwnedReplies.length > 0) {
+                if (!rights.has("MANAGE_MESSAGES")) {
+                    permissions.hasThrow("MANAGE_MESSAGES");
+                }
+            }
 
-			await Message.delete({ id: In(parentMessage.reply_ids) });
+            await Message.delete({ id: In(parentMessage.reply_ids) });
 
-			await emitEvent({
-				event: "MESSAGE_DELETE_BULK",
-				channel_id,
-				data: {
-					ids: parentMessage.reply_ids,
-					channel_id,
-					guild_id: channel.guild_id,
-				},
-			} as MessageDeleteBulkEvent);
+            await emitEvent({
+                event: "MESSAGE_DELETE_BULK",
+                channel_id,
+                data: {
+                    ids: parentMessage.reply_ids,
+                    channel_id,
+                    guild_id: channel.guild_id,
+                },
+            } as MessageDeleteBulkEvent);
 
-			parentMessage.reply_ids = [];
-			await Message.update({ id: message_id }, { reply_ids: [] });
-		}
+            parentMessage.reply_ids = [];
+            await Message.update({ id: message_id }, { reply_ids: [] });
+        }
 
-		res.sendStatus(204);
-	},
+        res.sendStatus(204);
+    },
 );
 
 export default router;

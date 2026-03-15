@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,14 +16,44 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@spacebar/gateway";
+import { OPCODES, Payload, WebSocket } from "@spacebar/gateway";
 import { setHeartbeat } from "../util/Heartbeat";
 import { Send } from "../util/Send";
+import { Session } from "@spacebar/util";
+import { FindOptionsWhere } from "typeorm";
 
-export async function onHeartbeat(this: WebSocket) {
-	// TODO: validate payload
+interface QoSData {
+    seq: number | null;
+    qos: QoSPayload;
+}
 
-	setHeartbeat(this);
+export interface QoSPayload {
+    ver: number;
+    active: boolean;
+    reasons: string[];
+}
 
-	await Send(this, { op: 11, d: {} });
+export async function onHeartbeat(this: WebSocket, data: Payload) {
+    // TODO: validate payload
+
+    setHeartbeat(this);
+
+    if (data.op === OPCODES.SetQoS) {
+        this.qos = (data.d as QoSData).qos;
+    }
+
+    const newSessionData: Partial<Session> = {
+        last_seen: new Date(),
+    };
+
+    await Promise.all([
+        Send(this, { op: 11, d: {} }),
+        Session.update(
+            {
+                session_id: this.session_id!,
+                user_id: this.user_id,
+            } as FindOptionsWhere<Session>,
+            newSessionData,
+        ),
+    ]);
 }

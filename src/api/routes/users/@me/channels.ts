@@ -17,60 +17,44 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Channel,
-	DmChannelCreateSchema,
-	DmChannelDTO,
-	Recipient,
-} from "@spacebar/util";
+import { Channel, DmChannelDTO, Recipient } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { DmChannelCreateSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "APIDMChannelArray",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const recipients = await Recipient.find({
-			where: { user_id: req.user_id, closed: false },
-			relations: ["channel", "channel.recipients"],
-		});
-		res.json(
-			await Promise.all(
-				recipients.map((r) =>
-					DmChannelDTO.from(r.channel, [req.user_id]),
-				),
-			),
-		);
-	},
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIDMChannelArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const recipients = await Recipient.find({
+            where: { user_id: req.user_id, closed: false },
+            relations: { channel: { recipients: true } },
+        });
+        res.json(await Promise.all(recipients.map((r) => DmChannelDTO.from(r.channel, [req.user_id]))));
+    },
 );
 
 router.post(
-	"/",
-	route({
-		requestBody: "DmChannelCreateSchema",
-		responses: {
-			200: {
-				body: "DmChannelDTO",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const body = req.body as DmChannelCreateSchema;
-		res.json(
-			await Channel.createDMChannel(
-				body.recipients,
-				req.user_id,
-				body.name,
-			),
-		);
-	},
+    "/",
+    route({
+        requestBody: "DmChannelCreateSchema",
+        responses: {
+            200: {
+                body: "DmChannelDTO",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const body = req.body as DmChannelCreateSchema;
+        res.json(await Channel.createDMChannel(body.recipients || (body.recipient_id ? [body.recipient_id] : []), req.user_id, body.name));
+    },
 );
 
 export default router;

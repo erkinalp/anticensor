@@ -20,44 +20,46 @@ import { route } from "@spacebar/api";
 import { Email, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.post(
-	"/",
-	route({
-		right: "RESEND_VERIFICATION_EMAIL",
-		responses: {
-			204: {},
-			400: {
-				body: "APIErrorResponse",
-			},
-			500: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const user = await User.findOneOrFail({
-			where: { id: req.user_id },
-			select: ["username", "email"],
-		});
+    "/",
+    route({
+        right: "RESEND_VERIFICATION_EMAIL",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            500: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const user = await User.findOneOrFail({
+            where: { id: req.user_id },
+            select: { username: true, email: true, verified: true },
+        });
 
-		if (!user.email) {
-			// TODO: whats the proper error response for this?
-			throw new HTTPError("User does not have an email address", 400);
-		}
+        if (!user.email) {
+            // TODO: whats the proper error response for this?
+            throw new HTTPError("User does not have an email address", 400);
+        }
 
-		await Email.sendVerifyEmail(user, user.email)
-			.then(() => {
-				return res.sendStatus(204);
-			})
-			.catch((e) => {
-				console.error(
-					`Failed to send verification email to ${user.username}#${user.discriminator}: ${e}`,
-				);
-				throw new HTTPError("Failed to send verification email", 500);
-			});
-	},
+        if (user.verified) {
+            throw new HTTPError("Email is already verified", 400);
+        }
+
+        await Email.sendVerifyEmail(user, user.email)
+            .then(() => {
+                return res.sendStatus(204);
+            })
+            .catch((e) => {
+                console.error(`Failed to send verification email to ${user.tag}: ${e}`);
+                throw new HTTPError("Failed to send verification email", 500);
+            });
+    },
 );
 
 export default router;

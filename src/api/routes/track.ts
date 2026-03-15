@@ -19,11 +19,17 @@
 import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-router.post("/", route({}), (req: Request, res: Response) => {
-	// TODO:
-	res.sendStatus(204);
-});
+router.post(
+    "/",
+    route({
+        spacebarOnly: false, // Not part of the public OpenAPI schema
+    }),
+    (req: Request, res: Response) => {
+        // TODO:
+        res.sendStatus(204);
+    },
+);
 
 export default router;

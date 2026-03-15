@@ -19,48 +19,34 @@
 import { route } from "@spacebar/api";
 import { Config, Webhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		description:
-			"Returns a list of guild webhook objects. Requires the MANAGE_WEBHOOKS permission.",
-		permission: "MANAGE_WEBHOOKS",
-		responses: {
-			200: {
-				body: "APIWebhookArray",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { guild_id } = req.params;
-		const webhooks = await Webhook.find({
-			where: { guild_id },
-			relations: [
-				"user",
-				"channel",
-				"source_channel",
-				"guild",
-				"source_guild",
-				"application",
-			],
-		});
+    "/",
+    route({
+        description: "Returns a list of guild webhook objects. Requires the MANAGE_WEBHOOKS permission.",
+        permission: "MANAGE_WEBHOOKS",
+        responses: {
+            200: {
+                body: "APIWebhookArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id } = req.params as { [key: string]: string };
+        const webhooks = await Webhook.find({
+            where: { guild_id },
+            relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
+        });
 
-		const instanceUrl =
-			Config.get().api.endpointPublic || "http://localhost:3001";
-		return res.json(
-			webhooks.map((webhook) => ({
-				...webhook,
-				url:
-					instanceUrl +
-					"/webhooks/" +
-					webhook.id +
-					"/" +
-					webhook.token,
-			})),
-		);
-	},
+        const instanceUrl = Config.get().api.endpointPublic;
+        return res.json(
+            webhooks.map((webhook) => ({
+                ...webhook,
+                url: instanceUrl + "/webhooks/" + webhook.id + "/" + webhook.token,
+            })),
+        );
+    },
 );
 
 export default router;

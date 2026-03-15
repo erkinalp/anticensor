@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -17,142 +17,109 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Config,
-	DiscordApiErrors,
-	Guild,
-	GuildTemplateCreateSchema,
-	Member,
-	Role,
-	Snowflake,
-	Template,
-} from "@spacebar/util";
+import { Config, DiscordApiErrors, Guild, Member, Tag, Template } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import fetch from "node-fetch-commonjs";
-const router: Router = Router();
+import { HTTPError } from "lambert-server";
+import { ChannelType, GuildTemplateCreateSchema } from "@spacebar/schemas";
+
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/:code",
-	route({
-		responses: {
-			200: {
-				body: "Template",
-			},
-			403: {
-				body: "APIErrorResponse",
-			},
-			404: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { allowDiscordTemplates, allowRaws, enabled } =
-			Config.get().templates;
-		if (!enabled)
-			res.json({
-				code: 403,
-				message:
-					"Template creation & usage is disabled on this instance.",
-			}).sendStatus(403);
+    "/:template_code",
+    route({
+        responses: {
+            200: {
+                body: "Template",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { template_code } = req.params as { [key: string]: string };
 
-		const { code } = req.params;
+        const template = await getTemplate(template_code);
 
-		if (code.startsWith("discord:")) {
-			if (!allowDiscordTemplates)
-				return res
-					.json({
-						code: 403,
-						message:
-							"Discord templates cannot be used on this instance.",
-					})
-					.sendStatus(403);
-			const discordTemplateID = code.split("discord:", 2)[1];
-
-			const discordTemplateData = await fetch(
-				`https://discord.com/api/v9/guilds/templates/${discordTemplateID}`,
-				{
-					method: "get",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			return res.json(await discordTemplateData.json());
-		}
-
-		if (code.startsWith("external:")) {
-			if (!allowRaws)
-				return res
-					.json({
-						code: 403,
-						message: "Importing raws is disabled on this instance.",
-					})
-					.sendStatus(403);
-
-			return res.json(code.split("external:", 2)[1]);
-		}
-
-		const template = await Template.findOneOrFail({
-			where: { code: code },
-		});
-		res.json(template);
-	},
+        res.json(template);
+    },
 );
 
-router.post(
-	"/:code",
-	route({ requestBody: "GuildTemplateCreateSchema" }),
-	async (req: Request, res: Response) => {
-		const {
-			enabled,
-			allowTemplateCreation,
-			// allowDiscordTemplates,
-			// allowRaws,
-		} = Config.get().templates;
-		if (!enabled) {
-			return res
-				.json({
-					code: 403,
-					message:
-						"Template creation & usage is disabled on this instance.",
-				})
-				.sendStatus(403);
-		}
+router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema" }), async (req: Request, res: Response) => {
+    const { template_code } = req.params as { [key: string]: string };
+    const body = req.body as GuildTemplateCreateSchema;
 
-		if (!allowTemplateCreation) {
-			return res
-				.json({
-					code: 403,
-					message: "Template creation is disabled on this instance.",
-				})
-				.sendStatus(403);
-		}
+    const { maxGuilds } = Config.get().limits.user;
 
-		const { code } = req.params;
-		const body = req.body as GuildTemplateCreateSchema;
+    const guild_count = await Member.count({ where: { id: req.user_id } });
+    if (guild_count >= maxGuilds) throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
 
-		const { maxGuilds } = Config.get().limits.user;
+    const template = (await getTemplate(template_code)) as Template;
 
-		const guild_count = await Member.count({ where: { id: req.user_id } });
-		if (guild_count >= maxGuilds) {
-			throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
-		}
+    const guild = await Guild.createGuild({
+        ...template.serialized_source_guild,
+        // body comes after the template
+        ...body,
+        owner_id: req.user_id,
+        source_guild_id: template.source_guild_id,
+    });
 
-		const template = await Template.findOneOrFail({
-			where: { code: code },
-		});
+    await Member.addToGuild(req.user_id, guild.id);
 
-		const guild = await Guild.createGuild({
-			...template.serialized_source_guild,
-			// body comes after the template
-			...body,
-			owner_id: req.user_id,
-			template_guild_id: template.source_guild_id,
-		});
+    res.status(201).json({ id: guild.id });
+});
 
-		await Member.addToGuild(req.user_id, guild.id);
+async function getTemplate(code: string) {
+    const { allowDiscordTemplates, allowRaws, enabled } = Config.get().templates;
 
-		res.status(201).json({ id: guild.id });
-	},
-);
+    if (!enabled) throw new HTTPError("Template creation & usage is disabled on this instance.", 403);
+
+    if (code.startsWith("discord:")) {
+        if (!allowDiscordTemplates) throw new HTTPError("Discord templates cannot be used on this instance.", 403);
+
+        const discordTemplateID = code.split("discord:", 2)[1];
+
+        const discordTemplateData = await fetch(`https://discord.com/api/v9/guilds/templates/${discordTemplateID}`, {
+            method: "get",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const templateData = (await discordTemplateData.json()) as Template;
+
+        // Role ID is position in new Discord template schema. Do a little converting.
+        templateData.serialized_source_guild.roles.forEach((role) => {
+            role.position = role.id as unknown as number;
+        });
+
+        templateData.serialized_source_guild.channels.forEach((channel) => {
+            if (channel.type === ChannelType.GUILD_FORUM) {
+                channel.available_tags =
+                    channel.available_tags?.map((tag) =>
+                        Tag.create({
+                            name: tag.name,
+                            emoji_id: tag.emoji_id,
+                            emoji_name: tag.emoji_name,
+                            moderated: tag.moderated,
+                        }),
+                    ) ?? [];
+            }
+        });
+
+        return templateData;
+    }
+
+    if (code.startsWith("external:")) {
+        if (!allowRaws) throw new HTTPError("Importing raws is disabled on this instance.", 403);
+
+        return code.split("external:", 2)[1];
+    }
+
+    return await Template.findOneOrFail({
+        where: { code: code },
+    });
+}
 
 export default router;

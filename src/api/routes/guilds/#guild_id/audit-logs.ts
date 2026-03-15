@@ -18,18 +18,18 @@
 
 import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 //TODO: implement audit logs
-router.get("/", route({}), async (req: Request, res: Response) => {
-	res.json({
-		audit_log_entries: [],
-		users: [],
-		integrations: [],
-		webhooks: [],
-		guild_scheduled_events: [],
-		threads: [],
-		application_commands: [],
-	});
+router.get("/", route({}), (req: Request, res: Response) => {
+    res.json({
+        audit_log_entries: [],
+        users: [],
+        integrations: [],
+        webhooks: [],
+        guild_scheduled_events: [],
+        threads: [],
+        application_commands: [],
+    });
 });
 export default router;

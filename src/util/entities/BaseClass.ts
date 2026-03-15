@@ -16,82 +16,113 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-	BaseEntity,
-	BeforeInsert,
-	BeforeUpdate,
-	FindOptionsWhere,
-	ObjectIdColumn,
-	PrimaryColumn,
-} from "typeorm";
-import { Snowflake } from "../util/Snowflake";
-import { getDatabase } from "../util/Database";
-import { OrmUtils } from "../imports/OrmUtils";
+import { BaseEntity, BeforeInsert, BeforeUpdate, Column, ColumnOptions, FindOptionsWhere, ObjectIdColumn, PrimaryColumn } from "typeorm";
+import { Snowflake, getDatabase } from "../util";
+import { OrmUtils } from "../imports";
+import { annotationsKey } from "../util/Decorators";
 
 export class BaseClassWithoutId extends BaseEntity {
-	private get construct() {
-		return this.constructor;
-	}
+    private get construct() {
+        return this.constructor;
+    }
 
-	private get metadata() {
-		return getDatabase()?.getMetadata(this.construct);
-	}
+    // stores custom annotations we may stick on the properties
+    [annotationsKey]: { [p: string]: string[] };
 
-	assign(props: object) {
-		OrmUtils.mergeDeep(this, props);
-		return this;
-	}
+    // retrieves the custom annotations as its not super straight forward
+    get_annotations() {
+        return Object.getPrototypeOf(this)[annotationsKey];
+    }
 
-	// TODO: fix eslint
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	toJSON(): any {
-		return Object.fromEntries(
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			this.metadata!.columns // @ts-ignore
-				.map((x) => [x.propertyName, this[x.propertyName]])
-				.concat(
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore
-					this.metadata.relations.map((x) => [
-						x.propertyName,
-						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-						// @ts-ignore
-						this[x.propertyName],
-					]),
-				),
-		);
-	}
+    // Loops through all the keys and compares it to annotations. If the RemoveEmpty is there it sets the value to undefined if null
+    clean_data() {
+        const annotations = this.get_annotations();
+        if (annotations == undefined || annotations.length > 0)
+            //prevent errors if there are no annotations on an object
+            return;
+        for (const key in this) {
+            if (
+                key in this && // This object has this property, should never fail but better to be safe
+                key in annotations && // If this property has an annotation
+                annotations[key].indexOf("JsonRemoveEmpty") > -1 && // if one of the annotations is JsonRemoveEmpty
+                (this[key] == null || // If this property is null
+                    (typeof this[key] == "object" && Object.keys(this[key]).length == 0))
+            ) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                this[key] = undefined; // set to undefined to remove
+            }
+            if (
+                key in this && // This object has this property, should never fail but better to be safe
+                key in annotations && // If this property has an annotation
+                annotations[key].indexOf("JsonNumber") > -1 && // if one of the annotations is JsonRemoveEmpty
+                typeof this[key] == "string" // and its a String
+            ) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                this[key] = Number(this[key]); // convert string back to number
+            }
+        }
+        return this;
+    }
 
-	static increment<T extends BaseClass>(
-		conditions: FindOptionsWhere<T>,
-		propertyPath: string,
-		value: number | string,
-	) {
-		const repository = this.getRepository();
-		return repository.increment(conditions, propertyPath, value);
-	}
+    private get metadata() {
+        return getDatabase()?.getMetadata(this.construct);
+    }
 
-	static decrement<T extends BaseClass>(
-		conditions: FindOptionsWhere<T>,
-		propertyPath: string,
-		value: number | string,
-	) {
-		const repository = this.getRepository();
-		return repository.decrement(conditions, propertyPath, value);
-	}
+    assign(props: object) {
+        OrmUtils.mergeDeep(this, props);
+        return this;
+    }
+
+    // TODO: fix eslint
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    toJSON(): any {
+        this.clean_data();
+        return Object.fromEntries(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            this.metadata!.columns // @ts-ignore
+                .map((x) => [x.propertyName, this[x.propertyName]])
+                .concat(
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    this.metadata.relations.map((x) => [
+                        x.propertyName,
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        this[x.propertyName],
+                    ]),
+                ),
+        );
+    }
+
+    static increment<T extends BaseClass>(conditions: FindOptionsWhere<T>, propertyPath: string, value: number | string) {
+        const repository = this.getRepository();
+        return repository.increment(conditions, propertyPath, value);
+    }
+
+    static decrement<T extends BaseClass>(conditions: FindOptionsWhere<T>, propertyPath: string, value: number | string) {
+        const repository = this.getRepository();
+        return repository.decrement(conditions, propertyPath, value);
+    }
+
+    public async insert(): Promise<this> {
+        await getDatabase()!.getRepository(this.construct).insert(this);
+        return this;
+    }
 }
 
-export const PrimaryIdColumn = process.env.DATABASE?.startsWith("mongodb")
-	? ObjectIdColumn
-	: PrimaryColumn;
+export const PrimaryIdColumn = process.env.DATABASE?.startsWith("mongodb") ? ObjectIdColumn : PrimaryColumn;
 
 export class BaseClass extends BaseClassWithoutId {
-	@PrimaryIdColumn()
-	id: string = Snowflake.generate();
+    @PrimaryIdColumn()
+    id: string = Snowflake.generate();
 
-	@BeforeUpdate()
-	@BeforeInsert()
-	_do_validate() {
-		if (!this.id) this.id = Snowflake.generate();
-	}
+    @BeforeUpdate()
+    @BeforeInsert()
+    _do_validate() {
+        if (!this.id) this.id = Snowflake.generate();
+    }
 }
+
+export const ArrayColumn = (opts: ColumnOptions) => (process.env.DATABASE?.startsWith("postgres") ? Column({ ...opts, array: true }) : Column({ ...opts, type: "simple-array" }));

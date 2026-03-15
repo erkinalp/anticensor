@@ -16,74 +16,52 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { dbEngine } from "@spacebar/util";
 import { BaseClass } from "./BaseClass";
 import { Entity, JoinColumn, ManyToOne, Column } from "typeorm";
 import { User } from "./User";
-
-export class AutomodMentionSpamRule {
-	mention_total_limit: number;
-	mention_raid_protection_enabled: boolean;
-}
-
-export class AutomodSuspectedSpamRule {}
-
-export class AutomodCommonlyFlaggedWordsRule {
-	allow_list: [string];
-	presets: [number];
-}
-
-export class AutomodCustomWordsRule {
-	allow_list: [string];
-	keyword_filter: [string];
-	regex_patterns: [string];
-}
+import { AutomodAction, AutomodRuleEventType, AutomodRuleTriggerMetadata, AutomodRuleTriggerType } from "@spacebar/schemas";
 
 @Entity({
-	name: "automod_rules",
-	engine: dbEngine,
+    name: "automod_rules",
 })
 export class AutomodRule extends BaseClass {
-	@JoinColumn({ name: "creator_id" })
-	@ManyToOne(() => User, { onDelete: "CASCADE" })
-	creator: User;
+    @JoinColumn({ name: "creator_id" })
+    @ManyToOne(() => User, { onDelete: "CASCADE" })
+    creator: User;
 
-	@Column()
-	enabled: boolean;
+    @Column()
+    enabled: boolean;
 
-	@Column()
-	event_type: number; // No idea...
+    @Column()
+    event_type: AutomodRuleEventType;
 
-	@Column({ type: "simple-array" })
-	exempt_channels: [string];
+    @Column({ type: "simple-array" })
+    exempt_channels: string[];
 
-	@Column({ type: "simple-array" })
-	exempt_roles: [string];
+    @Column({ type: "simple-array" })
+    exempt_roles: string[];
 
-	@Column()
-	guild_id: string;
+    @Column()
+    guild_id: string;
 
-	@Column()
-	name: string;
+    @Column()
+    name: string;
 
-	@Column()
-	position: number;
+    @Column()
+    position: number;
 
-	@Column()
-	trigger_type: number;
+    @Column()
+    trigger_type: AutomodRuleTriggerType;
 
-	@Column({
-		type: "simple-json",
-		nullable: true,
-	})
-	trigger_metadata?: // this is null for "Block suspected spam content"
-	| AutomodMentionSpamRule
-		| AutomodSuspectedSpamRule
-		| AutomodCommonlyFlaggedWordsRule
-		| AutomodCustomWordsRule;
+    @Column({
+        type: "simple-json",
+        nullable: true,
+    })
+    trigger_metadata?: // this is null for "Block suspected spam content"
+    AutomodRuleTriggerMetadata;
 
-	@Column({
-		type: "simple-json",
-	})
-	actions: { type: number; metadata: unknown }[];
+    @Column({
+        type: "simple-json",
+    })
+    actions: AutomodAction[];
 }

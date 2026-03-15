@@ -17,43 +17,37 @@
 */
 
 import { route } from "@spacebar/api";
-import {
-	Application,
-	DiscordApiErrors,
-	PublicUserProjection,
-} from "@spacebar/util";
+import { Application, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { PublicUserProjection } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {
-				body: "Application",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const app = await Application.findOneOrFail({
-			where: { id: req.params.id },
-			relations: ["bot", "owner"],
-			select: {
-				owner: Object.fromEntries(
-					PublicUserProjection.map((x) => [x, true]),
-				),
-			},
-		});
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "Application",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const app = await Application.findOneOrFail({
+            where: { id: req.params.id as string }, // ...huh? there's no ID in the path...
+            relations: { bot: true, owner: true },
+            select: {
+                owner: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+            },
+        });
 
-		if (!app.bot) throw DiscordApiErrors.BOT_ONLY_ENDPOINT;
+        if (!app.bot) throw DiscordApiErrors.BOT_ONLY_ENDPOINT;
 
-		res.json({
-			...app,
-			owner: app.owner.toPublicUser(),
-			install_params:
-				app.install_params !== null ? app.install_params : undefined,
-		});
-	},
+        res.json({
+            ...app,
+            owner: app.owner.toPublicUser(),
+            install_params: app.install_params !== null ? app.install_params : undefined,
+        });
+    },
 );
 export default router;

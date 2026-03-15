@@ -17,65 +17,63 @@
 */
 
 import { route } from "@spacebar/api";
-import { BackupCode, TotpSchema, User, generateToken } from "@spacebar/util";
+import { BackupCode, User, generateToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
-const router = Router();
+import { TotpSchema } from "@spacebar/schemas";
+const router = Router({ mergeParams: true });
 
 router.post(
-	"/",
-	route({
-		requestBody: "TotpSchema",
-		responses: {
-			200: {
-				body: "TokenResponse",
-			},
-			400: {
-				body: "APIErrorResponse",
-			},
-		},
-	}),
-	async (req: Request, res: Response) => {
-		// const { code, ticket, gift_code_sku_id, login_source } =
-		const { code, ticket } = req.body as TotpSchema;
+    "/",
+    route({
+        requestBody: "TotpSchema",
+        responses: {
+            200: {
+                body: "TokenResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+        spacebarOnly: false, // not part of public openapi
+    }),
+    async (req: Request, res: Response) => {
+        // const { code, ticket, gift_code_sku_id, login_source } =
+        const { code, ticket } = req.body as TotpSchema;
 
-		const user = await User.findOneOrFail({
-			where: {
-				totp_last_ticket: ticket,
-			},
-			select: ["id", "totp_secret"],
-			relations: ["settings"],
-		});
+        const user = await User.findOneOrFail({
+            where: {
+                totp_last_ticket: ticket,
+            },
+            select: { id: true, totp_secret: true },
+            relations: { settings: true },
+        });
 
-		const backup = await BackupCode.findOne({
-			where: {
-				code: code,
-				expired: false,
-				consumed: false,
-				user: { id: user.id },
-			},
-		});
+        const backup = await BackupCode.findOne({
+            where: {
+                code: code,
+                expired: false,
+                consumed: false,
+                user: { id: user.id },
+            },
+        });
 
-		if (!backup) {
-			const ret = verifyToken(user.totp_secret || "", code);
-			if (!ret || ret.delta != 0)
-				throw new HTTPError(
-					req.t("auth:login.INVALID_TOTP_CODE"),
-					60008,
-				);
-		} else {
-			backup.consumed = true;
-			await backup.save();
-		}
+        if (!backup) {
+            const ret = verifyToken(user.totp_secret || "", code);
+            if (!ret || ret.delta != 0) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        } else {
+            backup.consumed = true;
+            await backup.save();
+        }
 
-		await User.update({ id: user.id }, { totp_last_ticket: "" });
+        await User.update({ id: user.id }, { totp_last_ticket: "" });
 
-		return res.json({
-			token: await generateToken(user.id),
-			settings: { ...user.settings, index: undefined },
-		});
-	},
+        return res.json({
+            token: await generateToken(user.id),
+            settings: { ...user.settings, index: undefined },
+        });
+    },
 );
 
 export default router;
