@@ -39,7 +39,7 @@ export class Snowflake {
      * @returns {string}
      * @private
      */
-    static idToBinary(num) {
+    private static idToBinary(num: string): string {
         let bin = "";
         let high = parseInt(num.slice(0, -10)) || 0;
         let low = parseInt(num.slice(-10));
@@ -52,36 +52,6 @@ export class Snowflake {
             }
         }
         return bin;
-    }
-
-    /**
-     * Transforms a snowflake from a bit string to a decimal string.
-     * @param  {string} num Bit string to be transformed
-     * @returns {Snowflake}
-     * @private
-     */
-    static binaryToID(num) {
-        let dec = "";
-
-        while (num.length > 50) {
-            const high = parseInt(num.slice(0, -32), 2);
-            const low = parseInt((high % 10).toString(2) + num.slice(-32), 2);
-
-            dec = (low % 10).toString() + dec;
-            num =
-                Math.floor(high / 10).toString(2) +
-                Math.floor(low / 10)
-                    .toString(2)
-                    .padStart(32, "0");
-        }
-
-        num = parseInt(num, 2);
-        while (num > 0) {
-            dec = (num % 10).toString() + dec;
-            num = Math.floor(num / 10);
-        }
-
-        return dec;
     }
 
     static generateWorkerProcess() {
@@ -112,7 +82,7 @@ export class Snowflake {
      * @param {Snowflake} snowflake Snowflake to deconstruct
      * @returns {DeconstructedSnowflake} Deconstructed snowflake
      */
-    static deconstruct(snowflake) {
+    static deconstruct(snowflake: string) {
         const BINARY = Snowflake.idToBinary(snowflake).toString(2).padStart(64, "0");
         const res = {
             timestamp: parseInt(BINARY.substring(0, 42), 2) + Snowflake.EPOCH,

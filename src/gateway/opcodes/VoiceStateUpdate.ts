@@ -18,7 +18,7 @@
 
 import { Payload, WebSocket } from "@spacebar/gateway";
 import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
-import { genVoiceToken } from "../util/SessionUtils";
+import { genVoiceToken } from "@spacebar/gateway";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
 // TODO: check if a voice server is setup
@@ -61,7 +61,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
         //The event send by Discord's client on channel leave has both guild_id and channel_id as null
         //if (body.guild_id === null) body.guild_id = voiceState.guild_id;
         prevState = { ...voiceState };
-        voiceState.assign(body);
+        VoiceState.merge(voiceState, body);
     } catch (error) {
         voiceState = VoiceState.create({
             ...body,
@@ -70,6 +70,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
             mute: false,
             suppress: false,
         });
+        isChanged = true;
     }
 
     // if user left voice channel, send an update to previous channel/guild to let other people know that the user left
@@ -90,10 +91,14 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     //TODO the member.user should only have these properties: avatar, discriminator, id, username
     //TODO this may fail
     if (body.guild_id) {
-        voiceState.member = await Member.findOneOrFail({
+        const member = await Member.findOne({
             where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
             relations: { user: true, roles: true },
         });
+
+        if (member) {
+            voiceState.member = member;
+        }
     }
 
     //If the session changed we generate a new token
@@ -122,11 +127,21 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
             where: { id: voiceState.guild_id },
         });
         const regions = Config.get().regions;
-        let guildRegion: Region;
+        let guildRegion: Region | undefined;
+
+        const defaultRegion = regions.available.find((r) => r.id === regions.default);
+
         if (guild && guild.region) {
-            guildRegion = regions.available.filter((r) => r.id === guild.region)[0];
+            // in case the configured guild region does not exist (which can
+            // happen when server regions config is updated after guild creation),
+            // fallback to default region
+            guildRegion = regions.available.find((r) => r.id === guild.region) ?? defaultRegion;
         } else {
-            guildRegion = regions.available.filter((r) => r.id === regions.default)[0];
+            guildRegion = defaultRegion;
+        }
+
+        if (!guildRegion) {
+            throw new Error("Unable to find suitable region due to misconfiguration of regions");
         }
 
         await emitEvent({
@@ -141,5 +156,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
         } as VoiceServerUpdateEvent);
     }
 
-    console.log(`[Gateway] VOICE_STATE_UPDATE for user ${this.user_id} in channel ${voiceState.channel_id} in guild ${voiceState.guild_id} in ${Date.now() - startTime}ms`);
+    console.log(
+        `[Gateway/${this.user_id}] VOICE_STATE_UPDATE for user ${this.user_id} in channel ${voiceState.channel_id} in guild ${voiceState.guild_id} in ${Date.now() - startTime}ms`,
+    );
 }

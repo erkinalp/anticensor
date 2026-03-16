@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, Config, User, createAppBotUser, trimSpecial } from "@spacebar/util";
+import { Application, Config, createAppBotUser, trimSpecial } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationCreateSchema } from "@spacebar/schemas";
 
@@ -44,7 +44,6 @@ router.get(
 router.post(
     "/",
     route({
-        right: "CREATE_APPLICATIONS",
         requestBody: "ApplicationCreateSchema",
         responses: {
             200: {
@@ -54,7 +53,6 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const body = req.body as ApplicationCreateSchema;
-        const user = await User.findOneOrFail({ where: { id: req.user_id } });
 
         const app = Application.create({
             name: trimSpecial(body.name),

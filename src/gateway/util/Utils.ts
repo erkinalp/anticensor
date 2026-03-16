@@ -1,4 +1,7 @@
-import { VoiceState } from "@spacebar/util";
+import { Event, VoiceState } from "@spacebar/util";
+import { WebSocket } from "./WebSocket";
+import { OPCODES } from "./Constants";
+import { Send } from "./Send";
 
 export function parseStreamKey(streamKey: string): {
     type: "guild" | "call";
@@ -53,9 +56,40 @@ export async function cleanupOnStartup(): Promise<void> {
     //	},
     //);
 
-    try {
-        await VoiceState.clear();
-    } catch (e) {
-        console.error("Error clearing voice states on startup:", e);
+    console.log("[Gateway] Starting async voice state wipe...");
+    VoiceState.clear()
+        .then(() => console.log("[Gateway] Successfully cleaned voice states"))
+        .catch((e) => console.error("[Gateway] Error cleaning voice states on startup:", e));
+}
+
+export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown) {
+    // TODO: async json object streaming
+    const resp = await fetch(url, {
+        body: JSON.stringify(body),
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${socket.accessToken}`,
+            // because the session may not have an id in the token!
+            "X-Session-Id": socket.session_id,
+        },
+    });
+
+    if (!resp.ok) {
+        const text = await resp.text();
+        console.error(`[Gateway] Offloaded request to ${url} failed with status ${resp.status}: ${text}`);
+        if (resp.status === 415) console.log(typeof body, body);
+        throw new Error(`Offloaded request failed with status ${resp.status}: ${text}`);
+    }
+
+    const data = ((await resp.json()) as Event[]).toReversed();
+    while (data.length > 0) {
+        const event = data.pop()!;
+        if (process.env.WS_VERBOSE) console.log(`[Gateway] Received offloaded event: ${JSON.stringify(event)}`);
+        await Send(socket, {
+            op: OPCODES.Dispatch,
+            s: socket.sequence++,
+            t: event.event,
+            d: event.data,
+        });
     }
 }

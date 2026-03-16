@@ -16,7 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// process.env.MONGOMS_DEBUG = "true";
 import moduleAlias from "module-alias";
 moduleAlias(__dirname + "../../../package.json");
 
@@ -28,37 +27,9 @@ import { initStats } from "./stats";
 import { config } from "dotenv";
 
 config({ quiet: true });
-import { execSync } from "child_process";
-import { centerString, Logo } from "@spacebar/util";
-import fs from "fs";
-import path from "path";
+import { centerString, getRevInfoOrFail, Logo } from "@spacebar/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
-
-function getRevInfoOrFail(): { rev: string | null; lastModified: number } {
-    const rootDir = path.join(__dirname, "../../");
-    // sanity check
-    if (!fs.existsSync(path.join(rootDir, "package.json"))) {
-        console.log(red("Error: Cannot find package.json in root directory. Are you running from the correct location?"));
-    }
-
-    // use .rev file if it exists
-    if (fs.existsSync(path.join(__dirname, "../../.rev"))) {
-        return JSON.parse(fs.readFileSync(path.join(rootDir, ".rev"), "utf-8"));
-    }
-
-    // fall back to invoking git
-    try {
-        const rev = execSync(`git -C "${rootDir}" rev-parse HEAD`).toString().trim();
-        const lastModified = Number(execSync(`git -C "${rootDir}" log -1 --format=%cd --date=unix`).toString().trim());
-        return {
-            rev,
-            lastModified,
-        };
-    } catch (e) {
-        return { rev: null, lastModified: 0 };
-    }
-}
 
 if (cluster.isPrimary) {
     const revInfo = getRevInfoOrFail();

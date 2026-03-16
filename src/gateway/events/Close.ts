@@ -17,7 +17,7 @@
 */
 
 import { WebSocket } from "@spacebar/gateway";
-import { emitEvent, PresenceUpdateEvent, PrivateSessionProjection, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
@@ -28,7 +28,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     this.removeAllListeners();
 
     if (this.session_id) {
-        await Session.delete({ session_id: this.session_id });
+        // await Session.delete({ session_id: this.session_id });
 
         const voiceState = await VoiceState.findOne({
             where: { user_id: this.user_id },

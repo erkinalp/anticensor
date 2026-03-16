@@ -46,7 +46,11 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
 
     // TODO: actually apply preferred_region from the event payload
     const regions = Config.get().regions;
-    const guildRegion = regions.available.filter((r) => r.id === regions.default)[0];
+    const guildRegion = regions.available.find((r) => r.id === regions.default);
+
+    if (!guildRegion) {
+        throw new Error("No default region configured");
+    }
 
     // first make sure theres no other streams for this user that somehow didnt get cleared
     await Stream.delete({
@@ -109,7 +113,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
         channel_id: voiceState.channel_id,
     } as VoiceStateUpdateEvent);
 
-    console.log(`[Gateway] STREAM_CREATE for user ${this.user_id} in channel ${body.channel_id} with stream key ${streamKey} in ${Date.now() - startTime}ms`);
+    console.log(`[Gateway/${this.user_id}] STREAM_CREATE for user ${this.user_id} in channel ${body.channel_id} with stream key ${streamKey} in ${Date.now() - startTime}ms`);
 }
 
 //stream key:

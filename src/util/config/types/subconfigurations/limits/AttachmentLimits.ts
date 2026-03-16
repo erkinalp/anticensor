@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class ClientReleaseConfiguration {
-    useLocalRelease: boolean = true; //TODO
-    upstreamVersion: string = "0.0.264";
+export class AttachmentLimits {
+	maxFilenameLength: number = 100;
+	maxDescriptionLength: number = 1024;
 }

@@ -22,7 +22,7 @@ import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } fr
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "http";
-import { cleanupOnStartup } from "./util/Utils";
+import { cleanupOnStartup } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "timers";
 
@@ -38,9 +38,9 @@ export class Server {
 
         if (server) this.server = server;
         else {
-            const elu = [1, 5, 15].map((x) => performance.eventLoopUtilization());
-            const eluP = [1, 5, 15].map((x) => performance.eventLoopUtilization());
-            const cpu = [1, 5, 15].map((x) => process.cpuUsage());
+            const elu = [1, 5, 15].map(() => performance.eventLoopUtilization());
+            const eluP = [1, 5, 15].map(() => performance.eventLoopUtilization());
+            const cpu = [1, 5, 15].map(() => process.cpuUsage());
             let sec = 0;
             setInterval(() => {
                 sec += 1;

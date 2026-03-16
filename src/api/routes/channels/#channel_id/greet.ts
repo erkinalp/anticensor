@@ -17,10 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, MessageType, Permissions, Sticker } from "@spacebar/util";
+import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { GreetRequestSchema } from "@spacebar/schemas";
+import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -79,14 +79,14 @@ router.post(
 
         const randomSticker = stickers[Math.floor(Math.random() * stickers.length)];
 
-        const message: Message = Message.create({
+        const message = Message.create({
             channel_id: channel_id,
             author_id: req.user_id,
             type: MessageType.REPLY,
             message_reference: { ...payload.message_reference, type: 0 },
             referenced_message: targetMessage,
             sticker_items: randomSticker ? [{ id: randomSticker.id, name: randomSticker.name, format_type: randomSticker.format_type }] : [],
-        }) as Message;
+        });
 
         channel.last_message_id = message.id;
 

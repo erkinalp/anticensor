@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using ArcaneLibs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.AdminApi.Extensions;
@@ -8,7 +6,7 @@ using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.Models.AdminApi;
 using Spacebar.Models.Db.Contexts;
-using Spacebar.Models.Db.Models;
+using Spacebar.Models.Gateway;
 
 namespace Spacebar.AdminApi.Controllers;
 
@@ -155,6 +153,12 @@ public class UserController(
         user.Rights = 0;
         db.Users.Update(user);
         await db.SaveChangesAsync();
+        await replication.SendAsync(new() {
+            UserId = user.Id,
+            Event = "SB_SESSION_REMOVE",
+            Origin = "AdminAPI/User Delete",
+            CreatedAt = DateTime.UtcNow
+        });
 
         var messages = db.Messages
             .AsNoTracking()
@@ -184,6 +188,11 @@ public class UserController(
         }
     }
 
+    // [HttpGet("{id}/Dms")]
+    // public async IEnumerable<object> GetDmsAsync(string userId) {
+        // yield break; // TODO
+    // }
+
     private async IAsyncEnumerable<AsyncActionResult> DeleteMessagesForChannel(
         // context
         string? guildId, string channelId, string authorId,
@@ -210,13 +219,13 @@ public class UserController(
                     break;
                 }
 
-                await replication.SendAsync(new() {
+                await replication.SendAsync<BulkMessageDeleteResponse>(new() {
                     Event = "MESSAGE_BULK_DELETE",
                     ChannelId = channelId,
-                    Payload = new {
-                        channel_id = channelId,
-                        guild_id = guildId,
-                        ids = messageIds,
+                    Payload = new() {
+                        GuildId = guildId,
+                        ChannelId = channelId,
+                        MessageIds = messageIds,
                     },
                     Origin = "AdminApi/DeleteMessagesForChannel"
                 });

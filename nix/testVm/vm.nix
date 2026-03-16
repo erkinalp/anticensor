@@ -1,14 +1,14 @@
 {
-  nixpkgs,
-  modulesPath,
   pkgs,
   lib,
+  modulesPath,
   ...
 }:
 {
   imports = [
-    #         (modulesPath + "/virtualisation/qemu-vm.nix")
+    (modulesPath + "/virtualisation/qemu-vm.nix")
   ];
+
   virtualisation.vmVariant = {
     services.xserver.videoDrivers = [ "qxl" ];
     services.spice-vdagentd.enable = true;
@@ -19,11 +19,15 @@
       "-display gtk,zoom-to-fit=off,show-cursor=on"
       "-device virtio-balloon"
     ];
-    virtualisation.memorySize = 4096;
-    virtualisation.cores = 6;
+    virtualisation.memorySize = 8192;
+    virtualisation.cores = 10;
     virtualisation.forwardPorts = [
-        # { hostPort = 2222; guestPort = 22; } # Probably shouldn't do this with root:root lol
-        { from = "host"; host.port = 8080; guest.port = 80; }
+      # { hostPort = 2222; guestPort = 22; } # Probably shouldn't do this with root:root lol
+      {
+        from = "host";
+        host.port = 8080;
+        guest.port = 80;
+      }
     ];
     networking.useDHCP = lib.mkForce true;
   };
@@ -54,15 +58,5 @@
     earlySetup = true;
     font = "${pkgs.cozette}/share/consolefonts/cozette6x13.psfu";
     packages = with pkgs; [ cozette ];
-  };
-
-  system = {
-    #activatable = false;
-    copySystemConfiguration = false;
-    includeBuildDependencies = false;
-    disableInstallerTools = lib.mkForce true;
-    build = {
-      separateActivationScript = true;
-    };
   };
 }

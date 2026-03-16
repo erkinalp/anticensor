@@ -17,12 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import { User, AutomodRule, AutomodEvaluator } from "@spacebar/util";
-import { AutomodRuleSchema } from "@spacebar/schemas";
+import { User, AutomodRule } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { AutomodRuleSchema } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get(
     "/",
@@ -81,8 +81,6 @@ router.post(
         });
 
         const savedRule = await AutomodRule.save(created);
-        AutomodEvaluator.clearCache(guild_id);
-
         return res.json(savedRule);
     },
 );
@@ -105,7 +103,7 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const { rule_id, guild_id } = req.params as { [key: string]: string };
+        const { rule_id } = req.params as { [key: string]: string };
         const rule = await AutomodRule.findOneOrFail({
             where: { id: rule_id },
         });
@@ -114,8 +112,6 @@ router.patch(
 
         AutomodRule.merge(rule, data);
         const savedRule = await AutomodRule.save(rule);
-        AutomodEvaluator.clearCache(guild_id);
-
         return res.json(savedRule);
     },
 );
@@ -135,10 +131,8 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { rule_id, guild_id } = req.params as { [key: string]: string };
+        const { rule_id } = req.params as { [key: string]: string };
         await AutomodRule.delete({ id: rule_id });
-        AutomodEvaluator.clearCache(guild_id);
-
         return res.status(204).send();
     },
 );

@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
+import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
-    // TODO: subdivision_code (optional)
+router.get("/", route({}), async (req: Request, res: Response) => {
+    // Stub: returns empty country_code since IpDataClient is not available
     res.json({ country_code: "US" }).status(200);
 });
 

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Spacebar.Interop.Replication.Abstractions;
 
-public class ReplicationMessage {
+public class ContentlessReplicationMessage {
     [JsonPropertyName("channel_id")]
     public string? ChannelId { get; set; }
 
@@ -11,6 +11,9 @@ public class ReplicationMessage {
 
     [JsonPropertyName("user_id")]
     public string? UserId { get; set; }
+
+    [JsonPropertyName("session_id")]
+    public string? SessionId { get; set; }
 
     [JsonPropertyName("created_at")]
     public DateTime? CreatedAt { get; set; }
@@ -21,6 +24,11 @@ public class ReplicationMessage {
     [JsonPropertyName("origin")]
     public string? Origin { get; set; }
 
+    [JsonPropertyName("reconnect_delay")]
+    public int? ReconnectDelay { get; set; }
+}
+
+public class ReplicationMessage<TPayload> : ContentlessReplicationMessage {
     [JsonPropertyName("data")]
-    public object Payload { get; set; } = null!;
+    public TPayload Payload { get; set; } = default!;
 }

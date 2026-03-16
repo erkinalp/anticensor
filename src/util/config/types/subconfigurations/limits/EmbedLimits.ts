@@ -16,4 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ClientReleaseConfiguration";
+export class EmbedLimits {
+	maxTitleLength: number = 256;
+	maxDescriptionLength: number = 4096;
+	maxFieldNameLength: number = 256;
+	maxFieldValueLength: number = 1024;
+	maxFooterTextLength: number = 2048;
+	maxAuthorNameLength: number = 256;
+}

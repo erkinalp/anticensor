@@ -19,6 +19,7 @@
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ConsentGrant, ConsentGrantStatus, ConsentType, UserConsent, ConsentStatus, DiscordApiErrors, User } from "@spacebar/util";
+import { Snowflake } from "@spacebar/util";
 import { FindOptionsWhere } from "typeorm";
 
 const router: Router = Router();
@@ -186,16 +187,6 @@ router.post(
         const consent = UserConsent.create({
             user_id,
             service_id: grant.service_id || "gnap_grant",
-            consent_type: grant.consent_type,
-            item_id: grant.item_id,
-            target_user_id: grant.requester_id,
-            status: provisional ? ConsentStatus.PROVISIONAL : ConsentStatus.GRANTED,
-            granted_at: new Date(),
-            expires_at: expires_at ? new Date(expires_at) : grant.expires_at || undefined,
-            extra_data: {
-                grant_id: grant.id,
-                granted_access: grant.granted_access,
-            },
         });
         await consent.save();
 
@@ -309,15 +300,11 @@ router.delete(
                 const consent = await UserConsent.findOne({
                     where: {
                         user_id,
-                        target_user_id: grant.requester_id,
-                        consent_type: grant.consent_type,
-                        item_id: grant.item_id,
+                        service_id: grant.service_id || "gnap_grant",
                     },
                 });
                 if (consent) {
-                    consent.status = ConsentStatus.RETRACTED;
-                    consent.retracted_at = new Date();
-                    await consent.save();
+                    await consent.remove();
                 }
             }
             grant.status = ConsentGrantStatus.DENIED;

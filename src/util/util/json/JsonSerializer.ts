@@ -2,7 +2,6 @@ import { JsonSerializerOptions } from "./JsonSerializerOptions";
 import { Worker } from "worker_threads";
 import { join } from "path";
 import os from "os";
-import Stream from "node:stream";
 import { ReadStream, WriteStream } from "node:fs";
 
 // const worker = new Worker(join(process.cwd(), 'dist', 'util', 'util', 'json', 'jsonWorker.js'));
@@ -23,6 +22,7 @@ function getNextWorker(): Worker {
     return worker;
 }
 
+// noinspection JSUnusedLocalSymbols - TODO: implement options
 export class JsonSerializer {
     public static Serialize<T>(value: T, opts?: JsonSerializerOptions): string {
         return JSON.stringify(value);

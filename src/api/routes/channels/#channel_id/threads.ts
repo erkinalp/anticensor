@@ -31,10 +31,8 @@ import {
     ThreadMember,
     Message,
     ChannelFlags,
-    DiscordApiErrors,
-    MessageType,
 } from "@spacebar/util";
-import { ChannelType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -127,7 +125,7 @@ router.post(
             }),
         ]);
         if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum())
-            sendMessage({
+            await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,
                 content: thread.name,
@@ -218,6 +216,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
+        // noinspection JSUnusedLocalSymbols - ???
         const { name, slop, tag, tag_setting, archived, sort_by, sort_order, limit, offset, max_id, min_id } = req.query as Record<string, string | undefined>;
         const tags = tag ? tag.split(",") : [];
         const { channel_id } = req.params as Record<string, string>;
@@ -252,7 +251,7 @@ router.get(
             },
         });
 
-        const permissions = await getPermission(req.user_id, channel.guild_id, channel.id);
+        const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });

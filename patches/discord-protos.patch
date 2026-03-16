@@ -1,0 +1,85 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..ccc219671ec4c045c9f3f1d450ad48c73e980f58
+--- /dev/null
++++ b/dist/index.d.ts
+@@ -0,0 +1,37 @@
++import type { JsonValue } from "@protobuf-ts/runtime";
++
++interface ProtoMessage {
++    [key: string]: unknown;
++}
++
++interface SettingsVersions {
++    clientVersion: number;
++    serverVersion: number;
++    dataVersion: number;
++}
++
++interface IProtoMessageType<T extends ProtoMessage> {
++    create(value?: Partial<T>): T;
++    fromJson(json: JsonValue, options?: unknown): T;
++    fromJsonString(json: string, options?: unknown): T;
++    toJson(message: T, options?: unknown): JsonValue;
++    toJsonString(message: T, options?: unknown): string;
++    fromBase64(base64: string): T;
++    toBase64(message: T): string;
++}
++
++export interface PreloadedUserSettingsData extends ProtoMessage {
++    versions?: SettingsVersions;
++}
++export interface FrecencyUserSettingsData extends ProtoMessage {
++    versions?: SettingsVersions;
++}
++
++export declare const PreloadedUserSettings: IProtoMessageType<PreloadedUserSettingsData>;
++export declare const FrecencyUserSettings: IProtoMessageType<FrecencyUserSettingsData>;
++
++export type PreloadedUserSettings = PreloadedUserSettingsData;
++export type FrecencyUserSettings = FrecencyUserSettingsData;
++
++export declare enum User_DisplayNameEffect {}
++export declare enum User_DisplayNameFont {}
+diff --git a/dist/index.js b/dist/index.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2e0ffb322f1f463e131daaaa432a3eb78912fc8d
+--- /dev/null
++++ b/dist/index.js
+@@ -0,0 +1,36 @@
++"use strict";
++// Runtime stub for discord-protos npm package
++// The published npm package is missing built output files (dist/index.js).
++// This stub provides the minimal runtime interface needed by the codebase.
++
++function createStubMessageType(name) {
++    return {
++        create(value) { return value || {}; },
++        fromJson(json) { return typeof json === 'object' ? json : {}; },
++        fromJsonString(json) { return JSON.parse(json); },
++        toJson(message) { return message; },
++        toJsonString(message) { return JSON.stringify(message); },
++        fromBase64(base64) {
++            try {
++                const json = Buffer.from(base64, 'base64').toString('utf-8');
++                return JSON.parse(json);
++            } catch { return {}; }
++        },
++        toBase64(message) {
++            return Buffer.from(JSON.stringify(message)).toString('base64');
++        },
++    };
++}
++
++const PreloadedUserSettings = createStubMessageType("PreloadedUserSettings");
++const FrecencyUserSettings = createStubMessageType("FrecencyUserSettings");
++
++const User_DisplayNameEffect = {};
++const User_DisplayNameFont = {};
++
++module.exports = {
++    PreloadedUserSettings,
++    FrecencyUserSettings,
++    User_DisplayNameEffect,
++    User_DisplayNameFont,
++};

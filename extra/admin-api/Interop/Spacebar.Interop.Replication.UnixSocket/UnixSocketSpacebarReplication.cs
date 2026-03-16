@@ -20,7 +20,7 @@ public class UnixSocketSpacebarReplication(UnixSocketConfiguration conf) : ISpac
         };
     }
 
-    public async Task SendAsync(ReplicationMessage message) {
+    public async Task SendAsync(ContentlessReplicationMessage message) {
         // message format: [uint32be length][payload]
         var payload = JsonSerializer.SerializeToUtf8Bytes(message);
         byte[] formattedPayload = [..BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(payload.Length)), ..payload];
@@ -30,11 +30,13 @@ public class UnixSocketSpacebarReplication(UnixSocketConfiguration conf) : ISpac
                 skv.Value.SendAsync(formattedPayload);
         });
     }
+
+    async Task ISpacebarReplication.SendAsync<TPayload>(ReplicationMessage<TPayload> message) => await SendAsync(message);
 }
 
 public class UnixSocketConfiguration {
     public UnixSocketConfiguration(IConfiguration config) {
-        config.GetRequiredSection("UnixSocketReplication").Bind(this);
+        config.GetRequiredSection("Spacebar").GetRequiredSection("UnixSocketReplication").Bind(this);
     }
 
     public string SocketDir { get; set; } = null!;

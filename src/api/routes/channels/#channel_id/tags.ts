@@ -60,7 +60,7 @@ router.post(
             tag.save(),
             emitEvent({
                 event: "CHANNEL_UPDATE",
-                data: channel,
+                data: channel.toJSON(),
                 channel_id,
             } as ChannelUpdateEvent),
         ]);
@@ -101,7 +101,7 @@ router.put(
             tag.save(),
             emitEvent({
                 event: "CHANNEL_UPDATE",
-                data: channel,
+                data: channel.toJSON(),
                 channel_id,
             } as ChannelUpdateEvent),
         ]);
@@ -140,7 +140,7 @@ router.delete(
             tag.remove(),
             emitEvent({
                 event: "CHANNEL_UPDATE",
-                data: channel,
+                data: channel.toJSON(),
                 channel_id,
             } as ChannelUpdateEvent),
         ]);

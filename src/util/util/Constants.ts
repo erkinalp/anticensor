@@ -113,11 +113,6 @@ export const Events = {
     TYPING_START: "typingStart",
     TYPING_STOP: "typingStop",
     WEBHOOKS_UPDATE: "webhookUpdate",
-    LOBBY_CREATE: "lobbyCreate",
-    LOBBY_UPDATE: "lobbyUpdate",
-    LOBBY_DELETE: "lobbyDelete",
-    LOBBY_MEMBER_ADD: "lobbyMemberAdd",
-    LOBBY_MEMBER_REMOVE: "lobbyMemberRemove",
     ERROR: "error",
     WARN: "warn",
     DEBUG: "debug",
@@ -319,15 +314,10 @@ export const AutomodActionTypes = {
 // Automod trigger types mapping: 1–6 follow discord-api-docs; 30+ are Spacebar extensions.
 export const AutomodTriggerTypes = {
     CUSTOM_WORDS: 1,
-    HARMFUL_LINKS: 2,
+    UNKNOWN_2: 2,
     SUSPECTED_SPAM_CONTENT: 3,
     COMMONLY_FLAGGED_WORDS: 4,
     MENTION_SPAM: 5,
-    MEMBER_PROFILE: 6,
-    PROHIBITED_LANGUAGES: 30,
-    SIMILARITY: 31,
-    ARTIFICIAL_CONTENT: 32,
-    EXECUTABLE_FILES: 33,
 };
 
 export const Colors = {
@@ -569,8 +559,6 @@ export const DiscordApiErrors = {
     UNKNOWN_GUILD_WELCOME_SCREEN: new ApiError("Unknown Guild Welcome Screen", 10069),
     UNKNOWN_GUILD_SCHEDULED_EVENT: new ApiError("Unknown Guild Scheduled Event", 10070),
     UNKNOWN_GUILD_SCHEDULED_EVENT_USER: new ApiError("Unknown Guild Scheduled Event User", 10071),
-    UNKNOWN_CONSENT: new ApiError("Unknown consent", 10080, 404),
-    UNKNOWN_CONSENT_GRANT: new ApiError("Unknown consent grant", 10081, 404),
     BOT_PROHIBITED_ENDPOINT: new ApiError("Bots cannot use this endpoint", 20001),
     BOT_ONLY_ENDPOINT: new ApiError("Only bots can use this endpoint", 20002),
     EXPLICIT_CONTENT_CANNOT_BE_SENT_TO_RECIPIENT: new ApiError("Explicit content cannot be sent to the desired recipient(s)", 20009),
@@ -675,6 +663,7 @@ export const DiscordApiErrors = {
 
     //Other errors
     UNKNOWN_VOICE_STATE: new ApiError("Unknown Voice State", 10065, 404),
+    UNKNOWN_CONSENT_GRANT: new ApiError("Unknown Consent Grant", 10070, 404),
 };
 
 export const TicketFlags = {

@@ -34,7 +34,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "../../../../../util";
+import { handleMessage, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -98,7 +98,7 @@ router.patch(
             channel_id,
             id: message_id,
             edited_timestamp: new Date(),
-        } as Parameters<typeof handleMessage>[0]);
+        });
 
         await Promise.all([
             new_message.save(),
@@ -113,7 +113,7 @@ router.patch(
             } as MessageUpdateEvent),
         ]);
 
-        postHandleMessage(new_message);
+        postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
         // TODO: a DTO?
         return res.json({
@@ -265,7 +265,10 @@ router.get(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: { attachments: true },
+            relations: {
+                attachments: true,
+                author: true,
+            },
         });
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
@@ -295,7 +298,7 @@ router.delete(
         });
         if (channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
             if (channel.message_count !== undefined) channel.message_count--;
-            channel.save(); //Save async, it's fine
+            await channel.save();
         }
         const message = await Message.findOneOrFail({
             where: { id: message_id },

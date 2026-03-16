@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260126-091403" />
         <PackageReference Include="ArcaneLibs.StringNormalisation" Version="1.0.1-preview.20260126-091403" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +24,8 @@
         <PackageReference Include="Spacebar.Models.Config" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
         <ProjectReference Include="..\Models\Spacebar.Models.Db\Spacebar.Models.Db.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
         <PackageReference Include="Spacebar.Models.Db" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
+        <ProjectReference Include="..\Models\Spacebar.Models.Gateway\Spacebar.Models.Gateway.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
+        <PackageReference Include="Spacebar.Models.Gateway" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
     </ItemGroup>
 
     <ItemGroup>

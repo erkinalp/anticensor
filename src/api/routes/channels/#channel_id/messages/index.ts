@@ -33,7 +33,7 @@ import {
     NewUrlSignatureData,
     NewUrlUserSignatureData,
     ReadState,
-    Recipient,
+    Relationship,
     Rights,
     Snowflake,
     uploadFile,
@@ -56,10 +56,10 @@ import {
     MessageCreateSchema,
     Reaction,
     ReadStateType,
-    ChannelType,
+    RelationshipType,
 } from "@spacebar/schemas";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 async function populateForwardLinks(messages: Message[]): Promise<void> {
     for (const message of messages) {
@@ -175,7 +175,7 @@ router.get(
                     }),
                 ]);
                 left.push(...right);
-                messages = left.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+                messages = left.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
             } else {
                 query.take = 1;
                 const message = await Message.findOne({
@@ -201,8 +201,6 @@ router.get(
 
         await Message.fillReplies(messages);
         const endpoint = Config.get().cdn.endpointPublic;
-
-        await populateForwardLinks(messages);
 
         const ret = messages.map((x: Message) => {
             x = x.toJSON();
@@ -267,6 +265,15 @@ router.get(
 
             return x;
         });
+        //console.log(ret);
+
+        await Promise.all(
+            ret
+                .filter((x: MessageCreateSchema) => x.interaction_metadata && !x.interaction_metadata.user)
+                .map(async (x: MessageCreateSchema) => {
+                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: (x as Message).interaction_metadata!.user_id } });
+                }),
+        );
 
         return res.json(ret);
     },
@@ -322,7 +329,7 @@ router.post(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["recipients", "recipients.user"],
+            relations: { recipients: { user: true } },
         });
         if (channel.thread_metadata?.locked) throw DiscordApiErrors.THREAD_IS_LOCKED;
         if (channel.isThread()) {
@@ -371,6 +378,23 @@ router.post(
             throw new HTTPError(`Cannot send messages to channel of type ${channel.type}`, 400);
         }
 
+        // handle blocked users in dms
+        if (channel.recipients?.length == 2) {
+            const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
+            if (otherUser) {
+                const relationship = await Relationship.findOne({
+                    where: [
+                        { from_id: req.user_id, to_id: otherUser.id },
+                        { from_id: otherUser.id, to_id: req.user_id },
+                    ],
+                });
+
+                if (relationship?.type === RelationshipType.blocked) {
+                    throw DiscordApiErrors.CANNOT_MESSAGE_USER;
+                }
+            }
+        }
+
         if (body.nonce) {
             const existing = await Message.findOne({
                 where: {
@@ -386,7 +410,7 @@ router.post(
 
         if (!req.rights.has(Rights.FLAGS.BYPASS_RATE_LIMITS)) {
             const limits = Config.get().limits;
-            if (limits.absoluteRate.register.enabled) {
+            if (limits.absoluteRate.sendMessage.enabled) {
                 const count = await Message.count({
                     where: {
                         channel_id,
@@ -401,26 +425,6 @@ router.post(
                             message: req.t("common:toomany.MESSAGE"),
                         },
                     });
-            }
-
-            if (channel.rate_limit_per_user && channel.rate_limit_per_user > 0) {
-                const lastMessage = await Message.findOne({
-                    where: {
-                        channel_id,
-                        author_id: req.user_id,
-                    },
-                    order: { timestamp: "DESC" },
-                    select: ["timestamp"],
-                });
-
-                if (lastMessage) {
-                    const timeSinceLastMessage = Date.now() - lastMessage.timestamp.getTime();
-                    const slowmodeMs = channel.rate_limit_per_user * 1000;
-
-                    if (timeSinceLastMessage < slowmodeMs) {
-                        throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
-                    }
-                }
             }
         }
 
@@ -491,12 +495,13 @@ router.post(
             if (!message.member) {
                 message.member = await Member.findOneOrFail({
                     where: { id: req.user_id, guild_id: message.guild_id },
-                    relations: ["roles"],
+                    relations: { roles: true },
                 });
+                message.member.clean_data();
             }
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
+            // @ts-ignore
             message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
         }
 
@@ -505,6 +510,8 @@ router.post(
         });
         if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
         read_state.last_message_id = message.id;
+        //It's a little more complicated than this but this'll do
+        read_state.mention_count = 0;
 
         await Promise.all([
             read_state.save(),

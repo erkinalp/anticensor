@@ -1,5 +1,5 @@
-const { extractOMRC } = require('./lib/omrc_extractor.js');
-const { fetchRecommendations } = require('./lib/recommender.js');
+const { extractOMRC } = require("./lib/omrc_extractor.js");
+const { fetchRecommendations } = require("./lib/recommender.js");
 
 // Mock fetch for Node.js environment
 global.fetch = async (url) => {
@@ -8,11 +8,23 @@ global.fetch = async (url) => {
         ok: true,
         json: async () => ({
             data: [
-                { title: "Paper A", abstract: "We propose a new method for paper recommendation using deep learning.", authors: [{ name: "Author 1" }], year: 2024, url: "http://example.com/a" },
-                { title: "Paper B", abstract: "This study analyzes the impact of OMRC structure on citation counts.", authors: [{ name: "Author 2" }], year: 2023, url: "http://example.com/b" },
-                { title: "Paper C", abstract: "Unrelated work on quantum physics.", authors: [{ name: "Author 3" }], year: 2022, url: "http://example.com/c" }
-            ]
-        })
+                {
+                    title: "Paper A",
+                    abstract: "We propose a new method for paper recommendation using deep learning.",
+                    authors: [{ name: "Author 1" }],
+                    year: 2024,
+                    url: "http://example.com/a",
+                },
+                {
+                    title: "Paper B",
+                    abstract: "This study analyzes the impact of OMRC structure on citation counts.",
+                    authors: [{ name: "Author 2" }],
+                    year: 2023,
+                    url: "http://example.com/b",
+                },
+                { title: "Paper C", abstract: "Unrelated work on quantum physics.", authors: [{ name: "Author 3" }], year: 2022, url: "http://example.com/c" },
+            ],
+        }),
     };
 };
 

@@ -3,11 +3,9 @@
 // @fc-license-skip
 
 import { Channel, Guild, Member, Role, User } from "../entities";
-import { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import { BitField } from "./BitField";
-import { BitFieldResolvable, BitFlag } from "./BitField";
+import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
-import { ChannelType } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelPermissionOverwriteType, ChannelType, UserFlags } from "@spacebar/schemas";
 import { FindOneOptions } from "typeorm";
 
 export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
@@ -18,18 +16,12 @@ type PermissionString = keyof typeof Permissions.FLAGS;
 // const CUSTOM_PERMISSION_OFFSET = BigInt(1) << BigInt(64); // 27 permission bits left for discord to add new ones
 
 export class Permissions extends BitField {
-    static get NONE(): Permissions {
-        return new Permissions(0);
-    }
-    static get ALL(): Permissions {
-        return new Permissions(Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0)));
-    }
     cache: PermissionCache = {};
 
     constructor(bits: BitFieldResolvable = 0) {
         super(bits);
         if (this.bitfield & Permissions.FLAGS.ADMINISTRATOR) {
-            this.bitfield = ALL_PERMISSIONS;
+            this.bitfield = Permissions.ALL_PERMISSIONS;
         }
     }
 
@@ -87,15 +79,18 @@ export class Permissions extends BitField {
         USE_EXTERNAL_APPS: BitFlag(50),
         PIN_MESSAGES: BitFlag(51),
         BYPASS_SLOWMODE: BitFlag(52),
-        MANAGE_TICKETS: BitFlag(55),
+        MANAGE_TICKETS: BitFlag(53),
 
         /**
          * CUSTOM PERMISSIONS ideas:
          * - allow user to dm members
+         * - allow user to pin messages (without MANAGE_MESSAGES)
          * - allow user to publish messages (without MANAGE_MESSAGES)
          */
         // CUSTOM_PERMISSION: BigInt(1) << BigInt(0) + CUSTOM_PERMISSION_OFFSET
     };
+
+    static ALL_PERMISSIONS = Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0));
 
     any(permission: PermissionResolvable, checkAdmin = true) {
         return (checkAdmin && super.any(Permissions.FLAGS.ADMINISTRATOR)) || super.any(permission);
@@ -118,10 +113,10 @@ export class Permissions extends BitField {
 
     overwriteChannel(overwrites: ChannelPermissionOverwrite[]) {
         if (!overwrites) return this;
-        if (!this.cache) throw new Error("permission chache not available");
+        if (!this.cache) throw new Error("permission cache not available");
         overwrites = overwrites.filter((x) => {
-            if (x.type === 0 && this.cache.roles?.some((r) => r.id === x.id)) return true;
-            if (x.type === 1 && x.id == this.cache.user_id) return true;
+            if (x.type === ChannelPermissionOverwriteType.role && this.cache.roles?.some((r) => r.id === x.id)) return true;
+            if (x.type === ChannelPermissionOverwriteType.member && x.id == this.cache.user_id) return true;
             return false;
         });
         return new Permissions(Permissions.channelPermission(overwrites, this.bitfield));
@@ -154,8 +149,8 @@ export class Permissions extends BitField {
         guild,
         channel,
     }: {
-        user: { id: string; roles: string[]; communication_disabled_until?: Date | null; flags?: number };
-        guild: { roles: Role[]; id?: string; owner_id?: string };
+        user: { id: string; roles: string[]; communication_disabled_until: Date | null; flags: number };
+        guild: { id: string; owner_id: string; roles: Role[] };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
             recipient_ids?: string[] | null;
@@ -163,14 +158,15 @@ export class Permissions extends BitField {
         };
     }) {
         if (user.id === "0") return new Permissions("ADMINISTRATOR"); // system user id
+        if (guild?.owner_id === user.id) return new Permissions(Permissions.ALL);
 
         const roles = guild.roles.filter((x) => user.roles.includes(x.id));
         let permission = Permissions.rolePermission(roles);
 
         if (channel?.overwrites) {
             const overwrites = channel.overwrites.filter((x) => {
-                if (x.type === 0 && user.roles.includes(x.id)) return true;
-                if (x.type === 1 && x.id == user.id) return true;
+                if (x.type === ChannelPermissionOverwriteType.role && user.roles.includes(x.id)) return true;
+                if (x.type === ChannelPermissionOverwriteType.member && x.id == user.id) return true;
                 return false;
             });
             permission = Permissions.channelPermission(overwrites, permission);
@@ -199,11 +195,41 @@ export class Permissions extends BitField {
             return new Permissions();
         }
 
+        if (user.communication_disabled_until) {
+            if (user.communication_disabled_until > new Date()) return new Permissions(permission & Permissions.TIMED_OUT_MASK.bitfield);
+            else {
+                user.communication_disabled_until = null;
+                Member.update({ id: user.id, guild_id: guild.id }, { communication_disabled_until: null }).catch((_) => {
+                    // ignored
+                });
+            }
+        }
+        if ((BigInt(user.flags) & UserFlags.FLAGS.QUARANTINED) === UserFlags.FLAGS.QUARANTINED) {
+            permission = permission & Permissions.QUARANTINED_MASK.bitfield;
+        }
+
         return new Permissions(permission);
     }
-}
 
-const ALL_PERMISSIONS = Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0));
+    static NONE: Permissions = new Permissions(0);
+    static TIMED_OUT_MASK: Permissions = new Permissions(Permissions.FLAGS.VIEW_CHANNEL | Permissions.FLAGS.READ_MESSAGE_HISTORY);
+    static QUARANTINED_MASK: Permissions = new Permissions(Permissions.FLAGS.VIEW_CHANNEL | Permissions.FLAGS.READ_MESSAGE_HISTORY | Permissions.FLAGS.CHANGE_NICKNAME);
+    static DEFAULT_DM_PERMISSIONS: Permissions = new Permissions(
+        Permissions.FLAGS.VIEW_CHANNEL |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.STREAM |
+            Permissions.FLAGS.ADD_REACTIONS |
+            Permissions.FLAGS.EMBED_LINKS |
+            Permissions.FLAGS.ATTACH_FILES |
+            Permissions.FLAGS.READ_MESSAGE_HISTORY |
+            Permissions.FLAGS.MENTION_EVERYONE |
+            Permissions.FLAGS.USE_EXTERNAL_EMOJIS |
+            Permissions.FLAGS.CONNECT |
+            Permissions.FLAGS.SPEAK |
+            Permissions.FLAGS.MANAGE_CHANNELS,
+    );
+    static ALL: Permissions = new Permissions(Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0)));
+}
 
 export type PermissionCache = {
     channel?: Channel | undefined;
@@ -215,7 +241,7 @@ export type PermissionCache = {
 
 export async function getPermission(
     user_id?: string,
-    guild_id?: string,
+    guild_id?: string | Guild,
     channel_id?: string | Channel,
     opts: {
         guild_select?: (keyof Guild)[];
@@ -260,19 +286,24 @@ export async function getPermission(
     }
 
     if (guild_id) {
-        guild = await Guild.findOneOrFail({
-            where: { id: guild_id },
-            select: ["id", "owner_id", ...(opts.guild_select || [])],
-            relations: opts.guild_relations,
-        });
+        if (typeof guild_id === "string") {
+            guild = await Guild.findOneOrFail({
+                where: { id: guild_id },
+                select: ["id", "owner_id", ...(opts.guild_select || [])],
+                relations: opts.guild_relations,
+            });
+        } else {
+            guild = guild_id;
+        }
         if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
         member = await Member.findOneOrFail({
-            where: { guild_id, id: user_id },
+            where: { guild_id: guild.id, id: user_id },
             relations: ["roles", ...(opts.member_relations || [])],
             // select: [
             // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
             // "roles",
+            // "communication_disabled_until",
             // ...(opts.member_select || []),
             // ],
         });
@@ -286,8 +317,12 @@ export async function getPermission(
         user: {
             id: user_id,
             roles: member?.roles.map((x) => x.id) || [],
+            communication_disabled_until: member?.communication_disabled_until ?? null,
+            flags: user.flags,
         },
         guild: {
+            id: guild?.id || "",
+            owner_id: guild?.owner_id || "",
             roles: member?.roles || [],
         },
         channel: {

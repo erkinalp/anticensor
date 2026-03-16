@@ -3,6 +3,7 @@ dist
 node_modules
 .github
 .vscode
+.openhands
 .idea
 hashes.json
 flake.lock

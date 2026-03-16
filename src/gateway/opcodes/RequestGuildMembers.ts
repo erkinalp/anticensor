@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send } from "@spacebar/gateway";
+import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { check } from "./instanceOf";
-import { FindManyOptions, ILike, In } from "typeorm";
+import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
 import { RequestGuildMembersSchema } from "@spacebar/schemas";
 
 export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
@@ -29,6 +29,10 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
     d.guild_id = Array.isArray(d.guild_id) ? d.guild_id[0] : d.guild_id;
 
     if (d.user_ids && !Array.isArray(d.user_ids)) d.user_ids = [d.user_ids];
+
+    if (Config.get().offload.gateway.guildMembersUrl !== null) {
+        return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.guildMembersUrl!, d);
+    }
 
     check.call(this, RequestGuildMembersSchema, d);
 
@@ -127,62 +131,82 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
         nonce,
     };
 
-    const chunkCount = Math.ceil(members.length / 1000);
+    const memberResultCount = members.length;
+    const chunkSize = 1000;
+    const chunkCount = Math.ceil(members.length / chunkSize);
+    let sentChunkCount = 0;
 
     let notFound: string[] = [];
     if (user_ids && user_ids.length > 0) notFound = user_ids.filter((id) => !members.some((member) => member.id == id));
 
-    const chunks: GuildMembersChunkEvent["data"][] = [];
-    while (members.length > 0) {
-        const chunk: Member[] = members.splice(0, 1000);
+    const recentlyActiveSince = new DateBuilder().addMinutes(-15).build();
 
-        const presenceList: Presence[] = [];
+    while (members.length > 0) {
+        const chunk: Member[] = members.splice(0, chunkSize);
+
+        let presenceList: Presence[] = [];
         if (presences) {
-            for await (const member of chunk) {
-                const session = await Session.findOne({
-                    where: { user_id: member.id },
-                });
-                if (session)
-                    presenceList.push({
-                        user: member.user.toPublicUser(),
-                        status: session.status,
-                        activities: session.activities,
-                        client_status: session.client_status,
-                    });
-            }
+            const sessions = await Session.find({
+                where: { user_id: In(chunk.map((m) => m.id)), is_admin_session: false, last_seen: MoreThan(recentlyActiveSince) },
+                select: {
+                    user: true,
+                    status: true,
+                    activities: true,
+                    client_status: true,
+                },
+                relations: { user: true },
+            });
+
+            const foundUids = new Set<string>();
+            presenceList = sessions
+                .filter((s) => {
+                    if (foundUids.has(s.user.id)) return false;
+                    foundUids.add(s.user.id);
+                    return true;
+                })
+                .map((session) => ({
+                    user: session.user.toPublicUser(),
+                    status: session.getPublicStatus(),
+                    activities: session.activities,
+                    client_status: session.client_status,
+                }));
         }
 
-        chunks.push({
-            ...baseData,
-            members: chunk.map((member) => member.toPublicMember()),
-            presences: presences ? presenceList : undefined,
-            chunk_index: chunks.length,
-            chunk_count: chunkCount,
-        });
-    }
-
-    if (chunks.length == 0) {
-        chunks.push({
-            ...baseData,
-            members: [],
-            presences: presences ? [] : undefined,
-            chunk_index: 0,
-            chunk_count: 1,
-        });
-    }
-
-    if (notFound.length > 0) {
-        chunks[0].not_found = notFound;
-    }
-
-    chunks.forEach((chunk) => {
-        Send(this, {
+        await Send(this, {
             op: OPCODES.Dispatch,
             s: this.sequence++,
             t: "GUILD_MEMBERS_CHUNK",
-            d: chunk,
-        });
-    });
+            d: {
+                ...baseData,
+                members: chunk.map((member) => member.toPublicMember()),
+                presences: presences ? presenceList : undefined,
+                chunk_index: sentChunkCount,
+                chunk_count: chunkCount,
 
-    console.log(`[Gateway] REQUEST_GUILD_MEMBERS took ${Date.now() - startTime}ms for guild ${guild_id} with ${members.length} members`);
+                ...(sentChunkCount == 0 ? { not_found: notFound } : {}),
+            } satisfies GuildMembersChunkEvent["data"],
+        });
+        sentChunkCount++;
+
+        console.log(
+            `[Gateway/${this.user_id}] REQUEST_GUILD_MEMBERS @ ${Date.now() - startTime}ms for guild ${guild_id}: pushed ${sentChunkCount}/${chunkCount} chunks (${memberResultCount} total members considered)`,
+        );
+    }
+
+    if (sentChunkCount == 0)
+        await Send(this, {
+            op: OPCODES.Dispatch,
+            s: this.sequence++,
+            t: "GUILD_MEMBERS_CHUNK",
+            d: {
+                ...baseData,
+                members: [],
+                presences: presences ? [] : undefined,
+                chunk_index: 0,
+                chunk_count: 1,
+                not_found: notFound,
+            } satisfies GuildMembersChunkEvent["data"],
+        });
+
+    console.log(`[Gateway/${this.user_id}] REQUEST_GUILD_MEMBERS took ${Date.now() - startTime}ms for guild ${guild_id} with ${memberResultCount} (${memberCount}) members`);
 }

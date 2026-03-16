@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, OPCODES, Payload, WebSocket } from "@spacebar/gateway";
+import { CLOSECODES, Payload, WebSocket } from "@spacebar/gateway";
 import { ErlpackType } from "@spacebar/util";
 import fs from "fs/promises";
 import BigIntJson from "json-bigint";
@@ -40,11 +40,11 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
     let data: Payload;
 
     if (
-        (buffer instanceof Buffer && buffer[0] === 123) || // ASCII 123 = `{`. Bad check for JSON
+        (Buffer.isBuffer(buffer) && buffer[0] === 123) || // ASCII 123 = `{`. Bad check for JSON
         typeof buffer === "string"
     ) {
         data = bigIntJson.parse(buffer.toString());
-    } else if (this.encoding === "json" && buffer instanceof Buffer) {
+    } else if (this.encoding === "json" && Buffer.isBuffer(buffer)) {
         if (this.compress === "zlib-stream") {
             try {
                 buffer = this.inflate!.process(buffer);
@@ -59,15 +59,15 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
             }
         }
         data = bigIntJson.parse(buffer as string);
-    } else if (this.encoding === "etf" && buffer instanceof Buffer && erlpack) {
+    } else if (this.encoding === "etf" && Buffer.isBuffer(buffer) && erlpack) {
         try {
             data = erlpack.unpack(buffer);
         } catch {
-            console.error("[Gateway] Failed to decode ETF payload");
+            console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode ETF payload`);
             return this.close(CLOSECODES.Decode_error);
         }
     } else {
-        console.error("[Gateway] Unknown payload format");
+        console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown payload format`);
         return this.close(CLOSECODES.Decode_error);
     }
 
@@ -79,14 +79,14 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         await fs.mkdir(path.join("dump", id), { recursive: true });
         await fs.writeFile(path.join("dump", id, `${Date.now()}.in.json`), JSON.stringify(data, null, 2));
 
-        if (!this.session_id) console.log("[Gateway] Unknown session id, dumping to unknown folder");
+        if (!this.session_id) console.log(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown session id, dumping to unknown folder`);
     }
 
     check.call(this, PayloadSchema, data);
 
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {
-        console.error("[Gateway] Unknown opcode " + data.op);
+        console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown opcode`, data.op);
         // TODO: if all opcodes are implemented comment this out:
         // this.close(CLOSECODES.Unknown_opcode);
         return;
@@ -95,7 +95,7 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
     try {
         return await OPCodeHandler.call(this, data);
     } catch (error) {
-        console.error(`Error: Op ${data.op}`, error);
+        console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Error: Op ${data.op}`, error);
         // if (!this.CLOSED && this.CLOSING)
         return this.close(CLOSECODES.Unknown_error);
     }

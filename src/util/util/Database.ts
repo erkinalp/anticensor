@@ -22,8 +22,6 @@ import { green, red, yellow } from "picocolors";
 import { DataSource } from "typeorm";
 // noinspection ES6PreferShortImport
 import { ConfigEntity } from "../entities/Config";
-// noinspection ES6PreferShortImport
-import { Migration } from "../entities/Migration";
 import fs from "fs";
 
 // UUID extension option is only supported with postgres
@@ -59,7 +57,8 @@ if (!isHeadlessProcess) {
         );
         console.log(`[Database] ${red(`If you would like to try *anyways*, see the error below:`)}`);
         try {
-            const _ = require("sqlite3");
+            // TODO: fully remove sqlite3
+            require("sqlite3");
         } catch (e) {
             console.log(`[Database] ${red(`Failed to load sqlite3 package. Please install it with 'npm install --no-save sqlite3', or switch to a real database like Postgres.`)}`);
             process.exit(1);

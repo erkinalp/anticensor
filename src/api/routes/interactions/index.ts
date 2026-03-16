@@ -1,26 +1,26 @@
 /*
   Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
   Copyright (C) 2023 Spacebar and Spacebar Contributors
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
   by the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
-  
+
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { randomBytes } from "crypto";
-import { InteractionSchema } from "@spacebar/schemas";
+import { InteractionFailureReason, InteractionSchema } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, InteractionType, Member, Message, Snowflake, User } from "@spacebar/util";
+import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, InteractionType, Member, Message, Snowflake } from "@spacebar/util";
 import { pendingInteractions } from "@spacebar/util/imports/Interactions";
 import { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 
@@ -32,7 +32,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
     const interactionId = Snowflake.generate();
     const interactionToken = randomBytes(24).toString("base64url");
 
-    emitEvent({
+    await emitEvent({
         event: "INTERACTION_CREATE",
         user_id: req.user_id,
         data: {
@@ -94,7 +94,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         interactionData.message = await Message.findOneOrFail({ where: { id: body.message_id, flags: undefined }, relations: { author: true } });
     }
 
-    emitEvent({
+    await emitEvent({
         event: "INTERACTION_CREATE",
         user_id: body.application_id,
         data: interactionData,
@@ -107,7 +107,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
             data: {
                 id: interactionId,
                 nonce: body.nonce,
-                reason_code: 2, // when types are done: InteractionFailureReason.TIMEOUT,
+                reason_code: InteractionFailureReason.TIMEOUT,
             },
         } as InteractionFailureEvent);
     }, 3000);

@@ -37,10 +37,6 @@ export class AutomodEvaluator {
     private static CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
     static async evaluateMessage(context: AutomodEvaluationContext): Promise<AutomodEvaluationResult> {
-        if (context.channel.type === ChannelType.ENCRYPTED || context.channel.type === ChannelType.ENCRYPTED_THREAD) {
-            return { triggered: false, actions: [] };
-        }
-
         if (!context.guild_id) {
             return { triggered: false, actions: [] };
         }

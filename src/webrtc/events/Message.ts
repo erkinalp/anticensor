@@ -17,16 +17,8 @@
 */
 
 import { CLOSECODES } from "@spacebar/gateway";
-import { Tuple } from "lambert-server";
 import OPCodeHandlers from "../opcodes";
 import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util";
-
-const PayloadSchema = {
-    op: Number,
-    $d: new Tuple(Object, Number), // or number for heartbeat sequence
-    $s: Number,
-    $t: String,
-};
 
 export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
     try {

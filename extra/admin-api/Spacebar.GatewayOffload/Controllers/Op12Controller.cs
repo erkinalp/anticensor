@@ -20,7 +20,7 @@ namespace Spacebar.GatewayOffload.Controllers;
 public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthenticationService authService, SpacebarDbContext db, IServiceProvider sp) : ControllerBase
 {
     [HttpPost("")]
-    public async IAsyncEnumerable<ReplicationMessage> DoGuildSync(List<string> guildIds)
+    public async IAsyncEnumerable<ReplicationMessage<GuildSyncResponse>> DoGuildSync(List<string> guildIds)
     {
         var user = await authService.GetCurrentUserAsync(Request);
         guildIds = (await db.Members.AsNoTracking().Where(x => x.Id == user.Id).Select(x => x.GuildId).ToListAsync())

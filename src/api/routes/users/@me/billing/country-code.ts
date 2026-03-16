@@ -21,8 +21,8 @@ import { route } from "@spacebar/api";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
+router.get("/", route({}), async (req: Request, res: Response) => {
+    // Stub: returns empty country_code since IpDataClient is not available
     res.json({ country_code: "US" }).status(200);
 });
 

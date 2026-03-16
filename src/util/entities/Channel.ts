@@ -20,7 +20,7 @@ import { HTTPError } from "lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, BitField, Config, DiscordApiErrors } from "../util";
+import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -32,7 +32,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelPermissionOverwriteType, ChannelType, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
 
@@ -95,8 +95,8 @@ export class Channel extends BaseClass {
     @ManyToOne(() => User)
     owner: User;
 
-    @Column({ nullable: true })
-    last_pin_timestamp?: number;
+    @Column({ nullable: true, type: "timestamp with time zone" })
+    last_pin_timestamp?: Date | null; // ISO8601
 
     @Column({ nullable: true })
     default_auto_archive_duration?: number;
@@ -197,7 +197,7 @@ export class Channel extends BaseClass {
             skipEventEmit?: boolean;
             skipNameChecks?: boolean;
         },
-    ) {
+    ): Promise<Channel> {
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
             const permissions = await getPermission(user_id, channel.guild_id);
@@ -218,7 +218,10 @@ export class Channel extends BaseClass {
                 for (const character of InvisibleCharacters) if (channel.name.includes(character)) throw new HTTPError("Channel name cannot include invalid characters", 403);
 
                 // Categories skip these checks on discord.com
-                if (channel.type !== ChannelType.GUILD_CATEGORY || guild.features.includes("IRC_LIKE_CATEGORY_NAMES")) {
+                if (
+                    (channel.type !== ChannelType.GUILD_CATEGORY && channel.type !== ChannelType.GUILD_STAGE_VOICE && channel.type !== ChannelType.GUILD_VOICE) ||
+                    guild.features.includes("IRC_LIKE_CATEGORY_NAMES")
+                ) {
                     if (channel.name.includes(" ")) throw new HTTPError("Channel name cannot include invalid characters", 403);
 
                     if (channel.name.match(/--+/g)) throw new HTTPError("Channel name cannot include multiple adjacent dashes.", 403);
@@ -233,8 +236,8 @@ export class Channel extends BaseClass {
             }
         }
 
-        // TODO: should threads even be routed through this function instead of createThreadChannel?
         switch (channel.type) {
+            // TODO: should threads even be routed through this function instead of createThreadChannel?
             case ChannelType.GUILD_PUBLIC_THREAD:
             case ChannelType.GUILD_PRIVATE_THREAD:
             case ChannelType.GUILD_NEWS_THREAD:
@@ -248,13 +251,7 @@ export class Channel extends BaseClass {
                         where: { id: channel.parent_id },
                     });
                     if (!exists) throw new HTTPError("Parent id channel doesn't exist", 400);
-                    if (exists.guild_id !== channel.guild_id) throw new HTTPError("The thread parent needs to be in the guild");
-                    const allowedParents = [ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS, ChannelType.TICKET_TRACKER];
-                    if (
-                        (channel.type === ChannelType.GUILD_PUBLIC_THREAD || channel.type === ChannelType.GUILD_PRIVATE_THREAD || channel.type === ChannelType.GUILD_NEWS_THREAD) &&
-                        !allowedParents.includes(exists.type)
-                    )
-                        throw new HTTPError("Invalid thread parent channel type", 400);
+                    if (exists.guild_id !== channel.guild_id) throw new HTTPError("The category channel needs to be in the guild");
                 }
                 break;
             case ChannelType.GUILD_CATEGORY:
@@ -284,7 +281,8 @@ export class Channel extends BaseClass {
             // total_message_sent: 0,
         };
 
-        const ret = Channel.create(channel);
+        // TODO: figure out why the generic is required here
+        const ret = Channel.create<Channel>(channel);
 
         await Promise.all([
             ret.save(),
@@ -300,7 +298,6 @@ export class Channel extends BaseClass {
 
         return ret;
     }
-
     threadOnly() {
         return this.type === ChannelType.GUILD_FORUM || this.type === ChannelType.GUILD_MEDIA;
     }
@@ -428,7 +425,7 @@ export class Channel extends BaseClass {
     }
 
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
-        recipients = recipients.distinct().filter((x) => x !== creator_user_id);
+        recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
         // TODO: check config for max number of recipients
         /** if you want to disallow note to self channels, uncomment the conditional below
 
@@ -447,7 +444,7 @@ export class Channel extends BaseClass {
 
         const userRecipients = await Recipient.find({
             where: { user_id: creator_user_id },
-            relations: ["channel", "channel.recipients"],
+            relations: { channel: { recipients: true } },
         });
 
         for (const ur of userRecipients) {
@@ -470,7 +467,7 @@ export class Channel extends BaseClass {
             channel = await Channel.create({
                 name,
                 type,
-                owner_id: undefined,
+                owner_id: type === ChannelType.GROUP_DM ? creator_user_id : undefined,
                 created_at: new Date(),
                 last_message_id: undefined,
                 recipients: channelRecipients.map((x) =>
@@ -556,13 +553,15 @@ export class Channel extends BaseClass {
         // TODO Delete attachments from the CDN for messages in the channel
         await Channel.delete({ id: channel.id });
 
-        const guild = await Guild.findOneOrFail({
-            where: { id: channel.guild_id },
-            select: { channel_ordering: true },
-        });
+        if (channel.guild_id) {
+            const guild = await Guild.findOneOrFail({
+                where: { id: channel.guild_id },
+                select: { channel_ordering: true },
+            });
 
-        const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
-        await Guild.update({ id: channel.guild_id }, { channel_ordering: updatedOrdering });
+            const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
+            await Guild.update({ id: channel.guild_id }, { channel_ordering: updatedOrdering });
+        }
     }
 
     static async calculatePosition(channel_id: string, guild_id: string, guild?: Guild) {
@@ -602,7 +601,6 @@ export class Channel extends BaseClass {
     isThread() {
         return this.type === ChannelType.GUILD_NEWS_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD || this.type === ChannelType.GUILD_PRIVATE_THREAD;
     }
-
     isForum() {
         return this.type === ChannelType.GUILD_FORUM || this.type === ChannelType.GUILD_MEDIA;
     }
@@ -617,11 +615,12 @@ export class Channel extends BaseClass {
 
     // Does the channel support sending messages ( eg categories do not )
     isWritable() {
-        const disallowedChannelTypes = [ChannelType.GUILD_CATEGORY, ChannelType.GUILD_STAGE_VOICE, ChannelType.VOICELESS_WHITEBOARD];
+        const disallowedChannelTypes = [ChannelType.GUILD_CATEGORY, ChannelType.GUILD_STAGE_VOICE];
         return disallowedChannelTypes.indexOf(this.type) == -1;
     }
 
     async getUserPermissions(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<Permissions> {
+        if (this.isDm()) return this.owner_id == (opts.user_id ?? opts.user?.id) ? Permissions.ALL : Permissions.DEFAULT_DM_PERMISSIONS;
         let guild = opts.guild;
         if (!guild) {
             if (this.guild) guild = this.guild;
@@ -641,37 +640,41 @@ export class Channel extends BaseClass {
 
         let member = opts.member;
         if (!member) {
-            if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: ["roles"] });
-            else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: ["roles"] });
+            if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
+            else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
             else {
                 console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
                 return Permissions.NONE;
             }
         }
 
-        const roles = (member.roles || (await Member.findOneOrFail({ where: { guild_id: guild.id, index: member.index }, relations: ["roles"] })).roles).sort(
-            (a, b) => a.position - b.position,
-        ); // ascending by position
+        const roles = (
+            member.roles ||
+            (
+                await Member.findOneOrFail({
+                    where: { guild_id: guild.id, index: member.index },
+                    relations: { roles: true },
+                    select: {
+                        roles: {
+                            id: true,
+                            permissions: true,
+                            position: true,
+                        },
+                    },
+                    loadEagerRelations: false,
+                })
+            ).roles
+        ).sort((a, b) => a.position - b.position); // ascending by position
 
-        // calculate user's channel perms - should in theory match https://docs.discord.food/topics/permissions#permission-overwrites
-        // start at role permissions
-        let userPerms = new Permissions(new BitField(0).add(roles.map((r) => r.permissions)));
-
-        // TODO: do we want to have an instance-wide opt out of this behavior? It would just be an extra if statement here
-        if (userPerms.has(Permissions.FLAGS.ADMINISTRATOR)) return userPerms;
-
-        // apply channel overrides
-        if (this.permission_overwrites) {
-            // role overwrites - TODO: this probably violates the geneva conventions - we should probably be ordering roles here
-            for (const overwrite of this.permission_overwrites.filter((o) => o.type === ChannelPermissionOverwriteType.role && roles.map((r) => r.id).includes(o.id)))
-                userPerms = new Permissions(userPerms.remove(overwrite.deny).add(overwrite.allow));
-
-            // member overwrite, throws if somehow we have multiple overwrites for the same member
-            const memberOverwrite = this.permission_overwrites.single((o) => o.type === ChannelPermissionOverwriteType.member && o.id === member?.id);
-            if (memberOverwrite) userPerms = new Permissions(userPerms.remove(memberOverwrite.deny).add(memberOverwrite.allow));
-        }
-
-        return userPerms;
+        return Permissions.finalPermission({
+            user: {
+                ...member,
+                roles: roles.map((r) => r.id),
+                flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
+            },
+            guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+            channel: this,
+        });
     }
 
     // TODO: should we throw for missing args?
@@ -698,27 +701,15 @@ export class Channel extends BaseClass {
     }
 
     toJSON() {
-        const base = { ...this } as unknown as Record<string, unknown>;
+        return {
+            ...this,
 
-        base.bitrate = this.bitrate || undefined;
-        base.user_limit = this.user_limit || undefined;
-        base.rate_limit_per_user = this.rate_limit_per_user || undefined;
-        base.owner_id = this.owner_id || undefined;
-        if (this.isThread() && this.thread_members) {
-            base.member_ids_preview = this.thread_members.map((_) => _.member.id);
-        }
-
-        if (
-            this.parent?.type === ChannelType.TICKET_TRACKER ||
-            (this.parent_id && (this.type === ChannelType.GUILD_PRIVATE_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD))
-        ) {
-            const prefix = "ticket:initiator:";
-            if (this.topic && this.topic.startsWith(prefix)) {
-                const v = this.topic.substring(prefix.length).trim();
-                if (v) base.ticket_initiator_id = v;
-            }
-        }
-
-        return base;
+            // these fields are not returned depending on the type of channel
+            bitrate: this.bitrate || undefined,
+            user_limit: this.user_limit || undefined,
+            rate_limit_per_user: this.rate_limit_per_user || undefined,
+            owner_id: this.owner_id || undefined,
+            ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+        };
     }
 }

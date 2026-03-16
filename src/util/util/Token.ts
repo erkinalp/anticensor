@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import jwt, { VerifyOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Config } from "./Config";
 import { InstanceBan, Session, User } from "../entities";
 import crypto from "node:crypto";
@@ -42,8 +42,10 @@ export type UserTokenData = {
     decoded: {
         id: string;
         iat: number;
-        ver?: number; // token format version
-        did?: string; // device id
+        // token format version
+        ver?: number;
+        // device id
+        did?: string;
     };
 };
 
@@ -79,7 +81,8 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
             }
 
-            const [user, session] = await Promise.all([
+            // eslint-disable-next-line prefer-const
+            let [user, session] = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
                     select: [...(opts?.select || []), "id", "bot", "disabled", "deleted", "rights", "data"],
@@ -94,6 +97,16 @@ export const checkToken = (
             }
 
             if (decoded.did && !session) {
+                // temporary hack: create new session
+                session = Session.create({
+                    session_id: decoded.did,
+                    user_id: user.id,
+                    is_admin_session: false,
+                    client_status: {},
+                    status: "online",
+                    client_info: {},
+                });
+                await session.save();
                 logAuth("validateUser rejected: Session not found");
                 return rejectAndLog(reject, 401, "Invalid Token");
             }

@@ -2,8 +2,13 @@
   description = "Spacebar server, written in Typescript.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master"; # temp hack because unstable is frozen
     flake-utils.url = "github:numtide/flake-utils";
+    pion-webrtc = {
+      url = "github:spacebarchat/pion-webrtc";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
 
   outputs =
@@ -11,6 +16,7 @@
       self,
       nixpkgs,
       flake-utils,
+      pion-webrtc,
     }:
     nixpkgs.lib.recursiveUpdate
       (
@@ -34,6 +40,8 @@
           {
             packages = {
               default = (pkgs.callPackage (import ./default.nix { inherit self rVersion; })) { };
+              nodeModules = (pkgs.callPackage ./node-modules.nix) { };
+              pion-sfu = pion-webrtc.packages.${system}.default;
             };
 
             containers = {
@@ -57,7 +65,7 @@
                   };
                 };
               }
-              // lib.genAttrs [ "api" "cdn" "gateway" ] (
+              // lib.genAttrs [ "api" "cdn" "gateway" "webrtc" ] (
                 mod:
                 pkgs.dockerTools.buildLayeredImage {
                   name = "spacebar-server-ts-${mod}";
@@ -93,7 +101,7 @@
         )
         // {
           nixosModules.default = import ./nix/modules/default self;
-          testVm = import ./nix/testVm/default.nix { inherit self nixpkgs; };
+          nixosConfigurations.testVm = import ./nix/testVm/default.nix { inherit self nixpkgs; };
           checks =
             let
               pkgs = import nixpkgs { system = "x86_64-linux"; };

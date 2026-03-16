@@ -21,14 +21,13 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTabl
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent } from "../util";
-import { DiscordApiErrors } from "../util/Constants";
+import { Config, emitEvent, DiscordApiErrors } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
 import { Role } from "./Role";
 import { User } from "./User";
-import { AvatarDecorationData, Collectibles, DisplayNameStyle, PrimaryGuild, PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
+import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
 
 export const MemberPrivateProjection: (keyof Member)[] = [
     "id",
@@ -50,6 +49,7 @@ export const MemberPrivateProjection: (keyof Member)[] = [
     "theme_colors",
     "pronouns",
     "communication_disabled_until",
+    "flags",
 ];
 
 @Entity({
@@ -154,6 +154,9 @@ export class Member extends BaseClassWithoutId {
 
     @Column({ type: "simple-json", nullable: true })
     collectibles?: Collectibles;
+
+    @Column({ type: "int", default: 0 })
+    flags: number = 0;
 
     @BeforeUpdate()
     @BeforeInsert()

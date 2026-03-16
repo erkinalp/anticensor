@@ -16,9 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Sentry from "@sentry/node";
-import { AutomodEvaluator, AutomodActionExecutor } from "@spacebar/util";
-
 import { EmbedHandlers } from "@spacebar/api";
 import {
     Application,
@@ -34,7 +31,6 @@ import {
     HERE_MENTION,
     Message,
     MessageCreateEvent,
-    MessageType,
     MessageUpdateEvent,
     Role,
     ROLE_MENTION,
@@ -55,12 +51,12 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
-import { ChannelType, Embed, EmbedType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, Reaction } from "@spacebar/schemas";
+import { ChannelType, Embed, EmbedType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageType, Reaction, ReadStateType } from "@spacebar/schemas";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
 
-const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)>?/g;
+const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)>?/g;
 
 export async function handleMessage(opts: MessageOptions): Promise<Message> {
     const channel = await Channel.findOneOrFail({
@@ -69,14 +65,14 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     });
     if (!channel || !opts.channel_id) throw new HTTPError("Channel not found", 404);
 
-    let permission: undefined | Permissions;
+    let permission: null | Permissions = null;
     const limit = channel.rate_limit_per_user;
 
     if (limit) {
         const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: opts.author_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
             ?.timestamp;
         if (lastMsgTime && Date.now() - limit * 1000 < +lastMsgTime) {
-            permission ||= await getPermission(opts.author_id, channel.guild_id, channel.id);
+            permission = await getPermission(opts.author_id, channel.guild_id, channel);
             //FIXME MANAGE_MESSAGES and MANAGE_CHANNELS will need to be removed once they're gone as checks
             if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
                 throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
@@ -96,9 +92,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         [] as { attachment: MessageCreateCloudAttachment; index: number }[],
     );
 
-    const { interaction_metadata: _im, ...restOpts } = opts;
-    const message: Message = Message.create({
-        ...restOpts,
+    const message = Message.create({
+        ...opts,
         poll: opts.poll,
         sticker_items: stickers,
         guild_id: channel.guild_id,
@@ -109,18 +104,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         type: opts.type ?? 0,
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
-        interaction_metadata: opts.interaction_metadata
-            ? {
-                  id: String(opts.interaction_metadata.id),
-                  type: opts.interaction_metadata.type,
-                  user_id: String(opts.interaction_metadata.user_id),
-                  authorizing_integration_owners: opts.interaction_metadata.authorizing_integration_owners,
-                  original_response_message_id: opts.interaction_metadata.original_response_message_id ? String(opts.interaction_metadata.original_response_message_id) : undefined,
-                  interacted_message_id: opts.interaction_metadata.interacted_message_id ? String(opts.interaction_metadata.interacted_message_id) : undefined,
-                  name: opts.interaction_metadata.name,
-              }
-            : undefined,
-    }) as Message;
+        message_reference: opts.message_reference ?? undefined,
+    });
     const ephermal = (message.flags & (1 << 6)) !== 0;
     if (!ephermal && channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
         const rep = Channel.getRepository();
@@ -130,7 +115,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     }
     if (!ephermal) {
         channel.last_message_id = message.id;
-        channel.save();
+        await channel.save();
     }
 
     if (cloudAttachments && cloudAttachments.length > 0) {
@@ -187,6 +172,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         message.author = await User.findOneOrFail({
             where: { id: opts.author_id },
         });
+        message.author.clean_data();
         const rights = await getRights(opts.author_id);
         rights.hasThrow("SEND_MESSAGES");
     }
@@ -241,7 +227,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.author.avatar = message.avatar;
         }
     } else {
-        permission ||= await getPermission(opts.author_id, channel.guild_id, channel.id);
+        permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
+        if (permission === null) throw new HTTPError("permission was null after getPermission", 500);
         permission.hasThrow("SEND_MESSAGES");
         if (permission.cache.member) {
             message.member = permission.cache.member;
@@ -252,7 +239,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             permission.hasThrow("READ_MESSAGE_HISTORY");
             // code below has to be redone when we add custom message routing
             if (message.guild_id !== null) {
-                const guild = await Guild.findOneOrFail({
+                await Guild.findOneOrFail({
                     where: { id: channel.guild_id },
                 });
                 if (!opts.message_reference.guild_id) opts.message_reference.guild_id = channel.guild_id;
@@ -297,7 +284,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 }
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
-             otherwise backfilling won't work **/
+			 otherwise backfilling won't work **/
             if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
         }
     }
@@ -332,9 +319,9 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         content = content.replace(/ *`[^)]*` */g, ""); // remove codeblocks
         // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
         /*for (const [, mention] of content.matchAll(CHANNEL_MENTION)) {
-            if (!mention_channel_ids.includes(mention))
-                mention_channel_ids.push(mention);
-        }*/
+			if (!mention_channel_ids.includes(mention))
+				mention_channel_ids.push(mention);
+		}*/
 
         for (const [, mention] of content.matchAll(USER_MENTION)) {
             if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
@@ -364,8 +351,10 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             },
         });
         if (referencedMessage && referencedMessage.author_id !== message.author_id) {
-            const referencedAuthor = await User.findOne({ where: { id: referencedMessage.author_id } });
-            if (referencedAuthor) message.mentions.push(referencedAuthor);
+            message.mentions.push(
+                // @ts-expect-error it does not like the .toPublicUser() lol
+                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
+            );
         }
 
         // FORWARD
@@ -400,8 +389,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 
     // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
     /*message.mention_channels = mention_channel_ids.map((x) =>
-        Channel.create({ id: x }),
-    );*/
+		Channel.create({ id: x }),
+	);*/
     message.mention_roles = (
         await Promise.all(
             mention_role_ids.map((x) => {
@@ -442,8 +431,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const id = message.interaction_metadata?.user_id;
         if (id) {
             let pinged = mention_everyone || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
-            if (!pinged) pinged = !!message.mentions.find((user: User) => user.id === id);
-            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }: { id: string }) => Equal(id))) } }));
+            if (!pinged) pinged = !!message.mentions.find((user) => user.id === id);
+            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }) => Equal(id))) } }));
             if (pinged) {
                 //stuff
             }
@@ -458,7 +447,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
         }
         const repository = ReadState.getRepository();
-        const condition = { channel_id: channel.id };
+        const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
         await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
         await repository.increment(condition, "mention_count", 1);
     } else {
@@ -466,14 +455,14 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             ...(message.mention_roles.length
                 ? await Member.find({
                       where: [
-                          ...message.mention_roles.map((role: Role) => {
+                          ...message.mention_roles.map((role) => {
                               return { roles: { id: role.id } };
                           }),
                       ],
                   })
                 : []
             ).map((member) => member.id),
-            ...message.mentions.map((user: User) => user.id),
+            ...message.mentions.map((user) => user.id),
         ]);
         if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
             const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
@@ -481,36 +470,59 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         }
         if (users.size) {
             const repository = ReadState.getRepository();
-            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id };
+            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
 
             await fillInMissingIDs([...users]);
-
-            await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
         }
     }
 
-    //  Automod enforcement - evaluate message against guild automod rules
-    if (message.guild_id && message.content && message.author) {
-        const automodResult = await AutomodEvaluator.evaluateMessage({
-            content: message.content,
-            channel,
-            author: message.author,
-            guild_id: message.guild_id,
-            member_roles: permission?.cache.member?.roles?.map((r) => r.id),
-        });
+    const attachmentIndices = new Map(
+        message.attachments?.map((attachment, index) => {
+            return [`attachment://${attachment.filename}`, index];
+        }),
+    );
+    const attachmentsToRemove = new Set<number>();
+    function fetchAttachment(url: string | undefined): Attachment | undefined {
+        if (url == undefined) {
+            return undefined;
+        }
+        const index = attachmentIndices.get(url);
+        if (index === undefined) {
+            return undefined;
+        }
+        const attachment = message.attachments?.[index];
+        if (attachment === undefined) {
+            return undefined;
+        }
+        attachmentsToRemove.add(index);
+        return attachment;
+    }
+    for (const embed of message.embeds) {
+        const footer = embed.footer;
+        const footerAttachment = fetchAttachment(footer?.icon_url);
+        if (footerAttachment !== undefined) {
+            footer!.icon_url = footerAttachment.url;
+            footer!.proxy_icon_url = footerAttachment.proxy_url;
+        }
 
-        if (automodResult.triggered && automodResult.rule) {
-            await AutomodActionExecutor.executeActions(automodResult.actions, {
-                message,
-                channel,
-                member: permission?.cache.member,
-                rule_name: automodResult.rule.name,
-                matched_content: automodResult.matched_content,
-                keyword: automodResult.keyword,
-            });
+        const image = embed.image;
+        const imageAttachment = fetchAttachment(image?.url);
+        if (imageAttachment !== undefined) {
+            image!.url = imageAttachment.url;
+            image!.proxy_url = imageAttachment.proxy_url;
+        }
+
+        const author = embed.author;
+        const authorAttachment = fetchAttachment(author?.icon_url);
+        if (authorAttachment !== undefined) {
+            author!.icon_url = authorAttachment.url;
+            author!.proxy_icon_url = authorAttachment.proxy_url;
         }
     }
+    message.attachments = message.attachments?.filter((_, index) => {
+        return !attachmentsToRemove.has(index);
+    });
 
     // TODO: check and put it all in the body
 
@@ -522,7 +534,7 @@ export async function postHandleMessage(message: Message) {
     const content = message.content?.replace(/ *`[^)]*` */g, ""); // remove markdown
 
     const linkMatches = content?.match(LINK_REGEX) || [];
-
+    message.clean_data();
     const data = { ...message };
 
     const currentNormalizedUrls = new Set<string>();
@@ -535,17 +547,20 @@ export async function postHandleMessage(message: Message) {
             const normalized = normalizeUrl(link);
             currentNormalizedUrls.add(normalized);
         } catch (e) {
-            continue;
+            /* empty */
         }
     }
-
-    data.embeds.forEach((embed) => {
-        if (!embed.type) {
-            embed.type = EmbedType.rich;
-        }
-    });
+    if (data.embeds != undefined) {
+        data.embeds?.forEach((embed) => {
+            if (!embed.type) {
+                embed.type = EmbedType.rich;
+            }
+        });
+    }
     // Filter out embeds that could be links, start from scratch
-    data.embeds = data.embeds.filter((embed) => embed.type === "rich");
+    if (data.embeds != undefined) {
+        data.embeds = data.embeds?.filter((embed) => embed.type === "rich");
+    }
 
     const seenNormalizedUrls = new Set<string>();
     const uniqueLinks: string[] = [];
@@ -564,13 +579,14 @@ export async function postHandleMessage(message: Message) {
             }
         } catch (e) {
             // Invalid URL, skip
-            continue;
         }
     }
 
     if (uniqueLinks.length === 0) {
         // No valid unique links found, update message to remove old embeds
-        data.embeds = data.embeds.filter((embed) => embed.type === "rich");
+        if (data.embeds != undefined) {
+            data.embeds = data.embeds?.filter((embed) => embed.type === "rich");
+        }
         const author = data.author?.toPublicUser();
         const event = {
             event: "MESSAGE_UPDATE",
@@ -580,7 +596,8 @@ export async function postHandleMessage(message: Message) {
                 author,
             },
         } as MessageUpdateEvent;
-        await Promise.all([emitEvent(event), Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: data.embeds })]);
+        const embeds = data.embeds == undefined ? [] : data.embeds;
+        await Promise.all([emitEvent(event), Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: embeds })]);
         return;
     }
 
@@ -603,7 +620,10 @@ export async function postHandleMessage(message: Message) {
         });
 
         if (cached) {
-            data.embeds.push(cached.embed);
+            if (data.embeds == undefined) {
+                data.embeds = [];
+            }
+            data.embeds?.push(cached.embed);
             continue;
         }
 
@@ -624,20 +644,23 @@ export async function postHandleMessage(message: Message) {
                     embed: embed,
                 });
                 cachePromises.push(cache.save());
-                data.embeds.push(embed);
+                if (data.embeds == undefined) {
+                    data.embeds = [];
+                }
+                data.embeds?.push(embed);
             }
         } catch (e) {
             console.error(`[Embeds] Error while generating embed for ${link}`, e);
         }
     }
-
+    const embeds = data.embeds == undefined ? [] : data.embeds;
     await Promise.all([
         emitEvent({
             event: "MESSAGE_UPDATE",
             channel_id: message.channel_id,
             data,
         } as MessageUpdateEvent),
-        Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: data.embeds }),
+        Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: embeds }),
         ...cachePromises,
     ]);
 }
@@ -669,7 +692,7 @@ interface MessageOptions extends MessageCreateSchema {
     author_id?: string;
     webhook_id?: string;
     application_id?: string;
-    embeds?: Embed[];
+    embeds?: Embed[] | null;
     reactions?: Reaction[];
     channel_id?: string;
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?

@@ -17,26 +17,23 @@
 */
 
 import {
-    getPermission,
-    Permissions,
-    RabbitMQ,
-    listenEvent,
+    Ban,
+    EVENTEnum,
     EventOpts,
+    getPermission,
+    listenEvent,
     ListenEventOpts,
     Member,
-    EVENTEnum,
-    Relationship,
     Message,
     NewUrlUserSignatureData,
-    GuildMemberAddEvent,
-    Ban,
+    Permissions,
+    RabbitMQ,
+    Recipient,
+    Relationship,
 } from "@spacebar/util";
-import { OPCODES } from "../util/Constants";
-import { Send } from "../util/Send";
+import { CLOSECODES, OPCODES, Send } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
-import { Recipient } from "@spacebar/util";
-import * as console from "node:console";
 import { PublicMember, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
 
@@ -106,6 +103,7 @@ export async function setupListener(this: WebSocket) {
         }
 
         this.events[this.user_id] = await listenEvent(this.user_id, consumer, opts);
+        this.events[this.session_id] = await listenEvent(this.session_id, consumer, opts);
 
         await Promise.all(
             relationships.map(async (relationship) => {
@@ -207,6 +205,27 @@ async function consume(this: WebSocket, opts: EventOpts) {
     opts.acknowledge?.();
     // console.log("event", event);
 
+    // special codes
+    switch (event) {
+        case "SB_SESSION_CLOSE":
+            // TODO: what do we even send here?
+            await Send(this, {
+                op: OPCODES.Reconnect,
+                s: this.sequence++,
+                d: opts.reconnect_delay ?? opts.data ?? 1000,
+            });
+            this.close(1000); // not a discord close code, standard WS "Normal Closure"
+            return;
+        case "SB_SESSION_REMOVE":
+            // TODO: what do we even send here?
+            await Send(this, {
+                op: OPCODES.Invalid_Session,
+                s: this.sequence++,
+            });
+            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
+            return;
+    }
+
     // subscription managment
     switch (event) {
         case "GUILD_MEMBER_REMOVE":
@@ -219,7 +238,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
         case "GUILD_MEMBER_UPDATE":
             if (!this.member_events[data.user.id]) break;
-            this.member_events[data.user.id]();
+            await this.member_events[data.user.id]();
             break;
         case "RELATIONSHIP_REMOVE":
         case "CHANNEL_DELETE":
@@ -245,7 +264,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
             this.events[data.user.id] = await listenEvent(data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
             break;
         case "GUILD_CREATE":
-            Promise.all([
+            await Promise.all([
                 ...data.channels.map(async ({ id }: { id: string }) => {
                     this.events[id] = await listenEvent(id, consumer, listenOpts);
                 }),
@@ -340,7 +359,12 @@ async function consume(this: WebSocket, opts: EventOpts) {
 
     if (event === "GUILD_MEMBER_ADD") {
         if ((data as PublicMember).roles === undefined || (data as PublicMember).roles === null) {
-            console.log(bgRedBright("[Gateway]"), "[GUILD_MEMBER_ADD] roles is undefined, setting to empty array!", opts.origin ?? "(Event origin not defined)", data);
+            console.log(
+                bgRedBright(`[Gateway/${this.user_id}]`),
+                "[GUILD_MEMBER_ADD] roles is undefined, setting to empty array!",
+                opts.origin ?? "(Event origin not defined)",
+                data,
+            );
             (data as PublicMember).roles = [];
         }
     }

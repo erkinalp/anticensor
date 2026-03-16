@@ -25,6 +25,7 @@ import { subscribeToProducers } from "./Video";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     clearTimeout(this.readyTimeout);
+    // noinspection JSUnusedLocalSymbols - TODO: use video?
     const { server_id, user_id, session_id, token, streams, video } = validateSchema("VoiceIdentifySchema", data.d) as VoiceIdentifySchema;
 
     // server_id can be one of the following: a unique id for a GO Live stream, a channel id for a DM voice call, or a guild id for a guild voice channel
@@ -91,7 +92,7 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     });
 
     // the server generates a unique ssrc for the audio and video stream. Must be unique among users connected to same server
-    // UDP clients will respect this ssrc, but websocket clients will generate and replace it with their own
+    // UDP clients will respect this ssrc, but webrtc clients will generate and replace it with their own
     const generatedSsrc: SSRCs = {
         audio_ssrc: generateSsrc(),
         video_ssrc: generateSsrc(),

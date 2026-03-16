@@ -18,7 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { ConnectionStore, FieldErrors } from "../../../../util";
+import { ConnectionStore, FieldErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -43,7 +43,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         });
 
     res.json({
-        url: await connection.getAuthorizationUrl(req.user_id),
+        url: connection.getAuthorizationUrl(req.user_id),
     });
 });
 

@@ -1,4 +1,4 @@
-importScripts('lib/omrc_extractor.js', 'lib/recommender.js');
+importScripts("lib/omrc_extractor.js", "lib/recommender.js");
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -25,10 +25,10 @@ async function handleAnalysis(sendResponse) {
                 const result = await chrome.scripting.executeScript({
                     target: { tabId: activeTab.id },
                     func: () => {
-                        const title = document.querySelector('h1.title')?.innerText.replace('Title:', '').trim();
-                        const abstract = document.querySelector('blockquote.abstract')?.innerText.replace('Abstract:', '').trim();
+                        const title = document.querySelector("h1.title")?.innerText.replace("Title:", "").trim();
+                        const abstract = document.querySelector("blockquote.abstract")?.innerText.replace("Abstract:", "").trim();
                         return { title, abstract };
-                    }
+                    },
                 });
                 if (result && result[0] && result[0].result) {
                     paperData = result[0].result;
@@ -37,7 +37,8 @@ async function handleAnalysis(sendResponse) {
                 // Mock data if not on a supported page, just to show UI works
                 paperData = {
                     title: "Discourse-Aware Scientific Paper Recommendation via QA-Style Summarization",
-                    abstract: "The rapid growth of open-access (OA) publications has intensified the challenge of identifying relevant scientific papers. We propose OMRC-MR, a hierarchical framework that integrates QA-style OMRC summarization."
+                    abstract:
+                        "The rapid growth of open-access (OA) publications has intensified the challenge of identifying relevant scientific papers. We propose OMRC-MR, a hierarchical framework that integrates QA-style OMRC summarization.",
                 };
             }
         }
@@ -54,7 +55,6 @@ async function handleAnalysis(sendResponse) {
         const recommendations = await fetchRecommendations(paperData.title, omrc);
 
         sendResponse({ omrc, recommendations });
-
     } catch (error) {
         console.error(error);
         sendResponse({ error: error.message });

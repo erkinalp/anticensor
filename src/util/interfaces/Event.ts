@@ -36,19 +36,31 @@ import {
     ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
+    ThreadMember,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
-import { ApplicationCommand, GuildCreateResponse, PartialEmoji, PublicMember, PublicUser, PublicVoiceState, RelationshipType, UserPrivate } from "@spacebar/schemas";
-import { ThreadMember } from "../entities/ThreadMember";
+import {
+    ApplicationCommand,
+    GuildCreateResponse,
+    InteractionFailureReason,
+    PartialEmoji,
+    PublicMember,
+    PublicUser,
+    PublicVoiceState,
+    RelationshipType,
+    UserPrivate,
+} from "@spacebar/schemas";
 
 export interface Event {
     guild_id?: string;
     user_id?: string;
+    session_id?: string;
     channel_id?: string;
     created_at?: Date;
     event: EVENT;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any;
+    reconnect_delay?: number;
     origin?: string;
 }
 
@@ -366,7 +378,10 @@ export interface MessageDeleteBulkEvent extends Event {
         guild_id?: string;
     };
 }
-
+export const enum ReactionType {
+    normal = 0,
+    burst = 1,
+}
 export interface MessageReactionAddEvent extends Event {
     event: "MESSAGE_REACTION_ADD";
     data: {
@@ -376,6 +391,7 @@ export interface MessageReactionAddEvent extends Event {
         guild_id?: string;
         member?: PublicMember;
         emoji: PartialEmoji;
+        type: ReactionType;
     };
 }
 
@@ -387,6 +403,7 @@ export interface MessageReactionRemoveEvent extends Event {
         message_id: string;
         guild_id?: string;
         emoji: PartialEmoji;
+        type: ReactionType;
     };
 }
 
@@ -536,7 +553,7 @@ export interface InteractionFailureEvent extends Event {
     data: {
         id: Snowflake;
         nonce?: string;
-        reason_code: number; // TODO: types?
+        reason_code: InteractionFailureReason;
     };
 }
 
@@ -837,4 +854,13 @@ export type EVENT =
     | "THREAD_MEMBERS_UPDATE"
     | CUSTOMEVENTS;
 
-export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT";
+export type CUSTOMEVENTS =
+    | "INVALIDATED"
+    | "RATELIMIT"
+    | "SB_SESSION_REMOVE"
+    | "SB_SESSION_CLOSE"
+    | "LOBBY_CREATE"
+    | "LOBBY_UPDATE"
+    | "LOBBY_DELETE"
+    | "LOBBY_MEMBER_ADD"
+    | "LOBBY_MEMBER_REMOVE";

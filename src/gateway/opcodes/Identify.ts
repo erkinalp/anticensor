@@ -64,11 +64,6 @@ import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, Priva
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
 
-function logAuth(message: string) {
-    if (process.env.LOG_AUTH != "true") return;
-    console.log(`[Gateway/Auth] ${message}`);
-}
-
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
     const taskSw = Stopwatch.startNew();
@@ -103,7 +98,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     const user = tokenData.user;
     if (!user) {
-        console.log("[Gateway] Failed to identify user");
+        console.log(`[Gateway/${this.ipAddress}] Failed to identify user`);
         return this.close(CLOSECODES.Authentication_failed);
     }
 
@@ -124,7 +119,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
         if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
             // TODO: why do we even care about this right now?
-            console.log(`[Gateway] Invalid sharding from ${user.id}: ${identify.shard}`);
+            console.log(`[Gateway/${this.user_id}] Invalid sharding from ${user.id}: ${identify.shard}`);
             return this.close(CLOSECODES.Invalid_shard);
         }
     }
@@ -141,6 +136,30 @@ export async function onIdentify(this: WebSocket, data: Payload) {
               isNewSession: true,
           };
 
+    if (isNewSession)
+        console.warn(
+            "[Identify/WARN] Created new session",
+            session.session_id,
+            "for user",
+            tokenData.user.id,
+            `(${tokenData.user.tag})! - Access token version`,
+            tokenData.tokenVersion,
+            "- Access token session ID:",
+            tokenData.decoded.did ?? "(undefined)",
+        );
+
+    if (tokenData.tokenVersion < CurrentTokenFormatVersion)
+        console.warn(
+            "[Identify/WARN] Access token version",
+            tokenData.tokenVersion,
+            "used by user",
+            tokenData.user.id,
+            `(${tokenData.user.tag})! - Client`,
+            this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) ? "did" : "did not",
+            "opt for token refresh.",
+        );
+
+    this.session_id = session.session_id;
     this.session = session;
     this.session.status = identify.presence?.status || "online";
     this.session.last_seen = new Date();
@@ -352,29 +371,29 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
             //channels
             g.channels = memberGuildChannels.filter((c) => c.guild_id === m.guild_id);
-            trace.calls.push("filterChannels", { micros: sw.getElapsedAndReset().totalMicroseconds });
+            trace.calls.push(`filterChannels(${g.channels.length}/${memberGuildChannels.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             //emojis
             g.emojis = memberGuildEmojis.filter((e) => e.guild_id === m.guild_id);
-            trace.calls.push("filterEmojis", { micros: sw.getElapsedAndReset().totalMicroseconds });
+            trace.calls.push(`filterEmojis(${g.emojis.length}/${memberGuildEmojis.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             //roles
             g.roles = memberGuildRoles.filter((r) => r.guild_id === m.guild_id);
-            trace.calls.push("filterRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
+            trace.calls.push(`filterRoles(${g.roles.length}/${memberGuildRoles.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             //stickers
             g.stickers = memberGuildStickers.filter((s) => s.guild_id === m.guild_id);
-            trace.calls.push("filterStickers", { micros: sw.getElapsedAndReset().totalMicroseconds });
+            trace.calls.push(`filterStickers(${g.stickers.length}/${memberGuildStickers.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             //voice states
             g.voice_states = memberGuildVoiceStates.filter((v) => v.guild_id === m.guild_id);
-            trace.calls.push("filterVoiceStates", { micros: sw.getElapsedAndReset().totalMicroseconds });
+            trace.calls.push(`filterVoiceStates(${g.voice_states.length}/${memberGuildVoiceStates.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             //total
             trace.micros = totalSw.elapsed().totalMicroseconds;
             mergeMemberGuildsTrace.calls!.push(`guild_${m.guild_id}`, trace);
         } else {
-            console.error(`[Gateway] Member ${m.id} has invalid guild_id ${m.guild_id}`);
+            console.error(`[Gateway/${this.user_id}] Member ${m.id} has invalid guild_id ${m.guild_id}`);
             mergeMemberGuildsTrace.calls!.push(`guild_~~${m.guild_id}~~`, trace);
         }
     });
@@ -632,7 +651,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             private_channels: channels,
             presences: [], // TODO: Send actual data
             session_id: this.session_id,
-            country_code: user.settings!.locale, // TODO: do ip analysis instead
+            country_code: this.session?.last_seen_location_info?.country_code ?? user.settings!.locale,
             users: Array.from(users),
             merged_members: merged_members,
             sessions: allSessions,
@@ -781,13 +800,13 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                           ]
                         : [],
                 },
-            })?.catch((e) => console.error(`[Gateway] error when sending bot guilds`, e));
+            })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e));
         }),
     );
 
     const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => {
         return {
-            voice_states: guild.voice_states.map((state) => state.toPublicVoiceState()),
+            voice_states: guild.voice_states.map((state) => VoiceState.prototype.toPublicVoiceState.apply(state)),
             id: guild.id,
             embedded_activities: [],
         };
@@ -815,5 +834,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     //TODO send GUILD_MEMBER_LIST_UPDATE
     //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
     await setupListener.call(this);
-    console.log(`[Gateway] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`, process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "");
+    console.log(
+        `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
+        process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "",
+    );
 }

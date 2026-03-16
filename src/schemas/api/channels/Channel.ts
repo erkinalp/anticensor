@@ -21,13 +21,7 @@ export enum ChannelType {
     GUILD_MEDIA = 16, // channel for media sharing
     LOBBY = 17, // a game lobby channel
     EPHEMERAL_DM = 18, // a private channel created by the social layer sdk
-    ENCRYPTED = 19, // end-to-end encrypted channel
-    ENCRYPTED_THREAD = 20, // end-to-end encrypted thread channel
-    TRANSACTIONAL = 21, // event chain style transactional channel
-    TICKET_TRACKER = 33, // ticket tracker, individual ticket items shall have type 12
-    KANBAN = 34, // confluence like kanban board
-    VOICELESS_WHITEBOARD = 35, // whiteboard but without voice (whiteboard + voice is the same as stage)
-    CUSTOM_START = 64, // start custom channel types from here
+    TICKET_TRACKER = 19, // a channel that tracks support tickets (threads)
     UNHANDLED = 255, // unhandled unowned pass-through channel type
 }
 
@@ -74,8 +68,6 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_PUBLIC_THREAD:
         case ChannelType.GUILD_PRIVATE_THREAD:
         case ChannelType.GUILD_TEXT:
-        case ChannelType.ENCRYPTED:
-        case ChannelType.ENCRYPTED_THREAD:
             return true;
         default:
             throw new HTTPError("unimplemented", 400);

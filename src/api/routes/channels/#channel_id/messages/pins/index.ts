@@ -58,7 +58,7 @@ router.put(
 
         const author = await User.getPublicUser(req.user_id);
 
-        const systemPinMessage: Message = Message.create({
+        const systemPinMessage = Message.create({
             timestamp: new Date(),
             type: 6,
             guild_id: message.guild_id,
@@ -78,7 +78,7 @@ router.put(
             mention_channels: [],
             mention_roles: [],
             mention_everyone: false,
-        }) as Message;
+        });
 
         await Promise.all([
             message.save(),

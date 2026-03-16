@@ -59,8 +59,9 @@ router.patch(
         const body = req.body as UserGuildSettingsSchema;
 
         if (body.channel_overrides) {
+            // TODO: rewrite to a single query?
             for (const channel in body.channel_overrides) {
-                Channel.findOneOrFail({ where: { id: channel } });
+                await Channel.findOneOrFail({ where: { id: channel } });
             }
         }
 
@@ -69,7 +70,7 @@ router.patch(
             select: { settings: true },
         });
         OrmUtils.mergeDeep(user.settings || {}, body);
-        Member.update({ id: req.user_id, guild_id: req.params.guild_id as string }, user);
+        await user.save();
 
         res.json(user.settings);
     },

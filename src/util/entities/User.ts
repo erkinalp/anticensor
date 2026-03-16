@@ -17,7 +17,7 @@
 */
 
 import { Request } from "express";
-import { Column, Entity, FindOneOptions, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
 import { Random } from "../util";
 import { BaseClass } from "./BaseClass";
@@ -38,6 +38,7 @@ import {
     PublicUserProjection,
     UserPrivate,
 } from "@spacebar/schemas";
+import { JsonNumber } from "../util/Decorators";
 
 @Entity({
     name: "users",
@@ -124,18 +125,22 @@ export class User extends BaseClass {
     email?: string; // email of the user
 
     @Column({ type: "bigint" })
+    @JsonNumber
     flags: number = 0; // UserFlags // TODO: generate
 
     @Column({ type: "bigint" })
+    @JsonNumber
     public_flags: number = 0;
 
     @Column({ type: "bigint" })
+    @JsonNumber
     purchased_flags: number = 0;
 
     @Column()
     premium_usage_flags: number = 0;
 
     @Column({ type: "bigint" })
+    @JsonNumber
     rights: string;
 
     @OneToMany(() => Session, (session: Session) => session.user)
@@ -194,7 +199,7 @@ export class User extends BaseClass {
     validate() {
         if (this.discriminator) {
             const discrim = Number(this.discriminator);
-            if (isNaN(discrim) || !(typeof discrim == "number") || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
+            if (isNaN(discrim) || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
                 throw FieldErrors({
                     discriminator: {
                         message: "Discriminator must be a number.",
@@ -207,6 +212,7 @@ export class User extends BaseClass {
     }
 
     toPublicUser() {
+        this.clean_data();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const user: any = {};
         PublicUserProjection.forEach((x) => {
@@ -216,6 +222,7 @@ export class User extends BaseClass {
     }
 
     toPrivateUser(extraFields: (keyof User)[] = []) {
+        this.clean_data();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const user: any = {};
         [...PrivateUserProjection, ...extraFields].forEach((x) => {

@@ -21,7 +21,7 @@ import { closeDatabase, Config, initDatabase, initEvent } from "@spacebar/util";
 import http from "http";
 import ws from "ws";
 import { Connection } from "./events/Connection";
-import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util/MediaServer";
+import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util";
 import { green, yellow } from "picocolors";
 
 export class Server {
@@ -66,12 +66,12 @@ export class Server {
         // try to load webrtc library, if failed just don't start webrtc endpoint
         try {
             await loadWebRtcLibrary();
+            await mediaServer.start(WRTC_PUBLIC_IP, WRTC_PORT_MIN, WRTC_PORT_MAX);
         } catch (e) {
             console.log(`[WebRTC] ${yellow("WEBRTC disabled")}`);
             return;
         }
 
-        await mediaServer.start(WRTC_PUBLIC_IP, WRTC_PORT_MIN, WRTC_PORT_MAX);
         if (!this.server.listening) {
             this.server.listen(this.port);
             console.log(`[WebRTC] ${green(`online on 0.0.0.0:${this.port}`)}`);

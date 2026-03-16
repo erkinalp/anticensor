@@ -304,13 +304,52 @@ export class Guild extends BaseClass {
     @Column()
     discovery_excluded: boolean = false;
 
+    async ToGuildSource() {
+        if (!this.features.includes("DISCOVERABLE")) {
+            return null;
+        }
+        return {
+            id: this.id,
+            name: this.name,
+            icon: this.icon,
+            description: this.description,
+            banner: this.banner,
+            splash: this.splash,
+            discovery_splash: this.discovery_splash,
+            features: this.features,
+            vanity_url_code: null,
+            preferred_locale: this.preferred_locale || "en",
+            premium_subscription_count: this.premium_subscription_count,
+            approximate_member_count: await Member.countBy({
+                guild_id: this.id,
+            }),
+            approximate_presence_count: await Member.countBy({
+                guild_id: this.id,
+                user: {
+                    sessions: {
+                        status: "online",
+                    },
+                },
+            }),
+            emojis: this.emojis ?? undefined,
+            emoji_count: this.emojis ? this.emojis.length : undefined,
+            stickers: this.stickers ?? undefined,
+            sticker_count: this.stickers ? this.stickers.length : undefined,
+            auto_removed: false,
+            primary_category_id: this.primary_category_id,
+            keywords: [],
+            is_published: false,
+            reasons_to_join: [],
+        };
+    }
+
     static async createGuild(body: {
         name?: string;
         icon?: string | null;
         owner_id?: string;
         roles?: Partial<Role>[];
         channels?: Partial<Channel>[];
-        template_guild_id: string | null;
+        source_guild_id: string | null;
     }) {
         const guild_id = Snowflake.generate();
 
@@ -372,7 +411,7 @@ export class Guild extends BaseClass {
                             guild_id,
                             id:
                                 // role.id === body.template_guild_id indicates that this is the @everyone role
-                                role.id === body.template_guild_id ? guild_id : Snowflake.generate(),
+                                role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
                         })
                             .save()
                             .then(resolve);
@@ -438,6 +477,9 @@ export class Guild extends BaseClass {
             ...this,
             unavailable: this.unavailable == false ? undefined : true,
             channel_ordering: undefined,
+            discovery_weight: undefined,
+            discovery_excluded: undefined,
+            parent: undefined,
         };
     }
 }

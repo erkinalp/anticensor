@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
-import { Channel, emitEvent, User, uploadFile, Attachment, Member, ReadState, MessageCreateEvent, FieldErrors, getPermission, ThreadMember, Message } from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, PostDataSchema } from "@spacebar/schemas";
+import { route } from "@spacebar/api";
+import { Channel, Member, Message } from "@spacebar/util";
+import { PostDataSchema } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
-import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like } from "typeorm";
+import { In } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -61,7 +60,21 @@ router.post(
                 where: {
                     id: In(threads.map(({ id }) => id)),
                 },
-                relations: ["author"],
+                relations: {
+                    author: true,
+                    webhook: true,
+                    application: true,
+                    mentions: true,
+                    mention_roles: true,
+                    mention_channels: true,
+                    sticker_items: true,
+                    attachments: true,
+                    thread: {
+                        recipients: {
+                            user: true,
+                        },
+                    },
+                },
             }),
             Member.find({
                 where: {
@@ -69,6 +82,7 @@ router.post(
                 },
             }),
         ]);
+        await Message.fillReplies(messages);
         const objRet: { threads: Record<string, { first_message: null | Message; owner: null | Member }> } = { threads: {} };
         for (const thread of threads) {
             const owner = members.find(({ id }) => id === thread.owner_id)?.toJSON() || null;

@@ -18,5 +18,6 @@
 
 export * from "./ConnectedAccountDTO";
 export * from "./DmChannelDTO";
+export * from "./LobbyDTO";
 export * from "./ReadyGuildDTO";
 export * from "./UserDTO";

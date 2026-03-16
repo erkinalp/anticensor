@@ -20,52 +20,18 @@ import { User } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { Channel } from "./Channel";
-import { InteractionType } from "../interfaces/Interaction";
+import { InteractionType } from "../interfaces";
 import { Application } from "./Application";
-import { Column, CreateDateColumn, Entity, FindOneOptions, In, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, OneToMany, Raw, RelationId } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, FindOneOptions, Raw, Not, BaseEntity, In } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
 import { Attachment } from "./Attachment";
 import { NewUrlUserSignatureData } from "../Signing";
-import { MessageFlags } from "../util/MessageFlags";
-import { PartialMessage } from "@spacebar/schemas";
-
-export enum MessageType {
-    DEFAULT = 0,
-    RECIPIENT_ADD = 1,
-    RECIPIENT_REMOVE = 2,
-    CALL = 3,
-    CHANNEL_NAME_CHANGE = 4,
-    CHANNEL_ICON_CHANGE = 5,
-    CHANNEL_PINNED_MESSAGE = 6,
-    GUILD_MEMBER_JOIN = 7,
-    USER_PREMIUM_GUILD_SUBSCRIPTION = 8,
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1 = 9,
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2 = 10,
-    USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3 = 11,
-    CHANNEL_FOLLOW_ADD = 12,
-    ACTION = 13, // /me messages
-    GUILD_DISCOVERY_DISQUALIFIED = 14,
-    GUILD_DISCOVERY_REQUALIFIED = 15,
-    GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING = 16,
-    GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING = 17,
-    THREAD_CREATED = 18,
-    REPLY = 19,
-    APPLICATION_COMMAND = 20, // application command or self command invocation
-    THREAD_STARTER_MESSAGE = 21,
-    GUILD_INVITE_REMINDER = 22,
-    CONTEXT_MENU_COMMAND = 23,
-    AUTO_MODERATION_ACTION = 24,
-    CUSTOM_START = 127, // start custom message types from here
-    ENCRYPTED = 128,
-    ROUTE_ADDED = 129, // custom message routing: new route affecting that channel
-    ROUTE_DISABLED = 130, // custom message routing: given route no longer affecting that channel
-    SELF_COMMAND_SCRIPT = 131, // self command scripts
-    ENCRYPTION = 132,
-    UNHANDLED = 255,
-}
+import { ActionRowComponent, ApplicationCommandType, Embed, MessageSnapshot, MessageType, PartialMessage, Poll, Reaction } from "@spacebar/schemas";
+import { MessageFlags } from "@spacebar/util";
+import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
     name: "messages",
@@ -157,14 +123,17 @@ export class Message extends BaseClass {
     mention_everyone?: boolean;
 
     @JoinTable({ name: "message_user_mentions" })
+    @JsonRemoveEmpty
     @ManyToMany(() => User)
     mentions: User[];
 
     @JoinTable({ name: "message_role_mentions" })
+    @JsonRemoveEmpty
     @ManyToMany(() => Role)
     mention_roles: Role[];
 
     @JoinTable({ name: "message_channel_mentions" })
+    @JsonRemoveEmpty
     @ManyToMany(() => Channel)
     mention_channels: Channel[];
 
@@ -176,22 +145,26 @@ export class Message extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
+    @JsonRemoveEmpty
     attachments?: Attachment[];
 
     @Column({ type: "simple-json" })
+    @JsonRemoveEmpty
     embeds: Embed[];
 
     @Column({ type: "simple-json" })
+    @JsonRemoveEmpty
     reactions: Reaction[];
 
     @Column({ type: "text", nullable: true })
     nonce?: string;
 
-    @Column({ nullable: true })
-    pinned?: boolean;
-
-    @Column({ type: "timestamp", nullable: true })
+    @Column({ nullable: true, type: Date })
     pinned_at?: Date | null;
+
+    get pinned(): boolean {
+        return this.pinned_at != null;
+    }
 
     @Column({ type: "int" })
     type: MessageType;
@@ -210,50 +183,49 @@ export class Message extends BaseClass {
         message_id?: string;
         channel_id?: string;
         guild_id?: string;
-        type?: number;
+        type?: number; // 0 = DEFAULT, 1 = FORWARD
     };
 
     @JoinColumn({ name: "message_reference_id" })
-    @ManyToOne(() => Message)
-    referenced_message?: Message;
+    @ManyToOne(() => Message, { onDelete: "SET NULL" })
+    referenced_message?: Message | null;
 
     @Column({ type: "simple-json", nullable: true })
     interaction?: {
         id: string;
         type: InteractionType;
         name: string;
-        user_id: string; // the user who invoked the interaction
-        // user: User; // TODO: autopopulate user
     };
-
-    @Column({ type: "simple-json", nullable: true })
-    components?: ActionRowComponent[];
-
-    @Column({ type: "simple-json", nullable: true })
-    poll?: Poll;
 
     @Column({ type: "simple-json", nullable: true })
     interaction_metadata?: {
         id: string;
         type: InteractionType;
         user_id: string;
-        authorizing_integration_owners?: Record<string, string>;
-        original_response_message_id?: string;
-        interacted_message_id?: string;
-        name?: string;
+        authorizing_integration_owners: object;
+        name: string;
+        command_type: ApplicationCommandType;
     };
 
     @Column({ type: "simple-json", nullable: true })
-    message_snapshots?: MessageSnapshot[];
+    @JsonRemoveEmpty
+    components?: ActionRowComponent[];
 
     @Column({ type: "simple-json", nullable: true })
-    reply_ids?: string[];
+    @JsonRemoveEmpty
+    poll?: Poll;
 
     @Column({ nullable: true })
     username?: string;
 
     @Column({ nullable: true })
     avatar?: string;
+
+    @Column({ default: "[]", type: "simple-json" })
+    message_snapshots: MessageSnapshot[];
+
+    @Column({ type: "simple-json", nullable: true })
+    reply_ids?: string[];
 
     static async fillReplies(messages: Message[]) {
         const ms = messages
@@ -272,7 +244,7 @@ export class Message extends BaseClass {
             newMessages.forEach((msg) => curMs.set(msg.id, msg));
         }
         for (const message of ms) {
-            message.referenced_message = curMs.get(message.message_reference!.message_id as string) || undefined;
+            message.referenced_message = curMs.get(message.message_reference!.message_id as string) || null;
         }
     }
 
@@ -283,7 +255,7 @@ export class Message extends BaseClass {
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
-            mentions: this.mentions.map((user) => {
+            mentions: this.mentions?.map((user) => {
                 if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
                 return user?.toPublicUser?.() ?? user ?? undefined;
             }),
@@ -293,6 +265,7 @@ export class Message extends BaseClass {
             guild: this.guild ?? undefined,
             webhook: this.webhook ?? undefined,
             interaction: this.interaction ?? undefined,
+            interaction_metadata: this.interaction_metadata ?? undefined,
             reactions: this.reactions ?? undefined,
             sticker_items: this.sticker_items ?? undefined,
             message_reference: this.message_reference ?? undefined,
@@ -307,17 +280,9 @@ export class Message extends BaseClass {
             components: this.components ?? undefined,
             poll: this.poll ?? undefined,
             content: this.content ?? "",
-            reply_ids: this.reply_ids ?? undefined,
             pinned: this.pinned,
             thread: this.thread ? this.thread.toJSON() : this.thread,
             referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
-        };
-    }
-
-    withSignedAttachments(data: NewUrlUserSignatureData) {
-        return {
-            ...this,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
         };
     }
 
@@ -333,6 +298,13 @@ export class Message extends BaseClass {
             application_id: this.application_id,
             //channel: this.channel, // TODO: ephemeral DM channels
             // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
+        };
+    }
+
+    withSignedAttachments(data: NewUrlUserSignatureData) {
+        return {
+            ...this,
+            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
         };
     }
 
@@ -389,7 +361,6 @@ export class Message extends BaseClass {
         });
         return message;
     }
-
     static addDefault(options: FindOneOptions<Message>) {
         if (options.where) {
             const arr = options.where instanceof Array ? options.where : [options.where];
@@ -402,207 +373,21 @@ export class Message extends BaseClass {
     }
 }
 
-export interface MessageComponent {
-    type: MessageComponentType;
-}
-
-export interface ActionRowComponent extends MessageComponent {
-    type: MessageComponentType.ActionRow;
-    components: (ButtonComponent | StringSelectMenuComponent | SelectMenuComponent | TextInputComponent)[];
-}
-
-export interface ButtonComponent extends MessageComponent {
-    type: MessageComponentType.Button;
-    style: ButtonStyle;
-    label?: string;
-    emoji?: PartialEmoji;
-    custom_id?: string;
-    sku_id?: string;
-    url?: string;
-    disabled?: boolean;
-}
-
-export enum ButtonStyle {
-    Primary = 1,
-    Secondary = 2,
-    Success = 3,
-    Danger = 4,
-    Link = 5,
-    Premium = 6,
-}
-
-export interface SelectMenuComponent extends MessageComponent {
-    type:
-        | MessageComponentType.StringSelect
-        | MessageComponentType.UserSelect
-        | MessageComponentType.RoleSelect
-        | MessageComponentType.MentionableSelect
-        | MessageComponentType.ChannelSelect;
-    custom_id: string;
-    channel_types?: number[];
-    placeholder?: string;
-    default_values?: SelectMenuDefaultOption[]; // only for non-string selects
-    min_values?: number;
-    max_values?: number;
-    disabled?: boolean;
-}
-
-export interface SelectMenuOption {
-    label: string;
-    value: string;
-    description?: string;
-    emoji?: PartialEmoji;
-    default?: boolean;
-}
-
-export interface SelectMenuDefaultOption {
-    id: string;
-    type: "user" | "role" | "channel";
-}
-
-export interface StringSelectMenuComponent extends SelectMenuComponent {
-    type: MessageComponentType.StringSelect;
-    options: SelectMenuOption[];
-}
-
-export interface TextInputComponent extends MessageComponent {
-    type: MessageComponentType.TextInput;
-    custom_id: string;
-    style: TextInputStyle;
-    label: string;
-    min_length?: number;
-    max_length?: number;
-    required?: boolean;
-    value?: string;
-    placeholder?: string;
-}
-
-export enum TextInputStyle {
-    Short = 1,
-    Paragraph = 2,
-}
-
-export enum MessageComponentType {
-    Script = 0, // self command script
-    ActionRow = 1,
-    Button = 2,
-    StringSelect = 3,
-    TextInput = 4,
-    UserSelect = 5,
-    RoleSelect = 6,
-    MentionableSelect = 7,
-    ChannelSelect = 8,
-}
-
-export interface Embed {
-    title?: string; //title of embed
-    type?: EmbedType; // type of embed (always "rich" for webhook embeds)
-    description?: string; // description of embed
-    url?: string; // url of embed
-    timestamp?: Date; // timestamp of embed content
-    color?: number; // color code of the embed
-    footer?: {
-        text: string;
-        icon_url?: string;
-        proxy_icon_url?: string;
-    }; // footer object	footer information
-    image?: EmbedImage; // image object	image information
-    thumbnail?: EmbedImage; // thumbnail object	thumbnail information
-    video?: EmbedImage; // video object	video information
-    provider?: {
-        name?: string;
-        url?: string;
-    }; // provider object	provider information
-    author?: {
-        name?: string;
-        url?: string;
-        icon_url?: string;
-        proxy_icon_url?: string;
-    }; // author object	author information
-    fields?: {
-        name: string;
-        value: string;
-        inline?: boolean;
-    }[];
-}
-
-export enum EmbedType {
-    rich = "rich",
-    image = "image",
-    video = "video",
-    gifv = "gifv",
-    article = "article",
-    link = "link",
-    auto_moderation_message = "auto_moderation_message",
-}
-
-export interface EmbedImage {
-    url?: string;
-    proxy_url?: string;
-    height?: number;
-    width?: number;
-}
-
-export interface Reaction {
-    count: number;
-    //// not saved in the database // me: boolean; // whether the current user reacted using this emoji
-    emoji: PartialEmoji;
-    user_ids: string[];
-}
-
-export interface PartialEmoji {
-    id?: string;
-    name: string;
-    animated?: boolean;
-}
-
-export interface AllowedMentions {
-    parse?: string[];
-    roles?: string[];
-    users?: string[];
-    replied_user?: boolean;
-}
-
-export interface Poll {
-    question: PollMedia;
-    answers: PollAnswer[];
-    expiry: Date;
-    allow_multiselect: boolean;
-    results?: PollResult;
-}
-
-export interface PollMedia {
-    text?: string;
-    emoji?: PartialEmoji;
-}
-
-export interface PollAnswer {
-    answer_id?: string;
-    poll_media: PollMedia;
-}
-
-export interface PollResult {
-    is_finalized: boolean;
-    answer_counts: PollAnswerCount[];
-}
-
-export interface PollAnswerCount {
-    id: string;
-    count: number;
-    me_voted: boolean;
-}
-
-export interface MessageSnapshot {
-    message: {
-        attachments?: Attachment[];
-        components?: ActionRowComponent[];
-        content: string;
-        edited_timestamp?: Date;
-        embeds: Embed[];
-        flags?: number;
-        mention_roles: string[];
-        mentions: string[];
-        timestamp?: Date;
-        type?: MessageType;
-    };
-}
+//@ts-expect-error It works but TS types hate it
+Message.findOneOrFail = function (this: Message, options: FindOneOptions<Message>): Promise<Message> {
+    Message.addDefault(options as FindOneOptions<Message>);
+    //@ts-expect-error how to use generics on call, who knows!
+    return BaseEntity.findOneOrFail.call(Message, options);
+};
+//@ts-expect-error It works but TS types hate it
+Message.findOne = function (this: Message, options: FindOneOptions<Message>): Promise<Message> {
+    Message.addDefault(options as FindOneOptions<Message>);
+    //@ts-expect-error how to use generics on call, who knows!
+    return BaseEntity.findOne.call(Message, options);
+};
+//@ts-expect-error It works but TS types hate it
+Message.find = function (this: Message, options: FindOneOptions<Message>): Promise<Message[]> {
+    Message.addDefault(options as FindOneOptions<Message>);
+    //@ts-expect-error how to use generics on call, who knows!
+    return BaseEntity.find.call(Message, options);
+};

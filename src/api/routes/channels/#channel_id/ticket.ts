@@ -6,7 +6,7 @@ import { Request, Response, Router } from "express";
 const router: Router = Router();
 
 router.patch(
-    "/ticket",
+    "/",
     route({
         requestBody: "TicketPatchSchema",
         responses: { 200: { body: "Channel" }, 400: {}, 403: {}, 404: {} },
