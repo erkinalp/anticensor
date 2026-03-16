@@ -59,17 +59,10 @@ let
       chown $USER:$GROUP node_modules -R
       chmod +w node_modules -R
 
-      # Apply patches (postinstall scripts don't run in Nix builds)
-      # patch-package format patches (name+version.patch) use node_modules/ prefixed paths
-      for patchfile in patches/*+*.patch; do
-        if [ -f "$patchfile" ]; then
-          echo "Applying patch: $patchfile"
-          patch -p1 < "$patchfile"
-        fi
-      done
-      # pnpm format patches (no version suffix) use package-relative paths
-      if [ -d node_modules/discord-protos ]; then
-        echo "Applying discord-protos patch"
+      # Apply pnpm-only patches (patch-package format patches are already applied by npm postinstall)
+      # discord-protos uses pnpm patch format (no version suffix) and needs explicit application
+      if [ -d node_modules/discord-protos ] && [ -f patches/discord-protos.patch ]; then
+        echo "Applying discord-protos patch (pnpm format)"
         (cd node_modules/discord-protos && patch -p1 < ../../patches/discord-protos.patch)
       fi
     '';
