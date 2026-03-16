@@ -225,20 +225,22 @@ router.put(
 
         await message.save();
 
-        const member = (
-            await Member.findOneOrFail({
-                where: { id: req.user_id, guild_id: channel.guild_id },
-                relations: { roles: true, user: true },
-                select: {
-                    index: true,
-                    ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
-                    user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
-                    roles: {
-                        id: true,
-                    },
-                },
-            })
-        ).toPublicMember();
+        const member = channel.guild_id
+            ? (
+                  await Member.findOneOrFail({
+                      where: { id: req.user_id, guild_id: channel.guild_id },
+                      relations: { roles: true, user: true },
+                      select: {
+                          index: true,
+                          ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
+                          user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                          roles: {
+                              id: true,
+                          },
+                      },
+                  })
+              ).toPublicMember()
+            : undefined;
 
         await emitEvent({
             event: "MESSAGE_REACTION_ADD",

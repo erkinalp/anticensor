@@ -2489,7 +2489,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -2698,7 +2698,7 @@
                 },
                 "required": [
                     "ToGuildSource",
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "bans",
                     "channel_ordering",
                     "channels",
@@ -4114,6 +4114,7 @@
                             16,
                             17,
                             18,
+                            19,
                             2,
                             255,
                             3,
@@ -6964,6 +6965,7 @@
                             16,
                             17,
                             18,
+                            19,
                             2,
                             255,
                             3,
@@ -7075,6 +7077,35 @@
                 "properties": {
                     "position": {
                         "type": "integer"
+                    }
+                }
+            },
+            "TicketCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TicketPatchSchema": {
+                "type": "object",
+                "properties": {
+                    "owner_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "resolved": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "public": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "closed": {
+                        "type": "boolean",
+                        "nullable": true
                     }
                 }
             },
@@ -7502,35 +7533,6 @@
                 "properties": {
                     "channel_id": {
                         "type": "string"
-                    }
-                }
-            },
-            "TicketCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    }
-                }
-            },
-            "TicketPatchSchema": {
-                "type": "object",
-                "properties": {
-                    "owner_id": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "resolved": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "public": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "closed": {
-                        "type": "boolean",
-                        "nullable": true
                     }
                 }
             },
@@ -7980,7 +7982,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -7991,7 +7993,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "embeds",
                     "flags",
@@ -8168,7 +8170,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8179,7 +8181,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "created_at",
                     "flags",
                     "id",
@@ -8212,6 +8214,7 @@
                     16,
                     17,
                     18,
+                    19,
                     255
                 ]
             },
@@ -8236,7 +8239,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8247,7 +8250,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "channel_id",
                     "closed",
@@ -8447,7 +8450,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8458,7 +8461,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "bio",
                     "bot",
                     "connected_accounts",
@@ -8556,7 +8559,7 @@
                     "session_nickname": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8567,7 +8570,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "activities",
                     "client_info",
                     "client_status",
@@ -8859,7 +8862,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8870,7 +8873,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "from",
                     "from_id",
                     "id",
@@ -8955,7 +8958,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -8966,7 +8969,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "external_id",
                     "id",
                     "name",
@@ -9169,7 +9172,7 @@
                         "type": "boolean",
                         "default": true
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9180,7 +9183,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "afk_timeout",
                     "allow_accessibility_detection",
                     "animate_emoji",
@@ -9295,7 +9298,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9306,7 +9309,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "counter",
                     "id",
                     "key_id",
@@ -9464,7 +9467,7 @@
                     "flags": {
                         "$ref": "#/components/schemas/ThreadMemberFlags"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9475,7 +9478,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "flags",
                     "id",
@@ -9580,7 +9583,7 @@
                         "type": "integer",
                         "default": 0
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9591,7 +9594,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "banner",
                     "bio",
                     "communication_disabled_until",
@@ -9836,7 +9839,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9847,7 +9850,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "bans",
                     "channel_ordering",
                     "channels",
@@ -9902,7 +9905,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9913,7 +9916,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "executor",
                     "executor_id",
                     "guild",
@@ -9983,7 +9986,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -9994,7 +9997,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "color",
                     "colors",
                     "flags",
@@ -10067,7 +10070,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10078,7 +10081,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "code",
                     "created_at",
                     "creator",
@@ -10136,7 +10139,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10147,7 +10150,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "animated",
                     "available",
                     "groups",
@@ -10204,7 +10207,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10215,7 +10218,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "format_type",
                     "id",
                     "name",
@@ -10250,7 +10253,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10261,7 +10264,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "id",
                     "name",
                     "stickers"
@@ -10342,7 +10345,7 @@
                     "flags": {
                         "type": "integer"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10353,7 +10356,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "channel_id",
                     "code",
@@ -10427,7 +10430,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10438,7 +10441,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "channel_id",
                     "deaf",
@@ -10513,7 +10516,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10524,7 +10527,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "application",
                     "application_id",
                     "avatar",
@@ -10681,7 +10684,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10692,7 +10695,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "description",
                     "discoverability_state",
                     "discovery_eligibility_flags",
@@ -10735,7 +10738,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10746,7 +10749,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "id",
                     "members",
                     "name",
@@ -10784,7 +10787,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -10795,7 +10798,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "id",
                     "membership_state",
                     "permissions",
@@ -11075,7 +11078,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -11086,7 +11089,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "badge_count",
                     "channel",
                     "channel_id",
@@ -11173,7 +11176,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -11184,7 +11187,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "channel",
                     "channel_id",
                     "id",
@@ -11225,7 +11228,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -11236,7 +11239,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "filename",
                     "id",
                     "message",
@@ -13824,7 +13827,7 @@
                     "id": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -13835,7 +13838,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "code",
                     "consumed",
                     "expired",
@@ -13946,7 +13949,7 @@
                     "icon": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -13957,7 +13960,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "id",
                     "is_primary",
                     "localizations",
@@ -14335,7 +14338,7 @@
                     "link": {
                         "type": "string"
                     },
-                    "__@annotationsKey@11706": {
+                    "__@annotationsKey@11707": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "array",
@@ -14346,7 +14349,7 @@
                     }
                 },
                 "required": [
-                    "__@annotationsKey@11706",
+                    "__@annotationsKey@11707",
                     "description",
                     "icon",
                     "id"

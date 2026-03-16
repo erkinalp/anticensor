@@ -99,3 +99,4 @@ export * from "./PostDataSchema";
 export * from "./TagCreateSchema";
 export * from "./ChannelCreateSchema";
 export * from "./ChannelPromoteSchema";
+export * from "./TicketSchemas";
