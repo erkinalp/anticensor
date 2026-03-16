@@ -246,6 +246,8 @@ export class Channel extends BaseClass {
             case ChannelType.GUILD_MEDIA:
             case ChannelType.GUILD_NEWS:
             case ChannelType.GUILD_VOICE:
+            case ChannelType.TICKET_TRACKER:
+            case ChannelType.LOBBY:
                 if (channel.parent_id && !opts?.skipExistsCheck) {
                     const exists = await Channel.findOneOrFail({
                         where: { id: channel.parent_id },
