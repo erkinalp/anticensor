@@ -29,16 +29,15 @@ router.patch(
         const parent = await Channel.findOneOrFail({
             where: { id: ticket.parent_id },
         });
-        // TICKET_TRACKER channel type not yet in upstream ChannelType enum
-        if (parent.type !== (ChannelType as unknown as Record<string, number>)["TICKET_TRACKER"]) return res.status(400).send({ message: "Parent is not a tracker" });
+        if (parent.type !== ChannelType.TICKET_TRACKER) return res.status(400).send({ message: "Parent is not a tracker" });
 
         const perm = await getPermission(req.user_id, ticket.guild_id, ticket.id);
 
         const isClosed = (ticket.flags & TicketFlags.ARCHIVED) === TicketFlags.ARCHIVED;
 
         if (payload.owner_id !== undefined) {
-            if (!perm.has("MANAGE_THREADS")) return res.status(403).send({ message: "Missing MANAGE_TICKETS" });
-            if (isClosed && !perm.has("MANAGE_THREADS"))
+            if (!perm.has("MANAGE_TICKETS")) return res.status(403).send({ message: "Missing MANAGE_TICKETS" });
+            if (isClosed && !perm.has("MANAGE_TICKETS"))
                 return res.status(403).send({
                     message: DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD.message,
                 });
@@ -46,15 +45,15 @@ router.patch(
         }
 
         if (payload.resolved !== undefined) {
-            const canResolve = perm.has("MANAGE_THREADS") || ticket.owner_id === req.user_id;
+            const canResolve = perm.has("MANAGE_TICKETS") || ticket.owner_id === req.user_id;
             if (!canResolve) return res.status(403).send({ message: "Missing permission to resolve" });
             if (payload.resolved) ticket.flags = (ticket.flags || 0) | TicketFlags.RESOLVED;
             else ticket.flags = (ticket.flags || 0) & ~TicketFlags.RESOLVED;
         }
 
         if (payload.public !== undefined) {
-            if (!perm.has("MANAGE_THREADS")) return res.status(403).send({ message: "Missing MANAGE_THREADS" });
-            if (isClosed && !perm.has("MANAGE_THREADS"))
+            if (!perm.has("MANAGE_TICKETS")) return res.status(403).send({ message: "Missing MANAGE_TICKETS" });
+            if (isClosed && !perm.has("MANAGE_TICKETS"))
                 return res.status(403).send({
                     message: DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD.message,
                 });
@@ -66,7 +65,7 @@ router.patch(
         }
 
         if (payload.closed !== undefined) {
-            if (!perm.has("MANAGE_THREADS")) return res.status(403).send({ message: "Missing MANAGE_THREADS" });
+            if (!perm.has("MANAGE_TICKETS")) return res.status(403).send({ message: "Missing MANAGE_TICKETS" });
             if (payload.closed) ticket.flags = (ticket.flags || 0) | TicketFlags.ARCHIVED;
             else ticket.flags = (ticket.flags || 0) & ~TicketFlags.ARCHIVED;
         }

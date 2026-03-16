@@ -22,8 +22,7 @@ router.post(
             where: { id: channel_id },
         });
 
-        // TICKET_TRACKER channel type not yet in upstream ChannelType enum
-        if (tracker.type !== (ChannelType as unknown as Record<string, number>)["TICKET_TRACKER"]) return res.status(400).send({ message: "Channel is not a ticket tracker" });
+        if (tracker.type !== ChannelType.TICKET_TRACKER) return res.status(400).send({ message: "Channel is not a ticket tracker" });
 
         const perm = await getPermission(req.user_id, tracker.guild_id, tracker.id);
         if (!perm.has("SEND_MESSAGES")) return res.status(403).send({ message: "Missing SEND_MESSAGES in tracker" });

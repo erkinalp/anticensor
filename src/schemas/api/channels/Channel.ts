@@ -21,6 +21,7 @@ export enum ChannelType {
     GUILD_MEDIA = 16, // channel for media sharing
     LOBBY = 17, // a game lobby channel
     EPHEMERAL_DM = 18, // a private channel created by the social layer sdk
+    TICKET_TRACKER = 19, // a channel that tracks support tickets (threads)
     UNHANDLED = 255, // unhandled unowned pass-through channel type
 }
 
