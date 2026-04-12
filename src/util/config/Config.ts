@@ -30,7 +30,6 @@ import {
     GuildConfiguration,
     LimitsConfiguration,
     LoginConfiguration,
-    OffloadConfiguration,
     PasswordResetConfiguration,
     RabbitMQConfiguration,
     RegionConfiguration,
@@ -60,7 +59,6 @@ export class ConfigValue {
     email: EmailConfiguration = new EmailConfiguration();
     passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
     user: UserConfiguration = new UserConfiguration();
-    offload: OffloadConfiguration = new OffloadConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
 }
