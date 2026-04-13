@@ -21,7 +21,7 @@ import crypto from "crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
-import { storage } from "@spacebar/cdn";
+import { storage } from "@harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
 

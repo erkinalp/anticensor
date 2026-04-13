@@ -121,7 +121,7 @@
     },
     "_moduleAliases": {
         "@harmony/api": "dist/api",
-        "@spacebar/cdn": "dist/cdn",
+        "@harmony/cdn": "dist/cdn",
         "@harmony/gateway": "dist/gateway",
         "@spacebar/util": "dist/util",
         "@spacebar/webrtc": "dist/webrtc",

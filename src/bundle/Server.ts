@@ -25,7 +25,7 @@ import http from "http";
 import * as Api from "@harmony/api";
 import * as Gateway from "@harmony/gateway";
 import * as Webrtc from "@spacebar/webrtc";
-import { CDNServer } from "@spacebar/cdn";
+import { CDNServer } from "@harmony/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
 import { Config, initDatabase } from "@spacebar/util";
