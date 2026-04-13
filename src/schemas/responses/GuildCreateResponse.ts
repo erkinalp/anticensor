@@ -17,7 +17,7 @@
 */
 
 import { GuildWelcomeScreen } from "@harmony/util";
-import { GuildUpdateSchema } from "@spacebar/schemas";
+import { GuildUpdateSchema } from "@harmony/schemas";
 
 export interface GuildCreateResponse extends Omit<GuildUpdateSchema, "name"> {
     id: string;

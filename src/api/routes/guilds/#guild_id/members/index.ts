@@ -21,7 +21,7 @@ import { Member } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { PublicMemberProjection } from "@spacebar/schemas";
+import { PublicMemberProjection } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

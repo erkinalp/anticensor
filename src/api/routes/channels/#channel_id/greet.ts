@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
+import { GreetRequestSchema, MessageType } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -18,7 +18,7 @@
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { ApplicationDetectableResponse } from "@spacebar/schemas";
+import { ApplicationDetectableResponse } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 const cache = {

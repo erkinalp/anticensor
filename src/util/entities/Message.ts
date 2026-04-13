@@ -41,8 +41,8 @@ import {
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
-} from "@spacebar/schemas";
-import { PartialUser } from "@spacebar/schemas";
+} from "@harmony/schemas";
+import { PartialUser } from "@harmony/schemas";
 import { MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 

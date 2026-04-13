@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
+import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -18,7 +18,7 @@
 
 // TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
 
-import { ActivitySchema } from "@spacebar/schemas";
+import { ActivitySchema } from "@harmony/schemas";
 
 export const IdentifySchema = {
     token: String,

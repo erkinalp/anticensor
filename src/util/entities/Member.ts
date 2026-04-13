@@ -27,7 +27,7 @@ import { Guild } from "./Guild";
 import { Message } from "./Message";
 import { Role } from "./Role";
 import { User } from "./User";
-import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
+import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, UserGuildSettings } from "@harmony/schemas";
 
 export const MemberPrivateProjection: (keyof Member)[] = [
     "id",

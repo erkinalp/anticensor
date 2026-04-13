@@ -1,4 +1,4 @@
-import { PublicUser } from "@spacebar/schemas";
+import { PublicUser } from "@harmony/schemas";
 import { Member } from "@harmony/util";
 
 export interface ChannelOverride {

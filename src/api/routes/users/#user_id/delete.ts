@@ -34,7 +34,7 @@ import {
     UserSettingsProtos,
 } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@spacebar/schemas";
+import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@harmony/schemas";
 import { Not } from "typeorm";
 
 const router = Router({ mergeParams: true });

@@ -18,7 +18,7 @@
 
 import { ClientStatus, Status } from "./Status";
 import { Activity } from "./Activity";
-import { PublicUser } from "@spacebar/schemas";
+import { PublicUser } from "@harmony/schemas";
 
 export interface Presence {
     user: PublicUser;

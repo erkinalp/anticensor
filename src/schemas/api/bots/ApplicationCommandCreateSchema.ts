@@ -23,7 +23,7 @@ import {
     ApplicationIntegrationType,
     InteractionContextType,
     StringStringDictionary,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 
 export interface ApplicationCommandCreateSchema {
     type?: ApplicationCommandType;

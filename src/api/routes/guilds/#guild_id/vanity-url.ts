@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { Channel, Guild, Invite } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";
+import { ChannelType, VanityUrlSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

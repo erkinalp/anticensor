@@ -51,7 +51,7 @@ import {
     PublicVoiceState,
     RelationshipType,
     UserPrivate,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 
 export interface Event {
     guild_id?: string;

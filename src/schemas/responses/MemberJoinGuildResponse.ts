@@ -17,7 +17,7 @@
 */
 
 import { Emoji, Role, Sticker } from "@harmony/util";
-import { GuildCreateResponse } from "@spacebar/schemas";
+import { GuildCreateResponse } from "@harmony/schemas";
 
 export interface MemberJoinGuildResponse {
     guild: GuildCreateResponse;

@@ -17,7 +17,7 @@
 */
 
 import { Attachment, Sticker } from "@harmony/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@harmony/schemas";
 
 export enum MessageType {
     DEFAULT = 0,

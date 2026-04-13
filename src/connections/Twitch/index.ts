@@ -19,7 +19,7 @@
 import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "@harmony/util";
 import wretch from "wretch";
 import { TwitchSettings } from "./TwitchSettings";
-import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
+import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
 
 interface TwitchConnectionUserResponse {
     data: {

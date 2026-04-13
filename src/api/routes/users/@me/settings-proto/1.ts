@@ -21,7 +21,7 @@ import { Request, Response, Router } from "express";
 import { emitEvent, OrmUtils, UserSettingsProtos } from "@harmony/util";
 import { PreloadedUserSettings } from "discord-protos";
 import { JsonValue } from "@protobuf-ts/runtime";
-import { SettingsProtoJsonResponse, SettingsProtoResponse, SettingsProtoUpdateJsonSchema, SettingsProtoUpdateSchema } from "@spacebar/schemas";
+import { SettingsProtoJsonResponse, SettingsProtoResponse, SettingsProtoUpdateJsonSchema, SettingsProtoUpdateSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -17,7 +17,7 @@
 */
 
 import { Badge, Member, User } from "@harmony/util";
-import { PublicConnectedAccount, PublicMember, PublicUser } from "@spacebar/schemas";
+import { PublicConnectedAccount, PublicMember, PublicUser } from "@harmony/schemas";
 
 export type MutualGuild = {
     id: string;

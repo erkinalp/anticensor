@@ -24,7 +24,7 @@ import path from "path";
 import WS from "ws";
 import OPCodeHandlers from "../opcodes";
 import { check } from "../opcodes/instanceOf";
-import { PayloadSchema } from "@spacebar/schemas";
+import { PayloadSchema } from "@harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 

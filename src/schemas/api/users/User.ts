@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccountSchema, Snowflake, UserSettingsSchema } from "@spacebar/schemas";
+import { ConnectedAccountSchema, Snowflake, UserSettingsSchema } from "@harmony/schemas";
 import { BitField } from "@harmony/util/util";
 import { Relationship, Session } from "@harmony/util/entities";
 

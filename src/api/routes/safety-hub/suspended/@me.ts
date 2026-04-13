@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { User } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { AccountStandingResponse, AccountStandingState, AppealEligibility } from "@spacebar/schemas";
+import { AccountStandingResponse, AccountStandingState, AppealEligibility } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, Guild, Member, getRights } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { GuildCreateSchema } from "@spacebar/schemas";
+import { GuildCreateSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -4,7 +4,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { executeWebhook } from "../../../../util/handlers/Webhook";
-import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { WebhookUpdateSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(

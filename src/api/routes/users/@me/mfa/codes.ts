@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { BackupCode, FieldErrors, generateMfaBackupCodes, User } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { MfaCodesSchema } from "@spacebar/schemas";
+import { MfaCodesSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

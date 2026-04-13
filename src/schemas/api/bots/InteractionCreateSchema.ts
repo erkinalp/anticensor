@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicMember, PublicUser, Snowflake } from "@spacebar/schemas";
+import { PublicMember, PublicUser, Snowflake } from "@harmony/schemas";
 import { Channel, InteractionType, Message } from "@harmony/util";
 
 export interface InteractionCreateSchema {

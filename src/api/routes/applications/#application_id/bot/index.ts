@@ -21,7 +21,7 @@ import { Application, DiscordApiErrors, FieldErrors, User, createAppBotUser, gen
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
-import { BotModifySchema } from "@spacebar/schemas";
+import { BotModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

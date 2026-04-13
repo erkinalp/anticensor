@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { ConnectionStore, emitEvent, FieldErrors } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ConnectionCallbackSchema } from "@spacebar/schemas";
+import { ConnectionCallbackSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { getUrlSignature, NewUrlSignatureData } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { RefreshUrlsRequestSchema } from "@spacebar/schemas";
+import { RefreshUrlsRequestSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(

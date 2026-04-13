@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@harmony/schemas";
 import { handleComps, route, sendMessage } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@harmony/util";

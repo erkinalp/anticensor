@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Application, DiscordApiErrors } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { PublicUserProjection } from "@spacebar/schemas";
+import { PublicUserProjection } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

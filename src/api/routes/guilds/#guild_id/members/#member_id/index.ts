@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
+import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

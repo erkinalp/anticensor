@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Guild } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { WidgetModifySchema } from "@spacebar/schemas";
+import { WidgetModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

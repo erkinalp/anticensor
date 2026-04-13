@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { HubDirectoryEntriesResponse } from "@spacebar/schemas";
+import { HubDirectoryEntriesResponse } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

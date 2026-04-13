@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AllowedMentions } from "@spacebar/schemas";
+import { AllowedMentions } from "@harmony/schemas";
 
 export interface GreetRequestSchema {
     sticker_ids: string[];

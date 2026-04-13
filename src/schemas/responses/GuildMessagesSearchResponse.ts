@@ -18,7 +18,7 @@
 
 // TODO: remove dependency on entities
 import { Attachment, Role } from "@harmony/util";
-import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser } from "@spacebar/schemas";
+import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser } from "@harmony/schemas";
 
 export interface GuildMessagesSearchMessage {
     id: string;

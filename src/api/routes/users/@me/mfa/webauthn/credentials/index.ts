@@ -22,7 +22,7 @@ import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { ExpectedAttestationResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
-import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@spacebar/schemas";
+import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 const isGenerateSchema = (body: WebAuthnPostSchema): body is GenerateWebAuthnCredentialsSchema => {

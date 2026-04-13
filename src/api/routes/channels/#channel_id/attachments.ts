@@ -20,7 +20,7 @@ import { randomString, route } from "@harmony/api";
 import { Channel, Config, Permissions } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { CloudAttachment } from "@harmony/util";
-import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@spacebar/schemas";
+import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

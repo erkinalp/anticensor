@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Channel, Guild, Member } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { GuildUpdateWelcomeScreenSchema } from "@spacebar/schemas";
+import { GuildUpdateWelcomeScreenSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

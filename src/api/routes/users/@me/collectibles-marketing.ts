@@ -18,7 +18,7 @@
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { CollectiblesMarketingResponse } from "@spacebar/schemas";
+import { CollectiblesMarketingResponse } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

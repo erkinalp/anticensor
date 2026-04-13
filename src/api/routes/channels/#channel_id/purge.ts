@@ -21,7 +21,7 @@ import { Channel, Message, MessageDeleteBulkEvent, emitEvent, getPermission, get
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOperator, Not } from "typeorm";
-import { isTextChannel, PurgeSchema } from "@spacebar/schemas";
+import { isTextChannel, PurgeSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

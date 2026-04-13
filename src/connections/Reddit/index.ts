@@ -19,7 +19,7 @@
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
 import wretch from "wretch";
 import { RedditSettings } from "./RedditSettings";
-import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
+import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
 
 export interface UserResponse {
     verified: boolean;

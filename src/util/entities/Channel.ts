@@ -32,7 +32,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@harmony/schemas";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
 

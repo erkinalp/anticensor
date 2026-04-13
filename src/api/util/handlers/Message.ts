@@ -70,7 +70,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
     PartialUser,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images

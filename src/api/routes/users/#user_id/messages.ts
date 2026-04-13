@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Config, Message, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { DmMessagesResponseSchema } from "@spacebar/schemas";
+import { DmMessagesResponseSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(

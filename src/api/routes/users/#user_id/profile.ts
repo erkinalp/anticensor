@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@spacebar/schemas";
+import { PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

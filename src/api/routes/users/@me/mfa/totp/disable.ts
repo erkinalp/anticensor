@@ -21,7 +21,7 @@ import { BackupCode, User, generateToken } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
-import { TotpDisableSchema } from "@spacebar/schemas";
+import { TotpDisableSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

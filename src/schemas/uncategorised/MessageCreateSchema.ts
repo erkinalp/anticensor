@@ -17,7 +17,7 @@
 */
 
 import { InteractionType, Snowflake } from "@harmony/util";
-import { AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
+import { AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@harmony/schemas";
 
 export type MessageCreateAttachment = {
     id: string;

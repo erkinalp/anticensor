@@ -20,7 +20,7 @@ import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
-import { RequestGuildMembersSchema } from "@spacebar/schemas";
+import { RequestGuildMembersSchema } from "@harmony/schemas";
 
 export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();

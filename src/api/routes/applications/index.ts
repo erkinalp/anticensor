@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Application, Config, createAppBotUser, trimSpecial } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ApplicationCreateSchema } from "@spacebar/schemas";
+import { ApplicationCreateSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

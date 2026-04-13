@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Channel, DmChannelDTO, Recipient } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { DmChannelCreateSchema } from "@spacebar/schemas";
+import { DmChannelCreateSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

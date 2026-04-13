@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, Emoji, GuildEmojisUpdateEvent, Member, Snowflake, emitEvent, handleFile } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { EmojiCreateSchema, EmojiModifySchema } from "@spacebar/schemas";
+import { EmojiCreateSchema, EmojiModifySchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

@@ -19,7 +19,7 @@
 import { randomString, route } from "@harmony/api";
 import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
+import { ChannelType, GuildWidgetJsonResponse } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

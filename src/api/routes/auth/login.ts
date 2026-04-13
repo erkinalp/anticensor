@@ -21,7 +21,7 @@ import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTic
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
-import { LoginSchema } from "@spacebar/schemas";
+import { LoginSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 export default router;

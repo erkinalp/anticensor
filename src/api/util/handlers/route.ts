@@ -19,7 +19,7 @@
 import { DiscordApiErrors, EVENT, FieldErrors, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@harmony/util";
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
-import { ajv } from "@spacebar/schemas";
+import { ajv } from "@harmony/schemas";
 import { BigNumber } from "bignumber.js";
 
 const ignoredRequestSchemas = [

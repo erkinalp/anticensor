@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@spacebar/schemas";
+import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, FieldErrors, Guild, Member, Snowflake } from "@harmony/util";

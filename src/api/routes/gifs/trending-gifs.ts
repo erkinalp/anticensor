@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { TenorGif, TenorMediaTypes } from "@spacebar/schemas";
+import { TenorGif, TenorMediaTypes } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

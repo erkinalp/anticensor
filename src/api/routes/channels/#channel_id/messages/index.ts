@@ -59,7 +59,7 @@ import {
     Reaction,
     ReadStateType,
     RelationshipType,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

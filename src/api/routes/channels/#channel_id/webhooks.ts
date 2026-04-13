@@ -21,7 +21,7 @@ import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpeci
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
+import { isTextChannel, WebhookCreateSchema, WebhookType } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

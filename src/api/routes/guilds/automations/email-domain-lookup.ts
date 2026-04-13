@@ -21,7 +21,7 @@ import { FieldErrors } from "@harmony/util";
 import emailProviders from "email-providers/all.json";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "@spacebar/schemas";
+import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

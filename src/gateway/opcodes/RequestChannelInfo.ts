@@ -17,7 +17,7 @@
 */
 
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
-import { ChannelType } from "@spacebar/schemas";
+import { ChannelType } from "@harmony/schemas";
 import { Channel, Config } from "@harmony/util";
 
 export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {

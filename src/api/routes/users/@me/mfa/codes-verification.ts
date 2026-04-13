@@ -19,7 +19,7 @@
 import { route } from "@harmony/api";
 import { BackupCode, DiscordApiErrors, User, generateMfaBackupCodes } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { CodesVerificationSchema } from "@spacebar/schemas";
+import { CodesVerificationSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

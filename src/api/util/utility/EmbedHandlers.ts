@@ -17,7 +17,7 @@
 */
 
 import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, MessageUpdateEvent, normalizeUrl, OrmUtils } from "@harmony/util";
-import { Embed, EmbedImage, EmbedType } from "@spacebar/schemas";
+import { Embed, EmbedImage, EmbedType } from "@harmony/schemas";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
 import { yellow } from "picocolors";

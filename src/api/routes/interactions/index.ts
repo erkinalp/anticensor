@@ -17,12 +17,12 @@
 */
 
 import { randomBytes } from "crypto";
-import { InteractionFailureReason, InteractionSchema } from "@spacebar/schemas";
+import { InteractionFailureReason, InteractionSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, InteractionType, Member, Message, Snowflake } from "@harmony/util";
 import { pendingInteractions } from "@harmony/util/imports/Interactions";
-import { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
+import { InteractionCreateSchema } from "@harmony/schemas/api/bots/InteractionCreateSchema";
 
 const router = Router({ mergeParams: true });
 

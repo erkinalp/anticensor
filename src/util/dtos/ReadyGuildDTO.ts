@@ -17,7 +17,7 @@
 */
 
 import { Channel, Emoji, Guild, Role, Sticker } from "../entities";
-import { ChannelOverride, ChannelType, PublicMember, PublicUser, UserGuildSettings } from "@spacebar/schemas";
+import { ChannelOverride, ChannelType, PublicMember, PublicUser, UserGuildSettings } from "@harmony/schemas";
 
 // TODO: this is not the best place for this type
 export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {

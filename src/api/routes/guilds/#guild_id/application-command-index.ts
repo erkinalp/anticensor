@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, Member, Snowflake } from "@harmony/util";
 import { IsNull } from "typeorm";
-import { ApplicationCommandSchema, ApplicationCommandType } from "@spacebar/schemas";
+import { ApplicationCommandSchema, ApplicationCommandType } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

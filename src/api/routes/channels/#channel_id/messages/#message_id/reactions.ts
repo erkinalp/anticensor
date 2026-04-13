@@ -35,7 +35,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
-import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
+import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: check if emoji is really an unicode emoji or a properly encoded external emoji

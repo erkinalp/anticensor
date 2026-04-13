@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@spacebar/schemas";
+import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
