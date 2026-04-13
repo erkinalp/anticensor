@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelCreateSchema, ChannelReorderSchema } from "@spacebar/schemas";
+import { ChannelCreateSchema, ChannelReorderSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(

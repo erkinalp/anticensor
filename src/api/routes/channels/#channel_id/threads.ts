@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import { handleMessage, postHandleMessage, route, sendMessage } from "@harmony/api";
 import {
     Channel,
     emitEvent,
@@ -31,8 +31,8 @@ import {
     ThreadMember,
     Message,
     ChannelFlags,
-} from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+} from "@harmony/util";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@harmony/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";

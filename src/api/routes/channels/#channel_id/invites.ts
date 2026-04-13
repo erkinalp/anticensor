@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
-import { Channel, Guild, Invite, InviteCreateEvent, PublicInviteRelation, User, emitEvent } from "@spacebar/util";
+import { randomString, route } from "@harmony/api";
+import { Channel, Guild, Invite, InviteCreateEvent, PublicInviteRelation, User, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { InviteCreateSchema, isTextChannel } from "@spacebar/schemas";
+import { InviteCreateSchema, isTextChannel } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

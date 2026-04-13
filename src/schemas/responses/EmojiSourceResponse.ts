@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Emoji } from "@spacebar/util";
+import { Emoji } from "@harmony/util";
 
 export interface EmojiSourceResponse {
     type: "GUILD" | "APPLICATION";

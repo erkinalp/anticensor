@@ -37,7 +37,7 @@ import {
     PublicUser,
     PublicUserProjection,
     UserPrivate,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 import { JsonNumber } from "../util/Decorators";
 
 @Entity({

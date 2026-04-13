@@ -37,7 +37,7 @@ import {
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,
@@ -51,7 +51,7 @@ import {
     PublicVoiceState,
     RelationshipType,
     UserPrivate,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 
 export interface Event {
     guild_id?: string;

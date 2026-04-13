@@ -19,7 +19,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { RelationshipType } from "@spacebar/schemas";
+import { RelationshipType } from "@harmony/schemas";
 
 @Entity({
     name: "relationships",

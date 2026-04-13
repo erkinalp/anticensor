@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, setHeartbeat } from "@spacebar/gateway";
+import { CLOSECODES, setHeartbeat } from "@harmony/gateway";
 import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util";
 
 export async function onHeartbeat(this: WebRtcWebSocket, data: VoicePayload) {

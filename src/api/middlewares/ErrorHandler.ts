@@ -18,7 +18,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
-import { ApiError, FieldError } from "@spacebar/util";
+import { ApiError, FieldError } from "@harmony/util";
 const EntityNotFoundErrorRegex = /"(\w+)"/;
 
 export function ErrorHandler(error: Error & { type?: string }, req: Request, res: Response, next: NextFunction) {

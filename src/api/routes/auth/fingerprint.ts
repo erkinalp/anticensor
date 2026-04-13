@@ -15,9 +15,9 @@
         You should have received a copy of the GNU Affero General Public License
         along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { createHash } from "node:crypto";
-import { Snowflake } from "@spacebar/util";
+import { Snowflake } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 router.post(

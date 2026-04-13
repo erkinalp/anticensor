@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { UploadAttachmentRequestSchema } from "@spacebar/schemas";
-import { Snowflake } from "@spacebar/util";
+import { UploadAttachmentRequestSchema } from "@harmony/schemas";
+import { Snowflake } from "@harmony/util";
 
 export interface SendableModalSubmitDataSchema {
     id: Snowflake;

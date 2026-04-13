@@ -18,7 +18,7 @@
 
 import { MinimalPublicUserDTO } from "./UserDTO";
 import { Channel, User } from "../entities";
-import { PublicUserProjection } from "@spacebar/schemas";
+import { PublicUserProjection } from "@harmony/schemas";
 
 export class DmChannelDTO {
     icon: string | null;

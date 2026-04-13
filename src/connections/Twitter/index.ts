@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "@spacebar/util";
+import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "@harmony/util";
 import wretch from "wretch";
 import { TwitterSettings } from "./TwitterSettings";
-import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
+import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
 
 interface TwitterUserResponse {
     data: {

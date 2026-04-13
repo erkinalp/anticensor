@@ -1,4 +1,4 @@
-import { WebSocket } from "@spacebar/gateway";
+import { WebSocket } from "@harmony/gateway";
 import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
 
 export interface WebRtcWebSocket extends WebSocket {

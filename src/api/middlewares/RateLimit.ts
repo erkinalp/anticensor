@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, getRights, listenEvent, RabbitMQ } from "@spacebar/util";
+import { Config, getRights, listenEvent, RabbitMQ } from "@harmony/util";
 import { NextFunction, Request, Response, Router } from "express";
 import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 

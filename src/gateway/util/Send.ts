@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Payload, WebSocket } from "@spacebar/gateway";
+import { Payload, WebSocket } from "@harmony/gateway";
 import fs from "fs/promises";
 import path from "path";
 
-import { ErlpackType, JSONReplacer } from "@spacebar/util";
+import { ErlpackType, JSONReplacer } from "@harmony/util";
 let erlpack: ErlpackType | null = null;
 try {
     erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;

@@ -32,12 +32,12 @@
         // "baseUrl": "./src/", //deprecated
         "paths": {
             //"*": ["./src/*"],
-            "@spacebar/api*": ["./src/api"],
-            "@spacebar/gateway*": ["./src/gateway"],
-            "@spacebar/cdn*": ["./src/cdn"],
-            "@spacebar/util*": ["./src/util"],
-            "@spacebar/webrtc*": ["./src/webrtc"],
-            "@spacebar/schemas*": ["./src/schemas"],
+            "@harmony/api*": ["./src/api"],
+            "@harmony/gateway*": ["./src/gateway"],
+            "@harmony/cdn*": ["./src/cdn"],
+            "@harmony/util*": ["./src/util"],
+            "@harmony/webrtc*": ["./src/webrtc"],
+            "@harmony/schemas*": ["./src/schemas"],
             "lambert-server*": ["./src/util/util/lambert-server"]
         } /* Specify a set of entries that re-map imports to additional lookup locations. */,
         "rootDir": "./src", // Required as of TypeScript 7

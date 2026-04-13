@@ -18,7 +18,7 @@
 
 import { ConnectedAccount } from "../entities";
 import { Connection } from "./Connection";
-import { ConnectedAccountCommonOAuthTokenResponse } from "@spacebar/schemas";
+import { ConnectedAccountCommonOAuthTokenResponse } from "@harmony/schemas";
 
 /**
  * A connection that can refresh its token.

@@ -1,4 +1,4 @@
-import { VoiceState } from "@spacebar/util";
+import { VoiceState } from "@harmony/util";
 
 export enum PublicVoiceStateEnum {
     user_id,

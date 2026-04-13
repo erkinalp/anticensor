@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Application, Config, createAppBotUser, trimSpecial } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Application, Config, createAppBotUser, trimSpecial } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ApplicationCreateSchema } from "@spacebar/schemas";
+import { ApplicationCreateSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

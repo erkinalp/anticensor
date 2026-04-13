@@ -15,8 +15,8 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { SelectProtocolSchema, validateSchema } from "@spacebar/schemas";
-import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, mediaServer, Send } from "@spacebar/webrtc";
+import { SelectProtocolSchema, validateSchema } from "@harmony/schemas";
+import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, mediaServer, Send } from "@harmony/webrtc";
 
 export async function onSelectProtocol(this: WebRtcWebSocket, payload: VoicePayload) {
     if (!this.webRtcClient) return;

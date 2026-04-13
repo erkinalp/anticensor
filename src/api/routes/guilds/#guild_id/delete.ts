@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Guild, GuildDeleteEvent, emitEvent } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Guild, GuildDeleteEvent, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

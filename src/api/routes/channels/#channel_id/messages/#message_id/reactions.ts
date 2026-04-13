@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import {
     Channel,
     emitEvent,
@@ -31,11 +31,11 @@ import {
     User,
     arrayRemove,
     ReactionType,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
-import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
+import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: check if emoji is really an unicode emoji or a properly encoded external emoji
@@ -229,15 +229,15 @@ router.put(
             ? (
                   await Member.findOneOrFail({
                       where: { id: req.user_id },
-                relations: { roles: true, user: true },
-                select: {
-                    index: true,
-                    ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
-                    user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
-                    roles: {
-                        id: true,
-                    },
-                },
+                      relations: { roles: true, user: true },
+                      select: {
+                          index: true,
+                          ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
+                          user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                          roles: {
+                              id: true,
+                          },
+                      },
                   })
               ).toPublicMember()
             : undefined;

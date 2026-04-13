@@ -17,7 +17,7 @@
 */
 
 // TODO: Clean up
-import { StringStringDictionary } from "@spacebar/schemas";
+import { StringStringDictionary } from "@harmony/schemas";
 
 export type CollectiblesCategoriesResponse = CollectiblesCategoryItem[];
 

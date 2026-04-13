@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { ChannelModifySchema, ChannelType } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel

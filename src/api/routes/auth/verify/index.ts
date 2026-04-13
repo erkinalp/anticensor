@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
+import { route, verifyCaptcha } from "@harmony/api";
+import { checkToken, Config, FieldErrors, generateToken, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

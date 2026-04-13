@@ -16,10 +16,10 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { handleComps, route, sendMessage } from "@spacebar/api";
+import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@harmony/schemas";
+import { handleComps, route, sendMessage } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
+import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@harmony/util";
 import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
@@ -47,9 +47,9 @@ router.post(
             user_id: interaction?.userId,
             data: {
                 id: interactionId,
-            nonce: interaction.nonce ?? "", // TODO: did i do this right?
+                nonce: interaction.nonce ?? "", // TODO: did i do this right?
             },
-    } satisfies InteractionSuccessEvent);
+        } satisfies InteractionSuccessEvent);
 
         switch (body.type) {
             case InteractionCallbackType.PONG:

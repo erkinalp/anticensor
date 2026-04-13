@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { getGifApiKey, parseGifResult } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { TenorCategoriesResults, TenorTrendingResults } from "@spacebar/schemas";
+import { TenorCategoriesResults, TenorTrendingResults } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

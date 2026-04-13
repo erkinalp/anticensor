@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
-import { Channel, Config, Permissions } from "@spacebar/util";
+import { randomString, route } from "@harmony/api";
+import { Channel, Config, Permissions } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { CloudAttachment } from "@spacebar/util";
-import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@spacebar/schemas";
+import { CloudAttachment } from "@harmony/util";
+import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

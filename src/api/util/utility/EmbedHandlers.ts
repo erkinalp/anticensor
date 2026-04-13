@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, MessageUpdateEvent, normalizeUrl, OrmUtils } from "@spacebar/util";
-import { Embed, EmbedImage, EmbedType } from "@spacebar/schemas";
+import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, MessageUpdateEvent, normalizeUrl, OrmUtils } from "@harmony/util";
+import { Embed, EmbedImage, EmbedType } from "@harmony/schemas";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
 import { yellow } from "picocolors";

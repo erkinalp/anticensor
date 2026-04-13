@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { generateToken, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { generateToken, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ExpectedAssertionResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
-import { WebAuthnTotpSchema } from "@spacebar/schemas";
+import { WebAuthnTotpSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 function toArrayBuffer(buf: Buffer) {

@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { FieldErrors } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { FieldErrors } from "@harmony/util";
 import emailProviders from "email-providers/all.json";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "@spacebar/schemas";
+import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

@@ -8,7 +8,7 @@ config({ quiet: true });
 
 process.env.DB_LOGGING = "true";
 
-import { closeDatabase, initDatabase } from "@spacebar/util";
+import { closeDatabase, initDatabase } from "@harmony/util";
 
 async function main() {
     let success = false;

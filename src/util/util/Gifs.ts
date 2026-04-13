@@ -1,6 +1,6 @@
 import { HTTPError } from "lambert-server";
 import { Config } from "./Config";
-import { TenorGif } from "@spacebar/schemas";
+import { TenorGif } from "@harmony/schemas";
 
 export function parseGifResult(result: TenorGif) {
     return {

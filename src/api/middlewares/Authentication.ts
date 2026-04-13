@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { checkToken, Rights, Session, User, UserTokenData } from "@spacebar/util";
+import { checkToken, Rights, Session, User, UserTokenData } from "@harmony/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 

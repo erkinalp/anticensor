@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
+import { ChannelType, VoiceStateUpdateSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 //TODO need more testing when community guild and voice stage channel are working
