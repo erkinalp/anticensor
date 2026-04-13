@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
+import { randomString, route } from "@harmony/api";
 import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";

@@ -18,7 +18,7 @@
 
 import { Config, Guild } from "@spacebar/util";
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Like } from "typeorm";
 

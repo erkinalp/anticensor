@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, emitEvent, GuildRoleCreateEvent, GuildRoleUpdateEvent, Member, Role, Snowflake } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { Not } from "typeorm";

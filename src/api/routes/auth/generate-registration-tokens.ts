@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
+import { randomString, route } from "@harmony/api";
 import { Config, ValidRegistrationToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 

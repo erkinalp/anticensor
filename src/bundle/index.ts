@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "@spacebar/api";
+export * from "@harmony/api";
 export * from "@spacebar/util";
 export * from "@spacebar/gateway";
 export * from "@spacebar/cdn";

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@spacebar/api";
+import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@harmony/api";
 import {
     Application,
     Attachment,

@@ -17,7 +17,7 @@
 */
 
 import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { handleComps, route, sendMessage } from "@spacebar/api";
+import { handleComps, route, sendMessage } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
@@ -47,9 +47,9 @@ router.post(
             user_id: interaction?.userId,
             data: {
                 id: interactionId,
-            nonce: interaction.nonce ?? "", // TODO: did i do this right?
+                nonce: interaction.nonce ?? "", // TODO: did i do this right?
             },
-    } satisfies InteractionSuccessEvent);
+        } satisfies InteractionSuccessEvent);
 
         switch (body.type) {
             case InteractionCallbackType.PONG:

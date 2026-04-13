@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, Emoji, GuildEmojisUpdateEvent, Member, Snowflake, emitEvent, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { EmojiCreateSchema, EmojiModifySchema } from "@spacebar/schemas";

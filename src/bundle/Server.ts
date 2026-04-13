@@ -22,7 +22,7 @@ process.on("unhandledRejection", console.error);
 process.on("uncaughtException", console.error);
 
 import http from "http";
-import * as Api from "@spacebar/api";
+import * as Api from "@harmony/api";
 import * as Gateway from "@spacebar/gateway";
 import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";

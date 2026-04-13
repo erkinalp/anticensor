@@ -17,7 +17,7 @@
 */
 
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@spacebar/schemas";
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, FieldErrors, Guild, Member, Snowflake } from "@spacebar/util";
 

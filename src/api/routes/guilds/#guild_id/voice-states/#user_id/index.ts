@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { ReportMenuType, ReportMenuTypeNames } from "../../../schemas/api/reports/ReportMenu";
 import path from "path";

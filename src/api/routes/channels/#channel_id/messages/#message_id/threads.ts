@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, sendMessage } from "@spacebar/api";
+import { route, sendMessage } from "@harmony/api";
 import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 

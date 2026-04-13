@@ -34,7 +34,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { handleMessage, postHandleMessage, route } from "@harmony/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });

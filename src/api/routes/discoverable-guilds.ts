@@ -18,7 +18,7 @@
 
 import { Config, Guild, Member } from "@spacebar/util";
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { In, Like, Not } from "typeorm";
 import { DiscoverableGuildsResponse } from "@spacebar/schemas";

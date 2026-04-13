@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Channel, FieldErrors, Message, getPermission } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { handleMessage, postHandleMessage, route } from "@harmony/api";
 import {
     Attachment,
     Channel,

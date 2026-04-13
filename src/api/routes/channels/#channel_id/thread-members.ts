@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Channel, emitEvent, Member, Permissions, ThreadCreateEvent, ThreadDeleteEvent, ThreadMember, ThreadMemberFlags, ThreadMembersUpdateEvent } from "@spacebar/util";
 import { ChannelType, Snowflake } from "@spacebar/schemas";
 

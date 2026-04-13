@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Channel, Member, Message } from "@spacebar/util";
 import { PostDataSchema, PublicMessage } from "@spacebar/schemas";
 

@@ -23,7 +23,7 @@ import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "http";
 import { cleanupOnStartup } from "./util";
-import { randomString } from "@spacebar/api";
+import { randomString } from "@harmony/api";
 import { setInterval } from "timers";
 
 export class Server {

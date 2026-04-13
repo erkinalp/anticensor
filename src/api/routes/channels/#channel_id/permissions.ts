@@ -20,7 +20,7 @@ import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@spacebar/
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { ChannelPermissionOverwriteSchema, ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "@spacebar/schemas";
 const router: Router = Router({ mergeParams: true });
 

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";

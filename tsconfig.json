@@ -32,7 +32,7 @@
         // "baseUrl": "./src/", //deprecated
         "paths": {
             //"*": ["./src/*"],
-            "@spacebar/api*": ["./src/api"],
+            "@harmony/api*": ["./src/api"],
             "@spacebar/gateway*": ["./src/gateway"],
             "@spacebar/cdn*": ["./src/cdn"],
             "@spacebar/util*": ["./src/util"],
