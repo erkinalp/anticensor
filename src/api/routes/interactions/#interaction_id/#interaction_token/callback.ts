@@ -19,7 +19,7 @@
 import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
 import { handleComps, route, sendMessage } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
+import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@harmony/util";
 import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });

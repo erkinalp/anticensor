@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { DiscordApiErrors, Guild, Member } from "@spacebar/util";
+import { DiscordApiErrors, Guild, Member } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { makeBadge } from "badge-maker";
 import path from "path";

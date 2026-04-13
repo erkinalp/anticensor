@@ -17,7 +17,7 @@
 */
 
 import { UploadAttachmentRequestSchema } from "@spacebar/schemas";
-import { Snowflake } from "@spacebar/util";
+import { Snowflake } from "@harmony/util";
 
 export interface SendableModalSubmitDataSchema {
     id: Snowflake;

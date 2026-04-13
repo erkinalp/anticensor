@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@spacebar/util";
+import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
 import wretch from "wretch";
 import { RedditSettings } from "./RedditSettings";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";

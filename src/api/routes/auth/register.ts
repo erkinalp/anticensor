@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@spacebar/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

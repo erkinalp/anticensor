@@ -37,7 +37,7 @@ import {
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,

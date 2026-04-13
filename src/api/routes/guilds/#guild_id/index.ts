@@ -17,20 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import {
-    Channel,
-    DiscordApiErrors,
-    Guild,
-    GuildUpdateEvent,
-    Member,
-    Permissions,
-    SpacebarApiErrors,
-    emitEvent,
-    getPermission,
-    getRights,
-    handleFile,
-    Config,
-} from "@spacebar/util";
+import { Channel, DiscordApiErrors, Guild, GuildUpdateEvent, Member, Permissions, SpacebarApiErrors, emitEvent, getPermission, getRights, handleFile, Config } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { GuildCreateResponse, GuildUpdateSchema } from "@spacebar/schemas";

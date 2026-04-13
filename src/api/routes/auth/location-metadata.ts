@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { IpDataClient } from "@spacebar/util";
+import { IpDataClient } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

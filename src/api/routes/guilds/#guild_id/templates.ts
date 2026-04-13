@@ -17,7 +17,7 @@
 */
 
 import { generateCode, route } from "@harmony/api";
-import { Guild, Template } from "@spacebar/util";
+import { Guild, Template } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

@@ -17,7 +17,7 @@
 */
 
 import { Server, ServerOptions } from "lambert-server";
-import { Attachment, Config, initDatabase, registerRoutes } from "@spacebar/util";
+import { Attachment, Config, initDatabase, registerRoutes } from "@harmony/util";
 import { CORS, BodyParser } from "@harmony/api";
 import path from "path";
 import guildProfilesRoute from "./routes/guild-profiles";

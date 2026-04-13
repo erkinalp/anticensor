@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, Relationship, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@spacebar/util";
+import { Config, DiscordApiErrors, Relationship, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { PublicUserProjection, RelationshipType, RelationshipPatchSchema } from "@spacebar/schemas";

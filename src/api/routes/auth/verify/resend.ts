@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Email, User } from "@spacebar/util";
+import { Email, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 const router = Router({ mergeParams: true });

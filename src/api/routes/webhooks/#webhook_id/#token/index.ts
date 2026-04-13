@@ -1,5 +1,5 @@
 import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook, WebhooksUpdateEvent } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook, WebhooksUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";

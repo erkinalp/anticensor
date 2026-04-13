@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { DiscordApiErrors, FieldErrors, generateWebAuthnTicket, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import { DiscordApiErrors, FieldErrors, generateWebAuthnTicket, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { ExpectedAttestationResult } from "fido2-lib";

@@ -18,7 +18,7 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "@harmony/api";
-import { Team, TeamMember, User } from "@spacebar/util";
+import { Team, TeamMember, User } from "@harmony/util";
 import { HTTPError } from "lambert-server";
 import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
 

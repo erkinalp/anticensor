@@ -22,7 +22,7 @@ import { ReportMenuType, ReportMenuTypeNames } from "../../../schemas/api/report
 import path from "path";
 import { HTTPError } from "lambert-server";
 import { CreateReportSchema } from "../../../schemas/api/reports/CreateReport";
-import { FieldErrors } from "@spacebar/util";
+import { FieldErrors } from "@harmony/util";
 import fs from "fs";
 
 const router = Router({ mergeParams: true });

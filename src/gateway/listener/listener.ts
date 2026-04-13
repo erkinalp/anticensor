@@ -30,7 +30,7 @@ import {
     RabbitMQ,
     Recipient,
     Relationship,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { CLOSECODES, OPCODES, Send } from "../util";
 import { WebSocket } from "@harmony/gateway";
 import { Channel as AMQChannel } from "amqplib";

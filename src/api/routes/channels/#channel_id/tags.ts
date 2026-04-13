@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { TagCreateSchema } from "@spacebar/schemas";
 import { HTTPError } from "#util/util/lambert-server";

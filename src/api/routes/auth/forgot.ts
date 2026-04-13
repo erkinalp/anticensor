@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, Email, User } from "@spacebar/util";
+import { Config, Email, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ForgotPasswordSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });

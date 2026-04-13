@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Emoji, Role, Sticker } from "@spacebar/util";
+import { Emoji, Role, Sticker } from "@harmony/util";
 import { GuildCreateResponse } from "@spacebar/schemas";
 
 export interface MemberJoinGuildResponse {

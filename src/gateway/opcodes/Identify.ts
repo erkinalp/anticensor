@@ -56,7 +56,7 @@ import {
     UserSettings,
     UserSettingsProtos,
     VoiceState,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { check } from "./instanceOf";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";

@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { route } from "@harmony/api";
-import { DiscordApiErrors, Guild } from "@spacebar/util";
+import { DiscordApiErrors, Guild } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import fs from "fs";
 import { HTTPError } from "lambert-server";

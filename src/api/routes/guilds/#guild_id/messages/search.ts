@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
+import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";

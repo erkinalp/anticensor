@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, Guild, Member } from "@spacebar/util";
+import { Channel, Guild, Member } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { GuildUpdateWelcomeScreenSchema } from "@spacebar/schemas";
 

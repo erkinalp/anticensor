@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@harmony/util";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

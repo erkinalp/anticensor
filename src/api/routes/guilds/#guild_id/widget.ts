@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Guild } from "@spacebar/util";
+import { Guild } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { WidgetModifySchema } from "@spacebar/schemas";
 

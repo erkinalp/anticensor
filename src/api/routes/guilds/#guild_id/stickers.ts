@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "@spacebar/util";
+import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";

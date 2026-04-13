@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions } from "@spacebar/util";
+import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeProfileSchema } from "@spacebar/schemas";
 

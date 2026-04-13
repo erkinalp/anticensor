@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { BackupCode, DiscordApiErrors, User, generateMfaBackupCodes } from "@spacebar/util";
+import { BackupCode, DiscordApiErrors, User, generateMfaBackupCodes } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { CodesVerificationSchema } from "@spacebar/schemas";
 

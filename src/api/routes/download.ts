@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { FieldErrors, ClientRelease } from "@spacebar/util";
+import { FieldErrors, ClientRelease } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

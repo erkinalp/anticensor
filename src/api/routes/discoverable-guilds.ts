@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild, Member } from "@spacebar/util";
+import { Config, Guild, Member } from "@harmony/util";
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";

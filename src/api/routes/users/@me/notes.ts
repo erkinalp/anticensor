@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Note, Snowflake, User, emitEvent } from "@spacebar/util";
+import { Note, Snowflake, User, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

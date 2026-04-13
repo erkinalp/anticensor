@@ -18,7 +18,7 @@
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { emitEvent, Session } from "@spacebar/util";
+import { emitEvent, Session } from "@harmony/util";
 
 const router: Router = Router({ mergeParams: true });
 export default router;

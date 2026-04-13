@@ -35,7 +35,7 @@
             "@harmony/api*": ["./src/api"],
             "@harmony/gateway*": ["./src/gateway"],
             "@harmony/cdn*": ["./src/cdn"],
-            "@spacebar/util*": ["./src/util"],
+            "@harmony/util*": ["./src/util"],
             "@spacebar/webrtc*": ["./src/webrtc"],
             "@spacebar/schemas*": ["./src/schemas"],
             "lambert-server*": ["./src/util/util/lambert-server"]

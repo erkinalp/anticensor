@@ -1,5 +1,5 @@
 import { handleMessage, postHandleMessage } from "@harmony/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, uploadFile, ValidateName, Webhook } from "@harmony/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { User, UserSettings, emitEvent, Session, PresenceUpdateEvent } from "@spacebar/util";
+import { User, UserSettings, emitEvent, Session, PresenceUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { UserSettingsUpdateSchema } from "@spacebar/schemas";
 

@@ -17,10 +17,10 @@
 */
 
 import { route } from "@harmony/api";
-import { Ban, DiscordApiErrors, GuildBanAddEvent, Member, User, emitEvent } from "@spacebar/util";
+import { Ban, DiscordApiErrors, GuildBanAddEvent, Member, User, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { Config } from "@spacebar/util";
+import { Config } from "@harmony/util";
 
 const router: Router = Router({ mergeParams: true });
 

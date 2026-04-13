@@ -17,7 +17,7 @@
 */
 
 import { getVoiceRegions, route } from "@harmony/api";
-import { Guild } from "@spacebar/util";
+import { Guild } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

@@ -19,7 +19,7 @@
 import { OPCODES, Payload, WebSocket } from "@harmony/gateway";
 import { setHeartbeat } from "../util/Heartbeat";
 import { Send } from "../util/Send";
-import { Session } from "@spacebar/util";
+import { Session } from "@harmony/util";
 import { FindOptionsWhere } from "typeorm";
 
 interface QoSData {

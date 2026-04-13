@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { User, generateMfaBackupCodes, generateToken } from "@spacebar/util";
+import { User, generateMfaBackupCodes, generateToken } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

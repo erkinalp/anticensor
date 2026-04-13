@@ -17,7 +17,7 @@
 */
 
 import { WebSocket } from "@harmony/gateway";
-import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());

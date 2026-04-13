@@ -18,7 +18,7 @@
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { emitEvent, OrmUtils, UserSettingsProtos } from "@spacebar/util";
+import { emitEvent, OrmUtils, UserSettingsProtos } from "@harmony/util";
 import { FrecencyUserSettings } from "discord-protos";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { SettingsProtoJsonResponse, SettingsProtoResponse, SettingsProtoUpdateJsonSchema, SettingsProtoUpdateSchema } from "@spacebar/schemas";

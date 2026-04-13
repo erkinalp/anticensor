@@ -32,7 +32,7 @@ import {
     User,
     UserDeleteEvent,
     UserSettingsProtos,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@spacebar/schemas";
 import { Not } from "typeorm";

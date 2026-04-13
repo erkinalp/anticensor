@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { SecurityKey, User } from "@spacebar/util";
+import { SecurityKey, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

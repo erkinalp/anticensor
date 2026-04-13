@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
+import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 

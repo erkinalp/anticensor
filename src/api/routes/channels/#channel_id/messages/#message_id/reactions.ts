@@ -31,7 +31,7 @@ import {
     User,
     arrayRemove,
     ReactionType,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { StickerPack } from "@spacebar/util";
+import { StickerPack } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

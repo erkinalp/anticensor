@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, Message } from "@spacebar/util";
+import { Config, Message } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });

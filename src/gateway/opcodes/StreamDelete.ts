@@ -1,5 +1,5 @@
 import { parseStreamKey, Payload, WebSocket } from "@harmony/gateway";
-import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
 

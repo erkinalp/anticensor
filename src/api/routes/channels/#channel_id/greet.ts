@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
+import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { GreetRequestSchema, MessageType } from "@spacebar/schemas";

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Member, Session, Presence, timePromise, Stopwatch, Config } from "@spacebar/util";
+import { Member, Session, Presence, timePromise, Stopwatch, Config } from "@harmony/util";
 import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession, handleOffloadedGatewayRequest } from "@harmony/gateway";
 import { PublicMember } from "@spacebar/schemas";
 import { In } from "typeorm";

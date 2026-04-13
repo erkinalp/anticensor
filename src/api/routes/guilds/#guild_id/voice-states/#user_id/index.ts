@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
 

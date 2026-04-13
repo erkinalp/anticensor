@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message } from "@spacebar/util";
+import { Message } from "@harmony/util";
 
 export type PreloadMessagesResponseSchema = Message[];

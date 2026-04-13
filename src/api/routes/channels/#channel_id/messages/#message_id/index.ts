@@ -30,7 +30,7 @@ import {
     getRights,
     uploadFile,
     NewUrlUserSignatureData,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";

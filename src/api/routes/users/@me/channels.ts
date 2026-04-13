@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, DmChannelDTO, Recipient } from "@spacebar/util";
+import { Channel, DmChannelDTO, Recipient } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { DmChannelCreateSchema } from "@spacebar/schemas";
 

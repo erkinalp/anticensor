@@ -17,7 +17,7 @@
 */
 
 import { randomString, route } from "@harmony/api";
-import { Config, ValidRegistrationToken } from "@spacebar/util";
+import { Config, ValidRegistrationToken } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

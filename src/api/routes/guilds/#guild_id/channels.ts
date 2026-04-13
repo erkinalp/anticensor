@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });

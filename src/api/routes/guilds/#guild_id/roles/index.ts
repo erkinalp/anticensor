@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, emitEvent, GuildRoleCreateEvent, GuildRoleUpdateEvent, Member, Role, Snowflake } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, GuildRoleCreateEvent, GuildRoleUpdateEvent, Member, Role, Snowflake } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { Not } from "typeorm";
 import { RoleModifySchema, RolePositionUpdateSchema } from "@spacebar/schemas";

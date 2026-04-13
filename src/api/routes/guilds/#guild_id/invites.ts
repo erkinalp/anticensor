@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Invite, PublicInviteRelation } from "@spacebar/util";
+import { Invite, PublicInviteRelation } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

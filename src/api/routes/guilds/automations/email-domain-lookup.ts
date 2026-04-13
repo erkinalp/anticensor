@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { FieldErrors } from "@spacebar/util";
+import { FieldErrors } from "@harmony/util";
 import emailProviders from "email-providers/all.json";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

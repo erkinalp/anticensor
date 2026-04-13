@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, Member, Message } from "@spacebar/util";
+import { Channel, Member, Message } from "@harmony/util";
 import { PostDataSchema, PublicMessage } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";

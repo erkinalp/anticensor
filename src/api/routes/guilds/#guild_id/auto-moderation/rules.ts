@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { User, AutomodRule } from "@spacebar/util";
+import { User, AutomodRule } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { AutomodRuleSchema } from "@spacebar/schemas";

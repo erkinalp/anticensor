@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { getPermission, Member, PermissionResolvable } from "@spacebar/util";
+import { getPermission, Member, PermissionResolvable } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

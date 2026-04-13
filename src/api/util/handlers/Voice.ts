@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, IpDataClient } from "@spacebar/util";
+import { Config, IpDataClient } from "@harmony/util";
 import { distanceBetweenLocations } from "../utility/ipAddress";
 
 export async function getVoiceRegions(ipAddress: string, vip: boolean) {

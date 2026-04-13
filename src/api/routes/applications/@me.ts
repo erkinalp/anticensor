@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Application, Guild, handleFile } from "@spacebar/util";
+import { Application, Guild, handleFile } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ApplicationModifySchema } from "@spacebar/schemas";

@@ -17,7 +17,7 @@
 */
 
 import { PublicMember, PublicUser, Snowflake } from "@spacebar/schemas";
-import { Channel, InteractionType, Message } from "@spacebar/util";
+import { Channel, InteractionType, Message } from "@harmony/util";
 
 export interface InteractionCreateSchema {
     version: number; // TODO: types?

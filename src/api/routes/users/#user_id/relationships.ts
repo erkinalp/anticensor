@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { User } from "@spacebar/util";
+import { User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { UserRelationsResponse } from "@spacebar/schemas";
 

@@ -17,7 +17,7 @@
 */
 
 import { CLOSECODES, Payload, WebSocket } from "@harmony/gateway";
-import { ErlpackType } from "@spacebar/util";
+import { ErlpackType } from "@harmony/util";
 import fs from "fs/promises";
 import BigIntJson from "json-bigint";
 import path from "path";

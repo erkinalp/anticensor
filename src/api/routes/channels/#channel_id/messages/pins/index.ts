@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 

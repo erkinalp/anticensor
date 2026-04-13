@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, Webhook } from "@spacebar/util";
+import { Config, Webhook } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

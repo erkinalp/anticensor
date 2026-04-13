@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Guild, Member, User, UserSettingsProtos } from "@spacebar/util";
+import { Guild, Member, User, UserSettingsProtos } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";

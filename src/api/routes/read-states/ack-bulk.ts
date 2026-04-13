@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { ReadState } from "@spacebar/util";
+import { ReadState } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { AckBulkSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });

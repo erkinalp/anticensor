@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
+import { checkToken, Config, FieldErrors, generateToken, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

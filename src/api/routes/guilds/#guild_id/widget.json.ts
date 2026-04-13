@@ -17,7 +17,7 @@
 */
 
 import { randomString, route } from "@harmony/api";
-import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
 

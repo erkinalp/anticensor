@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, Guild, Member, Tag, Template } from "@spacebar/util";
+import { Config, DiscordApiErrors, Guild, Member, Tag, Template } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, GuildTemplateCreateSchema } from "@spacebar/schemas";

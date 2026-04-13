@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { ConnectionStore, emitEvent, FieldErrors } from "@spacebar/util";
+import { ConnectionStore, emitEvent, FieldErrors } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ConnectionCallbackSchema } from "@spacebar/schemas";
 

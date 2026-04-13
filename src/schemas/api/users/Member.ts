@@ -1,5 +1,5 @@
 import { PublicUser } from "@spacebar/schemas";
-import { Member } from "@spacebar/util";
+import { Member } from "@harmony/util";
 
 export interface ChannelOverride {
     message_notifications: number;

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, Guild, Invite } from "@spacebar/util";
+import { Channel, Guild, Invite } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";

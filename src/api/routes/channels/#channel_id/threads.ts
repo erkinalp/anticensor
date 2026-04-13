@@ -31,7 +31,7 @@ import {
     ThreadMember,
     Message,
     ChannelFlags,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";

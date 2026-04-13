@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionType, Snowflake } from "@spacebar/util";
+import { InteractionType, Snowflake } from "@harmony/util";
 import { AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
 
 export type MessageCreateAttachment = {

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Guild, Member, Snowflake } from "@spacebar/util";
+import { Guild, Member, Snowflake } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { IsNull, LessThan } from "typeorm";
 const router = Router({ mergeParams: true });

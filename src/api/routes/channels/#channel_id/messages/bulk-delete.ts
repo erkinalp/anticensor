@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@spacebar/util";
+import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

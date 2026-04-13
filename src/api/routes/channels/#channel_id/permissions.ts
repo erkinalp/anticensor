@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

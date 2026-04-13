@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "@spacebar/util";
+import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "@harmony/util";
 import wretch from "wretch";
 import { SpotifySettings } from "./SpotifySettings";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";

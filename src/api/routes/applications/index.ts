@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Application, Config, createAppBotUser, trimSpecial } from "@spacebar/util";
+import { Application, Config, createAppBotUser, trimSpecial } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ApplicationCreateSchema } from "@spacebar/schemas";
 

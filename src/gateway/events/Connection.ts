@@ -27,7 +27,7 @@ import { Close } from "./Close";
 import { Message } from "./Message";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "url";
-import { Config, ErlpackType } from "@spacebar/util";
+import { Config, ErlpackType } from "@harmony/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
 
 let erlpack: ErlpackType | null = null;

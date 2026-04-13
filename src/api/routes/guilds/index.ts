@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, Guild, Member, getRights } from "@spacebar/util";
+import { Config, DiscordApiErrors, Guild, Member, getRights } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { GuildCreateSchema } from "@spacebar/schemas";
 

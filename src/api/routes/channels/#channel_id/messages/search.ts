@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
 import { route } from "@harmony/api";
-import { Channel, FieldErrors, Message, getPermission } from "@spacebar/util";
+import { Channel, FieldErrors, Message, getPermission } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { FindManyOptions, Like } from "typeorm";

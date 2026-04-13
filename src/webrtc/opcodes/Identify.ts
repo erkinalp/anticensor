@@ -17,7 +17,7 @@
 */
 
 import { CLOSECODES } from "@harmony/gateway";
-import { StreamSession, VoiceState } from "@spacebar/util";
+import { StreamSession, VoiceState } from "@harmony/util";
 import { validateSchema, VoiceIdentifySchema } from "@spacebar/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@spacebar/webrtc";
 import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";

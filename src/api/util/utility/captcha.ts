@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { Config } from "@harmony/util";
 
 export interface hcaptchaResponse {
     success: boolean;

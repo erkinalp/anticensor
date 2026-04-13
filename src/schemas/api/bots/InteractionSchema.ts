@@ -17,7 +17,7 @@
 */
 
 import { ApplicationCommandOption, Snowflake, UploadAttachmentRequestSchema } from "@spacebar/schemas";
-import { InteractionType } from "@spacebar/util";
+import { InteractionType } from "@harmony/util";
 
 export interface InteractionSchema {
     type: InteractionType;

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@spacebar/util";
+import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@harmony/util";
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";

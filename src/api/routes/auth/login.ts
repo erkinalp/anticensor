@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@spacebar/util";
+import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@harmony/util";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";

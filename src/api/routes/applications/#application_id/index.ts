@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Application, DiscordApiErrors, FieldErrors, Guild, handleFile, User } from "@spacebar/util";
+import { Application, DiscordApiErrors, FieldErrors, Guild, handleFile, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";

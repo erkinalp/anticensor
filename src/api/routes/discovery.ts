@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Categories } from "@spacebar/util";
+import { Categories } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

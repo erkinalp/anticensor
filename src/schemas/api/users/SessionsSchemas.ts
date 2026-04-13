@@ -17,7 +17,7 @@
 */
 
 import { ActivitySchema, Snowflake } from "@spacebar/schemas";
-import { ClientStatus } from "@spacebar/util";
+import { ClientStatus } from "@harmony/util";
 
 export type SessionsLogoutSchema = { session_ids?: Snowflake[]; session_id_hashes?: string[] };
 export type GetSessionsResponse = { user_sessions: DeviceInfo[] };

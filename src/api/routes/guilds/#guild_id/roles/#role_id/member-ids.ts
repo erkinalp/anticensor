@@ -17,7 +17,7 @@
 */
 
 import { Router, Request, Response } from "express";
-import { Member } from "@spacebar/util";
+import { Member } from "@harmony/util";
 import { route } from "@harmony/api";
 
 const router = Router({ mergeParams: true });

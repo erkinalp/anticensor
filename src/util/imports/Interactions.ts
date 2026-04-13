@@ -17,7 +17,7 @@
 */
 
 import { ApplicationCommandType } from "@spacebar/schemas";
-import { InteractionType, Snowflake } from "@spacebar/util";
+import { InteractionType, Snowflake } from "@harmony/util";
 
 interface PendingInteraction {
     timeout: NodeJS.Timeout;

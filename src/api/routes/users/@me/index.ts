@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
+import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";

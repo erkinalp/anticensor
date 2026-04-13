@@ -28,7 +28,7 @@ import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@harmony/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
-import { Config, initDatabase } from "@spacebar/util";
+import { Config, initDatabase } from "@harmony/util";
 import fs from "fs";
 import cluster from "cluster";
 
