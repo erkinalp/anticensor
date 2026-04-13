@@ -18,5 +18,5 @@
 
 export * from "@harmony/api";
 export * from "@spacebar/util";
-export * from "@spacebar/gateway";
+export * from "@harmony/gateway";
 export * from "@spacebar/cdn";

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES } from "@spacebar/gateway";
+import { CLOSECODES } from "@harmony/gateway";
 import { StreamSession, VoiceState } from "@spacebar/util";
 import { validateSchema, VoiceIdentifySchema } from "@spacebar/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@spacebar/webrtc";

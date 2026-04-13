@@ -1,4 +1,4 @@
-import { WebSocket, Payload } from "@spacebar/gateway";
+import { WebSocket, Payload } from "@harmony/gateway";
 import { onLazyRequest } from "./LazyRequest";
 import { GuildSubscriptionsBulkSchema } from "@spacebar/schemas";
 import { check } from "./instanceOf";

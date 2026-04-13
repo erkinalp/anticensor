@@ -1,4 +1,4 @@
-import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@spacebar/gateway";
+import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@harmony/gateway";
 import {
     Channel,
     Config,

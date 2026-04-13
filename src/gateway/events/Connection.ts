@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WS from "ws";
-import { genSessionId, WebSocket } from "@spacebar/gateway";
+import { genSessionId, WebSocket } from "@harmony/gateway";
 import { Send } from "../util/Send";
 import { CLOSECODES, OPCODES } from "../util/Constants";
 import { setHeartbeat } from "../util/Heartbeat";

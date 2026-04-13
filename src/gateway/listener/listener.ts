@@ -32,7 +32,7 @@ import {
     Relationship,
 } from "@spacebar/util";
 import { CLOSECODES, OPCODES, Send } from "../util";
-import { WebSocket } from "@spacebar/gateway";
+import { WebSocket } from "@harmony/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicMember, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";

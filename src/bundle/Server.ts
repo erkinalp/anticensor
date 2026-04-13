@@ -23,7 +23,7 @@ process.on("uncaughtException", console.error);
 
 import http from "http";
 import * as Api from "@harmony/api";
-import * as Gateway from "@spacebar/gateway";
+import * as Gateway from "@harmony/gateway";
 import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";
 import express from "express";

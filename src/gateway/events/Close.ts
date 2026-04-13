@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@spacebar/gateway";
+import { WebSocket } from "@harmony/gateway";
 import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {

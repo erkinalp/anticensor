@@ -17,7 +17,7 @@
 */
 
 import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
+import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
 import { RequestGuildMembersSchema } from "@spacebar/schemas";

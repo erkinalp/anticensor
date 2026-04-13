@@ -1,4 +1,4 @@
-import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
+import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "@harmony/gateway";
 import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { Not } from "typeorm";

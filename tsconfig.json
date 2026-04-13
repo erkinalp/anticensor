@@ -33,7 +33,7 @@
         "paths": {
             //"*": ["./src/*"],
             "@harmony/api*": ["./src/api"],
-            "@spacebar/gateway*": ["./src/gateway"],
+            "@harmony/gateway*": ["./src/gateway"],
             "@spacebar/cdn*": ["./src/cdn"],
             "@spacebar/util*": ["./src/util"],
             "@spacebar/webrtc*": ["./src/webrtc"],

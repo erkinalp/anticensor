@@ -17,7 +17,7 @@
 */
 
 import { Member, Session, Presence, timePromise, Stopwatch, Config } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession, handleOffloadedGatewayRequest } from "@spacebar/gateway";
+import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession, handleOffloadedGatewayRequest } from "@harmony/gateway";
 import { PublicMember } from "@spacebar/schemas";
 import { In } from "typeorm";
 

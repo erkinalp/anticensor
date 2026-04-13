@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket, Payload } from "@spacebar/gateway";
+import { WebSocket, Payload } from "@harmony/gateway";
 import { emitEvent, PresenceUpdateEvent, Session, User } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { ActivitySchema } from "@spacebar/schemas";

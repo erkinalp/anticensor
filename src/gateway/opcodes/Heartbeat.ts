@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { OPCODES, Payload, WebSocket } from "@spacebar/gateway";
+import { OPCODES, Payload, WebSocket } from "@harmony/gateway";
 import { setHeartbeat } from "../util/Heartbeat";
 import { Send } from "../util/Send";
 import { Session } from "@spacebar/util";

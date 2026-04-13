@@ -17,7 +17,7 @@
 */
 
 import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "@spacebar/util";
-import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@spacebar/gateway";
+import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";

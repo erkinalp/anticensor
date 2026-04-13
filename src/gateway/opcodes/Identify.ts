@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@harmony/gateway";
 import {
     arrayGroupBy,
     Application,
