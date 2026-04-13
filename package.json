@@ -124,7 +124,7 @@
         "@harmony/cdn": "dist/cdn",
         "@harmony/gateway": "dist/gateway",
         "@harmony/util": "dist/util",
-        "@spacebar/webrtc": "dist/webrtc",
+        "@harmony/webrtc": "dist/webrtc",
         "@spacebar/schemas": "dist/schemas",
         "lambert-server": "dist/util/util/lambert-server"
     },

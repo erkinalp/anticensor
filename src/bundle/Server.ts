@@ -24,7 +24,7 @@ process.on("uncaughtException", console.error);
 import http from "http";
 import * as Api from "@harmony/api";
 import * as Gateway from "@harmony/gateway";
-import * as Webrtc from "@spacebar/webrtc";
+import * as Webrtc from "@harmony/webrtc";
 import { CDNServer } from "@harmony/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
