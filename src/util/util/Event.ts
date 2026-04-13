@@ -91,10 +91,11 @@ export async function initEvent() {
     }
 
     // Set up the spacebar event listener (used for config reload, etc.)
-    const setupSpacebarListener = async () => {
-        console.log("[Event] Setting up spacebar event listener");
+    const setupHarmonyListener = async () => {
+        console.log("[Event] Setting up harmony event listener");
+        //TODO where in the world is this from??? leaving in place to not break things, does this even fire?
         await listenEvent("spacebar", async (event) => {
-            console.log("[Event] Received spacebar event:", event);
+            console.log("[Event] Received harmony event:", event);
             if ((event.event as string) === "SB_RELOAD_CONFIG") {
                 console.log("[Event] Reloading config due to RELOAD_CONFIG event");
                 await Config.init(true);
@@ -103,12 +104,12 @@ export async function initEvent() {
     };
 
     // Initial setup
-    await setupSpacebarListener();
+    await setupHarmonyListener();
 
     // Re-establish listener on reconnection
     RabbitMQ.on("reconnected", async () => {
-        console.log("[Event] RabbitMQ reconnected, re-establishing spacebar listener");
-        await setupSpacebarListener();
+        console.log("[Event] RabbitMQ reconnected, re-establishing harmony listener");
+        await setupHarmonyListener();
     });
 }
 
