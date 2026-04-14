@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Session } from "@spacebar/util";
+import { Session } from "@harmony/util";
 
 export function genSessionId() {
     return genRanHex(32);

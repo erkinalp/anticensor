@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { FieldErrors, User } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { FieldErrors, User } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { BackupCodesChallengeSchema } from "@spacebar/schemas";
+import { BackupCodesChallengeSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(

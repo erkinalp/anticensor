@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandOption, Snowflake, UploadAttachmentRequestSchema } from "@spacebar/schemas";
-import { InteractionType } from "@spacebar/util";
+import { ApplicationCommandOption, Snowflake, UploadAttachmentRequestSchema } from "@harmony/schemas";
+import { InteractionType } from "@harmony/util";
 
 export interface InteractionSchema {
     type: InteractionType;

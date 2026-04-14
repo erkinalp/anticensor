@@ -18,9 +18,9 @@
 
 import { GeneralConfiguration, LimitsConfiguration } from "../../util/config/types";
 import { DmChannelDTO } from "../../util/dtos";
-import { Application, BackupCode, Categories, Channel, Emoji, Guild, Invite, Member, Message, Role, Sticker, StickerPack, Template, Webhook } from "@spacebar/util";
+import { Application, BackupCode, Categories, Channel, Emoji, Guild, Invite, Member, Message, Role, Sticker, StickerPack, Template, Webhook } from "@harmony/util";
 import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
-import { GuildBansResponse, GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
+import { GuildBansResponse, GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@harmony/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class

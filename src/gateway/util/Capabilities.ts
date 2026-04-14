@@ -1,4 +1,4 @@
-import { BitField, BitFieldResolvable, BitFlag } from "@spacebar/util";
+import { BitField, BitFieldResolvable, BitFlag } from "@harmony/util";
 
 export type CapabilityResolvable = BitFieldResolvable | CapabilityString;
 type CapabilityString = keyof typeof Capabilities.FLAGS;

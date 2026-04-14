@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@spacebar/gateway";
+import { WebSocket } from "@harmony/gateway";
 
 export async function onClose(this: WebSocket, code: number, reason: string) {
     console.log("[WebRTC] closed", code, reason.toString());

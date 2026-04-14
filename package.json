@@ -1,7 +1,7 @@
 {
-    "name": "spacebar-server",
+    "name": "harmony-server",
     "version": "1.0.0",
-    "description": "A Spacebar server written in Node.js",
+    "description": "A Harmony server written in Node.js",
     "scripts": {
         "prepare": "husky install",
         "postinstall": "patch-package",
@@ -31,17 +31,17 @@
     "types": "src/bundle/index.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/spacebarchat/server.git"
+        "url": "git+https://codeberg.org/MelodyChat/Harmony.git"
     },
-    "author": "Spacebar",
+    "author": "MelodyChat",
     "license": "AGPL-3.0-only",
     "bugs": {
-        "url": "https://github.com/spacebarchat/server/issues"
+        "url": "https://codeberg.org/MelodyChat/Harmony/issues"
     },
     "imports": {
         "#*": "./dist/*/index.js"
     },
-    "homepage": "https://spacebar.chat",
+    "homepage": "https://redir.fermi.chat/home",
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^9.14.0",
@@ -120,12 +120,12 @@
         "ws": "^8.20.0"
     },
     "_moduleAliases": {
-        "@spacebar/api": "dist/api",
-        "@spacebar/cdn": "dist/cdn",
-        "@spacebar/gateway": "dist/gateway",
-        "@spacebar/util": "dist/util",
-        "@spacebar/webrtc": "dist/webrtc",
-        "@spacebar/schemas": "dist/schemas",
+        "@harmony/api": "dist/api",
+        "@harmony/cdn": "dist/cdn",
+        "@harmony/gateway": "dist/gateway",
+        "@harmony/util": "dist/util",
+        "@harmony/webrtc": "dist/webrtc",
+        "@harmony/schemas": "dist/schemas",
         "lambert-server": "dist/util/util/lambert-server"
     },
     "optionalDependencies": {

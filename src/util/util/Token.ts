@@ -24,7 +24,7 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
-import { randomUpperString } from "@spacebar/api";
+import { randomUpperString } from "@harmony/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "path";

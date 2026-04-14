@@ -1,8 +1,8 @@
-import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
-import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession } from "@spacebar/util";
+import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "@harmony/gateway";
+import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession } from "@harmony/util";
 import { check } from "./instanceOf";
 import { Not } from "typeorm";
-import { StreamWatchSchema } from "@spacebar/schemas";
+import { StreamWatchSchema } from "@harmony/schemas";
 
 export async function onStreamWatch(this: WebSocket, data: Payload) {
     const startTime = Date.now();

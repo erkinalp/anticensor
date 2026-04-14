@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Application, Guild, handleFile } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Application, Guild, handleFile } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { ApplicationModifySchema } from "@spacebar/schemas";
+import { ApplicationModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

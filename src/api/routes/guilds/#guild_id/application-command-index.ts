@@ -16,11 +16,11 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, Member, Snowflake } from "@harmony/util";
 import { IsNull } from "typeorm";
-import { ApplicationCommandSchema, ApplicationCommandType } from "@spacebar/schemas";
+import { ApplicationCommandSchema, ApplicationCommandType } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

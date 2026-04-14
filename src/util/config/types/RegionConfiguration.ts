@@ -16,15 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Region } from "@spacebar/schemas";
+import { Region } from "@harmony/schemas";
 
 export class RegionConfiguration {
-    default: string = "spacebar";
+    default: string = "harmony";
     useDefaultAsOptimal: boolean = true;
     available: Region[] = [
         {
-            id: "spacebar",
-            name: "spacebar",
+            id: "harmony",
+            name: "harmony",
             endpoint: "127.0.0.1:3004",
             vip: false,
             custom: false,

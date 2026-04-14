@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@spacebar/api";
+import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@harmony/api";
 import {
     Application,
     Attachment,
@@ -50,7 +50,7 @@ import {
     MessageFlags,
     FieldErrors,
     Snowflake,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
 import {
@@ -70,7 +70,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
     PartialUser,
-} from "@spacebar/schemas";
+} from "@harmony/schemas";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images

@@ -22,7 +22,7 @@ import { BaseClass } from "./BaseClass";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";
-import { WebhookType } from "@spacebar/schemas";
+import { WebhookType } from "@harmony/schemas";
 
 @Entity({
     name: "webhooks",

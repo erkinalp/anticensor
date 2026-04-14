@@ -1,7 +1,7 @@
-import { parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { parseStreamKey, Payload, WebSocket } from "@harmony/gateway";
+import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { check } from "./instanceOf";
-import { StreamDeleteSchema } from "@spacebar/schemas";
+import { StreamDeleteSchema } from "@harmony/schemas";
 
 export async function onStreamDelete(this: WebSocket, data: Payload) {
     const startTime = Date.now();

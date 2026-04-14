@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { CollectiblesShopResponse } from "@spacebar/schemas";
+import { CollectiblesShopResponse } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

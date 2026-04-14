@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { emitEvent, getPermission, MessageAckEvent, ReadState } from "@harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

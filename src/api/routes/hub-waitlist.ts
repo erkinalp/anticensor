@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@spacebar/schemas";
+import { route } from "@harmony/api";
+import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

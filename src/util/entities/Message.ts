@@ -33,11 +33,17 @@ import {
     ApplicationCommandType,
     BaseMessageComponents,
     Embed,
-    MessageComponentType, MessageSnapshot, MessageType, PartialMessage, Poll, PublicMessage, Reaction,
+    MessageComponentType,
+    MessageSnapshot,
+    MessageType,
+    PartialMessage,
+    Poll,
+    PublicMessage,
+    Reaction,
     UnfurledMediaItem,
-} from "@spacebar/schemas";
-import { PartialUser } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+} from "@harmony/schemas";
+import { PartialUser } from "@harmony/schemas";
+import { MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({

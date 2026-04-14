@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ClientStatus } from "@spacebar/util";
+import { ClientStatus } from "@harmony/util";
 
 export interface GuildWidgetJsonResponse {
     id: string;

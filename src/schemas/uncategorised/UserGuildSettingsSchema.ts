@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelOverride, UserGuildSettings } from "@spacebar/schemas";
+import { ChannelOverride, UserGuildSettings } from "@harmony/schemas";
 
 // This sucks. I would use a DeepPartial, my own or typeorms, but they both generate inncorect schema
 export interface UserGuildSettingsSchema extends Partial<Omit<UserGuildSettings, "channel_overrides">> {

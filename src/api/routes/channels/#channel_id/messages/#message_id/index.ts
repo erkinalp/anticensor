@@ -30,12 +30,12 @@ import {
     getRights,
     uploadFile,
     NewUrlUserSignatureData,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
+import { handleMessage, postHandleMessage, route } from "@harmony/api";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit

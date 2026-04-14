@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { ApplicationAuthorizeSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types

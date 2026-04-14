@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { ApiError, ConnectedAccount, ConnectionStore, DiscordApiErrors, FieldErrors, RefreshableConnection } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { ApiError, ConnectedAccount, ConnectionStore, DiscordApiErrors, FieldErrors, RefreshableConnection } from "@harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

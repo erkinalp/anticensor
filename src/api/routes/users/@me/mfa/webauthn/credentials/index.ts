@@ -16,13 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { DiscordApiErrors, FieldErrors, generateWebAuthnTicket, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { DiscordApiErrors, FieldErrors, generateWebAuthnTicket, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { ExpectedAttestationResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
-import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@spacebar/schemas";
+import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 const isGenerateSchema = (body: WebAuthnPostSchema): body is GenerateWebAuthnCredentialsSchema => {

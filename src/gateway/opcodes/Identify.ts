@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@harmony/gateway";
 import {
     arrayGroupBy,
     Application,
@@ -56,11 +56,11 @@ import {
     UserSettings,
     UserSettingsProtos,
     VoiceState,
-} from "@spacebar/util";
+} from "@harmony/util";
 import { check } from "./instanceOf";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "@spacebar/schemas";
+import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "@harmony/schemas";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config

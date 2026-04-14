@@ -19,7 +19,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
+import { TeamMemberRole, TeamMemberState } from "@harmony/schemas";
 
 @Entity({
     name: "team_members",

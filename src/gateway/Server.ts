@@ -18,12 +18,12 @@
 
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "@spacebar/util";
+import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "@harmony/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "http";
 import { cleanupOnStartup } from "./util";
-import { randomString } from "@spacebar/api";
+import { randomString } from "@harmony/api";
 import { setInterval } from "timers";
 
 export class Server {

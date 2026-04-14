@@ -20,7 +20,7 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { User } from "./User";
-import { StickerFormatType, StickerType } from "@spacebar/schemas";
+import { StickerFormatType, StickerType } from "@harmony/schemas";
 
 @Entity({
     name: "stickers",

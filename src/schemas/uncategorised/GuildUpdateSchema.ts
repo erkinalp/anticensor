@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { GuildCreateSchema } from "@spacebar/schemas";
+import { GuildCreateSchema } from "@harmony/schemas";
 
 export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels"> {
     banner?: string | null;

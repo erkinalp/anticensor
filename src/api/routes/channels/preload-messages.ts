@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, Message } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Config, Message } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
+import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(

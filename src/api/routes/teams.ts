@@ -17,10 +17,10 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@spacebar/api";
-import { Team, TeamMember, User } from "@spacebar/util";
+import { route } from "@harmony/api";
+import { Team, TeamMember, User } from "@harmony/util";
 import { HTTPError } from "lambert-server";
-import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
+import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

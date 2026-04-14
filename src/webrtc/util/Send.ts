@@ -1,4 +1,4 @@
-import { JSONReplacer } from "@spacebar/util";
+import { JSONReplacer } from "@harmony/util";
 import { VoicePayload } from "./Constants";
 import { WebRtcWebSocket } from "./WebRtcWebSocket";
 

@@ -1,4 +1,4 @@
-import { BaseClassWithoutId } from "@spacebar/util";
+import { BaseClassWithoutId } from "@harmony/util";
 
 export const annotationsKey = Symbol("Annotations");
 
