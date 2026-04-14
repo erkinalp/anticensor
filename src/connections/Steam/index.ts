@@ -1,25 +1,25 @@
 /*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+    This file is part of Harmony.
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published
-	by the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    Copyright (C) 2026 Harmony and Harmony Contributors
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
-import wretch from "wretch";
+import { Config, ConnectedAccount, Connection, ConnectionLoader } from "@harmony/util";
 import { SteamSettings } from "./SteamSettings";
-import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
+import { ConnectionCallbackSchema } from "@harmony/schemas";
 
 interface SteamProfile {
     response: {
@@ -88,7 +88,7 @@ export default class SteamConnection extends Connection {
         });
     }
 
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+    async handleCallback(_: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
         throw new Error("Steam doesn't use this one");
     }
 }
