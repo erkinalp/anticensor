@@ -57,7 +57,7 @@ export abstract class Connection {
      * @param params Callback arguments
      */
     handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
-        throw new Error("nope");
+        throw new Error(`This is not used by ${this.id}, you should never see this message`);
     }
 
     /**

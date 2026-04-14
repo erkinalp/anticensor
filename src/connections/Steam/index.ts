@@ -89,6 +89,6 @@ export default class SteamConnection extends Connection {
     }
 
     async handleCallback(_: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
-        throw new Error("Steam doesn't use this one");
+        throw new Error("This is not used by steam, you should never see this message");
     }
 }
