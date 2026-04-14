@@ -25,10 +25,6 @@ export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
     if (!d.guild_id) throw new Error('"guild_id" is required');
     if (!d.fields) throw new Error('"fields" is required');
 
-    if (Config.get().offload.gateway.channelInfoUrl !== null) {
-        return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelInfoUrl!, d);
-    }
-
     const channels = (
         await Channel.find({
             where: { guild_id: d.guild_id, type: ChannelType.GUILD_VOICE },
