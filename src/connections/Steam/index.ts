@@ -16,107 +16,79 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
+import { Config, ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
 import wretch from "wretch";
 import { SteamSettings } from "./SteamSettings";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
 
-interface UserResponse {
-    id: string;
-    username: string;
-    discriminator: string;
-    avatar_url: string | null;
+interface SteamProfile {
+    response: {
+        players: {
+            steamid: string;
+            personaname: string;
+            profileurl: string;
+            avatarmedium: string;
+            lastlogoff: number;
+            primaryclanid: string;
+            timecreated: number; //time in seconds
+        }[];
+    };
 }
 
-export default class DiscordConnection extends Connection {
-    public readonly id = "discord";
-    public readonly authorizeUrl = "https://steamcommunity.com/oauth/login";
-    public readonly scopes = ["identify"];
-    settings: DiscordSettings = new DiscordSettings();
-
+export default class SteamConnection extends Connection {
+    public readonly id = "steam";
+    public readonly authorizeUrl = "https://steamcommunity.com/openid/login";
+    settings: SteamSettings = new SteamSettings();
     init(): void {
-        this.settings = ConnectionLoader.getConnectionConfig<DiscordSettings>(this.id, this.settings);
+        this.settings = ConnectionLoader.getConnectionConfig<SteamSettings>(this.id, this.settings);
 
-        if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);
+        if (this.settings.enabled && !this.settings.clientSecret) throw new Error(`Invalid settings for connection ${this.id}`);
     }
 
     getAuthorizationUrl(userId: string): string {
         const state = this.createState(userId);
+
         const url = new URL(this.authorizeUrl);
 
-        url.searchParams.append("state", state);
-        url.searchParams.append("client_id", this.settings.clientId as string);
-        url.searchParams.append("scope", this.scopes.join(" "));
-        url.searchParams.append("response_type", "code");
-        // controls whether, on repeated authorizations, the consent screen is shown
-        url.searchParams.append("consent", "none");
-        url.searchParams.append("redirect_uri", this.getRedirectUri());
+        url.searchParams.append("openid.ns", "http://specs.openid.net/auth/2.0");
+        url.searchParams.append("openid.mode", "checkid_setup");
+        url.searchParams.append("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select");
+        url.searchParams.append("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select");
+        url.searchParams.append("openid.realm", Config.get().api.endpointPublic ?? "");
+        url.searchParams.append("openid.return_to", this.getRedirectUri() + "?state=" + state);
 
         return url.toString();
     }
 
     getTokenUrl(): string {
-        return this.tokenUrl;
+        return ""; //this.tokenUrl;
     }
 
-    async exchangeCode(state: string, code: string): Promise<ConnectedAccountCommonOAuthTokenResponse> {
-        this.validateState(state);
-        const url = this.getTokenUrl();
-
-        return wretch(url.toString())
-            .headers({
-                Accept: "application/json",
-                "Content-Type": "application/x-www-form-urlencoded",
-            })
-            .body(
-                new URLSearchParams({
-                    client_id: this.settings.clientId as string,
-                    client_secret: this.settings.clientSecret as string,
-                    grant_type: "authorization_code",
-                    code: code,
-                    redirect_uri: this.getRedirectUri(),
-                }),
-            )
-            .post()
-            .json<ConnectedAccountCommonOAuthTokenResponse>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
-    }
-
-    async getUser(token: string): Promise<UserResponse> {
-        const url = new URL(this.userInfoUrl);
-        return wretch(url.toString())
-            .headers({
-                Authorization: `Bearer ${token}`,
-            })
-            .get()
-            .json<UserResponse>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
-    }
-
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
-        const { state, code } = params;
-        if (!code) throw new Error("No code provided");
-
+    async handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
+        const { state } = params;
         const userId = this.getUserId(state);
-        const tokenData = await this.exchangeCode(state, code);
-        const userInfo = await this.getUser(tokenData.access_token);
-
-        const exists = await this.hasConnection(userId, userInfo.id);
-
-        if (exists) return null;
+        params["openid.mode"] = "check_authentication";
+        const url = "https://steamcommunity.com/openid/login?" + new URLSearchParams(Object.entries(params));
+        const res = await fetch(url, { method: "POST" });
+        const text = await res.text();
+        if (!text.includes("is_valid:true")) throw new Error("unable to verify");
+        const id = params["openid.claimed_id"].split("/").at(-1);
+        const prof = await fetch("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=" + this.settings.clientSecret + "&steamids=" + id);
+        const steamProfile = ((await prof.json()) as SteamProfile).response.players[0];
 
         return await this.createConnection({
             user_id: userId,
-            external_id: userInfo.id,
-            friend_sync: params.friend_sync,
-            name: `${userInfo.username}#${userInfo.discriminator}`,
+            external_id: steamProfile.steamid,
+            metadata_: {
+                created_at: new Date(steamProfile.timecreated * 1000).toISOString().replace("Z", "+00:00"),
+            },
+            friend_sync: false,
+            name: steamProfile.personaname,
             type: this.id,
         });
+    }
+
+    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+        throw new Error("Steam doesn't use this one");
     }
 }

@@ -17,9 +17,9 @@
 */
 
 import { route } from "@harmony/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@harmony/util";
+import { Badge, Config, ConnectedAccount, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { In } from "typeorm";
+import { In, Not } from "typeorm";
 import { PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -29,13 +29,18 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
 
     const { guild_id, with_mutual_guilds, with_mutual_friends, with_mutual_friends_count } = req.query;
     const { user_id } = req.params as { [key: string]: string };
-
+    const connected_accountsp = ConnectedAccount.find({
+        where: {
+            user_id,
+            visibility: Not(0),
+        },
+    });
     const user = await User.findOneOrFail({
         where: {
             id: user_id,
         },
-        relations: { connected_accounts: true },
     });
+    const connected_accounts = await connected_accountsp;
 
     const mutual_guilds: object[] = [];
     let premium_guild_since;
@@ -113,7 +118,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
     }
 
     res.json({
-        connected_accounts: user.connected_accounts.filter((x) => x.visibility != 0),
+        connected_accounts: connected_accounts.map((_) => _.toJSON()),
         premium_guild_since: premium_guild_since, // TODO
         premium_since: user.premium_since, // TODO
         mutual_guilds: with_mutual_guilds ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
