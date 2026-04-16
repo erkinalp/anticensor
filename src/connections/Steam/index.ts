@@ -34,7 +34,8 @@ interface SteamProfile {
         }[];
     };
 }
-
+const nameSpace = "http://specs.openid.net/auth/2.0";
+const idSelect = "http://specs.openid.net/auth/2.0/identifier_select";
 export default class SteamConnection extends Connection {
     public readonly id = "steam";
     public readonly authorizeUrl = "https://steamcommunity.com/openid/login";
@@ -50,10 +51,10 @@ export default class SteamConnection extends Connection {
 
         const url = new URL(this.authorizeUrl);
 
-        url.searchParams.append("openid.ns", "http://specs.openid.net/auth/2.0");
+        url.searchParams.append("openid.ns", nameSpace);
         url.searchParams.append("openid.mode", "checkid_setup");
-        url.searchParams.append("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select");
-        url.searchParams.append("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select");
+        url.searchParams.append("openid.identity", idSelect);
+        url.searchParams.append("openid.claimed_id", idSelect);
         url.searchParams.append("openid.realm", Config.get().api.endpointPublic ?? "");
         url.searchParams.append("openid.return_to", this.getRedirectUri() + "?state=" + state);
 
