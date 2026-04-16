@@ -43,7 +43,7 @@ import {
     UnfurledMediaItem,
 } from "@harmony/schemas";
 import { PartialUser } from "@harmony/schemas";
-import { MessageFlags } from "@harmony/util";
+import { Config, MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -254,6 +254,10 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
+        let avatar = this.avatar;
+        if (avatar && !URL.canParse(avatar)) {
+            avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
+        }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,
