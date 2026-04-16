@@ -41,6 +41,7 @@ export default class SteamConnection extends Connection {
     public readonly authorizeUrl = "https://steamcommunity.com/openid/login";
     settings: SteamSettings = new SteamSettings();
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/steam.svg";
         this.settings = ConnectionLoader.getConnectionConfig<SteamSettings>(this.id, this.settings);
 
         if (this.settings.enabled && !this.settings.clientSecret) throw new Error(`Invalid settings for connection ${this.id}`);
