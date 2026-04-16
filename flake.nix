@@ -119,10 +119,5 @@
               ));
             };
         }
-      )
-      (
-        import ./extra/admin-api/outputs.nix {
-          inherit self nixpkgs flake-utils;
-        }
       );
 }

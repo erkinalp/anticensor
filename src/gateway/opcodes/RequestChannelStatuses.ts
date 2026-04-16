@@ -23,10 +23,6 @@ export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) 
     // Schema validation can only accept either string or array, so transforming it here to support both
     if (!d.guild_id) throw new Error('"guild_id" is required');
 
-    if (Config.get().offload.gateway.channelStatusesUrl !== null) {
-        return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelStatusesUrl!, d);
-    }
-
     // TODO: implement
     await Send(this, {
         op: OPCODES.Dispatch,
