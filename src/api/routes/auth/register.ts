@@ -311,7 +311,7 @@ router.post(
 
         if (body.invite) {
             // await to fail if the invite doesn't exist (necessary for requireInvite to work properly) (username only signups are possible)
-            await Invite.joinGuild(user.id, body.invite);
+            await Invite.joinGuild(user.id, body.invite, false);
         }
 
         return res.json({ token: await generateToken(user.id) });
