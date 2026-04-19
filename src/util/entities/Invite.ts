@@ -111,13 +111,14 @@ export class Invite extends BaseClassWithoutId {
         };
     }
 
-    static async joinGuild(user_id: string, code: string, errorIfIn = true) {
-        const invite = await Invite.findOneOrFail({ where: { code } });
+    static async joinGuild(user_id: string, code: string | Invite, errorIfIn = true) {
+        const invite = code instanceof Invite ? code : await Invite.findOneOrFail({ where: { code } });
         if (invite.isExpired()) {
-            await Invite.delete({ code });
+            await invite.remove();
+
             throw new Error("Invite is expired");
         }
-        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.delete({ code });
+        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) invite.remove();
         else await invite.save();
 
         await Member.addToGuild(user_id, invite.guild_id, errorIfIn);
