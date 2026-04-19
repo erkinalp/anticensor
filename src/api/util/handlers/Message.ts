@@ -460,9 +460,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.username = opts.username;
             message.author.username = message.username;
         }
-        if (opts.webhook_avatar) {
-            message.avatar = opts.webhook_avatar;
-        } else if (opts.avatar_url) {
+        if (opts.avatar_url) {
             const avatarData = await fetch(opts.avatar_url);
             const base64 = await avatarData.arrayBuffer().then((x) => Buffer.from(x).toString("base64"));
 
@@ -820,5 +818,4 @@ interface MessageOptions extends MessageCreateSchema {
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
-    webhook_avatar?: string;
 }
