@@ -118,7 +118,7 @@ export class Invite extends BaseClassWithoutId {
 
             throw new Error("Invite is expired");
         }
-        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) invite.remove();
+        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await invite.remove();
         else await invite.save();
 
         await Member.addToGuild(user_id, invite.guild_id, errorIfIn);
