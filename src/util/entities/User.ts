@@ -121,7 +121,7 @@ export class User extends BaseClass {
     @Column()
     deleted: boolean = false; // if the user was deleted
 
-    @Column({ nullable: true, select: false })
+    @Column({ nullable: true, select: false, unique: true })
     email?: string; // email of the user
 
     @Column({ type: "bigint" })
