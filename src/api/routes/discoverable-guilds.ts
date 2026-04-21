@@ -40,20 +40,25 @@ router.get(
         const configLimit = Config.get().guild.discovery.limit;
         const hideJoinedGuilds = Config.get().guild.discovery.hideJoinedGuilds;
         const hiddenGuildIds = hideJoinedGuilds
-            ? await Member.find({
-                  where: { id: req.user_id },
-                  select: { guild_id: true },
-              }).then((members) => members.map((member) => member.guild_id))
+            ? (
+                  await Member.find({
+                      where: { id: req.user_id },
+                      select: { guild_id: true },
+                  })
+              ).map((member) => member.guild_id)
             : [];
 
+        const where = {
+            id: Not(In(hiddenGuildIds)),
+            discovery_excluded: false,
+            ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
+            ...(showAllGuilds ? {} : { features: Like("%DISCOVERABLE%") }),
+        } as const;
+
         const guilds = await Guild.find({
-            where: {
-                id: Not(In(hiddenGuildIds)),
-                discovery_excluded: false,
-                ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
-                ...(showAllGuilds ? {} : { features: Like("%DISCOVERABLE%") }),
-            },
+            where,
             order: {
+                //TODO re-weight this
                 discovery_weight: "DESC",
                 member_count: "DESC",
             },
@@ -61,7 +66,7 @@ router.get(
             take: Math.abs(Number(limit || configLimit)),
         });
 
-        const total = guilds ? guilds.length : undefined;
+        const total = await Guild.count({ where });
 
         res.send({
             total: total,
