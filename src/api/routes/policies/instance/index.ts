@@ -29,7 +29,6 @@ router.get(
                 body: "APIGeneralConfiguration",
             },
         },
-        right: "OPERATOR",
         spacebarOnly: true,
     }),
     (req: Request, res: Response) => {
