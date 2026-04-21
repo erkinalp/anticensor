@@ -47,7 +47,7 @@ router.get(
             relations: { members: true },
         });
 
-        res.send(teams);
+        res.send(teams.map((_) => _.toJSON()));
     },
 );
 
@@ -62,10 +62,12 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        const user = await User.findOneOrFail({
-            where: { id: req.user_id },
-            select: { mfa_enabled: true },
-        });
+        const user =
+            req.user ??
+            (await User.findOneOrFail({
+                where: { id: req.user_id },
+                select: { mfa_enabled: true },
+            }));
         if (!user.mfa_enabled) throw new HTTPError("You must enable MFA to create a team");
 
         const body = req.body as TeamCreateSchema;
@@ -84,7 +86,7 @@ router.post(
             role: TeamMemberRole.ADMIN,
         }).save();
 
-        res.json(team);
+        res.json(team.toJSON());
     },
 );
 
