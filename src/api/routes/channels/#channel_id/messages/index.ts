@@ -93,6 +93,7 @@ router.get(
             403: {},
             404: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
@@ -108,8 +109,7 @@ router.get(
         const limit = Number(req.query.limit) || 50;
         if (limit < 1 || limit > 100) throw new HTTPError("limit must be between 1 and 100", 422);
 
-        const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
-        permissions.hasThrow("VIEW_CHANNEL");
+        const permissions = req.permission ?? (await getPermission(req.user_id, channel.guild_id, channel_id));
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json([]);
 
         const query: FindManyOptions<Message> & {
@@ -178,83 +178,14 @@ router.get(
         }
 
         await Message.fillReplies(messages);
-        const endpoint = Config.get().cdn.endpointPublic;
 
-        const ret = messages.map((msg) => {
-            const x = msg.toJSON();
+        const ret = messages.map((msg) => msg.withSignedAttachments(req));
 
-            (x.reactions || []).forEach((y: Partial<Reaction>) => {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                if ((y.user_ids || []).includes(req.user_id)) y.me = true;
-                delete y.user_ids;
-            });
-            if (!x.author)
-                x.author = {
-                    id: "4",
-                    discriminator: "0000",
-                    username: "Spacebar Ghost",
-                    public_flags: 0,
-                    avatar: null,
-                } as PartialUser;
-            x.attachments?.forEach((y: Attachment) => {
-                // dynamically set attachment proxy_url in case the endpoint changed
-                const uri = y.proxy_url.startsWith("http") ? y.proxy_url : `https://example.org${y.proxy_url}`;
-
-                const url = new URL(uri);
-                if (endpoint) {
-                    const newBase = new URL(endpoint);
-                    url.protocol = newBase.protocol;
-                    url.hostname = newBase.hostname;
-                    url.port = newBase.port;
-                }
-
-                y.proxy_url = url.toString();
-
-                y.proxy_url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.proxy_url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.proxy_url)
-                    .toString();
-
-                y.url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.url)
-                    .toString();
-            });
-
-            /**
-			Some clients ( discord.js ) only check if a property exists within the response,
-			which causes errors when, say, the `application` property is `null`.
-			**/
-
-            // for (var curr in x) {
-            // 	if (x[curr] === null)
-            // 		delete x[curr];
-            // }
-
-            return x;
-        });
-        //console.log(ret);
-
-        type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
-        };
         await Promise.all(
-            (ret as MessageWithInteraction[])
+            ret
                 .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
                 .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
+                    x.interaction_metadata!.user = x.interaction!.user = (await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } })).toPublicUser();
                 }),
         );
 

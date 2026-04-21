@@ -253,7 +253,7 @@ export class Message extends BaseClass {
         }
     }
 
-    toJSON(shallow = false): PublicMessage {
+    toJSON(shallow = false, user_id?: string): PublicMessage {
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,
@@ -282,7 +282,11 @@ export class Message extends BaseClass {
             webhook: this.webhook ?? undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
+            reactions:
+                this.reactions?.map((y: Partial<Reaction>) => {
+                    if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
+                    return y;
+                }) ?? undefined,
             sticker_items: this.sticker_items ?? undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
@@ -323,7 +327,7 @@ export class Message extends BaseClass {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
         return {
-            ...this,
+            ...(this instanceof Message ? this.toJSON(undefined, data.user_id) : this),
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {

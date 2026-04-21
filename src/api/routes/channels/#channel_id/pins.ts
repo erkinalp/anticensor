@@ -57,7 +57,7 @@ router.put(
 
         message.pinned_at = new Date();
 
-        const author = await User.getPublicUser(req.user_id);
+        const author = await User.findOneOrFail({ where: { id: req.user_id } });
 
         const systemPinMessage = Message.create({
             timestamp: new Date(),

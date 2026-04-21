@@ -238,7 +238,7 @@ export class Member extends BaseClassWithoutId {
                 event: "GUILD_MEMBER_UPDATE",
                 data: {
                     guild_id,
-                    user: member.user,
+                    user: member.user.toPublicUser(),
                     roles: member.roles.map((x) => x.id),
                 },
                 guild_id,
@@ -268,7 +268,7 @@ export class Member extends BaseClassWithoutId {
                 event: "GUILD_MEMBER_UPDATE",
                 data: {
                     guild_id,
-                    user: member.user,
+                    user: member.user.toPublicUser(),
                     roles: member.roles.map((x) => x.id),
                 },
                 guild_id,
@@ -295,7 +295,7 @@ export class Member extends BaseClassWithoutId {
                 event: "GUILD_MEMBER_UPDATE",
                 data: {
                     guild_id,
-                    user: member.user,
+                    user: member.user.toPublicUser(),
                     nick: nickname || undefined,
                     roles: member.roles.map((x) => x.id),
                 },
@@ -305,7 +305,7 @@ export class Member extends BaseClassWithoutId {
     }
 
     static async addToGuild(user_id: string, guild_id: string) {
-        const user = await User.getPublicUser(user_id);
+        const user = await User.findOneOrFail({ where: { id: user_id } });
         const isBanned = await Ban.count({ where: { guild_id, user_id } });
         if (isBanned) {
             throw DiscordApiErrors.USER_BANNED;
@@ -393,7 +393,7 @@ export class Member extends BaseClassWithoutId {
                 event: "GUILD_MEMBER_ADD",
                 data: {
                     ...newMember.toPublicMember(),
-                    user: user,
+                    user: user.toPublicUser(),
                     guild_id,
                 },
                 guild_id,
@@ -403,7 +403,7 @@ export class Member extends BaseClassWithoutId {
                 event: "GUILD_CREATE",
                 data: {
                     ...new ReadyGuildDTO(guild).toJSON(),
-                    members: [...memberPreview, { ...newMember.toPublicMember(), user }],
+                    members: [...memberPreview, { ...newMember.toPublicMember(), user: user.toPublicUser() }],
                     member_count: memberCount + 1,
                     guild_hashes: {},
                     guild_scheduled_events: [],
