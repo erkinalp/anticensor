@@ -99,6 +99,7 @@ router.get(
         if (content) query.where.content = Like(`%${content}%`);
 
         const messages: Message[] = await Message.find(query);
+        await Message.fillReplies(messages);
         delete query.take;
         const total_results = await Message.count(query);
 
