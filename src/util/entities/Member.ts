@@ -456,9 +456,9 @@ export class Member extends BaseClassWithoutId {
     }
 
     toPublicMember() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const member: any = {};
+        const member: Partial<PublicMember> = {};
         PublicMemberProjection.forEach((x) => {
+            //@ts-expect-error this is really fine
             member[x] = this[x];
         });
 

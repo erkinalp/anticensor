@@ -50,6 +50,7 @@ import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } fr
 import { URL } from "url";
 import {
     AcknowledgeDeleteSchema,
+    ChannelType,
     isTextChannel,
     MessageCreateAttachment,
     MessageCreateCloudAttachment,
@@ -297,7 +298,7 @@ router.post(
         }
 
         // handle blocked users in dms
-        if (channel.recipients?.length == 2) {
+        if (channel.type == ChannelType.DM && channel.recipients) {
             const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
             if (otherUser) {
                 const relationship = await Relationship.findOne({
@@ -394,8 +395,8 @@ router.post(
         }
 
         if (channel.isThread()) {
-            channel.message_count = (channel.message_count || 0) + 1;
-            channel.total_message_sent = (channel.total_message_sent || 0) + 1;
+            channel.message_count = (channel.message_count ?? 0) + 1;
+            channel.total_message_sent = (channel.total_message_sent ?? 0) + 1;
             channel.last_message_id = message.id;
             await Promise.all([
                 channel.save(),
@@ -417,10 +418,6 @@ router.post(
                 });
                 message.member.clean_data();
             }
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
         }
 
         let read_state = await ReadState.findOne({
