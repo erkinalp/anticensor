@@ -30,6 +30,7 @@ import {
     getRights,
     uploadFile,
     NewUrlUserSignatureData,
+    Config,
 } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -42,7 +43,7 @@ const router = Router({ mergeParams: true });
 
 const messageUpload = multer({
     limits: {
-        fileSize: 1024 * 1024 * 100,
+        fileSize: Config.get().limits.message.maxAttachmentSize,
         fields: 10,
         files: 1,
     },
@@ -75,9 +76,9 @@ router.patch(
             relations: { attachments: true },
         });
 
-        const permissions = await getPermission(req.user_id, undefined, channel_id);
+        const permissions = req.permission ?? (await getPermission(req.user_id, undefined, channel_id));
 
-        const rights = await getRights(req.user_id);
+        const rights = req.rights ?? (await getRights(req.user_id));
 
         if (req.user_id !== message.author_id) {
             if (!rights.has("MANAGE_MESSAGES")) {
@@ -88,7 +89,6 @@ router.patch(
         } else rights.hasThrow("SELF_EDIT_MESSAGES");
 
         // no longer necessary, somehow resolved by updating the type of `attachments`...?
-        // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
         const new_message = await handleMessage({
             ...message,
             // TODO: should message_reference be overridable?
@@ -113,25 +113,7 @@ router.patch(
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
         // TODO: a DTO?
-        return res.json({
-            ...new_message.toJSON(),
-            id: new_message.id,
-            type: new_message.type,
-            channel_id: new_message.channel_id,
-            member: new_message.member?.toPublicMember(),
-            author: new_message.author?.toPublicUser(),
-            attachments: new_message.attachments,
-            embeds: new_message.embeds,
-            mentions: new_message.embeds,
-            mention_roles: new_message.mention_roles,
-            mention_everyone: new_message.mention_everyone,
-            pinned: new_message.pinned,
-            timestamp: new_message.timestamp,
-            edited_timestamp: new_message.edited_timestamp,
-
-            // these are not in the Discord.com response
-            mention_channels: new_message.mention_channels,
-        });
+        return res.json(new_message.toJSON());
     },
 );
 
@@ -269,7 +251,7 @@ router.get(
             },
         });
 
-        const permissions = await getPermission(req.user_id, undefined, channel_id);
+        const permissions = req.permission ?? (await getPermission(req.user_id, undefined, channel_id));
 
         if (message.author_id !== req.user_id) permissions.hasThrow("READ_MESSAGE_HISTORY");
 
@@ -302,11 +284,11 @@ router.delete(
             where: { id: message_id },
         });
 
-        const rights = await getRights(req.user_id);
+        const rights = req.rights ?? (await getRights(req.user_id));
 
         if (message.author_id !== req.user_id) {
             if (!rights.has("MANAGE_MESSAGES")) {
-                const permission = await getPermission(req.user_id, channel.guild_id, channel_id);
+                const permission = req.permission ?? (await getPermission(req.user_id, channel.guild_id, channel_id));
                 permission.hasThrow("MANAGE_MESSAGES");
             }
         } else rights.hasThrow("SELF_DELETE_MESSAGES");

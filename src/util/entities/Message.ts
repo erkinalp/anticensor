@@ -264,6 +264,7 @@ export class Message extends BaseClass {
 
             author_id: undefined,
             member_id: undefined,
+            member: this.member?.toPublicMember(),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
