@@ -20,6 +20,8 @@ import { route } from "@harmony/api";
 import { Channel, Member, OrmUtils } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { UserGuildSettingsSchema } from "@harmony/schemas";
+import { In } from "typeorm";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
@@ -57,22 +59,18 @@ router.patch(
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserGuildSettingsSchema;
-
         if (body.channel_overrides) {
-            // TODO: rewrite to a single query?
-            for (const channel in body.channel_overrides) {
-                await Channel.findOneOrFail({ where: { id: channel } });
-            }
+            const channels = await Channel.count({ where: { id: In(Object.keys(body.channel_overrides)) } });
+            if (channels !== Object.keys(body.channel_overrides).length) throw new HTTPError("Channel does not exist");
         }
 
-        const user = await Member.findOneOrFail({
+        const member = await Member.findOneOrFail({
             where: { id: req.user_id, guild_id: req.params.guild_id as string },
-            select: { settings: true },
         });
-        OrmUtils.mergeDeep(user.settings || {}, body);
-        await user.save();
+        OrmUtils.mergeDeep(member.settings || {}, body);
+        await member.save();
 
-        res.json(user.settings);
+        res.json(member.settings);
     },
 );
 
