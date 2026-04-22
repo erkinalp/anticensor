@@ -21,7 +21,7 @@ import { Channel, Member, OrmUtils } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { UserGuildSettingsSchema } from "@harmony/schemas";
 import { In } from "typeorm";
-import { HTTPError } from "#util/util/lambert-server";
+import { HTTPError } from "lambert-server";
 
 const router = Router({ mergeParams: true });
 
