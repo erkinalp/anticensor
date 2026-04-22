@@ -42,10 +42,10 @@ router.get(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        if (!channel.guild_id) return res.send(channel);
+        if (!channel.guild_id) return res.send(channel.toJSON());
 
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
-        return res.send(channel);
+        return res.send(channel.toJSON());
     },
 );
 
@@ -83,6 +83,7 @@ router.delete(
             ]);
         } else if (channel.type === ChannelType.GROUP_DM) {
             await Channel.removeRecipientFromChannel(channel, req.user_id);
+            //TODO does this not need MANAGE_THREADS instead of manage channels for threads?
         } else if (channel.isThread()) {
             await Promise.all([
                 Channel.delete({ id: channel_id }),
@@ -102,18 +103,20 @@ router.delete(
                 const channels = await Channel.find({
                     where: { parent_id: channel_id },
                 });
-                for await (const c of channels) {
-                    c.parent_id = null;
+                await Promise.all(
+                    channels.map(async (c) => {
+                        c.parent_id = null;
 
-                    await Promise.all([
-                        c.save(),
-                        emitEvent({
-                            event: "CHANNEL_UPDATE",
-                            data: c.toJSON(),
-                            channel_id: c.id,
-                        } satisfies ChannelUpdateEvent),
-                    ]);
-                }
+                        await Promise.all([
+                            c.save(),
+                            emitEvent({
+                                event: "CHANNEL_UPDATE",
+                                data: c.toJSON(),
+                                channel_id: c.id,
+                            } satisfies ChannelUpdateEvent),
+                        ]);
+                    }),
+                );
             }
 
             await Promise.all([
