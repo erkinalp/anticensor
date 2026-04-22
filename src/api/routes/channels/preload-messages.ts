@@ -20,6 +20,7 @@ import { route } from "@harmony/api";
 import { Config, Message } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@harmony/schemas";
+import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -44,23 +45,17 @@ router.post(
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
 
-        const messages = (
-            await Promise.all(
-                body.channels.map((channelId) =>
-                    Message.findOne({
-                        where: { channel_id: channelId },
-                        order: { timestamp: "DESC" },
-                    }),
-                ),
-            )
-        ).filter((x) => x !== null) as Message[];
+        const messages = await Message.find({
+            where: { channel_id: In(body.channels) },
+            order: { timestamp: "DESC" },
+        });
 
         const filteredMessages = messages.map((message) => {
             const x = message.toJSON();
             // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
             x.reactions = undefined;
             return x;
-        }) as unknown as PreloadMessagesResponseSchema;
+        }) satisfies PreloadMessagesResponseSchema;
 
         return res.status(200).send(filteredMessages);
     },
