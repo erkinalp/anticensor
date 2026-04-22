@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { MessageType } from "@harmony/schemas";
 import { route, sendMessage } from "@harmony/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@harmony/util";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 
@@ -76,7 +77,7 @@ router.put(
             } satisfies ChannelPinsUpdateEvent),
             sendMessage({
                 timestamp: new Date(),
-                type: 6,
+                type: MessageType.CHANNEL_PINNED_MESSAGE,
                 channel_id: message.channel_id,
                 author_id: req.user_id,
                 message_reference: {

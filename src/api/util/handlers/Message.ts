@@ -528,7 +528,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
 			 otherwise backfilling won't work **/
-            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
+            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type && message.type !== MessageType.CHANNEL_PINNED_MESSAGE)
+                message.type = MessageType.REPLY;
         }
     }
 
@@ -542,7 +543,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         !opts.poll &&
         !opts.components?.length &&
         opts.message_reference?.type != 1 &&
-        opts.type !== MessageType.THREAD_STARTER_MESSAGE
+        opts.type !== MessageType.THREAD_STARTER_MESSAGE &&
+        opts.type !== MessageType.CHANNEL_PINNED_MESSAGE
     ) {
         console.log("[Message] Rejecting empty message:", opts, message);
         throw new HTTPError("Empty messages are not allowed", 50006);
