@@ -45,7 +45,7 @@ router.post(
             relations: ["available_tags"],
         });
 
-        if (!channel.isForum()) throw new Error("is not thread only channel");
+        if (!channel.isForum()) throw new HTTPError("is not forum channel");
 
         const tag = Tag.create({
             channel,
@@ -90,7 +90,7 @@ router.put(
             relations: ["available_tags"],
         });
 
-        if (!channel.isForum()) throw new Error("is not thread only channel");
+        if (!channel.isForum()) throw new HTTPError("is not forum channel");
 
         const tag = channel.available_tags?.find((tag) => tag.id == tag_id);
         //TODO better error
@@ -129,7 +129,7 @@ router.delete(
             relations: ["available_tags"],
         });
 
-        if (!channel.isForum()) throw new Error("is not thread only channel");
+        if (!channel.isForum()) throw new Error("is not forum channel");
 
         const tag = await Tag.findOneByOrFail({
             id: tag_id,
