@@ -101,8 +101,11 @@ export default class DiscordConnection extends Connection {
                 throw DiscordApiErrors.GENERAL_ERROR;
             });
     }
+    async handleCallback(params: ConnectionCallbackSchema) {
+        return this.handleCallbackGet(params as unknown as Record<string, string>);
+    }
 
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+    async handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
         const { state, code } = params;
         if (!code) throw new Error("No code provided");
 
@@ -117,7 +120,7 @@ export default class DiscordConnection extends Connection {
         return await this.createConnection({
             user_id: userId,
             external_id: userInfo.id,
-            friend_sync: params.friend_sync,
+            friend_sync: params.friend_sync === "true",
             name: `${userInfo.username}#${userInfo.discriminator}`,
             type: this.id,
         });
