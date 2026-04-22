@@ -28,6 +28,7 @@ export abstract class Connection {
     id: string;
     settings: { enabled: boolean };
     states: Map<string, string> = new Map();
+    icon_url?: string;
 
     abstract init(): void;
 
