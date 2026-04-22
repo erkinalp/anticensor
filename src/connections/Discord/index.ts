@@ -121,7 +121,7 @@ export default class DiscordConnection extends Connection {
             user_id: userId,
             external_id: userInfo.id,
             friend_sync: params.friend_sync === "true",
-            name: `${userInfo.username}#${userInfo.discriminator}`,
+            name: `${userInfo.username}#${userInfo.discriminator.padStart(4, "0")}`,
             type: this.id,
         });
     }
