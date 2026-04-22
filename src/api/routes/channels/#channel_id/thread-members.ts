@@ -171,7 +171,7 @@ router.delete(
         return res.status(204).send();
     },
 );
-
+//TODO stub
 router.patch(
     "/@me/settings",
     route({
