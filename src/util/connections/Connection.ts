@@ -43,7 +43,7 @@ export abstract class Connection {
      * @returns redirect_uri for this connection
      */
     getRedirectUri() {
-        return `${Config.get().general.frontPage}/connections/${this.id}/callback`;
+        return `${Config.get().api.endpointPublic}/api/connections/${this.id}/callback`;
     }
 
     /**
@@ -51,6 +51,14 @@ export abstract class Connection {
      * @param params Callback arguments
      */
     abstract handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null>;
+
+    /**
+     * Processes the callback
+     * @param params Callback arguments
+     */
+    handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
+        throw new Error(`This is not used by ${this.id}, you should never see this message`);
+    }
 
     /**
      * Gets a user id from state
