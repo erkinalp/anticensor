@@ -77,9 +77,9 @@ async function handleGuildSync(ws: WebSocket, guild_id: string) {
         const presence: Presence = {
             user: member.user.toPublicUser(),
             guild_id: guild_id,
-            status: mostRelevantSession.getPublicStatus(),
-            activities: mostRelevantSession.activities,
-            client_status: mostRelevantSession.client_status,
+            status: mostRelevantSession?.getPublicStatus() ?? "offline",
+            activities: mostRelevantSession?.activities ?? [],
+            client_status: mostRelevantSession?.client_status ?? {},
         };
         res.presences.push(presence);
     }

@@ -31,7 +31,7 @@ import { PublicVoiceState, PublicVoiceStateProjection } from "@harmony/schemas";
 export class VoiceState extends BaseClass {
     @Column({ nullable: true })
     @RelationId((voice_state: VoiceState) => voice_state.guild)
-    guild_id: string;
+    guild_id: string | null;
 
     @JoinColumn({ name: "guild_id" })
     @ManyToOne(() => Guild, (guild) => guild.voice_states, {
@@ -41,7 +41,7 @@ export class VoiceState extends BaseClass {
 
     @Column({ nullable: true })
     @RelationId((voice_state: VoiceState) => voice_state.channel)
-    channel_id: string;
+    channel_id: string | null;
 
     @JoinColumn({ name: "channel_id" })
     @ManyToOne(() => Channel, {
