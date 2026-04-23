@@ -31,9 +31,8 @@ try {
 // don't care
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const recurseJsonReplace = (json: any) => {
-    for (const key in json) {
-        // eslint-disable-next-line no-prototype-builtins
-        if (!json.hasOwnProperty(key)) continue;
+    for (const key of Object.keys(json)) {
+        if (!Object.hasOwn(json, key)) continue;
 
         json[key] = JSONReplacer.call(json, key, json[key]);
 
@@ -59,18 +58,15 @@ export async function Send(socket: WebSocket, data: Payload) {
         // Erlpack doesn't like Date objects, encodes them as {}
         data = recurseJsonReplace(data);
         buffer = erlpack.pack(data);
-    }
-    // TODO: encode circular object
-    else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);
+    } else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);
     else return;
 
-    // TODO: compression
     if (socket.compress === "zlib-stream") {
-        buffer = socket.deflate!.process(buffer) as Buffer;
+        buffer = socket.deflate!.process(buffer);
     } else if (socket.compress === "zstd-stream") {
-        if (typeof buffer === "string") buffer = Buffer.from(buffer as string);
+        if (typeof buffer === "string") buffer = Buffer.from(buffer);
 
-        buffer = (await socket.zstdEncoder!.encode(buffer as Buffer)) as Buffer;
+        buffer = await socket.zstdEncoder!.encode(buffer);
     }
 
     return new Promise((res, rej) => {
