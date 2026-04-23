@@ -53,7 +53,7 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     const ipAddress = forwardedFor ? (request.headers[forwardedFor.toLowerCase()] as string) : request.socket.remoteAddress;
 
     socket.ipAddress = ipAddress;
-    socket.userAgent = request.headers["user-agent"] as string;
+    socket.userAgent = request.headers["user-agent"];
 
     if (!ipAddress && Config.get().security.cdnSignatureIncludeIp) {
         console.error("Gateway connection rejected: No IP address found.");
@@ -76,9 +76,9 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     socket.session_id = "TEMP_" + genSessionId(); //Set the session of the WebSocket object
 
     try {
-        // @ts-ignore
+        // @ts-expect-error websocket this type doesn't work for some reason
         socket.on("close", Close);
-        // @ts-ignore
+        // @ts-expect-error websocket this type doesn't work for some reason
         socket.on("message", Message);
 
         socket.on("error", (err) => console.error(`[Gateway/${socket.user_id ?? socket.ipAddress}]`, err));
@@ -99,31 +99,34 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
                 socket.on(x, (y) => console.log(x, y));
             });
 
-        const { searchParams } = new URL(`http://localhost${request.url}`);
-        // @ts-ignore
-        socket.encoding = searchParams.get("encoding") || "json";
-        if (!["json", "etf"].includes(socket.encoding)) {
+        const { searchParams } = new URL(`http://localhost`, request.url);
+        const encoding = searchParams.get("encoding");
+
+        if (!["json", "etf"].includes(encoding as string)) {
             console.error(`[Gateway/${socket.ipAddress}] Unknown encoding: ${socket.encoding}`);
             return socket.close(CLOSECODES.Decode_error);
         }
+        socket.encoding = (encoding as "json" | "etf" | null) ?? "json";
 
         if (socket.encoding === "etf" && !erlpack) throw new Error("Erlpack is not installed: 'npm i @yukikaze-bot/erlpack'");
 
-        socket.version = Number(searchParams.get("version")) || 8;
-        if (socket.version != 8) {
+        socket.version = Number(searchParams.get("v")) || 8;
+        if (socket.version !== 8 && socket.version !== 9) {
             console.error(`[Gateway/${socket.ipAddress}] Invalid API version: ${socket.version}`);
             return socket.close(CLOSECODES.Invalid_API_version);
         }
 
-        // @ts-ignore
-        socket.compress = searchParams.get("compress") || "";
-        if (socket.compress) {
-            if (socket.compress === "zlib-stream") {
+        socket.compress = "";
+        const compress = searchParams.get("compress");
+        if (compress) {
+            if (compress === "zlib-stream") {
                 socket.deflate = new Deflate();
                 socket.inflate = new Inflate();
-            } else if (socket.compress === "zstd-stream") {
+                socket.compress = compress;
+            } else if (compress === "zstd-stream") {
                 socket.zstdEncoder = new Encoder(6);
                 socket.zstdDecoder = new Decoder();
+                socket.compress = compress;
             } else {
                 console.error(`[Gateway/${socket.user_id}] Unknown compression: ${socket.compress}`);
                 return socket.close(CLOSECODES.Decode_error);
