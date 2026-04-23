@@ -33,6 +33,6 @@ const server = new Server({
     port,
 });
 
-process.title = `harmony-gw-${cluster.worker ? cluster.worker.id : port}`;
+process.title = `harmony-gw-${cluster.worker?.id ?? port}`;
 
 server.start().then(() => {});
