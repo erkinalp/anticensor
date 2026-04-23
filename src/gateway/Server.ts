@@ -34,7 +34,7 @@ export class Server {
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
-        this.production = production || false;
+        this.production = production ?? false;
 
         if (server) this.server = server;
         else {
