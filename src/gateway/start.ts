@@ -23,7 +23,6 @@ process.on("unhandledRejection", console.error);
 
 import { Server } from "./Server";
 import { config } from "dotenv";
-import fs from "fs";
 import cluster from "cluster";
 config({ quiet: true });
 
@@ -34,7 +33,6 @@ const server = new Server({
     port,
 });
 
-if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-gw-${cluster.worker ? cluster.worker.id : port}`);
-process.title = `sb-gw-${cluster.worker ? cluster.worker.id : port}`;
+process.title = `harmony-gw-${cluster.worker ? cluster.worker.id : port}`;
 
 server.start().then(() => {});
