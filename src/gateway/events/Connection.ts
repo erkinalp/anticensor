@@ -41,13 +41,12 @@ try {
 // TODO: specify rate limit in config
 // TODO: check msg max size
 
-export const openConnections: WebSocket[] = [];
+export const openConnections = new Set<WebSocket>();
 
 export async function Connection(this: WS.Server, socket: WebSocket, request: IncomingMessage) {
-    openConnections.push(socket);
+    openConnections.add(socket);
     socket.on("close", () => {
-        const index = openConnections.indexOf(socket);
-        if (index !== -1) openConnections.splice(index, 1);
+        openConnections.delete(socket);
     });
 
     const forwardedFor = Config.get().security.forwardedFor;

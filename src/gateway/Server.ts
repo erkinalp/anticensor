@@ -91,8 +91,8 @@ export class Server {
                                         system: x.system / 1000,
                                     })),
                                     socketStates: {
-                                        open: openConnections.length,
-                                        sessions: openConnections.map((x) => {
+                                        open: openConnections.size,
+                                        sessions: [...openConnections].map((x) => {
                                             // console.log(x);
                                             return useFullWsObj
                                                 ? {
