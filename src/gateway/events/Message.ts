@@ -36,7 +36,6 @@ try {
 }
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
-    // TODO: compression
     let data: Payload;
 
     if (
