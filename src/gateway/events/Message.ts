@@ -27,7 +27,7 @@ import { PayloadSchema } from "@harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
-import { unpack } from "@harmony/erlpack";
+import { unpack } from "harmony-erlpack";
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
     // TODO: compression

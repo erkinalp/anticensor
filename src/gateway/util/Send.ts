@@ -21,7 +21,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { JSONReplacer } from "@harmony/util";
-import { pack } from "@harmony/erlpack";
+import { pack } from "harmony-erlpack";
 
 // don't care
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
