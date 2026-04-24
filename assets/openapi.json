@@ -12432,13 +12432,15 @@
                 "type": "object",
                 "properties": {
                     "guild_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "guild": {
                         "$ref": "#/components/schemas/Guild"
                     },
                     "channel_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "channel": {
                         "$ref": "#/components/schemas/Channel"
@@ -23634,6 +23636,32 @@
                         }
                     }
                 },
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "connection_name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "connection_name"
+                    }
+                ],
+                "tags": [
+                    "connections"
+                ]
+            },
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
                 "responses": {
                     "default": {
                         "description": "No description available"

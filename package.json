@@ -130,7 +130,6 @@
     },
     "optionalDependencies": {
         "@sendgrid/mail": "^8.1.6",
-        "@yukikaze-bot/erlpack": "^1.0.1",
         "jimp": "^1.6.0",
         "mailgun.js": "^12.7.1",
         "node-mailjet": "^6.0.11",
