@@ -31,5 +31,5 @@ jobs:
       run: npm run build
     - name: Run tests
       env:
-        DATABASE: postgres://harmony-ci:harmony-ci@psql:5432/harmony-ci
+        DATABASE: postgres://harmony-ci:harmony-ci@pgsql:5432/harmony-ci
       run: npm run test
