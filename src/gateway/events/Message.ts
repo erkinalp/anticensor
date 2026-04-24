@@ -54,9 +54,8 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         }
         data = bigIntJson.parse(buffer as string);
     } else if (this.encoding === "etf" && Buffer.isBuffer(buffer)) {
-        const ab = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
         try {
-            data = unpack(ab) as unknown as Payload;
+            data = unpack(buffer.buffer, { offset: buffer.byteOffset }) as unknown as Payload;
         } catch (e) {
             console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode ETF payload`);
             return this.close(CLOSECODES.Decode_error);
