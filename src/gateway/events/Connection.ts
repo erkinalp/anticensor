@@ -99,7 +99,7 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
                 socket.on(x, (y) => console.log(x, y));
             });
 
-        const { searchParams } = new URL(`http://localhost`, request.url);
+        const { searchParams } = new URL(request.url ?? "/", `http://localhost`);
         const encoding = searchParams.get("encoding");
 
         if (!["json", "etf"].includes(encoding as string)) {
