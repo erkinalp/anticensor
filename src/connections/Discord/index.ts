@@ -37,6 +37,7 @@ export default class DiscordConnection extends Connection {
     settings: DiscordSettings = new DiscordSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/discord.svg";
         this.settings = ConnectionLoader.getConnectionConfig<DiscordSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

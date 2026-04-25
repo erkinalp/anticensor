@@ -304,7 +304,7 @@ export class Member extends BaseClassWithoutId {
         ]);
     }
 
-    static async addToGuild(user_id: string, guild_id: string) {
+    static async addToGuild(user_id: string, guild_id: string, errorIfIn = true) {
         const user = await User.getPublicUser(user_id);
         const isBanned = await Ban.count({ where: { guild_id, user_id } });
         if (isBanned) {
@@ -349,8 +349,10 @@ export class Member extends BaseClassWithoutId {
             await Member.count({
                 where: { id: user.id, guild: { id: guild_id } },
             })
-        )
+        ) {
+            if (!errorIfIn) return;
             throw new HTTPError("You are already a member of this guild", 400);
+        }
 
         const member = {
             id: user_id,
