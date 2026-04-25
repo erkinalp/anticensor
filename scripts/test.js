@@ -28,6 +28,10 @@ const fs = require("fs");
 const cfgFile = path.join(__dirname, "test_config.json");
 process.env.CONFIG_PATH = cfgFile;
 
+function ignoreErrors(test) {
+    return !test.includes("DEP0169");
+}
+
 fs.writeFileSync(
     cfgFile,
     JSON.stringify({
@@ -52,9 +56,11 @@ server.stdout.on("data", (data) => {
 });
 
 server.stderr.on("data", (err) => {
-    process.stdout.write(err);
-    // we bad :(
-    process.kill(1);
+    if (ignoreErrors(err)) {
+        process.stdout.write(err);
+        // we bad :(
+        process.kill(1);
+    }
 });
 
 server.on("close", (code) => {
