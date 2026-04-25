@@ -1,0 +1,35 @@
+name: Tests
+on: [push]
+jobs:
+  run-tests:
+    runs-on: codeberg-small
+    services:
+      pgsql:
+        image: data.forgejo.org/oci/postgres:15
+        env:
+          POSTGRES_PASSWORD: harmony-ci
+          POSTGRES_DB: harmony-ci
+          POSTGRES_USER: harmony-ci
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v4
+    - name: Node Cache
+      uses: actions/setup-node@v6
+      with:
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm i
+    - name: Run lint
+      run: npm run lint
+    - name: Build Harmony
+      run: npm run build
+    - name: Run tests
+      env:
+        DATABASE: postgres://harmony-ci:harmony-ci@pgsql:5432/harmony-ci
+      run: npm run test
