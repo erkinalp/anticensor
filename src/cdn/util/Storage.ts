@@ -82,7 +82,7 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
         location = undefined;
     }
 
-    const { S3Storage } = require("S3Storage");
+    const { S3Storage } = require("./S3Storage");
     storage = new S3Storage(region, bucket, endpoint, location);
 }
 
