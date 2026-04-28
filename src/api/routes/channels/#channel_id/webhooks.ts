@@ -43,12 +43,7 @@ router.get(
             relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
         });
 
-        return res.json(
-            webhooks.map((webhook) => ({
-                ...webhook,
-                url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
-            })),
-        );
+        return res.json(webhooks.map((webhook) => webhook.toJSON()));
     },
 );
 
@@ -105,7 +100,7 @@ router.post(
         const user = await User.getPublicUser(req.user_id);
 
         return res.json({
-            ...hook,
+            ...hook.toJSON(),
             user: user,
         });
     },
