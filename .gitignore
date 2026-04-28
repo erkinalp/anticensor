@@ -9,7 +9,7 @@ assets/cache
 .env
 config.json
 assets/cacheMisses
-
+.eslintcache
 .vscode/settings.json
 
 build
