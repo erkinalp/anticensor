@@ -100,7 +100,7 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
             });
 
         const { searchParams } = new URL(request.url ?? "/", `http://localhost`);
-        const encoding = searchParams.get("encoding");
+        const encoding = searchParams.get("encoding") ?? "json";
 
         if (!["json", "etf"].includes(encoding as string)) {
             console.error(`[Gateway/${socket.ipAddress}] Unknown encoding: ${socket.encoding}`);
