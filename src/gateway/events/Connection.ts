@@ -111,7 +111,8 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
         if (socket.encoding === "etf" && !erlpack) throw new Error("Erlpack is not installed: 'npm i @yukikaze-bot/erlpack'");
 
         socket.version = Number(searchParams.get("v")) || 8;
-        if (socket.version !== 8 && socket.version !== 9) {
+        //TODO this should be much more flexable
+        if (socket.version !== 8 && socket.version !== 9 && socket.version !== 10) {
             console.error(`[Gateway/${socket.ipAddress}] Invalid API version: ${socket.version}`);
             return socket.close(CLOSECODES.Invalid_API_version);
         }
