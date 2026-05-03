@@ -39,13 +39,7 @@ router.get(
             relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
         });
 
-        const instanceUrl = Config.get().api.endpointPublic;
-        return res.json(
-            webhooks.map((webhook) => ({
-                ...webhook,
-                url: instanceUrl + "/webhooks/" + webhook.id + "/" + webhook.token,
-            })),
-        );
+        return res.json(webhooks.map((webhook) => webhook.toJSON()));
     },
 );
 
