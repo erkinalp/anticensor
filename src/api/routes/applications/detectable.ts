@@ -39,6 +39,7 @@ router.get(
     async (req: Request, res: Response) => {
         // cache for 6 hours
         if (Date.now() > cache.expires) {
+            //TODO should we be doing something else here?
             const response = await fetch("https://discord.com/api/v10/games/detectable"); // because, well, it's unauthenticated anyways
             const data = await response.json();
             cache.data = data as ApplicationDetectableResponse;
