@@ -44,7 +44,7 @@ router.post(
         let user;
         try {
             const userTokenData = await checkToken(token, {
-                select: ["email"],
+                select: { email: true },
                 fingerprint: req.fingerprint,
                 ipAddress: req.ip,
             });

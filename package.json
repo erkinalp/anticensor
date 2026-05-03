@@ -16,7 +16,7 @@
         "build:src:tsgo": "rm -rf dist/* tsconfig.tsbuildinfo && tsgo -b -v",
         "watch": "tsc -w -b .",
         "test": "node -r ts-node/register/transpile-only --test",
-        "lint": "eslint . --ignore-pattern 'cruft/**' --cache",
+        "lint": "eslint . --ignore-pattern 'cruft/**' --ignore-pattern 'node_temp/**' --cache",
         "setup": "npm run build && npm run generate:schema",
         "sync:db": "npm run build && node -r dotenv/config -r module-alias/register --enable-source-maps scripts/syncronise.js",
         "generate:rights": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/rights.js",
