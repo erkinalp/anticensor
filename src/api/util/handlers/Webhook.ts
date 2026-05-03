@@ -108,7 +108,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
     const message = await handleMessage({
         ...bodyMsg,
         username: body.username || webhook.name,
-        avatar_url: body.avatar_url || webhook.avatar,
+        avatar_url: body.avatar_url,
         type: 0,
         pinned: false,
         webhook_id: webhook.id,
