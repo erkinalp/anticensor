@@ -47,6 +47,7 @@ export * from "./ReadState";
 export * from "./Recipient";
 export * from "./Relationship";
 export * from "./Role";
+export * from "./RoutingRule";
 export * from "./SecurityKey";
 export * from "./Session";
 export * from "./Sticker";

@@ -64,6 +64,10 @@ export class Message extends BaseClass {
     channel: Channel;
 
     @Column({ nullable: true })
+    @Index()
+    source_channel_id?: string;
+
+    @Column({ nullable: true })
     @RelationId((message: Message) => message.thread)
     @JsonRemoveEmpty
     thread_id?: string;
@@ -287,6 +291,7 @@ export class Message extends BaseClass {
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
+            source_channel_id: undefined,
             mentions: this.mentions?.map((user) => {
                 if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
                 return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
@@ -352,6 +357,14 @@ export class Message extends BaseClass {
                 timestamp: this.timestamp,
                 type: this.type,
             },
+        };
+    }
+
+    toProjectedJSON(projectionChannelId: string) {
+        const json = this.toJSON();
+        return {
+            ...json,
+            channel_id: projectionChannelId,
         };
     }
 

@@ -60,6 +60,7 @@ import {
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
+import { getProjectedMessagesForChannel, getIntimacyBroadcastRuleForChannel, filterReactionsForIntimacyBroadcast } from "../../../../util/helpers/MessageProjection";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -136,81 +137,33 @@ router.get(
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json([]);
 
-        const query: FindManyOptions<Message> & {
-            where: { id?: FindOperator<string> | FindOperator<string>[] };
-        } = {
-            relationLoadStrategy: "query",
-            order: { timestamp: "DESC" },
-            take: limit,
-            where: { channel_id },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
-        };
+        const messages = await getProjectedMessagesForChannel(channel_id, req.user_id, {
+            around,
+            before,
+            after,
+            limit,
+        });
 
-        let messages: Message[];
+        await populateForwardLinks(messages);
 
-        if (around) {
-            query.take = Math.floor(limit / 2);
-            if (query.take != 0) {
-                const [right, left] = await Promise.all([
-                    Message.find({
-                        ...query,
-                        where: { channel_id, id: LessThan(around) },
-                    }),
-                    Message.find({
-                        ...query,
-                        where: { channel_id, id: MoreThanOrEqual(around) },
-                        order: { timestamp: "ASC" },
-                    }),
-                ]);
-                left.push(...right);
-                messages = left.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-            } else {
-                query.take = 1;
-                const message = await Message.findOne({
-                    ...query,
-                    where: { channel_id, id: around },
-                });
-                messages = message ? [message] : [];
-            }
-        } else {
-            if (after) {
-                if (BigInt(after) > BigInt(Snowflake.generate())) throw new HTTPError("after parameter must not be greater than current time", 422);
+        const intimacyRule = await getIntimacyBroadcastRuleForChannel(channel_id);
+        const isIntimacyBroadcast = intimacyRule !== null;
 
-                query.where.id = MoreThan(after);
-                query.order = { timestamp: "ASC" };
-            } else if (before) {
-                if (BigInt(before) > BigInt(Snowflake.generate())) throw new HTTPError("before parameter must not be greater than current time", 422);
+        const ret = messages.map((msg: Message) => {
+            const x = msg.toProjectedJSON(channel_id);
 
-                query.where.id = LessThan(before);
+            let reactions = (x.reactions || []) as Reaction[];
+            if (isIntimacyBroadcast) {
+                reactions = filterReactionsForIntimacyBroadcast(reactions, req.user_id, msg.author_id);
             }
 
-            messages = await Message.find(query);
-        }
-
-        await Message.fillReplies(messages);
-        const ret = messages.map((msg) => {
-            const x = msg.toJSON();
-
-            (x.reactions || []).forEach((y: Partial<Reaction>) => {
+            reactions.forEach((y: Partial<Reaction>) => {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
                 if ((y.user_ids || []).includes(req.user_id)) y.me = true;
                 delete y.user_ids;
             });
+            x.reactions = reactions;
             if (!x.author)
                 x.author = {
                     id: "4",

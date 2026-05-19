@@ -35,6 +35,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { resolveMessageInChannel, computeProjectionsForMessage } from "../../../../../util/helpers/MessageProjection";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -70,10 +71,7 @@ router.patch(
         const { message_id, channel_id } = req.params as { [key: string]: string };
         let body = req.body as MessageEditSchema;
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-            relations: { attachments: true },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
 
@@ -101,14 +99,19 @@ router.patch(
         });
 
         await new_message.save();
-        await emitEvent({
-            event: "MESSAGE_UPDATE",
-            channel_id,
-            data: {
-                ...new_message.toJSON(),
-                nonce: undefined,
-            },
-        } satisfies MessageUpdateEvent);
+        const projections = await computeProjectionsForMessage(new_message);
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_UPDATE",
+                    channel_id: projection.channelId,
+                    data: {
+                        ...new_message.toProjectedJSON(projection.channelId),
+                        nonce: undefined,
+                    },
+                } satisfies MessageUpdateEvent),
+            ),
+        );
 
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
@@ -261,13 +264,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { message_id, channel_id } = req.params as { [key: string]: string };
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-            relations: {
-                attachments: true,
-                author: true,
-            },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
 
@@ -298,9 +295,7 @@ router.delete(
             if (channel.message_count !== undefined) channel.message_count--;
             await channel.save();
         }
-        const message = await Message.findOneOrFail({
-            where: { id: message_id },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         const rights = await getRights(req.user_id);
 
@@ -313,15 +308,20 @@ router.delete(
 
         await Message.delete({ id: message_id });
 
-        await emitEvent({
-            event: "MESSAGE_DELETE",
-            channel_id,
-            data: {
-                id: message_id,
-                channel_id,
-                guild_id: channel.guild_id,
-            },
-        } satisfies MessageDeleteEvent);
+        const projections = await computeProjectionsForMessage(message);
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_DELETE",
+                    channel_id: projection.channelId,
+                    data: {
+                        id: message_id,
+                        channel_id: projection.channelId,
+                        guild_id: channel.guild_id,
+                    },
+                } satisfies MessageDeleteEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },

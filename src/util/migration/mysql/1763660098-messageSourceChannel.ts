@@ -1,0 +1,15 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class MessageSourceChannel1763660098 implements MigrationInterface {
+    name = "MessageSourceChannel1763660098";
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query("ALTER TABLE messages ADD source_channel_id varchar(255) NULL");
+        await queryRunner.query("CREATE INDEX IDX_messages_source_channel_id ON messages (source_channel_id)");
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query("DROP INDEX IDX_messages_source_channel_id ON messages");
+        await queryRunner.query("ALTER TABLE messages DROP COLUMN source_channel_id");
+    }
+}
