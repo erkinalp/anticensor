@@ -43,6 +43,7 @@ router.get(
         return res.json(
             webhooks.map((webhook) => ({
                 ...webhook,
+                user: webhook.user?.toPublicUser(),
                 url: instanceUrl + "/webhooks/" + webhook.id + "/" + webhook.token,
             })),
         );
