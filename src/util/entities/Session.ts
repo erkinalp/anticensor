@@ -16,15 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { User } from "./User";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
 import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces";
 import { randomUpperString } from "@spacebar/api";
 import { DateBuilder, IpDataClient, TimeSpan } from "../util";
-
-//TODO we need to remove all sessions on server start because if the server crashes without closing websockets it won't delete them
 
 @Entity({
     name: "sessions",
@@ -44,10 +42,10 @@ export class Session extends BaseClassWithoutId {
     })
     user: User;
 
-    @Column({ type: "simple-json", default: "[]" })
+    @Column({ type: "jsonb", default: "[]" })
     activities: Activity[];
 
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     client_info: {
         platform?: string;
         os?: string;
@@ -55,7 +53,7 @@ export class Session extends BaseClassWithoutId {
         location?: string;
     };
 
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     client_status: ClientStatus;
 
     @Column({ nullable: false, type: String })
@@ -76,7 +74,7 @@ export class Session extends BaseClassWithoutId {
     @Column({ nullable: true, type: String })
     last_seen_location?: string;
 
-    @Column({ nullable: true, type: "simple-json" })
+    @Column({ nullable: true, type: "jsonb" })
     last_seen_location_info?: ExtendedLocationInfo;
 
     @Column({ nullable: true, type: String })

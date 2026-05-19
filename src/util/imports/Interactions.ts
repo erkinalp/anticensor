@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandType } from "@spacebar/schemas";
-import { InteractionType, Snowflake } from "@spacebar/util";
+import { ApplicationCommandType, InteractionType } from "@spacebar/schemas";
+import { Snowflake } from "@spacebar/util";
 
 interface PendingInteraction {
     timeout: NodeJS.Timeout;
@@ -26,6 +26,7 @@ interface PendingInteraction {
     channelId?: string;
     guildId?: string;
     nonce?: string;
+    messageId?: string;
     type: InteractionType;
     commandType: ApplicationCommandType;
     commandName: string;

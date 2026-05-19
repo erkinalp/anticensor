@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Snowflake } from "@spacebar/util";
-import crypto from "crypto";
+import { Config } from "@spacebar/util";
+import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
@@ -42,7 +42,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     const { buffer, size } = req.file;
     const { guild_id, user_id } = req.params as { [key: string]: string };
 
-    let hash = crypto.createHash("md5").update(Snowflake.generate()).digest("hex");
+    let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");

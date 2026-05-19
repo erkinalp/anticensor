@@ -16,9 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Payload, WebSocket } from "@spacebar/gateway";
+import { Payload, WebSocket, genVoiceToken } from "@spacebar/gateway";
 import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
-import { genVoiceToken } from "@spacebar/gateway";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
 // TODO: check if a voice server is setup
@@ -118,7 +117,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
             guild_id: voiceState.guild_id,
             channel_id: voiceState.channel_id,
             user_id: voiceState.user_id,
-        } as VoiceStateUpdateEvent),
+        } satisfies VoiceStateUpdateEvent),
     ]);
 
     //If it's null it means that we are leaving the channel and this event is not needed
@@ -153,7 +152,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
                 channel_id: voiceState.guild_id ? undefined : voiceState.channel_id, // only DM voice calls have this set, and DM channel is one where guild_id is null
             },
             user_id: voiceState.user_id,
-        } as VoiceServerUpdateEvent);
+        } satisfies VoiceServerUpdateEvent);
     }
 
     console.log(

@@ -20,7 +20,7 @@ import { User } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { Channel } from "./Channel";
-import { InteractionType } from "../interfaces";
+
 import { Application } from "./Application";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, FindOneOptions, Raw, Not, BaseEntity, In } from "typeorm";
 import { BaseClass } from "./BaseClass";
@@ -29,7 +29,21 @@ import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
 import { Attachment } from "./Attachment";
 import { NewUrlUserSignatureData } from "../Signing";
-import { ActionRowComponent, ApplicationCommandType, Embed, MessageSnapshot, MessageType, PartialMessage, Poll, Reaction } from "@spacebar/schemas";
+import {
+    ApplicationCommandType,
+    BaseMessageComponents,
+    Embed,
+    MessageComponentType,
+    MessageSnapshot,
+    MessageType,
+    PartialMessage,
+    Poll,
+    PublicMessage,
+    Reaction,
+    UnfurledMediaItem,
+    PartialUser,
+    InteractionType,
+} from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
@@ -51,16 +65,19 @@ export class Message extends BaseClass {
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.thread)
+    @JsonRemoveEmpty
     thread_id?: string;
 
     @JoinColumn({ name: "thread_id" })
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
+    @JsonRemoveEmpty
     thread?: Channel;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.guild)
+    @JsonRemoveEmpty
     guild_id?: string;
 
     @JoinColumn({ name: "guild_id" })
@@ -92,6 +109,7 @@ export class Message extends BaseClass {
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.webhook)
+    @JsonRemoveEmpty
     webhook_id?: string;
 
     @JoinColumn({ name: "webhook_id" })
@@ -135,10 +153,12 @@ export class Message extends BaseClass {
     @JoinTable({ name: "message_channel_mentions" })
     @JsonRemoveEmpty
     @ManyToMany(() => Channel)
+    @JsonRemoveEmpty
     mention_channels: Channel[];
 
     @JoinTable({ name: "message_stickers" })
     @ManyToMany(() => Sticker, { cascade: true, onDelete: "CASCADE" })
+    @JsonRemoveEmpty
     sticker_items?: Sticker[];
 
     @OneToMany(() => Attachment, (attachment: Attachment) => attachment.message, {
@@ -148,15 +168,16 @@ export class Message extends BaseClass {
     @JsonRemoveEmpty
     attachments?: Attachment[];
 
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     @JsonRemoveEmpty
     embeds: Embed[];
 
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     @JsonRemoveEmpty
     reactions: Reaction[];
 
     @Column({ type: "text", nullable: true })
+    @JsonRemoveEmpty
     nonce?: string;
 
     @Column({ nullable: true, type: Date })
@@ -169,7 +190,8 @@ export class Message extends BaseClass {
     @Column({ type: "int" })
     type: MessageType;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
+    @JsonRemoveEmpty
     activity?: {
         type: number;
         party_id: string;
@@ -178,7 +200,8 @@ export class Message extends BaseClass {
     @Column({ default: 0 })
     flags: number;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
+    @JsonRemoveEmpty
     message_reference?: {
         message_id?: string;
         channel_id?: string;
@@ -190,14 +213,16 @@ export class Message extends BaseClass {
     @ManyToOne(() => Message, { onDelete: "SET NULL" })
     referenced_message?: Message | null;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
+    @JsonRemoveEmpty
     interaction?: {
         id: string;
         type: InteractionType;
         name: string;
     };
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
+    @JsonRemoveEmpty
     interaction_metadata?: {
         id: string;
         type: InteractionType;
@@ -207,11 +232,11 @@ export class Message extends BaseClass {
         command_type: ApplicationCommandType;
     };
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     @JsonRemoveEmpty
-    components?: ActionRowComponent[];
+    components?: BaseMessageComponents[];
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     @JsonRemoveEmpty
     poll?: Poll;
 
@@ -221,7 +246,7 @@ export class Message extends BaseClass {
     @Column({ nullable: true })
     avatar?: string;
 
-    @Column({ default: "[]", type: "simple-json" })
+    @Column({ default: "[]", type: "jsonb" })
     message_snapshots: MessageSnapshot[];
 
     @Column({ type: "simple-json", nullable: true })
@@ -248,17 +273,28 @@ export class Message extends BaseClass {
         }
     }
 
-    toJSON(shallow = false): Message {
+    toJSON(shallow = false): PublicMessage {
+        // this.clean_data();
         return {
             ...this,
+            channel_id: this.channel_id ?? this.channel.id,
+            channel: undefined,
+
+            timestamp: this.timestamp.toISOString(),
+            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
+
             author_id: undefined,
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
                 if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return user?.toPublicUser?.() ?? user ?? undefined;
+                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
             }),
+
+            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
+            mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
+            attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
 
             nonce: this.nonce ?? undefined,
             tts: this.tts ?? false,
@@ -269,15 +305,16 @@ export class Message extends BaseClass {
             reactions: this.reactions ?? undefined,
             sticker_items: this.sticker_items ?? undefined,
             message_reference: this.message_reference ?? undefined,
+            mention_everyone: this.mention_everyone ?? false,
             author: {
                 ...(this.author?.toPublicUser() ?? undefined),
                 // Webhooks
-                username: this.username ?? this.author?.username,
-                avatar: this.avatar ?? this.author?.avatar,
+                username: this.username ?? this.author?.username ?? null,
+                avatar: this.avatar ?? this.author?.avatar ?? null,
             },
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
-            components: this.components ?? undefined,
+            components: this.components ?? [],
             poll: this.poll ?? undefined,
             content: this.content ?? "",
             pinned: this.pinned,
@@ -301,10 +338,72 @@ export class Message extends BaseClass {
         };
     }
 
+    toSnapshot(): MessageSnapshot {
+        return {
+            message: {
+                attachments: this.attachments?.map((x) => x.toJSON()),
+                components: this.components,
+                content: this.content!,
+                edited_timestamp: this.edited_timestamp,
+                embeds: this.embeds,
+                flags: this.flags,
+                mention_roles: this.mention_roles?.map((x) => x.id),
+                mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
+                timestamp: this.timestamp,
+                type: this.type,
+            },
+        };
+    }
+
     withSignedAttachments(data: NewUrlUserSignatureData) {
+        function signMedia(media: UnfurledMediaItem) {
+            Object.assign(media, Attachment.prototype.signUrls.call(media, data));
+        }
         return {
             ...this,
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            components: this.components
+                ? this.components.map((comp) => {
+                      comp = structuredClone(comp);
+                      if (comp.type === MessageComponentType.Section) {
+                          const accessory = comp.accessory;
+                          if (accessory.type === MessageComponentType.Thumbnail) {
+                              signMedia(accessory.media);
+                          }
+                      } else if (comp.type === MessageComponentType.MediaGallery) {
+                          comp.items.forEach(({ media }) => signMedia(media));
+                      } else if (comp.type === MessageComponentType.File) {
+                          signMedia(comp.file);
+                      } else if (comp.type === MessageComponentType.Container) {
+                          for (const elm of comp.components) {
+                              switch (elm.type) {
+                                  case MessageComponentType.Separator:
+                                  case MessageComponentType.TextDisplay:
+                                  case MessageComponentType.ActionRow:
+                                      break;
+                                  case MessageComponentType.Section: {
+                                      const accessory = elm.accessory;
+                                      if (accessory.type === MessageComponentType.Thumbnail) {
+                                          signMedia(accessory.media);
+                                      }
+                                      break;
+                                  }
+                                  case MessageComponentType.MediaGallery:
+                                      elm.items.forEach(({ media }) => signMedia(media));
+                                      break;
+                                  case MessageComponentType.File: {
+                                      signMedia(elm.file);
+                                      break;
+                                  }
+
+                                  default:
+                                      elm satisfies never;
+                              }
+                          }
+                      }
+                      return comp;
+                  })
+                : this.components,
         };
     }
 

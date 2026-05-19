@@ -17,11 +17,11 @@
 */
 
 import { Router, Response, Request } from "express";
-import { Config, Snowflake } from "@spacebar/util";
+import { Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache, cacheNotFound } from "../util/cache";
 
@@ -43,7 +43,7 @@ router.post("/:sticker_id", multer.single("file"), async (req: Request, res: Res
     const { buffer, size } = req.file;
     const { sticker_id } = req.params as { [key: string]: string };
 
-    let hash = crypto.createHash("md5").update(Snowflake.generate()).digest("hex");
+    let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");

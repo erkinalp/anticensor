@@ -17,7 +17,8 @@
 */
 
 import { WebSocket } from "@spacebar/gateway";
-import { emitEvent, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent, distributePresenceUpdate } from "@spacebar/util";
+import { randomString } from "@spacebar/api";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
@@ -28,7 +29,39 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     this.removeAllListeners();
 
     if (this.session_id) {
-        // await Session.delete({ session_id: this.session_id });
+        const authSessionId = this.session?.session_id;
+        const closedAt = Date.now();
+
+        setTimeout(async () => {
+            console.log("Handling presence update after disconnect");
+            try {
+                if (authSessionId && this.user_id) {
+                    const s = await Session.findOne({
+                        where: { user_id: this.user_id, session_id: authSessionId },
+                    });
+                    if (s && (s.last_seen?.getTime() ?? 0) <= closedAt) {
+                        console.log("... updating session");
+                        await Session.update({ user_id: this.user_id, session_id: authSessionId }, { status: "offline", activities: [], client_status: {} });
+                        this.session = await Session.findOneOrFail({ where: { session_id: this.session_id } });
+                        console.log("... distributing PRESENCE_UPDATE");
+                        await distributePresenceUpdate(this.user_id, {
+                            event: "PRESENCE_UPDATE",
+                            data: {
+                                user: (await User.findOneOrFail({ where: { id: this.user_id } })).toPublicUser(),
+                                status: this.session!.getPublicStatus(),
+                                client_status: this.session!.client_status,
+                                activities: this.session!.activities,
+                            },
+                            origin: "GATEWAY_CLOSE",
+                            transaction_id: `IDENT_${this.user_id}_${randomString()}`,
+                        } satisfies PresenceUpdateEvent);
+                        console.log("... done!");
+                    } else console.log("... Discarding presence update as the session reactivated");
+                }
+            } catch (e) {
+                console.error("[WebSocket] Close session cleanup failed", code, e);
+            }
+        }, 10_000);
 
         const voiceState = await VoiceState.findOne({
             where: { user_id: this.user_id },
@@ -47,16 +80,23 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
             voiceState.self_video = false;
             await voiceState.save();
 
+            voiceState.member = await Member.findOneOrFail({
+                where: {
+                    id: voiceState.user_id,
+                    guild_id: prevGuildId,
+                },
+            });
             // let the users in previous guild/channel know that user disconnected
             await emitEvent({
                 event: "VOICE_STATE_UPDATE",
                 data: {
                     ...voiceState.toPublicVoiceState(),
                     guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
+                    member: voiceState.member.toPublicMember(),
                 },
                 guild_id: prevGuildId,
                 channel_id: prevChannelId,
-            } as VoiceStateUpdateEvent);
+            } satisfies VoiceStateUpdateEvent);
         }
     }
 
@@ -75,23 +115,19 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
             status: "offline",
         };
 
-        // TODO
-        // If a user was deleted, they may still be connected to gateway,
-        // which will cause this to throw when they disconnect.
-        // just send the ID of the user instead of the full correct payload for now
-        const userOrId = await User.getPublicUser(this.user_id).catch(() => ({
-            id: this.user_id,
-        }));
+        const user = await User.getPublicUser(this.user_id).catch(() => undefined);
 
-        await emitEvent({
-            event: "PRESENCE_UPDATE",
-            user_id: this.user_id,
-            data: {
-                user: userOrId,
-                activities: session.activities,
-                client_status: session?.client_status,
-                status: session.getPublicStatus?.() ?? session.status,
-            },
-        } as PresenceUpdateEvent);
+        // Special case: dont emit a presence update for deleted users
+        if (user !== undefined)
+            await emitEvent({
+                event: "PRESENCE_UPDATE",
+                user_id: this.user_id,
+                data: {
+                    user: user,
+                    activities: session.activities,
+                    client_status: session?.client_status,
+                    status: session.getPublicStatus?.() ?? session.status,
+                },
+            } satisfies PresenceUpdateEvent);
     }
 }

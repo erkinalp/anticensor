@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2025 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,6 @@
 */
 
 export class AttachmentLimits {
-	maxFilenameLength: number = 100;
-	maxDescriptionLength: number = 1024;
+    maxFilenameLength: number = 100;
+    maxDescriptionLength: number = 1024;
 }

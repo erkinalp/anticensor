@@ -18,7 +18,7 @@
 
 import amqp, { Channel, ChannelModel } from "amqplib";
 import { Config } from "./Config";
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 
 export class RabbitMQ {
     public static connection: ChannelModel | null = null;
@@ -117,7 +117,7 @@ export class RabbitMQ {
 
         console.log(`[RabbitMQ] Scheduling reconnection attempt ${this.reconnectAttempts} in ${this.BASE_RECONNECT_DELAY_MS}ms`);
 
-        await new Promise((resolve) => setTimeout(resolve, this.BASE_RECONNECT_DELAY_MS));
+        await new Promise((resolve) => void setTimeout(resolve, this.BASE_RECONNECT_DELAY_MS));
 
         try {
             await this.connect(host);

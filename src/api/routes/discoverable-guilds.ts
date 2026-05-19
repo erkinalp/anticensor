@@ -20,8 +20,7 @@ import { Config, Guild, Member } from "@spacebar/util";
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { In, Like, Not } from "typeorm";
-import { DiscoverableGuildsResponse } from "@spacebar/schemas";
+import { ArrayContains, In, Not } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -51,7 +50,7 @@ router.get(
                 id: Not(In(hiddenGuildIds)),
                 discovery_excluded: false,
                 ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
-                ...(showAllGuilds ? {} : { features: Like("%DISCOVERABLE%") }),
+                ...(showAllGuilds ? {} : { features: ArrayContains(["DISCOVERABLE"]) }),
             },
             order: {
                 discovery_weight: "DESC",

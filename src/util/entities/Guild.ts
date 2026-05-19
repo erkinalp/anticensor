@@ -101,7 +101,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     explicit_content_filter?: number;
 
-    @Column({ type: "simple-array" })
+    @Column({ type: "varchar", array: true })
     features: string[] = []; //TODO use enum
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
@@ -264,10 +264,10 @@ export class Guild extends BaseClass {
     /**
      * DEPRECATED: Look at the new Guild onboarding screens.
      */
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     welcome_screen: GuildWelcomeScreen;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: "int8" })
     @RelationId((guild: Guild) => guild.widget_channel)
     widget_channel_id?: string;
 
@@ -295,7 +295,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     premium_progress_bar_enabled: boolean = false;
 
-    @Column({ select: false, type: "simple-array" })
+    @Column({ select: false, type: "int8", array: true })
     channel_ordering: string[];
 
     @Column()
@@ -383,7 +383,7 @@ export class Guild extends BaseClass {
             region: Config.get().regions.default,
         }).save();
 
-        // we have to create the role _after_ the guild because else we would get a "SQLITE_CONSTRAINT: FOREIGN KEY constraint failed" error
+        // we have to create the role _after_ the guild because else we would get a foreign key error
         // TODO: make the @everyone a pseudorole that is dynamically generated at runtime so we can save storage
         await Role.create({
             id: guild_id,
@@ -404,19 +404,20 @@ export class Guild extends BaseClass {
         // create custom roles if provided
         if (body.roles && body.roles.length) {
             await Promise.all(
-                body.roles?.map((role) => {
-                    new Promise((resolve) => {
-                        Role.create({
-                            ...role,
-                            guild_id,
-                            id:
-                                // role.id === body.template_guild_id indicates that this is the @everyone role
-                                role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
-                        })
-                            .save()
-                            .then(resolve);
-                    });
-                }),
+                body.roles?.map(
+                    (role) =>
+                        new Promise((resolve) => {
+                            Role.create({
+                                ...role,
+                                guild_id,
+                                id:
+                                    // role.id === body.template_guild_id indicates that this is the @everyone role
+                                    role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
+                            })
+                                .save()
+                                .then(resolve);
+                        }),
+                ),
             );
         }
 
@@ -480,6 +481,10 @@ export class Guild extends BaseClass {
             discovery_weight: undefined,
             discovery_excluded: undefined,
             parent: undefined,
+            primary_category_id: undefined,
+            nsfw: undefined,
+            template_id: undefined,
+            presence_count: undefined,
         };
     }
 }

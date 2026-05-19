@@ -20,6 +20,7 @@ import { DiscordApiErrors, EVENT, FieldErrors, PermissionResolvable, Permissions
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
 import { ajv } from "@spacebar/schemas";
+import { BigNumber } from "bignumber.js";
 
 const ignoredRequestSchemas = [
     // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
@@ -41,7 +42,7 @@ export type RouteResponse = {
     body?: `${string}Response`;
     headers?: Record<string, string>;
 };
-
+export type stripNulls = { [key: string]: true | stripNulls };
 export interface RouteOptions {
     permission?: PermissionResolvable;
     right?: RightResolvable;
@@ -52,6 +53,7 @@ export interface RouteOptions {
             body?: string;
         };
     };
+    stripNulls?: stripNulls | true;
     event?: EVENT | EVENT[];
     summary?: string;
     description?: string;
@@ -73,8 +75,45 @@ export interface RouteOptions {
     // 	headers?: Record<string, string>;
     // };
 }
-
-export function route(opts: RouteOptions) {
+export function stripNull(obj: object) {
+    for (const [key, value] of Object.entries(obj)) {
+        if (value instanceof Object || (value && !value.__proto__)) {
+            stripNull(value);
+        } else if (value === null) {
+            //@ts-expect-error this is fine
+            delete obj[key];
+        }
+    }
+}
+// eslint-disable-next-line
+export function followNullPath(obj1: any, nullObj: stripNulls) {
+    for (const [key, value] of Object.entries(nullObj)) {
+        if (key in obj1)
+            if (value instanceof Object) {
+                if (obj1[key] instanceof Object)
+                    //@ts-expect-error this works lol
+                    followNullPath(obj1[key], nullObj[key]);
+                else delete obj1[key];
+            } else if (obj1[key] instanceof Object) {
+                stripNull(obj1[key]);
+            }
+    }
+}
+//It's pretty safe to assume numbers over the number limit aren't really meant to be numbers, so we turn them to strings.
+export function bigNumberToString(obj1: unknown) {
+    if (obj1 && typeof obj1 === "object") {
+        for (const [key, value] of Object.entries(obj1)) {
+            if (typeof value === "object") {
+                if (value instanceof BigNumber) {
+                    //@ts-expect-error this is fine lol
+                    obj1[key] = value.toString();
+                }
+                bigNumberToString(value);
+            }
+        }
+    }
+}
+export function route(opts: RouteOptions): (req: Request, res: Response, next: NextFunction) => Promise<void> {
     let validate: AnyValidateFunction | undefined;
     if (opts.requestBody) {
         try {
@@ -109,8 +148,14 @@ export function route(opts: RouteOptions) {
                 throw SpacebarApiErrors.MISSING_RIGHTS.withParams(opts.right as string);
             }
         }
+        bigNumberToString(req.body);
 
         if (validate && !ignoredRequestSchemas.includes(opts.requestBody!)) {
+            if (opts.stripNulls) {
+                if (opts.stripNulls === true) stripNull(req.body);
+                else followNullPath(req.body, opts.stripNulls);
+            }
+
             const valid = validate(req.body);
             if (!valid) {
                 const fields: Record<string, { code?: string; message: string }> = {};

@@ -100,18 +100,15 @@ router.patch(
             edited_timestamp: new Date(),
         });
 
-        await Promise.all([
-            new_message.save(),
-            await emitEvent({
-                event: "MESSAGE_UPDATE",
-                channel_id,
-                data: {
-                    ...new_message.toJSON(),
-                    nonce: undefined,
-                    member: new_message.member?.toPublicMember(),
-                },
-            } as MessageUpdateEvent),
-        ]);
+        await new_message.save();
+        await emitEvent({
+            event: "MESSAGE_UPDATE",
+            channel_id,
+            data: {
+                ...new_message.toJSON(),
+                nonce: undefined,
+            },
+        } satisfies MessageUpdateEvent);
 
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
@@ -192,8 +189,8 @@ router.put(
 
         if (req.file) {
             try {
-                const file = await uploadFile(`/attachments/${req.params.channel_id}`, req.file);
-                attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
+                const file = await uploadFile(`/attachments/${req.params.channel_id}/${message_id}`, req.file);
+                attachments.push(Attachment.create(file));
             } catch (error) {
                 return res.status(400).json(error);
             }
@@ -212,7 +209,7 @@ router.put(
             author_id: req.user_id,
             id: message_id,
             embeds,
-            channel_id,
+            channel_id: channel_id!,
             attachments,
             edited_timestamp: undefined,
             timestamp: new Date(snowflake.timestamp),
@@ -221,13 +218,14 @@ router.put(
         //Fix for the client bug
         delete message.member;
 
+        await message.save();
+        const publicMsg = message.toJSON();
         await Promise.all([
-            message.save(),
             emitEvent({
                 event: "MESSAGE_CREATE",
                 channel_id: channel_id,
-                data: message,
-            } as MessageCreateEvent),
+                data: publicMsg,
+            } satisfies MessageCreateEvent),
             channel.save(),
         ]);
 
@@ -323,7 +321,7 @@ router.delete(
                 channel_id,
                 guild_id: channel.guild_id,
             },
-        } as MessageDeleteEvent);
+        } satisfies MessageDeleteEvent);
 
         res.sendStatus(204);
     },

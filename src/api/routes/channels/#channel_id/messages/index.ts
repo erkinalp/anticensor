@@ -47,13 +47,15 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
-import { URL } from "url";
+import { URL } from "node:url";
 import {
     AcknowledgeDeleteSchema,
     isTextChannel,
     MessageCreateAttachment,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    PartialUser,
+    PublicMessage,
     Reaction,
     ReadStateType,
     RelationshipType,
@@ -200,10 +202,8 @@ router.get(
         }
 
         await Message.fillReplies(messages);
-        const endpoint = Config.get().cdn.endpointPublic;
-
-        const ret = messages.map((x: Message) => {
-            x = x.toJSON();
+        const ret = messages.map((msg) => {
+            const x = msg.toJSON();
 
             (x.reactions || []).forEach((y: Partial<Reaction>) => {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -212,46 +212,39 @@ router.get(
                 delete y.user_ids;
             });
             if (!x.author)
-                x.author = User.create({
+                x.author = {
                     id: "4",
                     discriminator: "0000",
                     username: "Spacebar Ghost",
                     public_flags: 0,
-                });
-            x.attachments?.forEach((y: Attachment) => {
-                // dynamically set attachment proxy_url in case the endpoint changed
-                const uri = y.proxy_url.startsWith("http") ? y.proxy_url : `https://example.org${y.proxy_url}`;
+                    avatar: null,
+                } as PartialUser;
+            x.attachments =
+                msg.attachments?.map((y: Attachment) => {
+                    const att = y.toJSON();
 
-                const url = new URL(uri);
-                if (endpoint) {
-                    const newBase = new URL(endpoint);
-                    url.protocol = newBase.protocol;
-                    url.hostname = newBase.hostname;
-                    url.port = newBase.port;
-                }
+                    att.proxy_url = getUrlSignature(
+                        new NewUrlSignatureData({
+                            url: att.proxy_url,
+                            userAgent: req.headers["user-agent"],
+                            ip: req.ip,
+                        }),
+                    )
+                        .applyToUrl(att.proxy_url)
+                        .toString();
 
-                y.proxy_url = url.toString();
+                    att.url = getUrlSignature(
+                        new NewUrlSignatureData({
+                            url: att.url,
+                            userAgent: req.headers["user-agent"],
+                            ip: req.ip,
+                        }),
+                    )
+                        .applyToUrl(att.url)
+                        .toString();
 
-                y.proxy_url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.proxy_url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.proxy_url)
-                    .toString();
-
-                y.url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.url)
-                    .toString();
-            });
+                    return att;
+                }) ?? [];
 
             /**
 			Some clients ( discord.js ) only check if a property exists within the response,
@@ -267,11 +260,15 @@ router.get(
         });
         //console.log(ret);
 
+        type MessageWithInteraction = PublicMessage & {
+            interaction_metadata?: { user?: User; user_id: string };
+            interaction?: { user?: User };
+        };
         await Promise.all(
-            ret
-                .filter((x: MessageCreateSchema) => x.interaction_metadata && !x.interaction_metadata.user)
-                .map(async (x: MessageCreateSchema) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: (x as Message).interaction_metadata!.user_id } });
+            (ret as MessageWithInteraction[])
+                .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
+                .map(async (x) => {
+                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
                 }),
         );
 
@@ -309,6 +306,10 @@ router.post(
     },
     route({
         requestBody: "MessageCreateSchema",
+        stripNulls: {
+            components: true,
+            embeds: true,
+        },
         permission: "VIEW_CHANNEL",
         right: "SEND_MESSAGES",
         responses: {
@@ -325,6 +326,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
+        const messageId = Snowflake.generate();
         const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
 
         const channel = await Channel.findOneOrFail({
@@ -358,17 +360,17 @@ router.post(
                         data: {
                             guild_id: channel.guild_id!,
                             id: channel.id,
-                            member_count: channel.member_count,
+                            member_count: channel.member_count ?? 0, // TODO: is this the right fix?
                             added_members: [{ user_id: req.user_id, ...threadMember.toJSON() }],
                         },
                         channel_id: channel.id,
-                    } as ThreadMembersUpdateEvent);
+                    } satisfies ThreadMembersUpdateEvent);
 
                     await emitEvent({
                         event: "THREAD_CREATE",
                         data: { ...channel.toJSON(), newly_created: false },
                         user_id: req.user_id,
-                    } as ThreadCreateEvent);
+                    } satisfies ThreadCreateEvent);
                 }
             }
         } else {
@@ -431,8 +433,8 @@ router.post(
         const files = (req.files as Express.Multer.File[]) ?? [];
         for (const currFile of files) {
             try {
-                const file = await uploadFile(`/attachments/${channel.id}`, currFile);
-                attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
+                const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, currFile);
+                attachments.push(Attachment.create(file));
             } catch (error) {
                 return res.status(400).json({ message: error?.toString() });
             }
@@ -442,6 +444,7 @@ router.post(
         if (body.embed) embeds.push(body.embed);
         const message = await handleMessage({
             ...body,
+            id: messageId,
             type: 0,
             pinned: false,
             author_id: req.user_id,
@@ -459,19 +462,22 @@ router.post(
 
             // Only one recipients should be closed here, since in group DMs the recipient is deleted not closed
             await Promise.all(
-                channel.recipients?.map((recipient) => {
-                    if (recipient.closed) {
-                        recipient.closed = false;
-                        return Promise.all([
-                            recipient.save(),
-                            emitEvent({
-                                event: "CHANNEL_CREATE",
-                                data: channel_dto.excludedRecipients([recipient.user_id]),
-                                user_id: recipient.user_id,
-                            }),
-                        ]);
-                    }
-                }) || [],
+                channel.recipients
+                    ?.map((recipient) => {
+                        if (recipient.closed) {
+                            recipient.closed = false;
+                            return Promise.all([
+                                recipient.save(),
+                                emitEvent({
+                                    event: "CHANNEL_CREATE",
+                                    data: channel_dto.excludedRecipients([recipient.user_id]),
+                                    user_id: recipient.user_id,
+                                }),
+                            ]);
+                        }
+                        return null;
+                    })
+                    .filter((x) => x !== null) || [],
             );
         }
 
@@ -483,7 +489,7 @@ router.post(
                 channel.save(),
                 emitEvent({
                     event: "CHANNEL_UPDATE",
-                    data: { ...channel, newly_created: false },
+                    data: { ...channel.toJSON(), newly_created: false },
                     guild_id: channel.guild_id,
                 }),
             ]);
@@ -519,14 +525,13 @@ router.post(
             emitEvent({
                 event: "MESSAGE_CREATE",
                 channel_id: channel_id,
-                data: message,
-            } as MessageCreateEvent),
-            message.guild_id ? Member.update({ id: req.user_id, guild_id: message.guild_id }, { last_message_id: message.id }) : null,
+                data: message.toJSON(),
+            } satisfies MessageCreateEvent),
+            message.guild_id ? Member.update({ id: req.user_id, guild_id: message.guild_id }, { last_message_id: message.id }) : undefined,
         ]);
 
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
-
         return res.json(
             message.withSignedAttachments(
                 new NewUrlUserSignatureData({

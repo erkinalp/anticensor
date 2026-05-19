@@ -109,7 +109,7 @@ export class Member extends BaseClassWithoutId {
     @Column()
     pending: boolean;
 
-    @Column({ type: "simple-json", select: false })
+    @Column({ type: "jsonb", select: false })
     settings: UserGuildSettings;
 
     @Column({ nullable: true })
@@ -133,7 +133,7 @@ export class Member extends BaseClassWithoutId {
     @Column()
     bio: string;
 
-    @Column({ nullable: true, type: "simple-array" })
+    @Column({ nullable: true, type: "int4", array: true })
     theme_colors?: number[]; // TODO: Separate `User` and `UserProfile` models
 
     @Column({ nullable: true })
@@ -143,16 +143,16 @@ export class Member extends BaseClassWithoutId {
     communication_disabled_until: Date | null;
 
     // TODO: add this when we have proper read receipts
-    // @Column({ type: "simple-json" })
+    // @Column({ type: "jsonb" })
     // read_state: ReadState;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     avatar_decoration_data?: AvatarDecorationData;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     display_name_styles?: DisplayNameStyle;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     collectibles?: Collectibles;
 
     @Column({ type: "int", default: 0 })
@@ -204,12 +204,12 @@ export class Member extends BaseClassWithoutId {
                     id: guild_id,
                 },
                 user_id: user_id,
-            } as GuildDeleteEvent),
+            } satisfies GuildDeleteEvent),
             emitEvent({
                 event: "GUILD_MEMBER_REMOVE",
                 data: { guild_id, user: member.user.toPublicUser() },
                 guild_id,
-            } as GuildMemberRemoveEvent),
+            } satisfies GuildMemberRemoveEvent),
         ]);
     }
 
@@ -242,7 +242,7 @@ export class Member extends BaseClassWithoutId {
                     roles: member.roles.map((x) => x.id),
                 },
                 guild_id,
-            } as GuildMemberUpdateEvent),
+            } satisfies GuildMemberUpdateEvent),
         ]);
     }
 
@@ -272,7 +272,7 @@ export class Member extends BaseClassWithoutId {
                     roles: member.roles.map((x) => x.id),
                 },
                 guild_id,
-            } as GuildMemberUpdateEvent),
+            } satisfies GuildMemberUpdateEvent),
         ]);
     }
 
@@ -282,7 +282,7 @@ export class Member extends BaseClassWithoutId {
                 id: user_id,
                 guild_id,
             },
-            relations: { user: true },
+            relations: { user: true, roles: true },
         });
 
         // @ts-expect-error Member nickname is nullable
@@ -296,10 +296,11 @@ export class Member extends BaseClassWithoutId {
                 data: {
                     guild_id,
                     user: member.user,
-                    nick: nickname || null,
+                    nick: nickname || undefined,
+                    roles: member.roles.map((x) => x.id),
                 },
                 guild_id,
-            } as GuildMemberUpdateEvent),
+            } satisfies GuildMemberUpdateEvent),
         ]);
     }
 
@@ -363,56 +364,58 @@ export class Member extends BaseClassWithoutId {
             bio: "",
         };
 
+        const newMember = Member.create({
+            ...member,
+            roles: [Role.create({ id: guild_id })],
+            // read_state: {},
+            settings: {
+                guild_id: null,
+                mute_config: null,
+                mute_scheduled_events: false,
+                flags: 0,
+                hide_muted_channels: false,
+                notify_highlights: 0,
+                channel_overrides: {},
+                message_notifications: guild.default_message_notifications,
+                mobile_push: true,
+                muted: false,
+                suppress_everyone: false,
+                suppress_roles: false,
+                version: 0,
+            },
+            // Member.save is needed because else the roles relations wouldn't be updated
+        });
+
         await Promise.all([
-            Member.create({
-                ...member,
-                roles: [Role.create({ id: guild_id })],
-                // read_state: {},
-                settings: {
-                    guild_id: null,
-                    mute_config: null,
-                    mute_scheduled_events: false,
-                    flags: 0,
-                    hide_muted_channels: false,
-                    notify_highlights: 0,
-                    channel_overrides: {},
-                    message_notifications: guild.default_message_notifications,
-                    mobile_push: true,
-                    muted: false,
-                    suppress_everyone: false,
-                    suppress_roles: false,
-                    version: 0,
-                },
-                // Member.save is needed because else the roles relations wouldn't be updated
-            }).save(),
+            newMember.save(),
             Guild.increment({ id: guild_id }, "member_count", 1),
             emitEvent({
                 event: "GUILD_MEMBER_ADD",
                 data: {
-                    ...member,
+                    ...newMember.toPublicMember(),
                     user: user,
                     guild_id,
                 },
                 guild_id,
                 origin: "util/entities/Member.ts:377/addToGuild(user_id, guild_id)",
-            } as GuildMemberAddEvent),
+            } satisfies GuildMemberAddEvent),
             emitEvent({
                 event: "GUILD_CREATE",
                 data: {
                     ...new ReadyGuildDTO(guild).toJSON(),
-                    members: [...memberPreview, { ...member, user }],
+                    members: [...memberPreview, { ...newMember.toPublicMember(), user }],
                     member_count: memberCount + 1,
                     guild_hashes: {},
                     guild_scheduled_events: [],
-                    joined_at: member.joined_at,
+                    joined_at: newMember.joined_at,
                     presences: [],
                     stage_instances: [],
                     threads: [],
                     embedded_activities: [],
-                    voice_states: guild.voice_states,
+                    voice_states: guild.voice_states.map((x) => x.toPublicVoiceState()),
                 },
                 user_id,
-            } as GuildCreateEvent),
+            } satisfies GuildCreateEvent),
         ]);
 
         if (guild.system_channel_id) {
@@ -439,13 +442,14 @@ export class Member extends BaseClassWithoutId {
 
             channel.last_message_id = message.id;
 
+            await message.save();
+            const publicMsg = message.toJSON();
             await Promise.all([
-                message.save(),
                 emitEvent({
                     event: "MESSAGE_CREATE",
                     channel_id: message.channel_id,
-                    data: message,
-                } as MessageCreateEvent),
+                    data: publicMsg,
+                } satisfies MessageCreateEvent),
                 channel.save(),
             ]);
         }

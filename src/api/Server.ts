@@ -21,7 +21,7 @@ import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLim
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
 import morgan from "morgan";
-import path from "path";
+import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
@@ -46,7 +46,7 @@ export class SpacebarServer extends Server {
     constructor(opts?: Partial<SpacebarServerOptions>) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        super({ ...opts, errorHandler: false, jsonBody: false });
+        super(opts);
     }
 
     async start() {

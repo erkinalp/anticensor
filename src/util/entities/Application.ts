@@ -38,7 +38,7 @@ export class Application extends BaseClass {
     @Column({ nullable: true })
     summary: string = "";
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     type?: object; // TODO: this type is bad
 
     @Column()
@@ -61,7 +61,7 @@ export class Application extends BaseClass {
     @Column()
     flags: number = 0;
 
-    @Column({ type: "simple-array", nullable: true })
+    @Column({ type: "varchar", nullable: true })
     redirect_uris: string[] = [];
 
     @Column({ nullable: true })
@@ -92,13 +92,13 @@ export class Application extends BaseClass {
     @OneToOne(() => User, { onDelete: "CASCADE" })
     bot?: User;
 
-    @Column({ type: "simple-array", nullable: true })
+    @Column({ type: "varchar", array: true, nullable: true })
     tags?: string[];
 
     @Column({ nullable: true })
     cover_image?: string; // the application's default rich presence invite cover image hash
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     install_params?: { scopes: string[]; permissions: string };
 
     @Column({ nullable: true })
@@ -120,7 +120,7 @@ export class Application extends BaseClass {
 
     //just for us
 
-    //@Column({ type: "simple-array", nullable: true })
+    //@Column({ type: "varchar", array: true, nullable: true })
     //rpc_origins?: string[];
 
     //@Column({ nullable: true })

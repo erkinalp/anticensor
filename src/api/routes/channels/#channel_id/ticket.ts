@@ -74,7 +74,7 @@ router.patch(
             ticket.save(),
             emitEvent({
                 event: "CHANNEL_UPDATE",
-                data: ticket,
+                data: ticket.toJSON(),
                 channel_id: ticket.id,
             } as ChannelUpdateEvent),
         ]);

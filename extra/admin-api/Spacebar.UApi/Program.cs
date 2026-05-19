@@ -8,7 +8,6 @@ using Spacebar.ConfigModel.Extensions;
 using Spacebar.Interop.Authentication;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Models.Db.Contexts;
-using Spacebar.Models.Generic.Constants;
 using Spacebar.UApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -102,7 +101,7 @@ app.Use((context, next) => {
 // add some special sauce
 app.Map("/", async context => {
     var client = new StreamingHttpClient();
-    var cfg = context.RequestServices.GetService<UApiConfiguration>();
+    var cfg = context.RequestServices.GetRequiredService<UApiConfiguration>();
     var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), cfg.FallbackApiEndpoint);
 
     foreach (var header in context.Request.Headers)
@@ -114,7 +113,6 @@ app.Map("/", async context => {
 
     foreach (var header in responseMessage.Headers) context.Response.Headers[header.Key] = header.Value.ToArray();
     foreach (var header in responseMessage.Content.Headers) context.Response.Headers[header.Key] = header.Value.ToArray();
-    context.Response.Headers["X-SB-UApi-Status"] = "MISSING";
 
     // await responseMessage.Content.CopyToAsync(context.Response.Body);
     var txt = await responseMessage.Content.ReadAsStringAsync();
@@ -124,11 +122,9 @@ app.Map("/", async context => {
     await context.Response.Body.WriteAsync(data);
 });
 
-// fallback to proxy in case we dont have a specific endpoint...
-// TODO config
 app.MapFallback("{*_}", async context => {
     var client = new StreamingHttpClient();
-    var cfg = context.RequestServices.GetService<UApiConfiguration>();
+    var cfg = context.RequestServices.GetRequiredService<UApiConfiguration>();
     var requestMessage = new HttpRequestMessage(
         new HttpMethod(context.Request.Method),
         cfg.FallbackApiEndpoint + context.Request.Path + context.Request.QueryString

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionType, Snowflake } from "@spacebar/util";
-import { ActionRowComponent, ApplicationCommandType, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
+import { Snowflake } from "../Identifiers";
+import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
 
 export type MessageCreateAttachment = {
     id: string;
@@ -42,28 +42,14 @@ export interface MessageCreateSchema {
     embeds?: Embed[] | null;
     embed?: Embed | null;
     // TODO: ^ embed is deprecated in favor of embeds (https://discord.com/developers/docs/resources/channel#message-object)
-    allowed_mentions?: {
-        parse?: string[] | null;
-        roles?: string[] | null;
-        users?: string[] | null;
-        replied_user?: boolean;
-    } | null;
-    message_reference?: {
-        message_id?: string;
-        channel_id?: string;
-        guild_id?: string;
-        fail_if_not_exists?: boolean;
-        type?: number;
-    } | null;
+    allowed_mentions?: AllowedMentions | null;
+    message_reference?: MessageReference | null;
     payload_json?: string;
     file?: { filename: string };
-    /**
-	TODO: we should create an interface for attachments
-	TODO: OpenWAAO<-->attachment-style metadata conversion
-	**/
+    // TODO: we should create an interface for attachments
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go
-    components?: ActionRowComponent[] | null; // null check: fixes Discord-Go
+    components?: BaseMessageComponents[] | null; // null check: fixes Discord-Go
     // TODO: Fix TypeScript errors in src\api\util\handlers\Message.ts once this is enabled
     poll?: PollCreationSchema;
     enforce_nonce?: boolean; // For Discord compatibility, it's the default behavior here

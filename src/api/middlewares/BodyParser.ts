@@ -33,7 +33,7 @@ const errorMessages: { [key: string]: [string, number] } = {
     "encoding.unsupported": ["Unsupported content encoding", 415],
 };
 
-export function BodyParser(opts?: OptionsJson) {
+export function BodyParser(opts?: OptionsJson): (req: Request, res: Response, next: NextFunction) => void {
     const jsonParser = bodyParser.json(opts);
 
     return (req: Request, res: Response, next: NextFunction) => {

@@ -8,9 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260126-091403" />
-        <PackageReference Include="ArcaneLibs.StringNormalisation" Version="1.0.1-preview.20260126-091403" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+        <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260420-212318" />
+        <PackageReference Include="ArcaneLibs.StringNormalisation" Version="1.0.1-preview.20260420-212318" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     </ItemGroup>
 
     <ItemGroup>

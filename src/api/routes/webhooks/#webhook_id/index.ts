@@ -1,8 +1,21 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, getPermission, Webhook, WebhooksUpdateEvent, emitEvent, Channel, handleFile, ValidateName } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    getPermission,
+    Webhook,
+    WebhooksUpdateEvent,
+    emitEvent,
+    Channel,
+    handleFile,
+    ValidateName,
+    Message,
+    MessageDeleteBulkEvent,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -62,6 +75,24 @@ router.delete(
         } else if (webhook.user_id != req.user_id) throw DiscordApiErrors.UNKNOWN_WEBHOOK;
 
         const channel_id = webhook.channel_id;
+        const channel = await Channel.findOneOrFail({ where: { id: channel_id } });
+
+        // work around foreign key constraint
+        while (await Message.count({ where: { webhook_id, channel_id } })) {
+            const ids = (await Message.find({ where: { webhook_id, channel_id }, select: { id: true }, order: { id: "asc" }, take: 100 })).map((x) => x.id);
+            await Message.delete({ id: In(ids) });
+            await emitEvent({
+                event: "MESSAGE_DELETE_BULK",
+                channel_id,
+                origin: "webhook delete",
+                data: {
+                    channel_id,
+                    guild_id: channel.guild_id,
+                    ids,
+                },
+            } satisfies MessageDeleteBulkEvent);
+        }
+
         await Webhook.delete({ id: webhook_id });
 
         await emitEvent({
@@ -69,9 +100,9 @@ router.delete(
             channel_id,
             data: {
                 channel_id,
-                guild_id: webhook.guild_id,
+                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
             },
-        } as WebhooksUpdateEvent);
+        } satisfies WebhooksUpdateEvent);
 
         res.sendStatus(204);
     },
@@ -134,9 +165,9 @@ router.patch(
                 channel_id,
                 data: {
                     channel_id,
-                    guild_id: webhook.guild_id,
+                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
                 },
-            } as WebhooksUpdateEvent),
+            } satisfies WebhooksUpdateEvent),
         ]);
 
         res.json(webhook);

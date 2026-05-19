@@ -17,8 +17,9 @@
 */
 
 // TODO: remove dependency on entities
-import { Attachment, Role } from "@spacebar/util";
-import { ActionRowComponent, Embed, MessageType, Poll, PublicUser } from "@spacebar/schemas";
+import { Role } from "@spacebar/util";
+import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser } from "@spacebar/schemas";
+import { PublicAttachment } from "../api/messages/Attachments";
 
 export interface GuildMessagesSearchMessage {
     id: string;
@@ -26,7 +27,7 @@ export interface GuildMessagesSearchMessage {
     content?: string;
     channel_id: string;
     author: PublicUser;
-    attachments: Attachment[];
+    attachments: PublicAttachment[];
     embeds: Embed[];
     mentions: PublicUser[];
     mention_roles: Role[];
@@ -36,7 +37,7 @@ export interface GuildMessagesSearchMessage {
     timestamp: string;
     edited_timestamp: string | null;
     flags: number;
-    components: ActionRowComponent[];
+    components: BaseMessageComponents[];
     poll: Poll;
     hit: true;
 }

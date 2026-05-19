@@ -7,10 +7,12 @@ self:
 }:
 
 let
-  sb = import ../modules/default/lib.nix;
+  sb = import ../lib/mkEndpoint.nix;
 in
 {
   name = "test-bundle-starts";
+  skipTypeCheck = true;
+  skipLint = true;
 
   nodes.machine = {
     imports = [ self.nixosModules.default ];
@@ -30,9 +32,11 @@ in
           };
 
           nginx.enable = true;
-          gatewayOffload = {
+          offload = {
             enable = true;
-            enableGuildSync = true;
+            gateway = {
+              enableGuildSync = true;
+            };
             extraConfiguration.ConnectionStrings.Spacebar = "Host=127.0.0.1; Username=Spacebar; Password=postgres; Database=spacebar; Port=5432; Include Error Detail=true; Maximum Pool Size=1000; Command Timeout=6000; Timeout=600;";
           };
         };

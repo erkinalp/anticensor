@@ -32,7 +32,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
 
@@ -101,7 +101,7 @@ export class Channel extends BaseClass {
     @Column({ nullable: true })
     default_auto_archive_duration?: number;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     permission_overwrites?: ChannelPermissionOverwrite[];
 
     @Column({ nullable: true })
@@ -161,7 +161,7 @@ export class Channel extends BaseClass {
     @Column({ nullable: true })
     default_thread_rate_limit_per_user?: number = 0;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     thread_metadata?: ThreadMetadata;
 
     @Column({ nullable: true })
@@ -182,6 +182,9 @@ export class Channel extends BaseClass {
 
     @Column("text", { array: true, nullable: true })
     applied_tags?: string[];
+
+    @Column("text", { nullable: true })
+    status?: string | null;
 
     /** Must be calculated Channel.calculatePosition */
     position: number;
@@ -289,9 +292,9 @@ export class Channel extends BaseClass {
             !opts?.skipEventEmit
                 ? emitEvent({
                       event: "CHANNEL_CREATE",
-                      data: channel,
+                      data: ret.toJSON(),
                       guild_id: channel.guild_id,
-                  } as ChannelCreateEvent)
+                  } satisfies ChannelCreateEvent)
                 : Promise.resolve(),
             Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
         ]);
@@ -406,18 +409,18 @@ export class Channel extends BaseClass {
                         newly_created: true,
                     },
                     guild_id: channel.guild_id,
-                } as ThreadCreateEvent),
+                } satisfies ThreadCreateEvent),
                 emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
-                        guild_id: channel.guild_id,
+                        guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
-                        member_count: channel.member_count,
+                        member_count: channel.member_count ?? 0, //TODO: is this the right fix?
                         added_members: [threadMember],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,
-                } as ThreadMembersUpdateEvent),
+                } satisfies ThreadMembersUpdateEvent),
             ]);
         }
 
@@ -546,7 +549,7 @@ export class Channel extends BaseClass {
                 }),
             },
             channel_id: channel.id,
-        } as ChannelRecipientRemoveEvent);
+        } satisfies ChannelRecipientRemoveEvent);
     }
 
     static async deleteChannel(channel: Channel) {
@@ -700,9 +703,13 @@ export class Channel extends BaseClass {
         }
     }
 
-    toJSON() {
+    toJSON(): PublicChannel {
         return {
             ...this,
+            last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
+            guild_id: this.guild_id ?? undefined,
+            recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
+            owner: undefined, // TODO: fix me - this is thread owner
 
             // these fields are not returned depending on the type of channel
             bitrate: this.bitrate || undefined,
@@ -710,6 +717,20 @@ export class Channel extends BaseClass {
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
             ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+            default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
+            retention_policy_id: undefined,
+            thread_metadata: this.thread_metadata
+                ? {
+                      ...this.thread_metadata,
+                      archive_timestamp: new Date(this.thread_metadata.archive_timestamp).toISOString().replace("Z", "+00:00"),
+                      create_timestamp: new Date(this.thread_metadata.create_timestamp).toISOString().replace("Z", "+00:00"),
+                  }
+                : undefined,
+            member_count: this.member_count ?? undefined,
+            message_count: this.message_count ?? undefined,
+            total_message_sent: this.total_message_sent ?? undefined,
+            applied_tags: this.applied_tags ?? undefined,
+            permission_overwrites: this.isThread() ? undefined : this.permission_overwrites,
         };
     }
 }

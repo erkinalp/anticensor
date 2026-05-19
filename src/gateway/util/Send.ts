@@ -17,16 +17,18 @@
 */
 
 import { Payload, WebSocket } from "@spacebar/gateway";
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import { ErlpackType, JSONReplacer } from "@spacebar/util";
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
+import * as erlpack from "harmony-erlpack";
+
+// let erlpack: ErlpackType | null = null;
+// try {
+//     erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
+// } catch (e) {
+//     console.log("Failed to import @yukikaze-bot/erlpack: ", e);
+// }
 
 // don't care
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,7 +60,7 @@ export async function Send(socket: WebSocket, data: Payload) {
     if (socket.encoding === "etf" && erlpack) {
         // Erlpack doesn't like Date objects, encodes them as {}
         data = recurseJsonReplace(data);
-        buffer = erlpack.pack(data);
+        buffer = Buffer.from(erlpack.pack(data));
     }
     // TODO: encode circular object
     else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);

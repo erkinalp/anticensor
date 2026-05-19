@@ -23,40 +23,32 @@ import { Request, Response, Router } from "express";
 const router: Router = Router();
 
 router.get(
-	"/",
-	route({
-		responses: {
-			200: {},
-		},
-	}),
-	async (_req: Request, res: Response) => {
-		const cfg = Config.get ? Config.get() : ({} as Record<string, unknown>);
-		const version =
-			(typeof (cfg as Record<string, unknown>).version === "string"
-				? ((cfg as Record<string, unknown>).version as string)
-				: typeof (cfg as Record<string, unknown>).appVersion ===
-					  "string"
-					? ((cfg as Record<string, unknown>).appVersion as string)
-					: process.env.npm_package_version) || "unknown";
-		const api_compatibility =
-			(typeof (cfg as Record<string, unknown>).apiCompatibility ===
-			"string"
-				? ((cfg as Record<string, unknown>).apiCompatibility as string)
-				: null) ?? null;
-		const extensions = (
-			Array.isArray(
-				(cfg as Record<string, unknown>).extensions as unknown[],
-			)
-				? ((cfg as { extensions: unknown[] }).extensions as unknown[])
-				: []
-		) as unknown[];
+    "/",
+    route({
+        responses: {
+            200: {},
+        },
+    }),
+    async (_req: Request, res: Response) => {
+        const cfg = Config.get ? Config.get() : ({} as Record<string, unknown>);
+        const version =
+            (typeof (cfg as Record<string, unknown>).version === "string"
+                ? ((cfg as Record<string, unknown>).version as string)
+                : typeof (cfg as Record<string, unknown>).appVersion === "string"
+                  ? ((cfg as Record<string, unknown>).appVersion as string)
+                  : process.env.npm_package_version) || "unknown";
+        const api_compatibility =
+            (typeof (cfg as Record<string, unknown>).apiCompatibility === "string" ? ((cfg as Record<string, unknown>).apiCompatibility as string) : null) ?? null;
+        const extensions = (
+            Array.isArray((cfg as Record<string, unknown>).extensions as unknown[]) ? ((cfg as { extensions: unknown[] }).extensions as unknown[]) : []
+        ) as unknown[];
 
-		res.json({
-			version,
-			api_compatibility,
-			extensions,
-		});
-	},
+        res.json({
+            version,
+            api_compatibility,
+            extensions,
+        });
+    },
 );
 
 export default router;

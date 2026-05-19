@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity } from "typeorm";
-import { BaseClassWithoutId, PrimaryIdColumn } from "./BaseClass";
+import { Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseClassWithoutId } from "./BaseClass";
 
 // TODO: categories:
 // [{
@@ -39,13 +39,13 @@ import { BaseClassWithoutId, PrimaryIdColumn } from "./BaseClass";
 export class Categories extends BaseClassWithoutId {
     // Not using snowflake
 
-    @PrimaryIdColumn()
+    @PrimaryColumn()
     id: number;
 
     @Column({ nullable: true })
     name: string;
 
-    @Column({ type: "simple-json" })
+    @Column({ type: "jsonb" })
     localizations: string;
 
     // Whether to show the category prominently (e.g. in a sidebar) instead of only secondary (e.g. in search results)

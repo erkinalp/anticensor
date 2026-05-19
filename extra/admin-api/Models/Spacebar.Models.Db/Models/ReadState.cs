@@ -11,20 +11,17 @@ namespace Spacebar.Models.Db.Models;
 public partial class ReadState
 {
     [Key]
-    [Column("id", TypeName = "character varying")]
-    public string Id { get; set; } = null!;
+    [Column("id")]
+    public long Id { get; set; }
 
-    [Column("channel_id", TypeName = "character varying")]
-    public string ChannelId { get; set; } = null!;
+    [Column("channel_id")]
+    public long ChannelId { get; set; }
 
-    [Column("user_id", TypeName = "character varying")]
-    public string UserId { get; set; } = null!;
+    [Column("user_id")]
+    public long UserId { get; set; }
 
-    [Column("last_message_id", TypeName = "character varying")]
-    public string? LastMessageId { get; set; }
-
-    [Column("public_ack", TypeName = "character varying")]
-    public string? PublicAck { get; set; }
+    [Column("last_message_id")]
+    public long? LastMessageId { get; set; }
 
     [Column("notifications_cursor", TypeName = "character varying")]
     public string? NotificationsCursor { get; set; }
@@ -33,7 +30,19 @@ public partial class ReadState
     public DateTime? LastPinTimestamp { get; set; }
 
     [Column("mention_count")]
-    public int? MentionCount { get; set; }
+    public int MentionCount { get; set; }
+
+    [Column("last_acked_id")]
+    public long? LastAckedId { get; set; }
+
+    [Column("badge_count")]
+    public int BadgeCount { get; set; }
+
+    [Column("read_state_type")]
+    public int ReadStateType { get; set; }
+
+    [Column("flags")]
+    public int Flags { get; set; }
 
     [ForeignKey("ChannelId")]
     [InverseProperty("ReadStates")]

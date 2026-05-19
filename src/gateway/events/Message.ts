@@ -17,10 +17,11 @@
 */
 
 import { CLOSECODES, Payload, WebSocket } from "@spacebar/gateway";
-import { ErlpackType } from "@spacebar/util";
-import fs from "fs/promises";
+// import { ErlpackType } from "@spacebar/util";
+import * as erlpack from "harmony-erlpack";
+import fs from "node:fs/promises";
 import BigIntJson from "json-bigint";
-import path from "path";
+import path from "node:path";
 import WS from "ws";
 import OPCodeHandlers from "../opcodes";
 import { check } from "../opcodes/instanceOf";
@@ -28,12 +29,12 @@ import { PayloadSchema } from "@spacebar/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
+// let erlpack: ErlpackType | null = null;
+// try {
+//     erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
+// } catch (e) {
+//     console.log("Failed to import @yukikaze-bot/erlpack: ", e);
+// }
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
     // TODO: compression
@@ -61,7 +62,8 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         data = bigIntJson.parse(buffer as string);
     } else if (this.encoding === "etf" && Buffer.isBuffer(buffer) && erlpack) {
         try {
-            data = erlpack.unpack(buffer);
+            // cast is ~safe: unpack returns the parsed data in the shape it was provided, @yukikaze-bot/erlpack got around this by returning `any` instead of an actual type union.
+            data = erlpack.unpack(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)) as unknown as Payload;
         } catch {
             console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode ETF payload`);
             return this.close(CLOSECODES.Decode_error);

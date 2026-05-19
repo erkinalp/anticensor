@@ -6,12 +6,12 @@
 	it under the terms of the GNU Affero General Public License as published
 	by the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-
+	
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
-
+	
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -29,4 +29,29 @@ export function arrayRemove<T>(array: T[], item: T): void {
     if (index > -1) {
         array.splice(index, 1);
     }
+}
+
+export function arrayDistinctBy<T, M>(array: T[], selector: (elem: T) => M): T[] {
+    const mapped = new Set<M>();
+
+    return array.filter((item) => {
+        const mappedValue = selector(item);
+        if (mapped.has(mappedValue)) return false;
+
+        mapped.add(mappedValue);
+        return true;
+    });
+}
+
+export function arrayGroupBy<T, M>(array: T[], selector: (elem: T) => M): Map<M, T[]> {
+    const map = new Map<M, T[]>();
+
+    array.forEach((item) => {
+        const mappedValue = selector(item);
+        const existing = map.get(mappedValue);
+        if (existing) existing.push(item);
+        else map.set(mappedValue, [item]);
+    });
+
+    return map;
 }

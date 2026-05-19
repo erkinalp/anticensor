@@ -16,164 +16,186 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ButtonStyle, InteractionCallbackSchema, InteractionCallbackType, MessageComponentType, MessageType } from "@spacebar/schemas";
-import { route, sendMessage } from "@spacebar/api";
+import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { emitEvent, FieldErrors, InteractionSuccessEvent, pendingInteractions, User } from "@spacebar/util";
+import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
-router.post("/", route({}), async (req: Request, res: Response) => {
-    const body = req.body as InteractionCallbackSchema;
+router.post(
+    "/",
+    route({
+        stripNulls: true,
+        requestBody: "InteractionCallbacksSchema",
+    }),
+    async (req: Request, res: Response) => {
+        const body = req.body as InteractionCallbacksSchema;
 
-    const errors: Record<string, { code?: string; message: string }> = {};
-    const knownComponentIds: string[] = [];
+        const interactionId = req.params.interaction_id as string;
+        const interaction = pendingInteractions.get(req.params.interaction_id);
 
-    for (const row of body.data.components || []) {
-        if (!row.components) {
-            continue;
+        if (!interaction) {
+            return;
         }
 
-        if (row.components.length < 1 || row.components.length > 5) {
-            errors[`data.components[${body.data.components!.indexOf(row)}].components`] = {
-                code: "BASE_TYPE_BAD_LENGTH",
-                message: `Must be between 1 and 5 in length.`,
-            };
-        }
+        clearTimeout(interaction.timeout);
 
-        for (const component of row.components) {
-            if (component.type == MessageComponentType.Button && component.style != ButtonStyle.Link) {
-                if (component.custom_id?.trim() === "") {
-                    errors[`data.components[${body.data.components!.indexOf(row)}].components[${row.components.indexOf(component)}].custom_id`] = {
-                        code: "BUTTON_COMPONENT_CUSTOM_ID_REQUIRED",
-                        message: "A custom id required",
-                    };
-                }
+        await emitEvent({
+            event: "INTERACTION_SUCCESS",
+            user_id: interaction?.userId,
+            data: {
+                id: interactionId,
+                nonce: interaction.nonce ?? "", // TODO: did i do this right?
+            },
+        } satisfies InteractionSuccessEvent);
 
-                if (knownComponentIds.includes(component.custom_id!)) {
-                    errors[`data.components[${body.data.components!.indexOf(row)}].components[${row.components.indexOf(component)}].custom_id`] = {
-                        code: "COMPONENT_CUSTOM_ID_DUPLICATED",
-                        message: "Component custom id cannot be duplicated",
-                    };
-                } else {
-                    knownComponentIds.push(component.custom_id!);
-                }
-            }
-        }
-    }
-
-    if (Object.keys(errors).length > 0) {
-        throw FieldErrors(errors);
-    }
-
-    const interactionId = req.params.interaction_id as string;
-    const interaction = pendingInteractions.get(req.params.interaction_id);
-
-    if (!interaction) {
-        return;
-    }
-
-    clearTimeout(interaction.timeout);
-
-    await emitEvent({
-        event: "INTERACTION_SUCCESS",
-        user_id: interaction?.userId,
-        data: {
-            id: interactionId,
-            nonce: interaction?.nonce,
-        },
-    } as InteractionSuccessEvent);
-
-    switch (body.type) {
-        case InteractionCallbackType.PONG:
-            // TODO
-            break;
-        case InteractionCallbackType.ACKNOWLEDGE:
-            // Deprected
-            break;
-        case InteractionCallbackType.CHANNEL_MESSAGE:
-            // TODO
-            break;
-        case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
-            const user = await User.findOneOrFail({ where: { id: interaction.userId } });
-            /*
+        switch (body.type) {
+            case InteractionCallbackType.PONG:
+                // TODO
+                break;
+            case InteractionCallbackType.ACKNOWLEDGE:
+                // Deprected
+                break;
+            case InteractionCallbackType.CHANNEL_MESSAGE:
+                // TODO
+                break;
+            case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
+                const user = await User.findOneOrFail({ where: { id: interaction.userId } });
+                /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
 			const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = [];
 			for (const currFile of files) {
 				try {
 					const file = await uploadFile(`/attachments/${interaction.channelId}`, currFile);
-					attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
+					attachments.push(Attachment.create(file));
 				} catch (error) {
 					return res.status(400).json({ message: error?.toString() });
 				}
 			}
 			*/
-            await sendMessage({
-                type: MessageType.APPLICATION_COMMAND,
-                timestamp: new Date(),
-                application_id: interaction.applicationId,
-                channel_id: interaction.channelId,
-                author_id: interaction.applicationId,
-                nonce: interaction.nonce,
-                content: body.data.content,
-                components: body.data.components || [],
-                tts: body.data.tts,
-                embeds: body.data.embeds || [],
-                attachments: body.data.attachments,
-                poll: body.data.poll,
-                flags: body.data.flags,
-                reactions: [],
-                // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
-                interaction: {
-                    id: interactionId,
-                    name: interaction.commandName,
-                    type: 2,
-                    user,
-                },
-                interaction_metadata: {
-                    id: interactionId,
-                    type: 2,
-                    user_id: interaction.userId,
-                    user,
-                    authorizing_integration_owners: {
-                        "1": interaction.userId,
+                await sendMessage({
+                    type: MessageType.APPLICATION_COMMAND,
+                    timestamp: new Date(),
+                    application_id: interaction.applicationId,
+                    channel_id: interaction.channelId,
+                    author_id: interaction.applicationId,
+                    nonce: interaction.nonce,
+                    content: body.data.content,
+                    components: body.data.components || [],
+                    tts: body.data.tts,
+                    embeds: body.data.embeds || [],
+                    attachments: body.data.attachments,
+                    poll: body.data.poll,
+                    flags: body.data.flags,
+                    reactions: [],
+                    // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
+                    interaction: {
+                        id: interactionId,
+                        name: interaction.commandName,
+                        type: 2,
+                        user,
                     },
-                    name: interaction.commandName,
-                    command_type: interaction.commandType,
-                },
-            });
+                    interaction_metadata: {
+                        id: interactionId,
+                        type: 2,
+                        user_id: interaction.userId,
+                        user,
+                        authorizing_integration_owners: {
+                            "1": interaction.userId,
+                        },
+                        name: interaction.commandName,
+                        command_type: interaction.commandType,
+                    },
+                });
 
-            break;
+                break;
+            }
+            case InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
+                // TODO
+                break;
+            case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
+                //TODO keep track of state of this
+                interaction.timeout = setTimeout(() => {
+                    emitEvent({
+                        event: "INTERACTION_FAILURE",
+                        user_id: req.user_id,
+                        data: {
+                            id: interactionId,
+                            nonce: interaction.nonce,
+                            reason_code: InteractionFailureReason.TIMEOUT,
+                        },
+                    } as InteractionFailureEvent);
+                }, 30000);
+                pendingInteractions.delete(interactionId);
+                res.sendStatus(204);
+                return;
+            case InteractionCallbackType.UPDATE_MESSAGE:
+                {
+                    if (!interaction.messageId) throw new HTTPError("no. That was not a message");
+                    const message = await Message.findOneOrFail({
+                        relations: {
+                            author: true,
+                            webhook: true,
+                            application: true,
+                            mentions: true,
+                            mention_roles: true,
+                            mention_channels: true,
+                            sticker_items: true,
+                            attachments: true,
+                            thread: {
+                                recipients: {
+                                    user: true,
+                                },
+                            },
+                            channel: true,
+                        },
+                        where: {
+                            id: interaction.messageId,
+                        },
+                    });
+                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
+                        throw new HTTPError("Content length over max character limit");
+                    }
+                    message.embeds = body.data.embeds || [];
+                    const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
+                    await handle?.(message.id, message.author as User, message.channel);
+                    message.components = body.data.components;
+                    await message.save();
+                    emitEvent({
+                        event: "MESSAGE_UPDATE",
+                        channel_id: message.channel_id,
+                        data: message.toJSON(),
+                    } satisfies MessageUpdateEvent);
+                }
+                // TODO
+                break;
+            /*
+            case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:
+                // TODO
+                break;
+            case InteractionCallbackType.MODAL:
+                // TODO
+                break;
+            case InteractionCallbackType.PREMIUM_REQUIRED:
+                // Deprecated
+                break;
+            case InteractionCallbackType.IFRAME_MODAL:
+                // TODO
+                break;
+            case InteractionCallbackType.LAUNCH_ACTIVITY:
+                // TODO
+                break;
+            */
+            default:
+                body satisfies never;
         }
-        case InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
-            // TODO
-            break;
-        case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-            // TODO
-            break;
-        case InteractionCallbackType.UPDATE_MESSAGE:
-            // TODO
-            break;
-        case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:
-            // TODO
-            break;
-        case InteractionCallbackType.MODAL:
-            // TODO
-            break;
-        case InteractionCallbackType.PREMIUM_REQUIRED:
-            // Deprecated
-            break;
-        case InteractionCallbackType.IFRAME_MODAL:
-            // TODO
-            break;
-        case InteractionCallbackType.LAUNCH_ACTIVITY:
-            // TODO
-            break;
-    }
 
-    pendingInteractions.delete(interactionId);
-    res.sendStatus(204);
-});
+        pendingInteractions.delete(interactionId);
+        res.sendStatus(204);
+    },
+);
 
 export default router;

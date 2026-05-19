@@ -15,6 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 export * from "./APIErrorOrCaptchaResponse";
 export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
@@ -28,7 +29,6 @@ export * from "./DmMessagesResponseSchema";
 export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
 export * from "./EmojiSourceResponse";
-export * from "./GatewayBotResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
 export * from "./GuildBansResponse";
@@ -49,6 +49,7 @@ export * from "./InstanceStatsResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
 export * from "./OAuthAuthorizeResponse";
+export * from "./PartialConnectedAccountResponse";
 export * from "./PreloadMessagesResponseSchema";
 export * from "./RefreshUrlsResponse";
 export * from "./SettingsProtoUpdateResponse";

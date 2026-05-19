@@ -1,33 +1,13 @@
 import express, { Application, Router } from "express";
-import { Server as HTTPServer } from "http";
-import http from "http";
-
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            server: Server;
-        }
-    }
-}
+import http, { Server as HTTPServer } from "node:http";
 
 export type ServerOptions = {
     port: number;
     host: string;
     production: boolean;
     serverInitLogging: boolean;
-    jsonBody: boolean;
     server: http.Server;
     app: Application;
-};
-
-// Overwrite default options for Router with default value true for mergeParams
-const oldRouter = express.Router;
-express.Router = function (options?: express.RouterOptions | undefined): Router {
-    if (!options) options = {};
-    if (options.mergeParams == null) options.mergeParams = true;
-
-    return oldRouter(options);
 };
 
 export class Server {
@@ -42,7 +22,6 @@ export class Server {
         if (!opts.host) opts.host = "0.0.0.0";
         if (opts.production == null) opts.production = false;
         if (opts.serverInitLogging == null) opts.serverInitLogging = true;
-        if (opts.jsonBody == null) opts.jsonBody = true;
         if (opts.server) this.http = opts.server;
 
         this.options = <ServerOptions>opts;
@@ -86,6 +65,6 @@ export class Server {
     }
 
     stop() {
-        return new Promise<void>((res) => this.http.close(() => res()));
+        return new Promise<void>((res) => void this.http.close(() => res()));
     }
 }
