@@ -86,6 +86,20 @@ export class SpacebarServer extends Server {
         // @ts-ignore
         this.app = api;
 
+        // Normalize percent-encoded path parameters (e.g. %40me → @me)
+        // so routes using @me in filesystem paths match correctly
+        api.use((req, _res, next) => {
+            for (const key in req.params) {
+                if (typeof req.params[key] === "string" && req.params[key].includes("%")) {
+                    req.params[key] = decodeURIComponent(req.params[key]);
+                }
+            }
+            // Also fix the path for Express route matching
+            if (req.path.includes("%40")) {
+                req.url = req.url.replace(/%40/gi, "@");
+            }
+            next();
+        });
         api.use(Authentication);
         await initRateLimits(api);
         await initTranslation(api);
