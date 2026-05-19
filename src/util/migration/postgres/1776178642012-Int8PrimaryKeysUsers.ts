@@ -114,6 +114,14 @@ export class Int8PrimaryKeysUsers1776178642012 implements MigrationInterface {
         // -> webhooks
         await queryRunner.query(`ALTER TABLE webhooks DROP CONSTRAINT "FK_0d523f6f997c86e052c49b1455f";`); //user_id
         await queryRunner.query(`ALTER TABLE webhooks ALTER COLUMN user_id TYPE ${to} USING user_id::${to}`);
+        // -> user_consents (fork-specific: ConsentsAPI)
+        await queryRunner.query(`ALTER TABLE user_consents DROP CONSTRAINT IF EXISTS "FK_user_consents_target_user_id";`);
+        await queryRunner.query(`ALTER TABLE user_consents ALTER COLUMN target_user_id TYPE ${to} USING target_user_id::${to}`);
+        // -> consent_grants (fork-specific: ConsentsAPI)
+        await queryRunner.query(`ALTER TABLE consent_grants DROP CONSTRAINT IF EXISTS "FK_consent_grants_user_id";`);
+        await queryRunner.query(`ALTER TABLE consent_grants ALTER COLUMN user_id TYPE ${to} USING user_id::${to}`);
+        await queryRunner.query(`ALTER TABLE consent_grants DROP CONSTRAINT IF EXISTS "FK_consent_grants_requester_id";`);
+        await queryRunner.query(`ALTER TABLE consent_grants ALTER COLUMN requester_id TYPE ${to} USING requester_id::${to}`);
         // and finally, cleanup
         await queryRunner.query(`ALTER TABLE users ALTER COLUMN id TYPE ${to} USING id::${to};`);
         await queryRunner.query(
@@ -162,5 +170,13 @@ export class Int8PrimaryKeysUsers1776178642012 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE public.user_settings_protos ADD CONSTRAINT "FK_8ff3d1961a48b693810c9f99853" FOREIGN KEY (user_id) REFERENCES users(id);`);
         await queryRunner.query(`ALTER TABLE public.voice_states ADD CONSTRAINT "FK_5fe1d5f931a67e85039c640001b" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;`);
         await queryRunner.query(`ALTER TABLE public.webhooks ADD CONSTRAINT "FK_0d523f6f997c86e052c49b1455f" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;`);
+        // fork-specific: ConsentsAPI
+        await queryRunner.query(
+            `ALTER TABLE public.user_consents ADD CONSTRAINT "FK_user_consents_target_user_id" FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE CASCADE;`,
+        );
+        await queryRunner.query(`ALTER TABLE public.consent_grants ADD CONSTRAINT "FK_consent_grants_user_id" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;`);
+        await queryRunner.query(
+            `ALTER TABLE public.consent_grants ADD CONSTRAINT "FK_consent_grants_requester_id" FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE;`,
+        );
     }
 }
