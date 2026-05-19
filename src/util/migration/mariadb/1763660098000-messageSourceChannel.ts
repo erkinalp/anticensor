@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MessageSourceChannel1763660098 implements MigrationInterface {
-    name = "MessageSourceChannel1763660098";
+export class MessageSourceChannel1763660098000 implements MigrationInterface {
+    name = "MessageSourceChannel1763660098000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query("ALTER TABLE messages ADD source_channel_id varchar(255) NULL");
