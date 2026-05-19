@@ -57,3 +57,4 @@ export * from "./Random";
 export * from "./Url";
 export * from "./Version";
 export * from "./ConnectionPrivacy";
+export * from "./Presence";

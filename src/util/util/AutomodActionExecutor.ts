@@ -1,5 +1,4 @@
-import { AutomodActionTypes } from "./Constants";
-import { DiscordApiErrors } from "./Constants";
+import { AutomodActionTypes, DiscordApiErrors } from "./Constants";
 import { Channel, Message, Member } from "../entities";
 import { MessageType, EmbedType } from "@spacebar/schemas";
 import { emitEvent } from "./Event";
@@ -121,7 +120,7 @@ export class AutomodActionExecutor {
             timestamp: new Date(),
         });
         await Promise.all([
-            Message.insert(createdMessage),
+            createdMessage.save(),
             emitEvent({
                 event: "MESSAGE_CREATE",
                 channel_id: alertChannelId,

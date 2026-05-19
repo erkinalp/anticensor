@@ -66,6 +66,7 @@ router.post(
     },
     route({
         requestBody: "WebhookExecuteSchema",
+        stripNulls: true,
         query: {
             wait: {
                 type: "boolean",
@@ -125,9 +126,9 @@ router.delete(
             channel_id,
             data: {
                 channel_id,
-                guild_id: webhook.guild_id,
+                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
             },
-        } as WebhooksUpdateEvent);
+        } satisfies WebhooksUpdateEvent);
 
         res.sendStatus(204);
     },
@@ -176,9 +177,9 @@ router.patch(
                 channel_id,
                 data: {
                     channel_id,
-                    guild_id: webhook.guild_id,
+                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
                 },
-            } as WebhooksUpdateEvent),
+            } satisfies WebhooksUpdateEvent),
         ]);
         res.status(204);
     },

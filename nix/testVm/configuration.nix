@@ -25,13 +25,13 @@ in
 
   services.spacebarchat-server =
     let
-      sbLib = import ../modules/default/lib.nix;
+      sbLib = import ../lib/mkEndpoint.nix;
       csConnectionString = "Host=127.0.0.1; Username=postgres; Password=postgres; Database=spacebar; Port=5432; Include Error Detail=true; Maximum Pool Size=1000; Command Timeout=6000; Timeout=600;";
       cfg = {
         enable = true;
         apiEndpoint = sbLib.mkEndpointRaw "api.sb.localhost" 3001 8080 false;
         gatewayEndpoint = sbLib.mkEndpointRaw "gw.sb.localhost" 3002 8080 false;
-        extraGatewayPorts = lib.range 3100 3116;
+        # extraGatewayPorts = lib.range 3100 3102; # 4 gateways total
         cdnEndpoint = sbLib.mkEndpointRaw "cdn.sb.localhost" 3003 8080 false;
         adminApiEndpoint = sbLib.mkEndpointRaw "admin.sb.localhost" 3004 8080 false;
         webrtcEndpoint = sbLib.mkEndpointRaw "voice.sb.localhost" 3005 8080 false;
@@ -45,16 +45,29 @@ in
             cdnSignatureIncludeUserAgent = false;
             cdnSignatureKey = "meow";
           };
+          limits = {
+            absoluteRate = {
+              register.enabled = false;
+              sendMessage.enabled = false;
+            };
+          };
+          embeds = {
+            youtube = {
+              userAgent = "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)";
+            };
+          };
         };
 
-        gatewayOffload = {
-          enable = true;
-          enableIdentify = true;
-          enableGuildMembers = true;
-          enableGuildSync = true;
-          enableLazyRequest = true;
-          enableChannelStatuses = true;
-          enableChannelInfo = true;
+        offload = {
+          enable = false;
+          gateway = {
+            enableIdentify = true;
+            enableGuildMembers = true;
+            enableGuildSync = true;
+            enableLazyRequest = true;
+            enableChannelStatuses = true;
+            enableChannelInfo = true;
+          };
           extraConfiguration.ConnectionStrings.Spacebar = csConnectionString;
         };
 
@@ -62,14 +75,14 @@ in
           enable = true;
           extraConfiguration.ConnectionStrings.Spacebar = csConnectionString;
         };
-        
+
         cdnCs = {
-          enable = false;
+          enable = true;
           extraConfiguration.ConnectionStrings.Spacebar = csConnectionString;
         };
 
         uApi = {
-          enable = true;
+          enable = false;
           extraConfiguration.ConnectionStrings.Spacebar = csConnectionString;
         };
 
@@ -80,7 +93,7 @@ in
 
         extraEnvironment = {
           DATABASE = "postgres://postgres:postgres@127.0.0.1/spacebar";
-#          LOG_REQUESTS = "-200,204,304";
+          # LOG_REQUESTS = "-200,204,304";
           LOG_REQUESTS = "-";
           LOG_VALIDATION_ERRORS = true;
           #DB_LOGGING=true;
@@ -93,6 +106,13 @@ in
     in
     lib.trace ("Testing with config: " + builtins.toJSON cfg) cfg;
   services.nginx.enable = true;
+  services.nginx.recommendedOptimisation = true;
+  services.nginx.appendConfig = ''
+    worker_processes 4;
+  '';
+  services.nginx.eventsConfig = ''
+    worker_connections 512;
+  '';
 
   users.users.root.initialPassword = "root";
   services.getty.autologinUser = "root";

@@ -31,6 +31,7 @@ import {
     ThreadMember,
     Message,
     ChannelFlags,
+    Snowflake,
 } from "@spacebar/util";
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
 
@@ -140,15 +141,24 @@ router.post(
             const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
             for (const currFile of files) {
                 try {
-                    const file = await uploadFile(`/attachments/${channel.id}`, currFile);
-                    attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
+                    const file = await uploadFile(`/attachments/${channel.id}/${thread.id}`, currFile);
+                    attachments.push(Attachment.create(file));
                 } catch (error) {
                     return res.status(400).json({ message: error?.toString() });
                 }
             }
             const embeds = body.message.embeds || [];
-            const message = await handleMessage({
+            const bodyMsg = {
                 ...body.message,
+                allowed_mentions: body.message.allowed_mentions
+                    ? {
+                          ...body.message.allowed_mentions,
+                          parse: body.message.allowed_mentions.parse as ("users" | "roles" | "everyone")[],
+                      }
+                    : undefined,
+            } as Parameters<typeof handleMessage>[0];
+            const message = await handleMessage({
+                ...bodyMsg,
                 id: thread.id,
                 type: 0,
                 pinned: false,
@@ -189,8 +199,8 @@ router.post(
                 emitEvent({
                     event: "MESSAGE_CREATE",
                     channel_id: channel_id,
-                    data: message,
-                } as MessageCreateEvent),
+                    data: message.toJSON(),
+                } satisfies MessageCreateEvent),
                 message.guild_id ? Member.update({ id: req.user_id, guild_id: message.guild_id }, { last_message_id: message.id }) : null,
             ]);
             postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));

@@ -48,7 +48,7 @@ router.post(
         if (ticket.guild_id) {
             await emitEvent({
                 event: "CHANNEL_CREATE",
-                data: ticket,
+                data: ticket.toJSON(),
                 guild_id: ticket.guild_id,
             } as ChannelCreateEvent);
         }

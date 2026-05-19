@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseEntity, BeforeInsert, BeforeUpdate, Column, ColumnOptions, FindOptionsWhere, ObjectIdColumn, PrimaryColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, BeforeUpdate, Column, ColumnOptions, FindOptionsWhere, PrimaryColumn } from "typeorm";
 import { Snowflake, getDatabase } from "../util";
 import { OrmUtils } from "../imports";
 import { annotationsKey } from "../util/Decorators";
@@ -112,10 +112,8 @@ export class BaseClassWithoutId extends BaseEntity {
     }
 }
 
-export const PrimaryIdColumn = process.env.DATABASE?.startsWith("mongodb") ? ObjectIdColumn : PrimaryColumn;
-
 export class BaseClass extends BaseClassWithoutId {
-    @PrimaryIdColumn()
+    @PrimaryColumn({ type: "int8" })
     id: string = Snowflake.generate();
 
     @BeforeUpdate()
@@ -124,5 +122,3 @@ export class BaseClass extends BaseClassWithoutId {
         if (!this.id) this.id = Snowflake.generate();
     }
 }
-
-export const ArrayColumn = (opts: ColumnOptions) => (process.env.DATABASE?.startsWith("postgres") ? Column({ ...opts, array: true }) : Column({ ...opts, type: "simple-array" }));

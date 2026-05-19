@@ -108,8 +108,8 @@ async function getWidgetJsonData(guild_id: string) {
     // Fetch voice channels, and the @everyone permissions object
     const channels: { id: string; name: string; position: number }[] = [];
 
-    (await Channel.getOrderedChannels(guild.id, guild)).filter((doc) => {
-        if (doc.type !== ChannelType.GUILD_VOICE) return false;
+    (await Channel.getOrderedChannels(guild.id, guild)).forEach((doc) => {
+        if (doc.type !== ChannelType.GUILD_VOICE) return;
         // Only return voice channels where @everyone has the CONNECT permission
         if (doc.permission_overwrites === undefined || Permissions.channelPermission(doc.permission_overwrites, Permissions.FLAGS.CONNECT) === Permissions.FLAGS.CONNECT) {
             channels.push({
@@ -126,20 +126,18 @@ async function getWidgetJsonData(guild_id: string) {
     const minLastSeen = Date.now() - 1000 * 60 * 5;
     const onlineMembers = members.filter((m) => m.user.sessions.filter((s) => (s.last_seen?.getTime() ?? 0) > minLastSeen).length > 0);
     const memberData = onlineMembers
-        .map((x) => {
-            return {
-                id: x.id,
-                username: x.user.username,
-                discriminator: x.user.discriminator,
-                avatar: null,
-                status: "online", // TODO
-                avatar_url: x.avatar
-                    ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${x.id}/avatars/${x.avatar}.png`
-                    : x.user.avatar
-                      ? `${Config.get().cdn.endpointPublic}/avatars/${x.id}/${x.user.avatar}.png`
-                      : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(x.id) % 6n}.png`,
-            };
-        })
+        .map((x) => ({
+            id: x.id,
+            username: x.user.username,
+            discriminator: x.user.discriminator,
+            avatar: null,
+            status: "online", // TODO
+            avatar_url: x.avatar
+                ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${x.id}/avatars/${x.avatar}.png`
+                : x.user.avatar
+                  ? `${Config.get().cdn.endpointPublic}/avatars/${x.id}/${x.user.avatar}.png`
+                  : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(x.id) % 6n}.png`,
+        }))
         .sort((a, b) => Number(BigInt(a.id) - BigInt(b.id)));
 
     // Construct object to respond with

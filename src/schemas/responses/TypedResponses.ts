@@ -16,24 +16,21 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// TODO: clean up util imports
 import { GeneralConfiguration, LimitsConfiguration } from "../../util/config/types";
 import { DmChannelDTO } from "../../util/dtos";
-import { Application, BackupCode, Categories, Channel, Emoji, Guild, Invite, Member, Message, Role, Sticker, StickerPack, Template, Webhook } from "@spacebar/util";
+// TODO: remove entity imports
+import { Application, BackupCode, Categories, Channel, Guild, Invite, Member, Message, Role, Template, Webhook } from "@spacebar/util";
 import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
-import { GuildBansResponse, GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
+import { GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class
 export type APIGuild = Omit<Guild, "afk_channel" | "template" | "owner" | "public_updates_channel" | "rules_channel" | "system_channel" | "widget_channel">;
-
 export type APIPublicUser = PublicUser;
-
 export type APIPrivateUser = PrivateUser;
-
 export type APIGuildArray = APIGuild[];
-
 export type APIDMChannelArray = DmChannelDTO[];
-
 export type APIBackupCodeArray = BackupCode[];
 
 export interface UserUpdateResponse extends APIPrivateUser {
@@ -41,29 +38,15 @@ export interface UserUpdateResponse extends APIPrivateUser {
 }
 
 export type ApplicationDetectableResponse = unknown[];
-
 export type ApplicationEntitlementsResponse = unknown[];
-
 export type ApplicationSkusResponse = unknown[];
-
 export type APIApplicationArray = Application[];
-
-export type APIBansArray = GuildBansResponse[];
-
 export type APIInviteArray = Invite[];
-
 export type APIMessageArray = Message[];
-
 export type APIWebhookArray = Webhook[];
-
 export type APIDiscoveryCategoryArray = Categories[];
-
 export type APIGeneralConfiguration = GeneralConfiguration;
-
 export type APIChannelArray = Channel[];
-
-export type APIEmojiArray = Emoji[];
-
 export type APIMemberArray = Member[];
 export type APIPublicMember = PublicMember;
 
@@ -72,16 +55,9 @@ export interface APIGuildWithJoinedAt extends GuildCreateResponse {
 }
 
 export type APIRoleArray = Role[];
-
-export type APIStickerArray = Sticker[];
-
 export type APITemplateArray = Template[];
-
 export type APIGuildVoiceRegion = GuildVoiceRegion[];
-
 export type APILimitsConfiguration = LimitsConfiguration;
-
-export type APIStickerPackArray = StickerPack[];
 
 export type APIConnectionsConfiguration = Record<
     string,

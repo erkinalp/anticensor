@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 import { Storage } from "./Storage";
 
 const readableToBuffer = (readable: Readable): Promise<Buffer> =>
@@ -33,10 +33,11 @@ export class S3Storage implements Storage {
         private region: string,
         private bucket: string,
         private endpoint: string,
+        private forcePathStyle: boolean,
         private basePath?: string,
     ) {
         const { S3 } = require("@aws-sdk/client-s3");
-        this.client = new S3({ region: region, endpoint: endpoint });
+        this.client = new S3({ region: region, endpoint: endpoint, forcePathStyle: forcePathStyle });
     }
     isFile(path: string): Promise<boolean> {
         return this.exists(path);

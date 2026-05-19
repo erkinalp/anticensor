@@ -17,7 +17,7 @@
 */
 
 import { Config, getRights, listenEvent, RabbitMQ } from "@spacebar/util";
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, Response, RequestHandler, Router } from "express";
 import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 
 // Docs: https://discord.com/developers/docs/topics/rate-limits
@@ -56,7 +56,7 @@ export default function rateLimit(opts: {
     error?: boolean;
     success?: boolean;
     onlyIp?: boolean;
-}) {
+}): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction) => {
         // exempt user? if so, immediately short circuit
         if (req.user_id) {

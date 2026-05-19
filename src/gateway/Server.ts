@@ -21,10 +21,10 @@ dotenv.config({ quiet: true });
 import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "@spacebar/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
-import http from "http";
+import http from "node:http";
 import { cleanupOnStartup } from "./util";
 import { randomString } from "@spacebar/api";
-import { setInterval } from "timers";
+import { setInterval } from "node:timers";
 
 export class Server {
     public ws: ws.Server;
@@ -92,9 +92,9 @@ export class Server {
                                     })),
                                     socketStates: {
                                         open: openConnections.length,
-                                        sessions: openConnections.map((x) => {
+                                        sessions: openConnections.map((x) =>
                                             // console.log(x);
-                                            return useFullWsObj
+                                            useFullWsObj
                                                 ? {
                                                       ...x,
                                                       ...{
@@ -132,8 +132,8 @@ export class Server {
                                                       large_threshold: x.large_threshold,
                                                       qos: x.qos,
                                                       session: x.session,
-                                                  };
-                                        }),
+                                                  },
+                                        ),
                                     },
                                 },
                                 (key, value) => {

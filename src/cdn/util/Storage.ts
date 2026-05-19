@@ -17,8 +17,8 @@
 */
 
 import { FileStorage } from "./FileStorage";
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
 import { red } from "picocolors";
 process.cwd();
 
@@ -82,8 +82,17 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
         location = undefined;
     }
 
-    const { S3Storage } = require("S3Storage");
-    storage = new S3Storage(region, bucket, endpoint, location);
+    // if false, the bucket name is used as a subdomain
+    const forcePathStyle = process.env.STORAGE_FORCE_PATH_STYLE === "true";
+
+    if (process.env.STORAGE_FORCE_PATH_STYLE === undefined) {
+        console.warn(
+            `[CDN] STORAGE_FORCE_PATH_STYLE is not set for S3 provider; defaulting to virtual-hosted style. Set STORAGE_FORCE_PATH_STYLE=true to enable path-style addressing.`,
+        );
+    }
+
+    const { S3Storage } = require("./S3Storage");
+    storage = new S3Storage(region, bucket, endpoint, forcePathStyle, location);
 }
 
 export { storage };

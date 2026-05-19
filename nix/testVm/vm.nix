@@ -59,4 +59,13 @@
     font = "${pkgs.cozette}/share/consolefonts/cozette6x13.psfu";
     packages = with pkgs; [ cozette ];
   };
+
+  system = {
+    disableInstallerTools = true;
+    copySystemConfiguration = false;
+    includeBuildDependencies = false;
+    tools.nixos-version.enable = true;
+    switch.enable = false;
+    etc.overlay.enable = true;
+  };
 }

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Member, TypingStartEvent, User } from "@spacebar/util";
+import { Channel, emitEvent, Member, TypingStartEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
@@ -58,9 +58,9 @@ router.post(
                 channel_id,
                 timestamp,
                 user_id,
-                guild_id: channel.guild_id,
+                guild_id: channel.guild_id ?? undefined,
             },
-        } as TypingStartEvent);
+        } satisfies TypingStartEvent);
 
         res.sendStatus(204);
     },

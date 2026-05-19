@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@spacebar/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -25,6 +25,15 @@ import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
+
+const recentlyBlockedIps: {
+    [ip: string]: {
+        firstHit: Date;
+        lastHit: Date;
+        hits: number;
+        reason: string;
+    };
+} = {};
 
 router.post(
     "/",
@@ -82,7 +91,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "DISABLED",
-                    message: "registration is disabled on this instance",
+                    message: "Registration is disabled on this instance",
                 },
             });
         }
@@ -124,20 +133,44 @@ router.post(
             }
         }
 
+        //region IP checks
+        const cacheBlockedIp = (ip: string, reason: string) => {
+            recentlyBlockedIps[ip] = {
+                firstHit: new Date(),
+                lastHit: new Date(),
+                hits: 0,
+                reason,
+            };
+            console.log(`[Register] ${ip} blocked from registration:`, reason);
+        };
+
+        if (!regTokenUsed && recentlyBlockedIps[ip]) {
+            if (new TimeSpan(recentlyBlockedIps[ip].firstHit.getTime(), new Date().getTime()).totalHours >= 24) delete recentlyBlockedIps[ip];
+            else {
+                recentlyBlockedIps[ip].lastHit = new Date();
+                recentlyBlockedIps[ip].hits++;
+                console.log(
+                    `[Register] ${ip} blocked from registration: blocked since ${recentlyBlockedIps[ip].firstHit} with ${recentlyBlockedIps[ip].hits} hits and reason:`,
+                    recentlyBlockedIps[ip].reason,
+                );
+                throw new HTTPError("Your IP is blocked from registration");
+            }
+        }
+
         if (!regTokenUsed && register.enableAbuseIpDb) {
             const blacklist = await AbuseIpDbClient.getBlacklist();
             if (blacklist) {
                 const entry = blacklist.data.find((e) => e.ipAddress === ip);
 
                 if (entry && entry.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
-                    console.log(`[Register] ${ip} blocked from registration: AbuseIPDB score ${entry.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (BLACKLIST)`);
+                    cacheBlockedIp(ip, `AbuseIPDB score ${entry.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (BLACKLIST)`);
                     throw new HTTPError("Your IP is blocked from registration");
                 }
             }
 
             const checkIp = await AbuseIpDbClient.checkIpAddress(ip);
             if (checkIp?.data && checkIp.data.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
-                console.log(`[Register] ${ip} blocked from registration: AbuseIPDB score ${checkIp.data.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (CHECK)`);
+                cacheBlockedIp(ip, `AbuseIPDB score ${checkIp.data.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (CHECK)`);
                 throw new HTTPError("Your IP is blocked from registration");
             }
         }
@@ -153,25 +186,26 @@ router.post(
                     .map(([key]) => key.replace("is_", ""));
                 const blockedCategories = new Set(categories).intersection(new Set(register.blockIpDataCoThreatTypes));
                 if (blockedCategories.size > 0) {
-                    console.log(`[Register] ${ip} blocked from registration: IPData.co threat types ${Array.from(blockedCategories).join(", ")}`);
+                    cacheBlockedIp(ip, `IPData.co threat types ${Array.from(blockedCategories).join(", ")}`);
                     throw new HTTPError("Your IP is blocked from registration");
                 }
 
                 if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
-                    console.log(`[Register] ${ip} blocked from registration: IPData.co ASN type ${ipData.asn.type} is blocked`);
+                    cacheBlockedIp(ip, `IPData.co ASN type ${ipData.asn.type} is blocked`);
                     throw new HTTPError("Your IP is blocked from registration");
                 } else if (!ipData.asn.type) {
                     console.log("[Register] IPData.co response missing asn.type field", ipData);
                 }
 
                 if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
-                    console.log(`[Register] ${ip} blocked from registration: IPData.co ASN ${ipData.asn.name} is blocked`);
+                    cacheBlockedIp(ip, `IPData.co ASN ${ipData.asn.name} is blocked`);
                     throw new HTTPError("Your IP is blocked from registration");
                 } else if (!ipData.asn.asn) {
                     console.log("[Register] IPData.co response missing asn.asn field", ipData);
                 }
             }
         }
+        //endregion
 
         // TODO: gift_code_sku_id?
         // TODO: check password strength

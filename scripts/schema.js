@@ -35,7 +35,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const TJS = require("typescript-json-schema");
 const walk = require("./util/walk");
-const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright } = require("picocolors");
+const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright, blueBright, blue, cyan, bgRed, gray } = require("picocolors");
 const schemaPath = path.join(__dirname, "..", "assets", "schemas.json");
 const exclusionList = JSON.parse(fs.readFileSync(path.join(__dirname, "schemaExclusions.json"), { encoding: "utf8" }));
 
@@ -63,6 +63,8 @@ const baseClassProperties = [
     "_do_validate", // ?
     "hasId", // ?
 ];
+
+const entityMethods = ["ToGuildSource"];
 
 const ExcludeAndWarn = [...exclusionList.manualWarn, ...exclusionList.manualWarnRe.map((r) => new RegExp(r))];
 const Excluded = [...exclusionList.manual, ...exclusionList.manualRe.map((r) => new RegExp(r)), ...exclusionList.auto.map((r) => r.value)];
@@ -167,6 +169,14 @@ async function main() {
     });
     //.sort((a,b) => a.localeCompare(b));
 
+    // remove node modules once and for all
+    console.log("Removing schemas from node modules...");
+    schemas = schemas.filter((x) => !generator.getSymbols(x)[0].fullyQualifiedName.includes("/node_modules/"));
+
+    // for (const s of schemas) {
+    //     console.log(generator.getSymbols(s)[0].symbol);
+    // }
+
     const elapsedList = stepSw.getElapsedAndReset();
     process.stdout.write("Done in " + yellowBright(elapsedList.totalMilliseconds + "." + elapsedList.microseconds) + " ms\n");
     console.log("Found", yellowBright(schemas.length), "schemas to process.");
@@ -189,7 +199,7 @@ async function main() {
     const schemaSw = Stopwatch.startNew();
     for (const name of schemas) {
         process.stdout.write(`Processing schema ${name}... `);
-        const part = TJS.generateSchema(program, name, settings, [], generator);
+        let part = TJS.generateSchema(program, name, settings, [], generator);
         if (!part) continue;
 
         if (definitions[name]) {
@@ -199,6 +209,12 @@ async function main() {
         if (!includesMatch(name, Included) && excludedLambdas.some((fn) => fn(name, part))) {
             continue;
         }
+
+        // part = removeKeysMatchingRecursive(part, /^__@annotationsKey.*/, 128);
+        // part = removeArrayValuesMatchingRecursive(part, /^__@annotationsKey.*/, 128);
+        const _matchesRegex = (r) => (k, v, _) => (typeof k === "string" && k.match(r)) || (typeof v === "string" && v.match(r));
+        part = await removeAllMatchingRecursive(part, _matchesRegex(/__@annotationsKey/));
+        part = await removeAllMatchingRecursive(part, _matchesRegex(/ToGuildSource/));
 
         if (process.env.WRITE_SCHEMA_DIR === "true") writePromises.push(async () => await fsp.writeFile(path.join("schemas_orig", `${name}.json`), JSON.stringify(part, null, 4)));
 
@@ -378,6 +394,23 @@ function columnizedObjectDiff(a, b, trackEqual = false) {
         } else if (trackEqual) diffs.equal[key] = a[key];
     }
     return diffs;
+}
+
+const showScanDepth = process.env.SCHEMAS_SHOW_SCAN_DEPTH === "true";
+async function removeAllMatchingRecursive(o, selector, maxDepth = 32, path = "$") {
+    if (!o) return o;
+    for (const [k, v] of Object.entries(o)) {
+        if (selector(k, v, o)) {
+            process.stdout.write(yellowBright("R(" + gray(k) + " @ " + cyan(path) + ") "));
+            delete o[k];
+        } else if (maxDepth > 0 && typeof o != "string") {
+            if (showScanDepth) process.stdout.write(gray(">"));
+            o[k] = await removeAllMatchingRecursive(o[k], selector, maxDepth - 1, path + "." + k);
+            if (showScanDepth) process.stdout.write(cyan("\b \b"));
+        }
+    }
+
+    return o;
 }
 
 main().then(() => {});

@@ -64,8 +64,8 @@ router.put(
             },
         },
     }),
-    async (req: Request, res: Response) => {
-        return await updateRelationship(
+    async (req: Request, res: Response) =>
+        await updateRelationship(
             req,
             res,
             await User.findOneOrFail({
@@ -74,8 +74,7 @@ router.put(
                 select: userProjection,
             }),
             req.body.type ?? RelationshipType.friends,
-        );
-    },
+        ),
 );
 
 router.patch(
@@ -109,7 +108,7 @@ router.patch(
                     should_notify: true,
                 },
                 user_id: req.user_id,
-            } as RelationshipUpdateEvent),
+            } satisfies RelationshipUpdateEvent),
             rel.save(),
         ]);
         res.send(204);
@@ -130,8 +129,8 @@ router.post(
             },
         },
     }),
-    async (req: Request, res: Response) => {
-        return await updateRelationship(
+    async (req: Request, res: Response) =>
+        await updateRelationship(
             req,
             res,
             await User.findOneOrFail({
@@ -143,8 +142,7 @@ router.post(
                 },
             }),
             req.body.type,
-        );
-    },
+        ),
 );
 
 router.delete(
@@ -188,7 +186,7 @@ router.delete(
                     event: "RELATIONSHIP_REMOVE",
                     user_id: req.user_id,
                     data: relationship.toPublicRelationship(),
-                } as RelationshipRemoveEvent),
+                } satisfies RelationshipRemoveEvent),
             ]);
             return res.sendStatus(204);
         }
@@ -199,7 +197,7 @@ router.delete(
                     event: "RELATIONSHIP_REMOVE",
                     data: friendRequest.toPublicRelationship(),
                     user_id: user_id,
-                } as RelationshipRemoveEvent),
+                } satisfies RelationshipRemoveEvent),
             ]);
         }
 
@@ -209,7 +207,7 @@ router.delete(
                 event: "RELATIONSHIP_REMOVE",
                 data: relationship.toPublicRelationship(),
                 user_id: req.user_id,
-            } as RelationshipRemoveEvent),
+            } satisfies RelationshipRemoveEvent),
         ]);
 
         return res.sendStatus(204);
@@ -252,7 +250,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
                     event: "RELATIONSHIP_REMOVE",
                     data: friendRequest.toPublicRelationship(),
                     user_id: id,
-                } as RelationshipRemoveEvent),
+                } satisfies RelationshipRemoveEvent),
             ]);
         }
 
@@ -260,7 +258,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
             event: "RELATIONSHIP_ADD",
             data: relationship.toPublicRelationship(),
             user_id: req.user_id,
-        } as RelationshipAddEvent);
+        } satisfies RelationshipAddEvent);
 
         return res.sendStatus(204);
     }
@@ -304,7 +302,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
             event: "RELATIONSHIP_ADD",
             data: outgoing_relationship.toPublicRelationship(),
             user_id: req.user_id,
-        } as RelationshipAddEvent),
+        } satisfies RelationshipAddEvent),
         emitEvent({
             event: "RELATIONSHIP_ADD",
             data: {
@@ -312,7 +310,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
                 should_notify: true,
             },
             user_id: id,
-        } as RelationshipAddEvent),
+        } satisfies RelationshipAddEvent),
     ]);
 
     return res.sendStatus(204);

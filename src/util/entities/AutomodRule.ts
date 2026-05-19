@@ -35,10 +35,10 @@ export class AutomodRule extends BaseClass {
     @Column()
     event_type: AutomodRuleEventType;
 
-    @Column({ type: "simple-array" })
+    @Column({ type: "int8", array: true })
     exempt_channels: string[];
 
-    @Column({ type: "simple-array" })
+    @Column({ type: "int8", array: true })
     exempt_roles: string[];
 
     @Column()
@@ -54,14 +54,14 @@ export class AutomodRule extends BaseClass {
     trigger_type: AutomodRuleTriggerType;
 
     @Column({
-        type: "simple-json",
+        type: "jsonb",
         nullable: true,
     })
     trigger_metadata?: // this is null for "Block suspected spam content"
     AutomodRuleTriggerMetadata;
 
     @Column({
-        type: "simple-json",
+        type: "jsonb",
     })
     actions: AutomodAction[];
 }

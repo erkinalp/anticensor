@@ -18,7 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@spacebar/util";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
@@ -46,7 +46,8 @@ router.get(
         return res.json(
             webhooks.map((webhook) => ({
                 ...webhook,
-                url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
+                user: webhook.user?.toPublicUser(),
+                url: Config.get().api.endpointPublic + "/api/webhooks/" + webhook.id + "/" + webhook.token,
             })),
         );
     },

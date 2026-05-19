@@ -61,7 +61,8 @@ let
 
       # Apply pnpm-only patches (patch-package format patches are already applied by npm postinstall)
       # discord-protos uses pnpm patch format (no version suffix) and needs explicit application
-      if [ -d node_modules/discord-protos ] && [ -f patches/discord-protos.patch ]; then
+      # Skip if dist files already exist (newer versions ship them)
+      if [ -d node_modules/discord-protos ] && [ -f patches/discord-protos.patch ] && [ ! -f node_modules/discord-protos/dist/index.js ]; then
         echo "Applying discord-protos patch (pnpm format)"
         (cd node_modules/discord-protos && patch -p1 < ../../patches/discord-protos.patch)
       fi
@@ -76,7 +77,7 @@ let
       # set -x
 
       # remove packages not needed for production, or at least try to...
-      npm prune --omit dev --no-save  --offline
+      npm prune --omit dev --no-save --offline
       rm -v dist/src.tsbuildinfo
       rm -rv scripts
       time ${./nix/trimNodeModules.sh}

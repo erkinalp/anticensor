@@ -1,12 +1,13 @@
 import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { WebhookExecuteSchema } from "@spacebar/schemas";
 
-export const executeWebhook = async (req: Request, res: Response) => {
+export async function executeWebhook(req: Request, res: Response): Promise<void> {
     const body = req.body as WebhookExecuteSchema;
+    const messageId = Snowflake.generate();
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
@@ -87,8 +88,8 @@ export const executeWebhook = async (req: Request, res: Response) => {
     const files = (req.files as Express.Multer.File[]) ?? [];
     for (const currFile of files) {
         try {
-            const file = await uploadFile(`/attachments/${sendChannel.id}`, currFile);
-            attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
+            const file = await uploadFile(`/attachments/${sendChannel.id}/${messageId}`, currFile);
+            attachments.push(Attachment.create(file));
         } catch (error) {
             if (wait) res.status(400).json({ message: error?.toString() });
             return;
@@ -96,8 +97,18 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     const embeds = body.embeds || [];
-    const message = await handleMessage({
+    const bodyMsg = {
         ...body,
+        allowed_mentions: body.allowed_mentions
+            ? {
+                  ...body.allowed_mentions,
+                  parse: body.allowed_mentions.parse as ("users" | "roles" | "everyone")[],
+              }
+            : undefined,
+    } as Parameters<typeof handleMessage>[0];
+    const message = await handleMessage({
+        id: messageId,
+        ...bodyMsg,
         username: body.username || webhook.name,
         avatar_url: body.avatar_url || webhook.avatar,
         type: 0,
@@ -123,12 +134,12 @@ export const executeWebhook = async (req: Request, res: Response) => {
         emitEvent({
             event: "MESSAGE_CREATE",
             channel_id: sendChannel.id,
-            data: message,
-        } as MessageCreateEvent),
+            data: message.toJSON(),
+        } satisfies MessageCreateEvent),
     ]);
 
     // no await as it shouldnt block the message send function and silently catch error
     postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
     if (wait) res.json(message);
     return;
-};
+}

@@ -1,23 +1,23 @@
 [
   {
     "pname": "ArcaneLibs",
-    "version": "1.0.1-preview.20260126-091403",
-    "hash": "sha256-CSmNE16nDi05qyDAcJR+8SqQQ2ReAeX0+/dRP3WpNsg="
+    "version": "1.0.1-preview.20260420-212318",
+    "hash": "sha256-y+gU8S3jbcFgIwwc0vkkEPMfHzGZ+55//9uvsKOEGXY="
   },
   {
-    "pname": "Magick.NET-Q16-HDRI-OpenMP-x64",
-    "version": "14.10.4",
-    "hash": "sha256-2L2o7K3CvULSqyWEhJNhY/JA4+7IaC8WiRXWKmsdNiM="
+    "pname": "Magick.NET-Q16-HDRI-AnyCPU",
+    "version": "14.13.1",
+    "hash": "sha256-nsy1i1Ohzh1dejjYdAtAgeGt6Tm9y93WksVGOSZ/dKY="
   },
   {
     "pname": "Magick.NET.Core",
-    "version": "14.10.4",
-    "hash": "sha256-qadZhuOIB3uNWz+nAEx+57oAYRQtPZ+1jk67sutzcKo="
+    "version": "14.13.1",
+    "hash": "sha256-s5JFCFyz2ZBu6UiidoA9povEo7h2lOktrCED4VdjvsY="
   },
   {
     "pname": "Microsoft.AspNetCore.OpenApi",
-    "version": "10.0.5",
-    "hash": "sha256-CQXAu6Tm8nOy/rrZksIKGaLW7USEP/N1kwKBMLoh7js="
+    "version": "10.0.8",
+    "hash": "sha256-v2E7nwc4Nac8Ns5cQ2KmzLash9AEMbfQbMo2bFy7oZM="
   },
   {
     "pname": "Microsoft.EntityFrameworkCore",

@@ -81,13 +81,15 @@ router.put(
             mention_everyone: false,
         });
 
+        await message.save();
+        const publicMsg = message.toJSON();
+        const publicSystem = systemPinMessage.toJSON();
         await Promise.all([
-            message.save(),
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id,
-                data: message,
-            } as MessageUpdateEvent),
+                data: publicMsg,
+            } satisfies MessageUpdateEvent),
             emitEvent({
                 event: "CHANNEL_PINS_UPDATE",
                 channel_id,
@@ -96,13 +98,13 @@ router.put(
                     guild_id: message.guild_id,
                     last_pin_timestamp: undefined,
                 },
-            } as ChannelPinsUpdateEvent),
+            } satisfies ChannelPinsUpdateEvent),
             systemPinMessage.save(),
             emitEvent({
                 event: "MESSAGE_CREATE",
                 channel_id: message.channel_id,
-                data: systemPinMessage,
-            } as MessageCreateEvent),
+                data: publicSystem,
+            } satisfies MessageCreateEvent),
         ]);
 
         res.sendStatus(204);
@@ -134,13 +136,14 @@ router.delete(
 
         message.pinned_at = null;
 
+        await message.save();
+        const publicMsg2 = message.toJSON();
         await Promise.all([
-            message.save(),
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id,
-                data: message,
-            } as MessageUpdateEvent),
+                data: publicMsg2,
+            } satisfies MessageUpdateEvent),
             emitEvent({
                 event: "CHANNEL_PINS_UPDATE",
                 channel_id,
@@ -149,7 +152,7 @@ router.delete(
                     guild_id: message.guild_id,
                     last_pin_timestamp: undefined,
                 },
-            } as ChannelPinsUpdateEvent),
+            } satisfies ChannelPinsUpdateEvent),
         ]);
 
         res.sendStatus(204);

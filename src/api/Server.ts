@@ -21,7 +21,7 @@ import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLim
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
 import morgan from "morgan";
-import path from "path";
+import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
@@ -46,7 +46,7 @@ export class SpacebarServer extends Server {
     constructor(opts?: Partial<SpacebarServerOptions>) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        super({ ...opts, errorHandler: false, jsonBody: false });
+        super(opts);
     }
 
     async start() {
@@ -86,6 +86,20 @@ export class SpacebarServer extends Server {
         // @ts-ignore
         this.app = api;
 
+        // Normalize percent-encoded path parameters (e.g. %40me → @me)
+        // so routes using @me in filesystem paths match correctly
+        api.use((req, _res, next) => {
+            for (const key in req.params) {
+                if (typeof req.params[key] === "string" && req.params[key].includes("%")) {
+                    req.params[key] = decodeURIComponent(req.params[key]);
+                }
+            }
+            // Also fix the path for Express route matching
+            if (req.path.includes("%40")) {
+                req.url = req.url.replace(/%40/gi, "@");
+            }
+            next();
+        });
         api.use(Authentication);
         await initRateLimits(api);
         await initTranslation(api);

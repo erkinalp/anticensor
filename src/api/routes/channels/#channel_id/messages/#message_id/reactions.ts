@@ -85,7 +85,7 @@ router.delete(
                 message_id,
                 guild_id: channel.guild_id,
             },
-        } as MessageReactionRemoveAllEvent);
+        } satisfies MessageReactionRemoveAllEvent);
 
         res.sendStatus(204);
     },
@@ -127,7 +127,7 @@ router.delete(
                     guild_id: message.guild_id,
                     emoji,
                 },
-            } as MessageReactionRemoveEmojiEvent),
+            } satisfies MessageReactionRemoveEmojiEvent),
         ]);
 
         res.sendStatus(204);

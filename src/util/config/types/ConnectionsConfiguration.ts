@@ -17,10 +17,10 @@
 */
 
 export class ConnectionsConfiguration {
-	enabled: boolean = true;
-	defaultVisibility: number = 1;
-	allowUserOverride: boolean = true;
-	providers: string[] = [];
-	requireExplicitConsent: boolean = false;
-	dataRetentionDays: number = 365;
+    enabled: boolean = true;
+    defaultVisibility: number = 1;
+    allowUserOverride: boolean = true;
+    providers: string[] = [];
+    requireExplicitConsent: boolean = false;
+    dataRetentionDays: number = 365;
 }

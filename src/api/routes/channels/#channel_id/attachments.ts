@@ -17,9 +17,8 @@
 */
 
 import { randomString, route } from "@spacebar/api";
-import { Channel, Config, Permissions } from "@spacebar/util";
+import { CloudAttachment, Channel, Config, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { CloudAttachment } from "@spacebar/util";
 import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -87,14 +86,12 @@ router.post(
         );
 
         res.send({
-            attachments: attachments.map((a) => {
-                return {
-                    id: a.userAttachmentId,
-                    upload_filename: a.uploadFilename,
-                    upload_url: `${cdnUrl}/attachments/${a.uploadFilename}`,
-                    original_content_type: a.userOriginalContentType,
-                };
-            }),
+            attachments: attachments.map((a) => ({
+                id: a.userAttachmentId,
+                upload_filename: a.uploadFilename,
+                upload_url: `${cdnUrl}/attachments/${a.uploadFilename}`,
+                original_content_type: a.userOriginalContentType,
+            })),
         } as UploadAttachmentResponseSchema);
     },
 );

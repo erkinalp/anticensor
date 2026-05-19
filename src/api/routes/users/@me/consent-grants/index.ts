@@ -18,8 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { ConsentGrant, ConsentGrantStatus, ConsentType, UserConsent, ConsentStatus, DiscordApiErrors, User } from "@spacebar/util";
-import { Snowflake } from "@spacebar/util";
+import { ConsentGrant, ConsentGrantStatus, ConsentType, UserConsent, ConsentStatus, DiscordApiErrors, User, Snowflake } from "@spacebar/util";
 import { FindOptionsWhere } from "typeorm";
 
 const router: Router = Router();

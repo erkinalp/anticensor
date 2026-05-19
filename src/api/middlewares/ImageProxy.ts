@@ -19,7 +19,7 @@
 import { Config, JimpType } from "@spacebar/util";
 import { Request, Response } from "express";
 import { yellow } from "picocolors";
-import crypto from "crypto";
+import crypto from "node:crypto";
 
 let sharp: undefined | false | { default: typeof import("sharp") } = undefined;
 
@@ -36,6 +36,7 @@ const sharpSupported = new Set(["image/jpeg", "image/png", "image/bmp", "image/t
 const jimpSupported = new Set(["image/jpeg", "image/png", "image/bmp", "image/tiff", "image/gif"]);
 const resizeSupported = new Set([...sharpSupported, ...jimpSupported]);
 
+// This is meant to be used instead of Imagor
 export async function ImageProxy(req: Request, res: Response) {
     const path = req.originalUrl.split("/").slice(2);
 

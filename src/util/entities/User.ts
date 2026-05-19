@@ -61,7 +61,7 @@ export class User extends BaseClass {
 
     // TODO: Separate `User` and `UserProfile` models
     // puyo: changed from [number, number] because it breaks openapi
-    @Column({ nullable: true, type: "simple-array" })
+    @Column({ nullable: true, type: "int4", array: true })
     theme_colors?: number[];
 
     @Column({ nullable: true })
@@ -160,13 +160,13 @@ export class User extends BaseClass {
     })
     connected_accounts: ConnectedAccount[];
 
-    @Column({ type: "simple-json", select: false })
+    @Column({ type: "jsonb", select: false })
     data: {
         valid_tokens_since: Date; // all tokens with a previous issue date are invalid
         hash?: string; // hash of the password, salt is saved in password (bcrypt)
     };
 
-    @Column({ type: "simple-array", select: false })
+    @Column({ type: "varchar", array: true, select: false })
     fingerprints: string[] = []; // array of fingerprints -> used to prevent multiple accounts
 
     @OneToOne(() => UserSettings, {
@@ -180,19 +180,19 @@ export class User extends BaseClass {
     @OneToMany(() => SecurityKey, (key: SecurityKey) => key.user)
     security_keys: SecurityKey[];
 
-    @Column({ type: "simple-array", nullable: true })
+    @Column({ type: "int8", array: true, nullable: true })
     badge_ids?: string[];
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     avatar_decoration_data?: AvatarDecorationData;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     display_name_styles?: DisplayNameStyle;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     collectibles?: Collectibles;
 
-    @Column({ type: "simple-json", nullable: true })
+    @Column({ type: "jsonb", nullable: true })
     primary_guild?: PrimaryGuild;
 
     // TODO: I don't like this method?
@@ -261,13 +261,12 @@ export class User extends BaseClass {
 
             // randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
             // TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
-            for (let tries = 0; tries < 5; tries++) {
+            const takenDiscriminators = (await User.find({ where: { username }, select: { discriminator: true } })).map((x) => x.discriminator);
+            if (takenDiscriminators.length >= 9999) return undefined;
+
+            for (let tries = 0; tries < 15; tries++) {
                 const discriminator = Random.nextInt(1, 9999).toString().padStart(4, "0");
-                const exists = await User.findOne({
-                    where: { discriminator, username: username },
-                    select: { id: true },
-                });
-                if (!exists) return discriminator;
+                if (!takenDiscriminators.includes(discriminator)) return discriminator;
             }
 
             return undefined;
@@ -297,7 +296,7 @@ export class User extends BaseClass {
         req?: Request;
         bot?: boolean;
     }) {
-        // trim special uf8 control characters -> Backspace, Newline, ...
+        // trim special utf8 control characters -> Backspace, Newline, ...
         username = trimSpecial(username);
 
         const discriminator = await User.generateDiscriminator(username);

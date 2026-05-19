@@ -25,9 +25,7 @@ const router = Router();
 function validateMetadata(metadata?: Record<string, string> | null): void {
     if (!metadata) return;
 
-    const totalLength = Object.entries(metadata).reduce((sum, [key, value]) => {
-        return sum + key.length + value.length;
-    }, 0);
+    const totalLength = Object.entries(metadata).reduce((sum, [key, value]) => sum + key.length + value.length, 0);
 
     if (totalLength > 1000) {
         throw new Error("Metadata total length cannot exceed 1000 characters");

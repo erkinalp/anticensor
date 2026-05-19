@@ -82,7 +82,7 @@ router.delete(
                     guild_id,
                     role_id,
                 },
-            } as GuildRoleDeleteEvent),
+            } satisfies GuildRoleDeleteEvent),
         ]);
 
         res.sendStatus(204);
@@ -118,6 +118,9 @@ router.patch(
         if (body.icon && body.icon.length) body.icon = await handleFile(`/role-icons/${role_id}`, body.icon as string);
         else body.icon = undefined;
 
+        // TODO: proper field error
+        if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
+
         const role = await Role.findOneOrFail({
             where: { id: role_id, guild: { id: guild_id } },
         });
@@ -135,7 +138,7 @@ router.patch(
                     guild_id,
                     role,
                 },
-            } as GuildRoleUpdateEvent),
+            } satisfies GuildRoleUpdateEvent),
         ]);
 
         res.json(role);

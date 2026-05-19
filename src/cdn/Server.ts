@@ -19,10 +19,10 @@
 import { Server, ServerOptions } from "lambert-server";
 import { Attachment, Config, initDatabase, registerRoutes } from "@spacebar/util";
 import { CORS, BodyParser } from "@spacebar/api";
-import path from "path";
+import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
-import { Like } from "typeorm";
+import { storage } from "./util";
 
 export type CDNServerOptions = ServerOptions;
 
@@ -36,7 +36,11 @@ export class CDNServer extends Server {
     async start() {
         await initDatabase();
         await Config.init();
-        await this.cleanupSignaturesInDb();
+
+        this.migrateAttachments().then(
+            (_) => console.log("[CDN] Successfully migrated attachments"),
+            (_) => console.log("[CDN] Attachment migration failed"),
+        );
 
         const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) {
@@ -70,26 +74,21 @@ export class CDNServer extends Server {
         return super.start();
     }
 
-    async stop() {
-        return super.stop();
+    async migrateAttachments() {
+        if (await storage.exists(".mig_complete.attachments1")) return;
+        for await (const attachment of await Attachment.createQueryBuilder("attachments").where("message_id is not null").select().stream()) {
+            const oldPath = `attachments/${attachment.attachments_channel_id}/${attachment.attachments_id}/${attachment.attachments_filename}`;
+            const newPath = `attachments/${attachment.attachments_channel_id}/${attachment.attachments_message_id}/${attachment.attachments_filename}`;
+            if (!(await storage.exists(oldPath))) {
+                console.log(`[CDN/Attachments] Attachment migration: could not find old path, skipping migration: ` + oldPath);
+                continue;
+            }
+            await storage.move(oldPath, newPath);
+        }
+        await storage.set(".mig_complete.attachments1", Buffer.from([1]));
     }
 
-    async cleanupSignaturesInDb() {
-        console.log("[CDN] Cleaning up signatures in database");
-        const attachmentsToFix = await Attachment.find({
-            where: { url: Like("%?ex=%") },
-        });
-        if (attachmentsToFix.length === 0) {
-            console.log("[CDN] No attachments to fix");
-            return;
-        }
-
-        console.log("[CDN] Found", attachmentsToFix.length, " attachments to fix");
-        for (const attachment of attachmentsToFix) {
-            attachment.url = attachment.url.split("?ex=")[0];
-            attachment.proxy_url = attachment.proxy_url?.split("?ex=")[0];
-            await attachment.save();
-            console.log(`[CDN] Fixed attachment ${attachment.id}`);
-        }
+    async stop() {
+        return super.stop();
     }
 }

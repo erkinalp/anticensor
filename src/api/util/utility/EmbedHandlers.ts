@@ -16,22 +16,25 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, MessageUpdateEvent, normalizeUrl, OrmUtils, sleep } from "@spacebar/util";
 import { Embed, EmbedImage, EmbedType } from "@spacebar/schemas";
 import * as cheerio from "cheerio";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
+import { FindOptionsWhere, In } from "typeorm";
 
-export const DEFAULT_FETCH_OPTIONS: RequestInit = {
-    redirect: "follow",
-    headers: {
-        "user-agent": "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)",
-        "accept-language": "en-US,en;q=0.9",
-    },
-    // size: 1024 * 1024 * 5, 	// grabbed from config later
-    method: "GET",
-};
+export function getDefaultFetchOptions(): RequestInit {
+    return {
+        redirect: "follow",
+        headers: {
+            "user-agent": Config.get().embeds.defaultUserAgent ?? "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)",
+            "accept-language": "en-US,en;q=0.9",
+        },
+        // size: 1024 * 1024 * 5, 	// grabbed from config later
+        method: "GET",
+    };
+}
 
 const makeEmbedImage = (url: string | undefined, width: number | undefined, height: number | undefined): Required<EmbedImage> | undefined => {
     if (!url || !width || !height) return undefined;
@@ -108,10 +111,7 @@ export const getMetaDescriptions = (text: string) => {
 
 const doFetch = async (url: URL, opts?: RequestInit) => {
     try {
-        const res = await fetch(url, {
-            ...DEFAULT_FETCH_OPTIONS,
-            ...opts,
-        });
+        const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
         if (res.headers.get("content-length")) {
             const contentLength = parseInt(res.headers.get("content-length")!);
             if (Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize) {
@@ -126,7 +126,7 @@ const doFetch = async (url: URL, opts?: RequestInit) => {
 
 const genericImageHandler = async (url: URL): Promise<Embed | null> => {
     const type = await fetch(url, {
-        ...DEFAULT_FETCH_OPTIONS,
+        ...getDefaultFetchOptions(),
         method: "HEAD",
     });
 
@@ -161,7 +161,7 @@ export const EmbedHandlers: {
     // the url does not have a special handler
     default: async (url: URL) => {
         const type = await fetch(url, {
-            ...DEFAULT_FETCH_OPTIONS,
+            ...getDefaultFetchOptions(),
             method: "HEAD",
         });
         if (type.headers.get("content-type")?.indexOf("image") !== -1) return await genericImageHandler(url);
@@ -213,6 +213,7 @@ export const EmbedHandlers: {
     "tenor.com": genericImageHandler,
     "c.tenor.com": genericImageHandler,
     "media.tenor.com": genericImageHandler,
+    "media1.tenor.com": genericImageHandler,
 
     "facebook.com": (url) => EmbedHandlers["www.facebook.com"](url),
     "www.facebook.com": async (url: URL) => {
@@ -246,7 +247,7 @@ export const EmbedHandlers: {
             `&user.fields=profile_image_url`;
 
         const response = await fetch(endpointUrl, {
-            ...DEFAULT_FETCH_OPTIONS,
+            ...getDefaultFetchOptions(),
             headers: {
                 authorization: `Bearer ${token}`,
             },
@@ -450,8 +451,18 @@ export const EmbedHandlers: {
 
     "youtu.be": (url) => EmbedHandlers["www.youtube.com"](url),
     "youtube.com": (url) => EmbedHandlers["www.youtube.com"](url),
+    "music.youtube.com": (url) => EmbedHandlers["www.youtube.com"](url),
     "www.youtube.com": async (url: URL): Promise<Embed | null> => {
-        const response = await doFetch(url, { headers: { cookie: "CONSENT=PENDING+999; hl=en" } });
+        const response = await doFetch(url, {
+            headers: {
+                cookie: Config.get().embeds.youtube.cookie ?? "CONSENT=PENDING+999; hl=en",
+                // TODO: dynamically obtain current system curl's user agent, ie. via https://ifconfig.me/ua
+                ...(Config.get().embeds.youtube.useCurlUserAgent ? { "user-agent": "curl/8.18.0" } : {}),
+                ...(Config.get().embeds.youtube.userAgent != null
+                    ? { "user-agent": Config.get().embeds.youtube.userAgent ?? undefined /* type check fails for some reason otherwise */ }
+                    : {}),
+            },
+        });
         if (!response) return null;
         const metas = getMetaDescriptions(await response.text());
 
@@ -517,3 +528,169 @@ export const EmbedHandlers: {
         };
     },
 };
+
+const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)>?/g;
+
+export function getMessageContentUrls(message: Message) {
+    const content = message.content?.replace(/ *`[^)]*` */g, ""); // remove markdown
+
+    return content?.match(LINK_REGEX) ?? [];
+}
+
+export async function dropDuplicateCacheEntries(entries: EmbedCache[]): Promise<EmbedCache[]> {
+    const grouped = Array.from(arrayGroupBy(entries, (e) => e.url).values()).map((g) =>
+        g.toSorted((e1, e2) => {
+            let diff = e2.createdAt.getTime() - e1.createdAt.getTime();
+            if (diff == 0) diff = Number(BigInt(e2.id) - BigInt(e1.id));
+            return diff;
+        }),
+    );
+
+    const fullToDeleteIds: string[] = [];
+    for (const group of grouped) {
+        if (group.length <= 1) continue;
+        // console.log("[EmbedCache] Removing all but first from cache:", group);
+        // this might be backwards, sort always confuses me lol
+        const toDelete = group.slice(1);
+        const toDeleteIds = toDelete.map((x) => x.id);
+        fullToDeleteIds.push(...toDeleteIds);
+        console.warn("[EmbedCache] Removing duplicate IDs for", toDelete[0].url, " - ", toDeleteIds);
+    }
+
+    await EmbedCache.delete({ id: In(fullToDeleteIds) } as FindOptionsWhere<EmbedCache>);
+
+    // console.log("[EmbedCache] Cached embeds:", Array.from(grouped.map((x) => x[0].url)));
+    return await Promise.all(
+        Array.from(grouped.map((x) => x[0])).map(async (e) => {
+            if (e.embed != undefined && e.embeds == undefined) {
+                console.warn("[EmbedCache] Converting old embed to new embeds array for url", e.url);
+                e.embeds = [e.embed];
+                e.embed = undefined;
+                return await e.save();
+            }
+            return e;
+        }),
+    );
+}
+
+// hack to make nodejs not die
+function getSlowdownFactor(off: number) {
+    if (off < 10) return off;
+    if (off < 25) return 100 + off * 2;
+    if (off < 50) return 200 + off * 10;
+    if (off < 100) return 500 + off * 15;
+    if (off < 250) return 750 + off * 20;
+    return 1000 + off * 150;
+}
+
+export async function getOrUpdateEmbedCache(urls: string[], cb?: (url: string, embeds: Embed[]) => Promise<void>): Promise<EmbedCache[]> {
+    urls = arrayDistinctBy(urls, (x) => x);
+    const embeds: EmbedCache[] = [];
+
+    const cachedEmbeds = await dropDuplicateCacheEntries(
+        await EmbedCache.find({
+            where: {
+                url: In(urls.map(normalizeUrl)),
+            },
+        }),
+    );
+    embeds.push(...cachedEmbeds);
+    cb?.(
+        "cached",
+        cachedEmbeds
+            .map((e) => e.embeds)
+            .flat()
+            .filter((e) => e !== undefined),
+    );
+
+    const urlsToGenerate = urls.filter((url) => !cachedEmbeds.some((e) => e.url == normalizeUrl(url)));
+
+    if (urlsToGenerate.length > 0) console.log("[Embeds] Need to generate embeds for urls:", urlsToGenerate);
+    if (cachedEmbeds.length > 0)
+        console.log(
+            "[Embeds] Already had embeds for urls:",
+            cachedEmbeds.map((e) => e.url),
+        );
+
+    let off = 0;
+    const generatedEmbeds = await Promise.all(
+        urlsToGenerate.map(async (link) => {
+            await sleep(getSlowdownFactor(off++)); // ...or nodejs gets overwhelmed and times out
+            return await generateEmbedSingle(link, cb);
+        }),
+    );
+
+    embeds.push(...generatedEmbeds.filter((e) => e != null));
+
+    return embeds;
+}
+
+async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embed[]) => Promise<void>): Promise<EmbedCache | null> {
+    const url = new URL(link);
+    const handler = url.hostname === new URL(Config.get().cdn.endpointPublic!).hostname ? EmbedHandlers["self"] : (EmbedHandlers[url.hostname] ?? EmbedHandlers["default"]);
+    try {
+        let res = await handler(url);
+        if (!res) return null;
+        if (!Array.isArray(res)) res = [res];
+
+        // Cache with normalized URL
+        const cache = await EmbedCache.create({
+            url: normalizeUrl(url.href),
+            embeds: res,
+            createdAt: new Date(),
+        }).save();
+
+        console.log("[Embeds] Generated embed for", link);
+        await cb?.(link, res);
+        return cache;
+    } catch (e) {
+        console.error(`[Embeds] Error while generating embed for ${link}`, e);
+    }
+    return null;
+}
+
+export async function fillMessageUrlEmbeds(message: Message) {
+    const linkMatches = getMessageContentUrls(message).filter((l) => !l.startsWith("<") && !l.endsWith(">"));
+
+    // Filter out embeds that could be links, start from scratch
+    message.embeds = message.embeds.filter((embed) => embed.type === "rich");
+
+    if (linkMatches.length == 0) return message;
+
+    const uniqueLinks: string[] = arrayDistinctBy(linkMatches, normalizeUrl);
+
+    if (uniqueLinks.length === 0) {
+        // No valid unique links found, update message to remove old embeds
+        message.embeds = message.embeds.filter((embed) => embed.type === "rich");
+        await saveAndEmitMessageUpdate(message);
+        return message;
+    }
+
+    // avoid a race condition updating the same row
+    let messageUpdateLock = saveAndEmitMessageUpdate(message);
+    await getOrUpdateEmbedCache(uniqueLinks, async (url, embeds) => {
+        if (url !== "cached" && message.embeds.length + embeds.length > Config.get().limits.message.maxEmbeds) return;
+        message.embeds.push(...embeds);
+        if (message.embeds.length > Config.get().limits.message.maxEmbeds) message.embeds = message.embeds.slice(0, Config.get().limits.message.maxEmbeds);
+
+        try {
+            await messageUpdateLock;
+        } catch {
+            /* empty */
+        }
+        messageUpdateLock = saveAndEmitMessageUpdate(message);
+    });
+
+    await saveAndEmitMessageUpdate(message);
+    return message;
+}
+
+async function saveAndEmitMessageUpdate(message: Message) {
+    // console.warn("Emitting message update for", message.id, "with embeds", message.embeds);
+    await Message.update({ id: message.id, channel_id: message.channel_id }, { embeds: message.embeds });
+    await emitEvent({
+        event: "MESSAGE_UPDATE",
+        channel_id: message.channel_id,
+        data: message.toJSON(),
+    } satisfies MessageUpdateEvent);
+}

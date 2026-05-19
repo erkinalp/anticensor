@@ -17,9 +17,11 @@
 */
 
 import { Config } from "@spacebar/util";
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import ms, { StringValue } from "ms";
-import * as console from "node:console";
+import { TextDecoder } from "node:util";
+import { ConsoleUtils } from "./util/ConsoleUtils";
+import { ColorUtils } from "./util/ColorUtils";
 
 export class NewUrlUserSignatureData {
     ip?: string;
@@ -133,10 +135,13 @@ export const getUrlSignature = (data: NewUrlSignatureData): UrlSignResult => {
 
 function calculateHash(request: UrlSignatureData): UrlSignResult {
     const { cdnSignatureKey } = Config.get().security;
+    const newData = createHmac("sha256", cdnSignatureKey as string);
     const data = createHmac("sha256", cdnSignatureKey as string)
         .update(request.path!)
         .update(request.issuedAt)
         .update(request.expiresAt);
+
+    let ipData = new Int8Array();
 
     if (Config.get().security.cdnSignatureIncludeIp) {
         if (!request.ip)
@@ -146,9 +151,11 @@ function calculateHash(request: UrlSignatureData): UrlSignResult {
         else {
             if (process.env["LOG_CDN_SIGNATURES"]) console.log("[Signing] CDN Signature IP is enabled, adding IP to hash:", request.ip);
             data.update(request.ip!);
+            ipData = new Int8Array(new TextEncoder().encode(request.ip!));
         }
     }
 
+    let userAgentData = new Int8Array();
     if (Config.get().security.cdnSignatureIncludeUserAgent) {
         if (!request.userAgent)
             console.log(
@@ -157,10 +164,29 @@ function calculateHash(request: UrlSignatureData): UrlSignResult {
         else {
             if (process.env["LOG_CDN_SIGNATURES"]) console.log("[Signing] CDN Signature User-Agent is enabled, adding User-Agent to hash:", request.userAgent);
             data.update(request.userAgent!);
+            userAgentData = new Int8Array(new TextEncoder().encode(request.userAgent!));
         }
     }
 
+    const rawData = new Int8Array([
+        ...new TextEncoder().encode(request.path!),
+        ...new TextEncoder().encode(request.issuedAt),
+        ...new TextEncoder().encode(request.expiresAt),
+        ...ipData,
+        ...userAgentData,
+    ]);
+    if (process.env["LOG_CDN_SIGNATURES"]) {
+        console.log("[Signing] Signature data for ", request.path!);
+        hexdump(rawData);
+    }
+    newData.update(rawData);
+
     const hash = data.digest("hex");
+    const newHash = newData.digest("hex");
+    if (process.env["LOG_CDN_SIGNATURES"]) {
+        console.log(hash);
+        console.log(newHash);
+    }
     const result = new UrlSignResult({
         path: request.path,
         issuedAt: request.issuedAt,
@@ -258,3 +284,29 @@ export const hasValidSignature = (req: NewUrlUserSignatureData, sig: UrlSignResu
 
     return isHashValid;
 };
+
+// port of https://github.com/TheArcaneBrony/ArcaneLibs/blob/master/ArcaneLibs/Extensions/DictionaryExtensions.cs#L80
+function hexdump(arr: Int8Array, width: number = 32, colorize: boolean = true) {
+    const colorizeFunc = colorize ? (val: number, str: string) => ConsoleUtils.ColoredString(str, ColorUtils.cnv8To24(val)) : (val: number, str: string) => str;
+    for (let i = 0; i < arr.length; i += width) {
+        const end = Math.min(i + width, arr.length);
+        const section = arr.slice(i, end);
+        console.log(
+            Array.from(section)
+                .map((x) => colorizeFunc(x, x.toString(16).toUpperCase()))
+                .join(" ")
+                .padEnd(3 * section.length),
+            "|",
+            new TextDecoder("utf-8")
+                .decode(section)
+                .replaceAll("\n", ".")
+                .replaceAll("\r", ".")
+                .replaceAll("\0", ".")
+                .replaceAll("\t", ".")
+                .replaceAll("\v", ".")
+                .replaceAll("\b", ".")
+                .replaceAll("\x07", ".") // \a
+                .replaceAll("\f", "."),
+        );
+    }
+}

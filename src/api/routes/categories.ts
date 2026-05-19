@@ -7,42 +7,42 @@ import { Request, Response, Router } from "express";
 const router: Router = Router();
 
 router.get(
-	"/",
-	route({
-		query: {
-			locale: {
-				type: "string",
-				required: false,
-				description: "Locale code",
-			},
-			primary_only: {
-				type: "string",
-				required: false,
-				description: "If 'true', only return category IDs",
-			},
-		},
-		responses: {
-			200: { body: "unknown" },
-		},
-	}),
-	async (req: Request, res: Response) => {
-		const { primary_only } = req.query as {
-			locale?: string;
-			primary_only?: string;
-		};
-		const categories = [
-			{ id: 1, name: "Gaming" },
-			{ id: 2, name: "Music" },
-			{ id: 3, name: "Education" },
-			{ id: 4, name: "Science & Tech" },
-			{ id: 5, name: "Entertainment" },
-			{ id: 6, name: "Creative Arts" },
-		];
-		if (primary_only === "true") {
-			return res.json(categories.map((c) => c.id));
-		}
-		return res.json(categories);
-	},
+    "/",
+    route({
+        query: {
+            locale: {
+                type: "string",
+                required: false,
+                description: "Locale code",
+            },
+            primary_only: {
+                type: "string",
+                required: false,
+                description: "If 'true', only return category IDs",
+            },
+        },
+        responses: {
+            200: { body: "unknown" },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { primary_only } = req.query as {
+            locale?: string;
+            primary_only?: string;
+        };
+        const categories = [
+            { id: 1, name: "Gaming" },
+            { id: 2, name: "Music" },
+            { id: 3, name: "Education" },
+            { id: 4, name: "Science & Tech" },
+            { id: 5, name: "Entertainment" },
+            { id: 6, name: "Creative Arts" },
+        ];
+        if (primary_only === "true") {
+            return res.json(categories.map((c) => c.id));
+        }
+        return res.json(categories);
+    },
 );
 
 export default router;

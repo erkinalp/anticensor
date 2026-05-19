@@ -17,13 +17,12 @@
 */
 
 import { Storage } from "./Storage";
-import fs from "fs";
-import fsp from "fs/promises";
-import { join, dirname } from "path";
-import { Readable } from "stream";
+import fs from "node:fs";
+import fsp from "node:fs/promises";
+import { join, dirname } from "node:path";
+import { Readable } from "node:stream";
 import ExifTransformer from "exif-be-gone";
 
-// TODO: split stored files into separate folders named after cloned route
 export class FileStorage implements Storage {
     getFsPath(path: string): string {
         // STORAGE_LOCATION has a default value in start.ts

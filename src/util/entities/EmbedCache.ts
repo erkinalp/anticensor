@@ -27,6 +27,12 @@ export class EmbedCache extends BaseClass {
     @Column()
     url: string;
 
-    @Column({ type: "simple-json" })
-    embed: Embed;
+    @Column({ type: "jsonb", nullable: true })
+    embed?: Embed;
+
+    @Column({ type: "jsonb", nullable: true })
+    embeds?: Embed[];
+
+    @Column({ name: "created_at", type: "timestamp with time zone" })
+    createdAt: Date;
 }

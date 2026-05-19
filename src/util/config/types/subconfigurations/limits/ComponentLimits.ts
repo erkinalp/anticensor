@@ -17,15 +17,15 @@
 */
 
 export class ComponentLimits {
-	maxLabelLength: number = 80;
-	maxPlaceholderLength: number = 100;
-	maxSelectOptionLabelLength: number = 100;
-	maxSelectOptionDescriptionLength: number = 100;
-	maxSelectOptionValueLength: number = 100;
-	maxModalTitleLength: number = 45;
-	maxTextInputLabelLength: number = 45;
-	maxTextInputPlaceholderLength: number = 100;
-	maxTextInputValueLength: number = 4000;
-	maxTextInputMinLength: number = 0;
-	maxTextInputMaxLength: number = 4000;
+    maxLabelLength: number = 80;
+    maxPlaceholderLength: number = 100;
+    maxSelectOptionLabelLength: number = 100;
+    maxSelectOptionDescriptionLength: number = 100;
+    maxSelectOptionValueLength: number = 100;
+    maxModalTitleLength: number = 45;
+    maxTextInputLabelLength: number = 45;
+    maxTextInputPlaceholderLength: number = 100;
+    maxTextInputValueLength: number = 4000;
+    maxTextInputMinLength: number = 0;
+    maxTextInputMaxLength: number = 4000;
 }

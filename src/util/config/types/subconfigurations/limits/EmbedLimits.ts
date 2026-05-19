@@ -17,10 +17,10 @@
 */
 
 export class EmbedLimits {
-	maxTitleLength: number = 256;
-	maxDescriptionLength: number = 4096;
-	maxFieldNameLength: number = 256;
-	maxFieldValueLength: number = 1024;
-	maxFooterTextLength: number = 2048;
-	maxAuthorNameLength: number = 256;
+    maxTitleLength: number = 256;
+    maxDescriptionLength: number = 4096;
+    maxFieldNameLength: number = 256;
+    maxFieldValueLength: number = 1024;
+    maxFooterTextLength: number = 2048;
+    maxAuthorNameLength: number = 256;
 }

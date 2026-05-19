@@ -18,8 +18,6 @@
 
 import {
     ConnectedAccount,
-    Interaction,
-    Message,
     Invite,
     Role,
     Emoji,
@@ -42,9 +40,12 @@ import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,
     GuildCreateResponse,
+    Interaction,
     InteractionFailureReason,
     PartialEmoji,
+    PublicChannel,
     PublicMember,
+    PublicMessage,
     PublicUser,
     PublicVoiceState,
     RelationshipType,
@@ -62,6 +63,7 @@ export interface Event {
     data?: any;
     reconnect_delay?: number;
     origin?: string;
+    transaction_id?: string;
 }
 
 // ! Custom Events that shouldn't get sent to the client but processed by the server
@@ -161,17 +163,17 @@ export interface ReadyEvent extends Event {
 
 export interface ChannelCreateEvent extends Event {
     event: "CHANNEL_CREATE";
-    data: Channel;
+    data: PublicChannel;
 }
 
 export interface ChannelUpdateEvent extends Event {
     event: "CHANNEL_UPDATE";
-    data: Channel;
+    data: PublicChannel;
 }
 
 export interface ChannelDeleteEvent extends Event {
     event: "CHANNEL_DELETE";
-    data: Channel;
+    data: PublicChannel;
 }
 
 export interface ChannelPinsUpdateEvent extends Event {
@@ -190,7 +192,7 @@ export interface ChannelRecipientAddEvent extends Event {
     event: "CHANNEL_RECIPIENT_ADD";
     data: {
         channel_id: string;
-        user: User;
+        user: PublicUser;
     };
 }
 
@@ -198,7 +200,7 @@ export interface ChannelRecipientRemoveEvent extends Event {
     event: "CHANNEL_RECIPIENT_REMOVE";
     data: {
         channel_id: string;
-        user: User;
+        user: PublicUser;
     };
 }
 
@@ -213,6 +215,8 @@ export interface GuildCreateEvent extends Event {
         stage_instances: never[];
         threads: never[];
         embedded_activities: never[];
+        // Only when not using PRIORITISED_READY_PAYLOAD capability
+        voice_states?: PublicVoiceState[];
     };
 }
 
@@ -233,7 +237,7 @@ export interface GuildBanAddEvent extends Event {
     event: "GUILD_BAN_ADD";
     data: {
         guild_id: string;
-        user: User;
+        user: PublicUser;
         delete_message_secs?: number;
     };
 }
@@ -242,7 +246,7 @@ export interface GuildBanRemoveEvent extends Event {
     event: "GUILD_BAN_REMOVE";
     data: {
         guild_id: string;
-        user: User;
+        user: PublicUser;
     };
 }
 
@@ -280,7 +284,7 @@ export interface GuildMemberRemoveEvent extends Event {
     event: "GUILD_MEMBER_REMOVE";
     data: {
         guild_id: string;
-        user: User;
+        user: PublicUser;
     };
 }
 
@@ -289,7 +293,7 @@ export interface GuildMemberUpdateEvent extends Event {
     data: {
         guild_id: string;
         roles: string[];
-        user: User;
+        user: PublicUser;
         nick?: string;
         joined_at?: Date;
         premium_since?: number;
@@ -353,12 +357,12 @@ export interface InviteDeleteEvent extends Event {
 
 export interface MessageCreateEvent extends Event {
     event: "MESSAGE_CREATE";
-    data: Message;
+    data: PublicMessage;
 }
 
 export interface MessageUpdateEvent extends Event {
     event: "MESSAGE_UPDATE";
-    data: Message;
+    data: PublicMessage;
 }
 
 export interface MessageDeleteEvent extends Event {
@@ -628,17 +632,17 @@ export interface GuildMemberListUpdate extends Event {
 
 export interface ThreadCreateEvent extends Event {
     event: "THREAD_CREATE";
-    data: Channel & { newly_created: boolean };
+    data: PublicChannel & { newly_created: boolean };
 }
 
 export interface ThreadUpdatEvent extends Event {
     event: "THREAD_UPDATE";
-    data: Channel;
+    data: PublicChannel;
 }
 
 export interface ThreadDeleteEvent extends Event {
     event: "THREAD_DELETE";
-    data: Pick<Channel, "id" | "guild_id" | "parent_id" | "type">;
+    data: Pick<PublicChannel, "id" | "guild_id" | "parent_id" | "type">;
 }
 
 export interface ThreadListSyncEvent extends Event {

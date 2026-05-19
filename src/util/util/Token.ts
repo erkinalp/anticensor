@@ -20,14 +20,14 @@ import jwt from "jsonwebtoken";
 import { Config } from "./Config";
 import { InstanceBan, Session, User } from "../entities";
 import crypto from "node:crypto";
-import fs from "fs/promises";
-import { existsSync } from "fs";
+import fs from "node:fs/promises";
+import { existsSync } from "node:fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
 import { randomUpperString } from "@spacebar/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
-import path from "path";
+import path from "node:path";
 
 /// Change history:
 /// 1 - Initial version with HS256
@@ -67,8 +67,8 @@ export const checkToken = (
         ipAddress?: string;
         fingerprint?: string;
     },
-): Promise<UserTokenData> => {
-    return new Promise((resolve, reject) => {
+): Promise<UserTokenData> =>
+    new Promise((resolve, reject) => {
         token = token.replace("Bot ", ""); // there is no bot distinction in sb
         token = token.replace("Bearer ", ""); // allow bearer tokens
 
@@ -94,21 +94,6 @@ export const checkToken = (
             if (!user) {
                 logAuth("validateUser rejected: User not found");
                 return rejectAndLog(reject, 401, "User not found");
-            }
-
-            if (decoded.did && !session) {
-                // temporary hack: create new session
-                session = Session.create({
-                    session_id: decoded.did,
-                    user_id: user.id,
-                    is_admin_session: false,
-                    client_status: {},
-                    status: "online",
-                    client_info: {},
-                });
-                await session.save();
-                logAuth("validateUser rejected: Session not found");
-                return rejectAndLog(reject, 401, "Invalid Token");
             }
 
             // we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
@@ -158,7 +143,7 @@ export const checkToken = (
         };
 
         const dec = jwt.decode(token, { complete: true });
-        if (!dec) return rejectAndLog(reject, 500, "Failed to decode token");
+        if (!dec) return void rejectAndLog(reject, 500, "Failed to decode token");
         logAuth("Decoded token: " + JSON.stringify(dec));
 
         if (dec.header.alg == "HS256" && Config.get().security.jwtSecret !== null) {
@@ -168,9 +153,8 @@ export const checkToken = (
             loadOrGenerateKeypair().then((keyPair) => {
                 jwt.verify(token, keyPair.publicKey, { algorithms: ["ES512"] }, validateUser);
             });
-        } else return rejectAndLog(reject, 400, "Unsupported token algorithm: " + dec.header.alg);
+        } else return void rejectAndLog(reject, 400, "Unsupported token algorithm: " + dec.header.alg);
     });
-};
 
 export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
     const iat = Math.floor(Date.now() / 1000);
@@ -183,7 +167,7 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
             user_id: id,
             is_admin_session: isAdminSession,
             client_status: {},
-            status: "online",
+            status: "offline", // will be set to online upon IDENTIFY
             client_info: {},
         });
     } while (await Session.findOne({ where: { session_id: newSession.session_id } }));

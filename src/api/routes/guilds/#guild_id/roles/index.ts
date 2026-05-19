@@ -60,6 +60,9 @@ router.post(
 
         if (role_count > maxRoles) throw DiscordApiErrors.MAXIMUM_ROLES.withParams(maxRoles);
 
+        // TODO: proper field error
+        if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
+
         const everyoneRole = await Role.findOne({ where: { id: guild_id } });
 
         const role = Role.create({
@@ -101,7 +104,7 @@ router.post(
                     guild_id,
                     role: role,
                 },
-            } as GuildRoleCreateEvent),
+            } satisfies GuildRoleCreateEvent),
         ]);
 
         res.json(role);
@@ -144,7 +147,7 @@ router.patch(
                         guild_id,
                         role: x,
                     },
-                } as GuildRoleUpdateEvent),
+                } satisfies GuildRoleUpdateEvent),
             ),
         );
 

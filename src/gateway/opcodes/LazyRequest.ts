@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "@spacebar/util";
-import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@spacebar/gateway";
+import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition, getMostRelevantSession } from "@spacebar/util";
+import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
@@ -96,12 +96,6 @@ async function getMembers(guild_id: string, range: [number, number]) {
 
             const session: Session | undefined = getMostRelevantSession(member.user.sessions);
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (session?.status == "unknown") {
-                session.status = member?.user?.settings?.status || "online";
-            }
-
             const item = {
                 member: {
                     ...member,
@@ -111,7 +105,7 @@ async function getMembers(guild_id: string, range: [number, number]) {
                         activities: session?.activities || [],
                         user: { id: member.user.id },
                         client_status: session?.client_status,
-                        status: session?.status,
+                        status: session?.getPublicStatus() || "offline",
                     },
                 },
             };

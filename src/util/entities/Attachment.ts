@@ -17,10 +17,10 @@
 */
 
 import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { URL } from "url";
-import { deleteFile } from "../util";
+import { Config, deleteFile } from "../util";
 import { BaseClass } from "./BaseClass";
 import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing";
+import { PublicAttachment } from "../../schemas/api/messages/Attachments";
 
 @Entity({
     name: "attachments",
@@ -31,12 +31,6 @@ export class Attachment extends BaseClass {
 
     @Column()
     size: number; // size of file in bytes
-
-    @Column()
-    url: string; // source url of file
-
-    @Column()
-    proxy_url: string; // a proxied url of file
 
     @Column({ nullable: true })
     height?: number; // height of file (if image)
@@ -51,26 +45,48 @@ export class Attachment extends BaseClass {
     @RelationId((attachment: Attachment) => attachment.message)
     message_id: string;
 
+    @Column({ nullable: true })
+    @RelationId((attachment: Attachment) => attachment.channel)
+    channel_id: string;
+
     @JoinColumn({ name: "message_id" })
     @ManyToOne(() => require("./Message").Message, (message: import("./Message").Message) => message.attachments, {
         onDelete: "CASCADE",
     })
     message: import("./Message").Message;
 
+    @JoinColumn({ name: "channel_id" })
+    @ManyToOne(() => require("./Channel").Channel, {
+        onDelete: "CASCADE",
+    })
+    channel: import("./Channel").Channel;
+
     @BeforeRemove()
     onDelete() {
-        return deleteFile(new URL(this.url).pathname);
+        return deleteFile(new URL(this.toJSON().url).pathname);
     }
 
-    signUrls(data: NewUrlUserSignatureData): Attachment {
+    toJSON() {
+        const channelId = this.channel_id ?? this.channel?.id ?? this.message?.channel_id;
+        const messageId = this.message_id ?? this.message?.id;
         return {
             ...this,
-            url: getUrlSignature(new NewUrlSignatureData({ ...data, url: this.url }))
-                .applyToUrl(this.url)
+            url: `${Config.get().cdn.endpointPublic}/attachments/${channelId}/${messageId}/${this.filename}`,
+            proxy_url: `${Config.get().cdn.endpointPublic}/attachments/${channelId}/${messageId}/${this.filename}`,
+        };
+    }
+    signUrls(data: NewUrlUserSignatureData): PublicAttachment {
+        const att = Attachment.prototype.toJSON.apply(this);
+        return {
+            ...att,
+            url: getUrlSignature(new NewUrlSignatureData({ ...data, url: att.url }))
+                .applyToUrl(att.url)
                 .toString(),
-            proxy_url: getUrlSignature(new NewUrlSignatureData({ ...data, url: this.proxy_url }))
-                .applyToUrl(this.proxy_url)
-                .toString(),
+            proxy_url: att.proxy_url
+                ? getUrlSignature(new NewUrlSignatureData({ ...data, url: att.proxy_url }))
+                      .applyToUrl(att.proxy_url)
+                      .toString()
+                : att.proxy_url,
         };
     }
 }
