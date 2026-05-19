@@ -46,7 +46,7 @@ This repository contains:
 
 ## [Documentation](https://redir.fermi.chat/docs)
 
-And with documentation on how to set up your own server [here](https://replaceme/setup/server), docs to set up either client [here](https://replaceme/setup/clients/), and docs about bots [here](https://replaceme/setup/bots/)
+And with documentation on how to set up your own server [here](https://docs.melodychat.org/setup/server), docs to set up either client [here](https://docs.melodychat.org/setup/clients/), and docs about bots [here](https://docs.melodychat.org/setup/bots/)
 
 ## [Contributing](CONTRIBUTING.MD)
 
