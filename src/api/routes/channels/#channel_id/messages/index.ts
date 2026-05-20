@@ -396,6 +396,7 @@ router.post(
                 }
             }
         }
+        await Channel.checkServerDmReopenPrivacy(channel, req.user_id);
 
         if (body.nonce) {
             const existing = await Message.findOne({

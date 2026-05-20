@@ -17,10 +17,21 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
+import {
+    InvisibleCharacters,
+    Snowflake,
+    emitEvent,
+    getPermission,
+    trimSpecial,
+    Permissions,
+    Config,
+    DiscordApiErrors,
+    canCreateServerDm,
+    shouldCheckServerDmPrivacy,
+} from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -32,9 +43,10 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
+import { Relationship } from "./Relationship";
 
 @Entity({
     name: "channels",
@@ -442,6 +454,7 @@ export class Channel extends BaseClass {
 
         let channel = null;
         let needsTx = true;
+        let creatorRecipient: Recipient | null = null;
 
         const channelRecipients = [...recipients, creator_user_id];
 
@@ -457,11 +470,21 @@ export class Channel extends BaseClass {
                 if (channelRecipients.every((_) => re.includes(_))) {
                     if (channel == null) {
                         channel = ur.channel;
+                        creatorRecipient = ur;
                         if (!ur.closed) needsTx = false;
-                        await ur.assign({ closed: false }).save();
                     }
                 }
             }
+        }
+
+        if (
+            type === ChannelType.DM &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length,
+                existingCreatorRecipientClosed: creatorRecipient?.closed,
+            })
+        ) {
+            await Channel.checkServerDmPrivacy(creator_user_id, recipients[0]);
         }
 
         if (channel == null) {
@@ -481,6 +504,10 @@ export class Channel extends BaseClass {
                 ),
                 nsfw: false,
             }).save();
+        }
+
+        if (creatorRecipient?.closed) {
+            await creatorRecipient.assign({ closed: false }).save();
         }
 
         const channel_dto = await DmChannelDTO.from(channel);
@@ -505,6 +532,62 @@ export class Channel extends BaseClass {
 
         if (recipients.length === 1) return channel_dto;
         else return channel_dto.excludedRecipients([creator_user_id]);
+    }
+
+    static async checkServerDmReopenPrivacy(channel: Channel, creatorUserId: string) {
+        if (channel.type !== ChannelType.DM) return;
+
+        const recipients = channel.recipients ?? (await Recipient.find({ where: { channel_id: channel.id } }));
+        const creatorRecipient = recipients.find((recipient) => recipient.user_id === creatorUserId);
+        const recipient = recipients.find((recipient) => recipient.user_id !== creatorUserId);
+
+        if (
+            creatorRecipient &&
+            recipient &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length - 1,
+                existingCreatorRecipientClosed: creatorRecipient.closed,
+            })
+        ) {
+            await Channel.checkServerDmPrivacy(creatorUserId, recipient.user_id);
+        }
+    }
+
+    static async checkServerDmPrivacy(creatorUserId: string, recipientUserId: string) {
+        const [relationships, recipient, members] = await Promise.all([
+            Relationship.find({
+                where: [
+                    { from_id: recipientUserId, to_id: creatorUserId },
+                    { from_id: creatorUserId, to_id: recipientUserId },
+                ],
+            }),
+            User.findOne({
+                where: { id: recipientUserId },
+                relations: { settings: true },
+            }),
+            Member.find({
+                where: { id: In([creatorUserId, recipientUserId]) },
+                select: { id: true, guild_id: true },
+            }),
+        ]);
+
+        if (!recipient) throw new HTTPError("Recipient/s not found");
+
+        const isFriend = relationships.some((relationship) => relationship.type === RelationshipType.friends);
+        const isBlocked = relationships.some((relationship) => relationship.type === RelationshipType.blocked);
+        const creatorGuildIds = new Set(members.filter((member) => member.id === creatorUserId).map((member) => member.guild_id));
+        const sharedGuildIds = members.filter((member) => member.id === recipientUserId && creatorGuildIds.has(member.guild_id)).map((member) => member.guild_id);
+
+        if (
+            !canCreateServerDm({
+                isBlocked,
+                isFriend,
+                recipientSettings: recipient.settings,
+                sharedGuildIds,
+            })
+        ) {
+            throw DiscordApiErrors.CANNOT_MESSAGE_USER;
+        }
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
