@@ -31,6 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
+import { ChannelPermissionOverwriteType } from "@spacebar/schemas";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -401,18 +402,26 @@ export class Guild extends BaseClass {
             flags: 0, // TODO?
         }).save();
 
+        const hasTemplateId = (id: unknown): id is string | number => id !== undefined && id !== null;
+        const getTemplateId = (id: string | number) => String(id);
+        const hasParent = (channel: Partial<Channel>) => hasTemplateId(channel.parent_id);
+
+        const roleIds = new Map<string, string>();
+        if (body.source_guild_id) roleIds.set(getTemplateId(body.source_guild_id), guild_id);
+        roleIds.set("0", guild_id);
+
         // create custom roles if provided
         if (body.roles && body.roles.length) {
             await Promise.all(
                 body.roles?.map(
                     (role) =>
                         new Promise((resolve) => {
+                            const id = role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate();
+                            if (hasTemplateId(role.id)) roleIds.set(getTemplateId(role.id), id);
                             Role.create({
                                 ...role,
                                 guild_id,
-                                id:
-                                    // role.id === body.template_guild_id indicates that this is the @everyone role
-                                    role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
+                                id,
                             })
                                 .save()
                                 .then(resolve);
@@ -425,28 +434,58 @@ export class Guild extends BaseClass {
             body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
         }
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
 
         body.channels.forEach((x) => {
-            if (x.id) {
-                ids.set(x.id, Snowflake.generate());
+            if (hasTemplateId(x.id)) {
+                ids.set(getTemplateId(x.id), Snowflake.generate());
             }
         });
 
-        for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+        const channels = [...body.channels].sort((a, b) => {
+            if (hasParent(a) !== hasParent(b)) return hasParent(a) ? 1 : -1;
+            return (a.position ?? 0) - (b.position ?? 0);
+        });
 
-            const parent_id = ids.get(channel.parent_id);
+        for (const channel of channels) {
+            const id = hasTemplateId(channel.id) ? (ids.get(getTemplateId(channel.id)) ?? Snowflake.generate()) : Snowflake.generate();
 
-            const saved = await Channel.createChannel({ ...channel, guild_id, id, parent_id }, body.owner_id, {
+            const parent_id = hasTemplateId(channel.parent_id) ? ids.get(getTemplateId(channel.parent_id)) : undefined;
+            const permission_overwrites = channel.permission_overwrites?.map((overwrite) => ({
+                ...overwrite,
+                id: overwrite.type === ChannelPermissionOverwriteType.role ? (roleIds.get(getTemplateId(overwrite.id)) ?? overwrite.id) : overwrite.id,
+            }));
+
+            await Channel.createChannel({ ...channel, guild_id, id, parent_id, permission_overwrites }, body.owner_id, {
                 keepId: true,
                 skipExistsCheck: true,
                 skipPermissionCheck: true,
                 skipEventEmit: true,
             });
-
-            await Guild.insertChannelInOrder(guild.id, saved.id, parent_id ?? channel.position ?? 0, guild);
         }
+
+        const getChannelId = (channel: Partial<Channel>) => (hasTemplateId(channel.id) ? ids.get(getTemplateId(channel.id)) : undefined);
+
+        const orderedChannelIds: string[] = [];
+        for (const channel of channels.filter((channel) => !hasParent(channel))) {
+            const channelId = getChannelId(channel);
+            if (channelId) orderedChannelIds.push(channelId);
+            for (const child of channels.filter(
+                (child) => hasTemplateId(child.parent_id) && hasTemplateId(channel.id) && getTemplateId(child.parent_id) === getTemplateId(channel.id),
+            )) {
+                const childId = getChannelId(child);
+                if (childId) orderedChannelIds.push(childId);
+            }
+        }
+
+        const orderedChannelSet = new Set(orderedChannelIds);
+        for (const channel of channels) {
+            const channelId = getChannelId(channel);
+            if (channelId && !orderedChannelSet.has(channelId)) orderedChannelIds.push(channelId);
+        }
+
+        guild.channel_ordering = orderedChannelIds;
+        await Guild.update({ id: guild_id }, { channel_ordering: orderedChannelIds });
 
         return guild;
     }
