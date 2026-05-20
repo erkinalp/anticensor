@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
+import { resolveMessageInChannel, computeProjectionsForMessage } from "../../../../../util/helpers/MessageProjection";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -39,10 +40,7 @@ router.put(
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id },
-            relations: { author: true },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         // * in dm channels anyone can pin messages -> only check for guilds
         if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
@@ -81,23 +79,27 @@ router.put(
         });
 
         await message.save();
-        const publicMsg = message.toJSON();
+        const projections = await computeProjectionsForMessage(message);
         const publicSystem = systemPinMessage.toJSON();
         await Promise.all([
-            emitEvent({
-                event: "MESSAGE_UPDATE",
-                channel_id,
-                data: publicMsg,
-            } satisfies MessageUpdateEvent),
-            emitEvent({
-                event: "CHANNEL_PINS_UPDATE",
-                channel_id,
-                data: {
-                    channel_id,
-                    guild_id: message.guild_id,
-                    last_pin_timestamp: undefined,
-                },
-            } satisfies ChannelPinsUpdateEvent),
+            ...projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_UPDATE",
+                    channel_id: projection.channelId,
+                    data: message.toProjectedJSON(projection.channelId),
+                } satisfies MessageUpdateEvent),
+            ),
+            ...projections.map((projection) =>
+                emitEvent({
+                    event: "CHANNEL_PINS_UPDATE",
+                    channel_id: projection.channelId,
+                    data: {
+                        channel_id: projection.channelId,
+                        guild_id: message.guild_id,
+                        last_pin_timestamp: undefined,
+                    },
+                } satisfies ChannelPinsUpdateEvent),
+            ),
             systemPinMessage.save(),
             emitEvent({
                 event: "MESSAGE_CREATE",
@@ -126,32 +128,33 @@ router.delete(
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id },
-            relations: { author: true },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
 
         message.pinned_at = null;
 
         await message.save();
-        const publicMsg2 = message.toJSON();
+        const projections = await computeProjectionsForMessage(message);
         await Promise.all([
-            emitEvent({
-                event: "MESSAGE_UPDATE",
-                channel_id,
-                data: publicMsg2,
-            } satisfies MessageUpdateEvent),
-            emitEvent({
-                event: "CHANNEL_PINS_UPDATE",
-                channel_id,
-                data: {
-                    channel_id,
-                    guild_id: message.guild_id,
-                    last_pin_timestamp: undefined,
-                },
-            } satisfies ChannelPinsUpdateEvent),
+            ...projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_UPDATE",
+                    channel_id: projection.channelId,
+                    data: message.toProjectedJSON(projection.channelId),
+                } satisfies MessageUpdateEvent),
+            ),
+            ...projections.map((projection) =>
+                emitEvent({
+                    event: "CHANNEL_PINS_UPDATE",
+                    channel_id: projection.channelId,
+                    data: {
+                        channel_id: projection.channelId,
+                        guild_id: message.guild_id,
+                        last_pin_timestamp: undefined,
+                    },
+                } satisfies ChannelPinsUpdateEvent),
+            ),
         ]);
 
         res.sendStatus(204);

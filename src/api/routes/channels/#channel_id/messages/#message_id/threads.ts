@@ -1,122 +1,96 @@
-/*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published
-	by the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
-
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@spacebar/util";
-import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
-
-import { Request, Response, Router } from "express";
+import { Router, Request, Response } from "express";
+import { route } from "@spacebar/api";
+import { Channel, Message, getPermission, Snowflake, DiscordApiErrors, ThreadMember } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
+import { resolveMessageInChannel } from "../../../../../util/helpers/MessageProjection";
 
 const router = Router({ mergeParams: true });
-
-// TODO: public read receipts & privacy scoping
-// TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
     route({
-        requestBody: "MessageThreadCreationSchema",
         permission: "CREATE_PUBLIC_THREADS",
-        responses: {
-            200: {},
-            403: {},
+        responses: { 201: { body: "Channel" } },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id, message_id } = req.params as { [key: string]: string };
+
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
+
+        const existingThread = await Channel.findOne({
+            where: { parent_id: channel_id, last_message_id: message_id },
+        });
+
+        if (existingThread) {
+            throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
+        }
+
+        const { name, auto_archive_duration } = req.body as {
+            name: string;
+            auto_archive_duration?: number;
+        };
+
+        const thread = await Channel.create({
+            id: Snowflake.generate(),
+            type: ChannelType.GUILD_PUBLIC_THREAD,
+            name: name || `Thread from ${message.author?.username || "Unknown"}`,
+            parent_id: channel_id,
+            guild_id: message.guild_id,
+            owner_id: req.user_id,
+            last_message_id: message_id,
+            default_auto_archive_duration: auto_archive_duration || 1440,
+            created_at: new Date(),
+        }).save();
+
+        await ThreadMember.create({
+            id: thread.id,
+            member_idx: req.user_id,
+            join_timestamp: new Date(),
+            muted: false,
+            flags: 0,
+        }).save();
+
+        res.status(201).json(thread);
+    },
+);
+
+router.get(
+    "/",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: { 200: { body: "Object" } },
+        query: {
+            before: { type: "string", required: false },
+            after: { type: "string", required: false },
+            limit: { type: "number", required: false },
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: check for differences with https://github.com/spacebarchat/server/pull/876/files#diff-95be9c4cdfd8ba6f67361cd40b9abc8226b35d83e2bb44bf5b4682f1d66155e9
-        const { message_id, channel_id } = req.params as { [key: string]: string };
-        const body = req.body as MessageThreadCreationSchema;
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-            relations: ["guild"],
-        });
-        const channel = await Channel.findOneOrFail({
-            where: { id: channel_id },
-        });
-        const user = await User.findOneOrFail({ where: { id: req.user_id } });
+        const { channel_id, message_id } = req.params as { [key: string]: string };
+        const limit = Math.min(Number((req.query as { limit?: string }).limit) || 50, 100);
 
-        const thread = await Channel.createChannel(
-            {
-                id: message.id,
-                owner: user,
-                parent: channel,
-                guild: channel.guild,
-                member_count: 1,
-                message_count: 0,
-                total_message_sent: 0,
-                name: body.name,
-                guild_id: channel.guild_id,
-                rate_limit_per_user: body.rate_limit_per_user,
-                type: channel.type === ChannelType.GUILD_NEWS ? ChannelType.GUILD_NEWS_THREAD : ChannelType.GUILD_PUBLIC_THREAD,
-                recipients: [],
-                thread_metadata: {
-                    archived: false,
-                    auto_archive_duration: body.auto_archive_duration || channel.default_auto_archive_duration || 4320,
-                    archive_timestamp: new Date().toISOString(),
-                    locked: false,
-                    create_timestamp: new Date().toISOString(),
-                },
-            },
-            void 0,
-            { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
-        );
-
-        message.thread = thread;
-        message.flags ||= 1 << 5;
-        await sendMessage({
-            channel_id: thread.id,
-            type: MessageType.THREAD_STARTER_MESSAGE,
-            message_reference: {
-                message_id: message.id,
-                channel_id: channel.id,
-                guild_id: channel.guild_id,
-            },
-            author_id: user.id,
+        const threads = await Channel.find({
+            where: { parent_id: channel_id, last_message_id: message_id },
+            select: ["id", "name", "type", "created_at", "default_auto_archive_duration", "last_message_id"],
+            take: limit,
         });
-        await sendMessage({
-            channel_id: channel.id,
-            type: MessageType.THREAD_CREATED,
-            content: thread.name,
-            message_reference: {
-                channel_id: thread.id,
-                guild_id: thread.guild_id,
-            },
-            author_id: user.id,
-        });
-        await Promise.all([
-            emitEvent({
-                event: "THREAD_CREATE",
-                channel_id,
-                data: {
-                    ...thread.toJSON(),
-                    newly_created: true,
-                },
-            }),
-            message.save(),
-            emitEvent({
-                event: "MESSAGE_UPDATE",
-                channel_id: message.channel_id,
-                data: message.toJSON(),
-            } satisfies MessageUpdateEvent),
-        ]);
 
-        return res.json(thread.toJSON());
+        const threadsWithRemaining = threads.map((thread) => {
+            const lastActivityAt = thread.last_message_id ? new Date() : thread.created_at;
+            const inactivityMs = Date.now() - lastActivityAt.getTime();
+            const durationMs = (thread.default_auto_archive_duration || 1440) * 60 * 1000;
+            const remainingAutoArchive = Math.max(0, durationMs - inactivityMs);
+
+            return {
+                ...thread,
+                remainingAutoArchive: Math.floor(remainingAutoArchive / 1000),
+            };
+        });
+
+        res.status(200).json({
+            threads: threadsWithRemaining,
+            has_more: threads.length >= limit,
+        });
     },
 );
 

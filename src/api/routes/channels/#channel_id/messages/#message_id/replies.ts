@@ -20,6 +20,7 @@ import { Message, Channel, getPermission, getRights, emitEvent, MessageDeleteBul
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { route } from "../../../../../util";
+import { resolveMessageInChannel } from "../../../../../util/helpers/MessageProjection";
 
 const router = Router();
 
@@ -34,15 +35,12 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const message_id = req.params.message_id as string;
-        const channel_id = req.params.channel_id as string;
+        const { message_id, channel_id } = req.params as { [key: string]: string };
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
         permissions.hasThrow("READ_MESSAGE_HISTORY");
 
-        const parentMessage = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const parentMessage = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         if (!parentMessage.reply_ids) {
             const replies = await Message.find({
@@ -93,8 +91,7 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const message_id = req.params.message_id as string;
-        const channel_id = req.params.channel_id as string;
+        const { message_id, channel_id } = req.params as { [key: string]: string };
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -102,9 +99,7 @@ router.delete(
 
         const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
 
-        const parentMessage = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const parentMessage = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         if (!parentMessage.reply_ids) {
             const replies = await Message.find({

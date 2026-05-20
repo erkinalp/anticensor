@@ -29,13 +29,18 @@ import {
     MessageReactionRemoveEmojiEvent,
     MessageReactionRemoveEvent,
     User,
-    arrayRemove,
     ReactionType,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
 import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
+import {
+    resolveMessageInChannel,
+    computeProjectionsForMessage,
+    getIntimacyBroadcastRuleForChannel,
+    filterReactionsForIntimacyBroadcast,
+} from "../../../../../util/helpers/MessageProjection";
 
 const router = Router({ mergeParams: true });
 // TODO: check if emoji is really an unicode emoji or a properly encoded external emoji
@@ -75,17 +80,26 @@ router.delete(
             where: { id: channel_id },
         });
 
-        await Message.update({ id: message_id, channel_id }, { reactions: [] });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
-        await emitEvent({
-            event: "MESSAGE_REACTION_REMOVE_ALL",
-            channel_id,
-            data: {
-                channel_id,
-                message_id,
-                guild_id: channel.guild_id,
-            },
-        } satisfies MessageReactionRemoveAllEvent);
+        message.reactions = [];
+        await message.save();
+
+        const projections = await computeProjectionsForMessage(message);
+
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_REACTION_REMOVE_ALL",
+                    channel_id: projection.channelId,
+                    data: {
+                        channel_id: projection.channelId,
+                        message_id,
+                        guild_id: channel.guild_id,
+                    },
+                } satisfies MessageReactionRemoveAllEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },
@@ -108,27 +122,30 @@ router.delete(
         const { message_id, channel_id } = req.params as { [key: string]: string };
         const emoji = getEmoji(req.params.emoji as string);
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         const already_added = message.reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
         if (!already_added) throw new HTTPError("Reaction not found", 404);
-        arrayRemove(message.reactions, already_added);
+        message.reactions.splice(message.reactions.indexOf(already_added), 1);
 
-        await Promise.all([
-            message.save(),
-            emitEvent({
-                event: "MESSAGE_REACTION_REMOVE_EMOJI",
-                channel_id,
-                data: {
-                    channel_id,
-                    message_id,
-                    guild_id: message.guild_id,
-                    emoji,
-                },
-            } satisfies MessageReactionRemoveEmojiEvent),
-        ]);
+        await message.save();
+
+        const projections = await computeProjectionsForMessage(message);
+
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_REACTION_REMOVE_EMOJI",
+                    channel_id: projection.channelId,
+                    data: {
+                        channel_id: projection.channelId,
+                        message_id,
+                        guild_id: message.guild_id,
+                        emoji,
+                    },
+                } satisfies MessageReactionRemoveEmojiEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },
@@ -151,13 +168,19 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         const { message_id, channel_id } = req.params as { [key: string]: string };
-        const limit = req.query.limit ? Number(req.query.limit) : 25;
         const emoji = getEmoji(req.params.emoji as string);
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
-        const reaction = message.reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
+
+        const intimacyRule = await getIntimacyBroadcastRuleForChannel(message.source_channel_id || message.channel_id!);
+        const isIntimacyBroadcast = intimacyRule !== null;
+
+        let reactions = message.reactions;
+        if (isIntimacyBroadcast) {
+            reactions = filterReactionsForIntimacyBroadcast(reactions, req.user_id, message.author_id);
+        }
+
+        const reaction = reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
         if (!reaction) throw new HTTPError("Reaction not found", 404);
 
         const users = (
@@ -166,7 +189,6 @@ router.get(
                     id: In(reaction.user_ids),
                 },
                 select: PublicUserProjection,
-                take: limit,
             })
         ).map((user) => user.toPublicUser());
 
@@ -196,9 +218,7 @@ router.put(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
         const already_added = message.reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
 
         if (!already_added) req.permission?.hasThrow("ADD_REACTIONS");
@@ -242,19 +262,25 @@ router.put(
               ).toPublicMember()
             : undefined;
 
-        await emitEvent({
-            event: "MESSAGE_REACTION_ADD",
-            channel_id,
-            data: {
-                user_id: req.user_id,
-                channel_id,
-                message_id,
-                guild_id: channel.guild_id,
-                emoji,
-                member,
-                type: ReactionType.normal,
-            },
-        } satisfies MessageReactionAddEvent);
+        const projections = await computeProjectionsForMessage(message);
+
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_REACTION_ADD",
+                    channel_id: projection.channelId,
+                    data: {
+                        user_id: req.user_id,
+                        channel_id: projection.channelId,
+                        message_id,
+                        guild_id: channel.guild_id,
+                        emoji,
+                        member,
+                        type: ReactionType.normal,
+                    },
+                } satisfies MessageReactionAddEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },
@@ -281,9 +307,7 @@ router.delete(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         if (user_id === "@me") user_id = req.user_id;
         else {
@@ -296,23 +320,29 @@ router.delete(
 
         already_added.count--;
 
-        if (already_added.count <= 0) arrayRemove(message.reactions, already_added);
+        if (already_added.count <= 0) message.reactions.splice(message.reactions.indexOf(already_added), 1);
         else already_added.user_ids.splice(already_added.user_ids.indexOf(user_id), 1);
 
         await message.save();
 
-        await emitEvent({
-            event: "MESSAGE_REACTION_REMOVE",
-            channel_id,
-            data: {
-                user_id: req.user_id,
-                channel_id,
-                message_id,
-                guild_id: channel.guild_id,
-                emoji,
-                type: ReactionType.normal,
-            },
-        } satisfies MessageReactionRemoveEvent);
+        const projections = await computeProjectionsForMessage(message);
+
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_REACTION_REMOVE",
+                    channel_id: projection.channelId,
+                    data: {
+                        user_id: req.user_id,
+                        channel_id: projection.channelId,
+                        message_id,
+                        guild_id: channel.guild_id,
+                        emoji,
+                        type: ReactionType.normal,
+                    },
+                } satisfies MessageReactionRemoveEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },
@@ -339,9 +369,7 @@ router.delete(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
+        const message = await resolveMessageInChannel(message_id, channel_id, req.user_id);
 
         if (user_id === "@me") user_id = req.user_id;
         else {
@@ -354,23 +382,29 @@ router.delete(
 
         already_added.count--;
 
-        if (already_added.count <= 0) arrayRemove(message.reactions, already_added);
+        if (already_added.count <= 0) message.reactions.splice(message.reactions.indexOf(already_added), 1);
         else already_added.user_ids.splice(already_added.user_ids.indexOf(user_id), 1);
 
         await message.save();
 
-        await emitEvent({
-            event: "MESSAGE_REACTION_REMOVE",
-            channel_id,
-            data: {
-                user_id: req.user_id,
-                channel_id,
-                message_id,
-                guild_id: channel.guild_id,
-                emoji,
-                type: ReactionType.normal,
-            },
-        } satisfies MessageReactionRemoveEvent);
+        const projections = await computeProjectionsForMessage(message);
+
+        await Promise.all(
+            projections.map((projection) =>
+                emitEvent({
+                    event: "MESSAGE_REACTION_REMOVE",
+                    channel_id: projection.channelId,
+                    data: {
+                        user_id: req.user_id,
+                        channel_id: projection.channelId,
+                        message_id,
+                        guild_id: channel.guild_id,
+                        emoji,
+                        type: ReactionType.normal,
+                    },
+                } satisfies MessageReactionRemoveEvent),
+            ),
+        );
 
         res.sendStatus(204);
     },

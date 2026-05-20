@@ -17,6 +17,7 @@
 */
 
 import { randomString, fillMessageUrlEmbeds } from "@spacebar/api";
+import { computeProjectionsForMessage } from "../helpers/MessageProjection";
 import {
     Application,
     Attachment,
@@ -47,6 +48,8 @@ import {
     MessageFlags,
     FieldErrors,
     getDatabase,
+    RoutingRule,
+    Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -686,8 +689,67 @@ export async function postHandleMessage(message: Message) {
     if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
 }
 
+async function evaluateRoutingForMessage(
+    sourceChannelId: string,
+    authorId: string,
+    messageId: string,
+): Promise<{ storageChannelId: string; sourceChannelId: string; isIntimacyBroadcast: boolean }> {
+    const rules = await RoutingRule.find({
+        where: {
+            source_channel_id: sourceChannelId,
+        },
+    });
+
+    for (const rule of rules) {
+        const isValid = BigInt(rule.valid_since) <= BigInt(messageId) && BigInt(messageId) <= BigInt(rule.valid_until);
+
+        if (!isValid) {
+            continue;
+        }
+
+        if (rule.source_users.length > 0 && !rule.source_users.includes(authorId)) {
+            continue;
+        }
+
+        const isIntimacyBroadcast = rule.isIntimacyBroadcast();
+
+        if (isIntimacyBroadcast) {
+            return {
+                storageChannelId: sourceChannelId,
+                sourceChannelId: sourceChannelId,
+                isIntimacyBroadcast: true,
+            };
+        }
+
+        return {
+            storageChannelId: rule.storage_channel_id,
+            sourceChannelId: sourceChannelId,
+            isIntimacyBroadcast: false,
+        };
+    }
+
+    return {
+        storageChannelId: sourceChannelId,
+        sourceChannelId: sourceChannelId,
+        isIntimacyBroadcast: false,
+    };
+}
+
 export async function sendMessage(opts: MessageOptions) {
-    const message = await handleMessage({ ...opts, timestamp: new Date() });
+    const messageId = opts.id || Snowflake.generate();
+    const sourceChannelId = opts.channel_id!;
+    const authorId = opts.author_id!;
+
+    const routing = await evaluateRoutingForMessage(sourceChannelId, authorId, messageId);
+
+    const message = await handleMessage({
+        ...opts,
+        id: messageId,
+        timestamp: new Date(),
+    });
+
+    message.channel_id = routing.storageChannelId;
+    message.source_channel_id = routing.sourceChannelId;
 
     const ephemeral = (message.flags & Number(MessageFlags.FLAGS.EPHEMERAL)) !== 0;
     await getDatabase()?.transaction(async (entityManager) => {
@@ -695,13 +757,18 @@ export async function sendMessage(opts: MessageOptions) {
         await entityManager.save(message.channel);
         if (message.attachments && message.attachments.length > 0) await entityManager.save(message.attachments);
     });
-    await Promise.all([
-        emitEvent({
-            event: "MESSAGE_CREATE",
-            ...(ephemeral ? { user_id: message.interaction_metadata?.user_id } : { channel_id: message.channel_id }),
-            data: message.toJSON(),
-        } satisfies MessageCreateEvent),
-    ]);
+
+    const projections = await computeProjectionsForMessage(message);
+
+    await Promise.all(
+        projections.map((projection) =>
+            emitEvent({
+                event: "MESSAGE_CREATE",
+                ...(ephemeral ? { user_id: message.interaction_metadata?.user_id } : { channel_id: projection.channelId }),
+                data: message.toProjectedJSON(projection.channelId),
+            } satisfies MessageCreateEvent),
+        ),
+    );
 
     // no await as it should catch error non-blockingly
     postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));

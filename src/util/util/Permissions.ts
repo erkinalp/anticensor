@@ -80,6 +80,7 @@ export class Permissions extends BitField {
         PIN_MESSAGES: BitFlag(51),
         BYPASS_SLOWMODE: BitFlag(52),
         MANAGE_TICKETS: BitFlag(53),
+        MANAGE_ROUTING: BitFlag(54),
 
         /**
          * CUSTOM PERMISSIONS ideas:
