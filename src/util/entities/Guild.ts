@@ -402,8 +402,12 @@ export class Guild extends BaseClass {
             flags: 0, // TODO?
         }).save();
 
+        const hasTemplateId = (id: string | null | undefined) => id !== undefined && id !== null;
+        const getTemplateId = (id: string) => String(id);
+        const hasParent = (channel: Partial<Channel>) => hasTemplateId(channel.parent_id);
+
         const roleIds = new Map<string, string>();
-        if (body.source_guild_id) roleIds.set(body.source_guild_id, guild_id);
+        if (body.source_guild_id) roleIds.set(getTemplateId(body.source_guild_id), guild_id);
         roleIds.set("0", guild_id);
 
         // create custom roles if provided
@@ -413,7 +417,7 @@ export class Guild extends BaseClass {
                     (role) =>
                         new Promise((resolve) => {
                             const id = role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate();
-                            if (role.id) roleIds.set(role.id, id);
+                            if (hasTemplateId(role.id)) roleIds.set(getTemplateId(role.id), id);
                             Role.create({
                                 ...role,
                                 guild_id,
@@ -430,26 +434,26 @@ export class Guild extends BaseClass {
             body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
         }
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
 
         body.channels.forEach((x) => {
-            if (x.id) {
-                ids.set(x.id, Snowflake.generate());
+            if (hasTemplateId(x.id)) {
+                ids.set(getTemplateId(x.id), Snowflake.generate());
             }
         });
 
         const channels = [...body.channels].sort((a, b) => {
-            if (!!a.parent_id !== !!b.parent_id) return a.parent_id ? 1 : -1;
+            if (hasParent(a) !== hasParent(b)) return hasParent(a) ? 1 : -1;
             return (a.position ?? 0) - (b.position ?? 0);
         });
 
         for (const channel of channels) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+            const id = hasTemplateId(channel.id) ? (ids.get(getTemplateId(channel.id)) ?? Snowflake.generate()) : Snowflake.generate();
 
-            const parent_id = ids.get(channel.parent_id);
+            const parent_id = hasTemplateId(channel.parent_id) ? ids.get(getTemplateId(channel.parent_id)) : undefined;
             const permission_overwrites = channel.permission_overwrites?.map((overwrite) => ({
                 ...overwrite,
-                id: overwrite.type === ChannelPermissionOverwriteType.role ? (roleIds.get(overwrite.id) ?? overwrite.id) : overwrite.id,
+                id: overwrite.type === ChannelPermissionOverwriteType.role ? (roleIds.get(getTemplateId(overwrite.id)) ?? overwrite.id) : overwrite.id,
             }));
 
             await Channel.createChannel({ ...channel, guild_id, id, parent_id, permission_overwrites }, body.owner_id, {
@@ -461,13 +465,17 @@ export class Guild extends BaseClass {
         }
 
         const orderedChannelIds: string[] = [];
-        for (const channel of channels.filter((channel) => !channel.parent_id)) {
-            orderedChannelIds.push(ids.get(channel.id) as string);
-            orderedChannelIds.push(...channels.filter((child) => child.parent_id === channel.id).map((child) => ids.get(child.id) as string));
+        for (const channel of channels.filter((channel) => !hasParent(channel))) {
+            orderedChannelIds.push(ids.get(getTemplateId(channel.id as string)) as string);
+            orderedChannelIds.push(
+                ...channels
+                    .filter((child) => hasParent(child) && getTemplateId(child.parent_id as string) === getTemplateId(channel.id as string))
+                    .map((child) => ids.get(getTemplateId(child.id as string)) as string),
+            );
         }
 
         const orderedChannelSet = new Set(orderedChannelIds);
-        orderedChannelIds.push(...channels.map((channel) => ids.get(channel.id) as string).filter((id) => !orderedChannelSet.has(id)));
+        orderedChannelIds.push(...channels.map((channel) => ids.get(getTemplateId(channel.id as string)) as string).filter((id) => !orderedChannelSet.has(id)));
 
         guild.channel_ordering = orderedChannelIds;
         await Guild.update({ id: guild_id }, { channel_ordering: orderedChannelIds });
