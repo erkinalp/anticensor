@@ -402,8 +402,8 @@ export class Guild extends BaseClass {
             flags: 0, // TODO?
         }).save();
 
-        const hasTemplateId = (id: string | null | undefined) => id !== undefined && id !== null;
-        const getTemplateId = (id: string) => String(id);
+        const hasTemplateId = (id: unknown): id is string | number => id !== undefined && id !== null;
+        const getTemplateId = (id: string | number) => String(id);
         const hasParent = (channel: Partial<Channel>) => hasTemplateId(channel.parent_id);
 
         const roleIds = new Map<string, string>();
