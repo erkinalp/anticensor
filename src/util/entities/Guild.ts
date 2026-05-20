@@ -464,18 +464,18 @@ export class Guild extends BaseClass {
             });
         }
 
+        const getChannelId = (channel: Partial<Channel>) => ids.get(getTemplateId(channel.id as string)) as string;
+
         const orderedChannelIds: string[] = [];
         for (const channel of channels.filter((channel) => !hasParent(channel))) {
-            orderedChannelIds.push(ids.get(getTemplateId(channel.id as string)) as string);
+            orderedChannelIds.push(getChannelId(channel));
             orderedChannelIds.push(
-                ...channels
-                    .filter((child) => hasParent(child) && getTemplateId(child.parent_id as string) === getTemplateId(channel.id as string))
-                    .map((child) => ids.get(getTemplateId(child.id as string)) as string),
+                ...channels.filter((child) => hasParent(child) && getTemplateId(child.parent_id as string) === getTemplateId(channel.id as string)).map(getChannelId),
             );
         }
 
         const orderedChannelSet = new Set(orderedChannelIds);
-        orderedChannelIds.push(...channels.map((channel) => ids.get(getTemplateId(channel.id as string)) as string).filter((id) => !orderedChannelSet.has(id)));
+        orderedChannelIds.push(...channels.map(getChannelId).filter((id) => !orderedChannelSet.has(id)));
 
         guild.channel_ordering = orderedChannelIds;
         await Guild.update({ id: guild_id }, { channel_ordering: orderedChannelIds });
