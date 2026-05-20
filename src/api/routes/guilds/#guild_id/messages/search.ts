@@ -107,7 +107,7 @@ router.get(
                                           select: { id: true },
                                       })
                                   )
-                                      .filter((_) => include_nsfw !== "true" || !_.nsfw)
+                                      .filter((_) => include_nsfw === "false" || !_.nsfw)
                                       .map(async (channel) => {
                                           const perm = await getPermission(req.user_id, req.params.guild_id as string, channel.id);
                                           return perm.has("VIEW_CHANNEL") && perm.has("READ_MESSAGE_HISTORY") ? channel : undefined;
