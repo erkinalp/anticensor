@@ -53,7 +53,7 @@ router.put(
 				let f = message.poll!.results!.answer_counts.find(_=>_.id === answer_id);
 				if(!f){
 					f={
-						answer_id,
+						id:answer_id,
 						count: 0,
 						user_ids: [],
 					}
