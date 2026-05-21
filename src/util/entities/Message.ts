@@ -38,6 +38,7 @@ import {
     MessageType,
     PartialMessage,
     Poll,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
@@ -322,6 +323,19 @@ export class Message extends BaseClass {
             //channel: this.channel, // TODO: ephemeral DM channels
             // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
         };
+    }
+    static cleanUserJSON(json: PublicMessage, user_id: string) {
+        (json.reactions || []).forEach((y: Partial<Reaction>) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            if ((y.user_ids || []).includes(user_id)) y.me = true;
+            delete y.user_ids;
+        });
+        (json.poll?.results?.answer_counts || []).forEach((y: Partial<PollAnswerCount>) => {
+            if ((y.user_ids || []).includes(user_id)) y.me_voted = true;
+            else y.me_voted = false;
+            delete y.user_ids;
+        });
     }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {

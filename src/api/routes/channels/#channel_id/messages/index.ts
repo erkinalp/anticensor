@@ -184,17 +184,7 @@ router.get(
         const ret = messages.map((msg) => {
             const x = msg.toJSON();
 
-            (x.reactions || []).forEach((y: Partial<Reaction>) => {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                if ((y.user_ids || []).includes(req.user_id)) y.me = true;
-                delete y.user_ids;
-            });
-            (x.poll?.results?.answer_counts || []).forEach((y: Partial<PollAnswerCount>) => {
-                if ((y.user_ids || []).includes(req.user_id)) y.me_voted = true;
-                else y.me_voted=false
-                delete y.user_ids;
-            });
+            Message.cleanUserJSON(x, req.user_id);
             if (!x.author)
                 x.author = {
                     id: "4",
