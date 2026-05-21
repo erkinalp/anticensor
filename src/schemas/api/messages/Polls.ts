@@ -21,8 +21,9 @@ import { PartialEmoji } from "@harmony/schemas";
 export interface Poll {
     question: PollMedia;
     answers: PollAnswer[];
-    expiry: Date;
+    expiry: string;
     allow_multiselect: boolean;
+    layout_type: 1;
     results?: PollResult;
 }
 
@@ -32,7 +33,7 @@ export interface PollMedia {
 }
 
 export interface PollAnswer {
-    answer_id?: string;
+    answer_id: number;
     poll_media: PollMedia;
 }
 

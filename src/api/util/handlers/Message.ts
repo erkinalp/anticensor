@@ -70,6 +70,8 @@ import {
     BaseMessageComponents,
     v1CompTypes,
     PartialUser,
+    Poll,
+    PollCreationSchema,
 } from "@harmony/schemas";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
@@ -331,11 +333,26 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         },
         [] as { attachment: MessageCreateCloudAttachment; index: number }[],
     );
+    let pollid = 1;
+    const poll: Poll | undefined = opts.poll
+        ? "expiry" in opts.poll
+            ? opts.poll
+            : {
+                  question: opts.poll.question,
+                  answers: opts.poll.answers.map((_) => ({
+                      answer_id: pollid++,
+                      poll_media: _.poll_media,
+                  })),
+                  expiry: new Date(Date.now() + opts.poll.duration * 60 * 60 * 1000).toISOString().replace("Z", "+00:00"),
+                  allow_multiselect: opts.poll.allow_multiselect ?? false,
+                  layout_type: 1,
+              }
+        : undefined;
 
     const message = Message.create({
         ...opts,
         message_reference: opts.message_reference ?? undefined,
-        poll: opts.poll,
+        poll,
         sticker_items: stickers,
         guild_id: channel.guild_id,
         channel_id: opts.channel_id,
@@ -803,7 +820,7 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-interface MessageOptions extends MessageCreateSchema {
+type MessageOptions = Omit<MessageCreateSchema, "poll"> & {
     id?: string;
     type?: MessageType;
     pinned?: boolean;
@@ -818,4 +835,5 @@ interface MessageOptions extends MessageCreateSchema {
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
-}
+    poll?: Poll | PollCreationSchema;
+};
