@@ -42,6 +42,7 @@ import {
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
+    Permissions,
 } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -295,6 +296,7 @@ router.post(
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
         const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        if (body.poll) req.permission!.hasThrow("SEND_POLLS");
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
