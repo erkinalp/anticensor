@@ -309,6 +309,24 @@ export class Message extends BaseClass {
             referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
         };
     }
+    toUserSafeJSON(user_id: string) {
+        return Message.cleanUserJSON(this.toJSON(), user_id);
+    }
+    static stdRelations = {
+        author: true,
+        webhook: true,
+        application: true,
+        mentions: true,
+        mention_roles: true,
+        mention_channels: true,
+        sticker_items: true,
+        attachments: true,
+        thread: {
+            recipients: {
+                user: true,
+            },
+        },
+    } as const;
 
     toPartialMessage(): PartialMessage {
         return {

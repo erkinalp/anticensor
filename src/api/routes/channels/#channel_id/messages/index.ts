@@ -120,21 +120,7 @@ router.get(
             order: { timestamp: "DESC" },
             take: limit,
             where: { channel_id },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: Message.stdRelations,
         };
 
         let messages: Message[];
