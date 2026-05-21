@@ -28,7 +28,7 @@ export interface Poll {
 }
 
 export interface PollMedia {
-    text?: string;
+    text: string;
     emoji?: PartialEmoji;
 }
 

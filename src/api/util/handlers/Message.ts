@@ -366,12 +366,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
     });
-    if (saveRunningPoll) {
-        RunningPolls.create({
-            message,
-            closes: new Date(message.poll!.expiry),
-        }).insert();
-    }
+
     message.channel = channel;
 
     if (opts.author_id) {
@@ -553,7 +548,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
 			 otherwise backfilling won't work **/
-            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
+            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type && message.type !== MessageType.POLL_RESULT)
+                message.type = MessageType.REPLY;
         }
     }
 
@@ -805,6 +801,12 @@ export async function postHandleMessage(message: Message) {
         // we need to handle false-y values (empty string) here, so cant use ??=
         embed.type ||= EmbedType.rich;
     });
+    if (message.poll && !message.poll.results?.is_finalized)
+        RunningPolls.create({
+            id: message.id,
+            message,
+            closes: new Date(message.poll.expiry),
+        }).insert();
 
     if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
 }

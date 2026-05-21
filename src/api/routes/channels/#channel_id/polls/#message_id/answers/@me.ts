@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message,Channel,emitEvent } from "@harmony/util";
+import { Message, Channel, emitEvent } from "@harmony/util";
 import { route } from "@harmony/api";
 import { PollPutSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
@@ -35,64 +35,63 @@ router.put(
         if (!message.poll) throw new HTTPError("Message does not have poll");
 
         if (!message.poll.allow_multiselect && body.answer_ids.length > 1) throw new HTTPError("Only one answer is allowed");
-		const ans = new Set(message.poll.answers.map(_=>_.answer_id));
-		 if (body.answer_ids.find(_=>!ans.has(_)) !== undefined) throw new HTTPError("Must be valid IDs");
+        const ans = new Set(message.poll.answers.map((_) => _.answer_id));
+        if (body.answer_ids.find((_) => !ans.has(_)) !== undefined) throw new HTTPError("Must be valid IDs");
         const newAn = new Set(body.answer_ids);
         if (!message.poll.results) message.poll.results = { is_finalized: false, answer_counts: [] };
-		if(message.poll.results.is_finalized) throw new HTTPError("Poll is finalized, can't change votes")
+        if (message.poll.results.is_finalized) throw new HTTPError("Poll is finalized, can't change votes");
         const oldAn = new Set(message.poll.results.answer_counts.filter((_) => _.user_ids.includes(req.user_id)).map((_) => _.id));
 
-		const c = await Channel.findOneOrFail({where:{
-			id:channel_id
-		}});
+        const c = await Channel.findOneOrFail({
+            where: {
+                id: channel_id,
+            },
+        });
 
-
-		await Promise.all(
-			[
-				...[...newAn.difference(oldAn)].map(answer_id=> {
-				let f = message.poll!.results!.answer_counts.find(_=>_.id === answer_id);
-				if(!f){
-					f={
-						id:answer_id,
-						count: 0,
-						user_ids: [],
-					}
-					message.poll!.results!.answer_counts.push(f);
-				}
-				f.count++;
-				f.user_ids.push(req.user_id);
-				return emitEvent({
-					event: "MESSAGE_POLL_VOTE_ADD",
-					data: {
-						user_id: req.user_id,
-						channel_id,
-						message_id,
-						guild_id: c.guild_id,
-						answer_id,
-					},
-					channel_id
-				})
-
-				}),
-				...[...oldAn.difference(newAn)].map(answer_id=>{
-					const f = message.poll!.results!.answer_counts.find(_=>_.id === answer_id)!;
-					f.count--;
-					f.user_ids=f.user_ids.filter((id)=>id!==req.user_id);
-					return emitEvent({
-					event: "MESSAGE_POLL_VOTE_REMOVE",
-					data: {
-						user_id: req.user_id,
-						channel_id,
-						message_id,
-						guild_id: c.guild_id,
-						answer_id,
-					},
-					channel_id
-				})}),
-				message.save()
-
-			])
-
+        await Promise.all([
+            ...[...newAn.difference(oldAn)].map((answer_id) => {
+                let f = message.poll!.results!.answer_counts.find((_) => _.id === answer_id);
+                if (!f) {
+                    f = {
+                        id: answer_id,
+                        count: 0,
+                        user_ids: [],
+                    };
+                    console.log(f);
+                    message.poll!.results!.answer_counts.push(f);
+                }
+                f.count++;
+                f.user_ids.push(req.user_id);
+                return emitEvent({
+                    event: "MESSAGE_POLL_VOTE_ADD",
+                    data: {
+                        user_id: req.user_id,
+                        channel_id,
+                        message_id,
+                        guild_id: c.guild_id,
+                        answer_id,
+                    },
+                    channel_id,
+                });
+            }),
+            ...[...oldAn.difference(newAn)].map((answer_id) => {
+                const f = message.poll!.results!.answer_counts.find((_) => _.id === answer_id)!;
+                f.count--;
+                f.user_ids = f.user_ids.filter((id) => id !== req.user_id);
+                return emitEvent({
+                    event: "MESSAGE_POLL_VOTE_REMOVE",
+                    data: {
+                        user_id: req.user_id,
+                        channel_id,
+                        message_id,
+                        guild_id: c.guild_id,
+                        answer_id,
+                    },
+                    channel_id,
+                });
+            }),
+            message.save(),
+        ]);
 
         res.send(message.toJSON());
     },
