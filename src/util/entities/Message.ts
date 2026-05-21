@@ -258,6 +258,9 @@ export class Message extends BaseClass {
         if (avatar && !URL.canParse(avatar)) {
             avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
         }
+        if (this.poll?.results && this.poll.results.is_finalized && Date.now() < +new Date(this.poll.expiry)) {
+            this.poll.results.is_finalized = true;
+        }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,

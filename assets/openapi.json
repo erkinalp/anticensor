@@ -5491,7 +5491,19 @@
                     "answers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PollAnswer"
+                            "type": "object",
+                            "properties": {
+                                "answer_id": {
+                                    "type": "integer"
+                                },
+                                "poll_media": {
+                                    "$ref": "#/components/schemas/PollMedia"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "poll_media"
+                            ]
                         }
                     },
                     "duration": {
@@ -5506,6 +5518,7 @@
                 },
                 "required": [
                     "answers",
+                    "duration",
                     "question"
                 ]
             },
@@ -5597,15 +5610,6 @@
                     "flags": {
                         "type": "integer"
                     },
-                    "applied_tags": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "channel_id": {
-                        "type": "string"
-                    },
                     "content": {
                         "type": "string"
                     },
@@ -5613,6 +5617,9 @@
                         "type": "string"
                     },
                     "nonce": {
+                        "type": "string"
+                    },
+                    "channel_id": {
                         "type": "string"
                     },
                     "tts": {
@@ -5725,11 +5732,14 @@
                             }
                         ]
                     },
-                    "poll": {
-                        "$ref": "#/components/schemas/PollCreationSchema"
-                    },
                     "enforce_nonce": {
                         "type": "boolean"
+                    },
+                    "applied_tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "thread_name": {
                         "type": "string"
@@ -7033,6 +7043,12 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "applied_tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "icon": {
                         "type": "string",
                         "nullable": true
@@ -7091,12 +7107,6 @@
                     "default_thread_rate_limit_per_user": {
                         "type": "integer"
                     },
-                    "applied_tags": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "position": {
                         "type": "integer"
                     },
@@ -7120,6 +7130,20 @@
                         "type": "boolean"
                     }
                 }
+            },
+            "PollPutSchema": {
+                "type": "object",
+                "properties": {
+                    "answer_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "answer_ids"
+                ]
             },
             "EmojisResponse": {
                 "type": "array",
@@ -12180,11 +12204,14 @@
                         }
                     },
                     "expiry": {
-                        "type": "string",
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "allow_multiselect": {
                         "type": "boolean"
+                    },
+                    "layout_type": {
+                        "type": "integer",
+                        "const": 1
                     },
                     "results": {
                         "$ref": "#/components/schemas/PollResult"
@@ -12194,6 +12221,7 @@
                     "allow_multiselect",
                     "answers",
                     "expiry",
+                    "layout_type",
                     "question"
                 ]
             },
@@ -12249,13 +12277,14 @@
                 "type": "object",
                 "properties": {
                     "answer_id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "poll_media": {
                         "$ref": "#/components/schemas/PollMedia"
                     }
                 },
                 "required": [
+                    "answer_id",
                     "poll_media"
                 ]
             },
@@ -12281,10 +12310,16 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "count": {
                         "type": "integer"
+                    },
+                    "user_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "me_voted": {
                         "type": "boolean"
@@ -12293,7 +12328,7 @@
                 "required": [
                     "count",
                     "id",
-                    "me_voted"
+                    "user_ids"
                 ]
             },
             "MessageSnapshot": {
@@ -23653,6 +23688,32 @@
                 "tags": [
                     "connections"
                 ]
+            },
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "connection_name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "connection_name"
+                    }
+                ],
+                "tags": [
+                    "connections"
+                ]
             }
         },
         "/connections/{connection_name}/authorize/": {
@@ -24614,6 +24675,53 @@
                             "type": "string"
                         },
                         "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/polls/{message_id}/answers/@me/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PollPutSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
                     }
                 ],
                 "tags": [

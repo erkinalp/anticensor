@@ -50,6 +50,7 @@ import {
     MessageFlags,
     FieldErrors,
     Snowflake,
+    RunningPolls,
 } from "@harmony/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -334,6 +335,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         [] as { attachment: MessageCreateCloudAttachment; index: number }[],
     );
     let pollid = 1;
+    const saveRunningPoll = opts.poll && !("expiry" in opts.poll);
+
     const poll: Poll | undefined = opts.poll
         ? "expiry" in opts.poll
             ? opts.poll
@@ -363,6 +366,12 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
     });
+    if (saveRunningPoll) {
+        RunningPolls.create({
+            message,
+            closes: new Date(message.poll!.expiry),
+        }).insert();
+    }
     message.channel = channel;
 
     if (opts.author_id) {

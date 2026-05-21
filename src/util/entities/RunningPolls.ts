@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2025 Spacebar and Spacebar Contributors
+	Copyright (C) 2023 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,36 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialEmoji, Snowflake } from "@harmony/schemas";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { BaseClass } from "./BaseClass";
+import { Message } from "./Message";
 
-export interface Poll {
-    question: PollMedia;
-    answers: PollAnswer[];
-    expiry: string;
-    allow_multiselect: boolean;
-    layout_type: 1;
-    results?: PollResult;
-}
+@Entity({
+    name: "running_polls",
+})
+export class RunningPolls extends BaseClass {
+    @JoinColumn({ name: "message_id" })
+    @ManyToOne(() => Message, { onDelete: "CASCADE" })
+    message: Message;
 
-export interface PollMedia {
-    text?: string;
-    emoji?: PartialEmoji;
-}
-
-export interface PollAnswer {
-    answer_id: number;
-    poll_media: PollMedia;
-}
-
-export interface PollResult {
-    is_finalized: boolean;
-    answer_counts: PollAnswerCount[];
-}
-
-export interface PollAnswerCount {
-    id: number;
-    count: number;
-    user_ids: Snowflake[];
-    //not saved in DB
-    me_voted?: boolean;
+    @Column()
+    closes: Date;
 }

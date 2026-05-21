@@ -359,6 +359,16 @@ export interface MessageCreateEvent extends Event {
     event: "MESSAGE_CREATE";
     data: PublicMessage;
 }
+export interface PollChangeEvent extends Event {
+    event: "MESSAGE_POLL_VOTE_ADD" | "MESSAGE_POLL_VOTE_REMOVE";
+    data: {
+        user_id: string;
+        channel_id: string;
+        message_id: string;
+        guild_id?: string;
+        answer_id: number;
+    };
+}
 
 export interface MessageUpdateEvent extends Event {
     event: "MESSAGE_UPDATE";
@@ -856,6 +866,8 @@ export type EVENT =
     | "THREAD_LIST_SYNC"
     | "THREAD_MEMBER_UPDATE"
     | "THREAD_MEMBERS_UPDATE"
+    | "MESSAGE_POLL_VOTE_ADD"
+    | "MESSAGE_POLL_VOTE_REMOVE"
     | CUSTOMEVENTS;
 
 export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT" | "SB_SESSION_REMOVE" | "SB_SESSION_CLOSE";

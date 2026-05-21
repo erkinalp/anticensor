@@ -55,6 +55,7 @@ import {
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     PartialUser,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     ReadStateType,
@@ -187,6 +188,11 @@ router.get(
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
                 if ((y.user_ids || []).includes(req.user_id)) y.me = true;
+                delete y.user_ids;
+            });
+            (x.poll?.results?.answer_counts || []).forEach((y: Partial<PollAnswerCount>) => {
+                if ((y.user_ids || []).includes(req.user_id)) y.me_voted = true;
+                else y.me_voted=false
                 delete y.user_ids;
             });
             if (!x.author)
