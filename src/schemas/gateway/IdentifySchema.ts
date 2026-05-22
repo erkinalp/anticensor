@@ -22,7 +22,7 @@ import { ActivitySchema } from "@harmony/schemas";
 
 export const IdentifySchema = {
     token: String,
-    $intents: BigInt, // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
+    $intents: Number, // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
     $properties: Object,
     // {
     // 	// discord uses $ in the property key for bots, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
@@ -53,7 +53,7 @@ export const IdentifySchema = {
     $presence: ActivitySchema,
     $compress: Boolean,
     $large_threshold: Number,
-    $shard: [BigInt, BigInt],
+    $shard: [Number, Number],
     $guild_subscriptions: Boolean,
     $capabilities: Number,
     $client_state: {
@@ -106,7 +106,7 @@ export interface IdentifySchema {
         client_version?: string;
         system_locale?: string;
     };
-    intents?: bigint; // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
+    intents?: number; // this is a number, we can make it a bigint later
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -115,7 +115,7 @@ export interface IdentifySchema {
      * @minItems 2
      * @maxItems 2
      */
-    shard?: bigint[]; // puyo: changed from [bigint, bigint] because it breaks openapi
+    shard?: number[]; // this is a number, we can make it a bigint later
     guild_subscriptions?: boolean;
     capabilities?: number;
     client_state?: {
