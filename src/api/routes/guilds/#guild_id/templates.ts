@@ -23,7 +23,7 @@ import { HTTPError } from "lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
-const TemplateGuildProjection: { [key: keyof Guild]: true } = {
+const TemplateGuildProjection = {
     id: true,
     name: true,
     description: true,
@@ -39,7 +39,7 @@ const TemplateGuildProjection: { [key: keyof Guild]: true } = {
     system_channel_id: true,
     system_channel_flags: true,
     icon: true,
-};
+} as const;
 
 router.get(
     "/",

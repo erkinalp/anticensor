@@ -23,7 +23,7 @@ import crypto from "node:crypto";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
-import { FindOptionsRelationByString, FindOptionsRelations, FindOptionsSelect, FindOptionsSelectByString } from "typeorm";
+import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
 import { randomUpperString } from "@harmony/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";

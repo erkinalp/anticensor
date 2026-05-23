@@ -232,8 +232,8 @@ router.put(
                       relations: { roles: true, user: true },
                       select: {
                           index: true,
-                          ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
-                          user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                          ...PublicMemberProjection,
+                          user: PublicUserProjection,
                           roles: {
                               id: true,
                           },

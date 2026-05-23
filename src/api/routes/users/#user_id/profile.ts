@@ -140,7 +140,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
     const user = await User.findOneOrFail({
         where: { id: req.user_id },
-        select: [...PrivateUserProjection, "data"],
+        select: { ...PrivateUserProjection, data: true },
     });
 
     if (body.bio) {

@@ -37,7 +37,7 @@ router.get(
             where: { id: req.params.id as string }, // ...huh? there's no ID in the path...
             relations: { bot: true, owner: true },
             select: {
-                owner: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                owner: PublicUserProjection,
             },
         });
 

@@ -215,8 +215,8 @@ export class User extends BaseClass {
         this.clean_data();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const user: any = {};
-        PublicUserProjection.forEach((x) => {
-            user[x] = this[x];
+        Object.keys(PublicUserProjection).forEach((x) => {
+            user[x] = this[x as keyof typeof PublicUserProjection];
         });
         return user as PublicUser;
     }
