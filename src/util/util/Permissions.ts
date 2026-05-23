@@ -260,9 +260,11 @@ export async function getPermission(
         select: { id: true, flags: true },
     });
     const query = {
-        relations: ["recipients", "thread_members", "thread_members.member", ...(opts.channel_relations || [])],
-        select: ["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])],
-    } as FindOneOptions<Channel>;
+        relations: { ...Object.fromEntries(["recipients", ...(opts.channel_relations || [])].map((_) => [_, true])), thread_members: { member: true } },
+        select: Object.fromEntries(
+            ["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])].map((_) => [_, true]),
+        ),
+    } satisfies FindOneOptions<Channel>;
     if (typeof channel_id === "string") {
         channel = await Channel.findOneOrFail({ where: { id: channel_id }, ...query });
         if (channel.guild_id) guild_id = channel.guild_id; // derive guild_id from the channel
