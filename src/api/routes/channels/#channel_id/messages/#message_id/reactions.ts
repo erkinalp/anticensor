@@ -160,6 +160,7 @@ router.get(
         const reaction = message.reactions.find((x) => (x.emoji.id === emoji.id && emoji.id) || x.emoji.name === emoji.name);
         if (!reaction) throw new HTTPError("Reaction not found", 404);
 
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const users = (
             await User.find({
                 where: {

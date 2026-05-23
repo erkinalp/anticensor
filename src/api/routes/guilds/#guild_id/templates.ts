@@ -83,6 +83,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
             select: TemplateGuildProjection,
@@ -139,6 +140,7 @@ router.put(
     }),
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
             select: TemplateGuildProjection,

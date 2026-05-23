@@ -150,7 +150,9 @@ router.patch(
         const { channel_id } = req.params as { [key: string]: string };
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: {
+                available_tags: true
+            },
         });
 
         if (channel.isThread()) {
@@ -181,7 +183,9 @@ router.patch(
                     where: {
                         id: channel.parent_id as string,
                     },
-                    relations: ["available_tags"],
+                    relations: {
+                        available_tags: true
+                    },
                 });
                 if (!parent.available_tags) throw new Error("shoot, internetal error");
                 const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));

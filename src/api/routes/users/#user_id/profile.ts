@@ -112,6 +112,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         const relationshipsIntersection = relationshipsSelf.filter((r1) => relationshipsUser.some((r2) => r2.to_id === r1.to_id));
         if (with_mutual_friends_count) mutual_friends_count = relationshipsIntersection.length;
         if (with_mutual_friends) {
+            // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
             const users = await User.find({ where: { id: In(relationshipsIntersection.map((r) => r.to_id)) }, select: PublicUserProjection });
             mutual_friends = users.map((u) => u.toPublicUser());
         }

@@ -65,6 +65,7 @@ router.put(
         },
     }),
     async (req: Request, res: Response) => {
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         return await updateRelationship(
             req,
             res,
@@ -131,6 +132,7 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         return await updateRelationship(
             req,
             res,
@@ -164,11 +166,13 @@ router.delete(
         const { user_id } = req.params as { [key: string]: string };
         if (user_id === req.user_id) throw new HTTPError("You can't remove yourself as a friend");
 
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
             select: userProjection,
             relations: { relationships: true },
         });
+        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const friend = await User.findOneOrFail({
             where: { id: user_id },
             select: userProjection,
@@ -222,6 +226,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
     const id = friend.id;
     if (id === req.user_id) throw new HTTPError("You can't add yourself as a friend");
 
+    // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
     const user = await User.findOneOrFail({
         where: { id: req.user_id },
         relations: { relationships: { to: true } },

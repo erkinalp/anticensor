@@ -39,6 +39,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { invite_code } = req.params as { [key: string]: string };
 
+        // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
         const invite = await Invite.findOneOrFail({
             where: { code: invite_code },
             relations: PublicInviteRelation,

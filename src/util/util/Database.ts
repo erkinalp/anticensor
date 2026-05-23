@@ -53,19 +53,19 @@ const applyMigrations = process.env.APPLY_DB_MIGRATIONS !== "false";
 export const DataSourceOptions = isHeadlessProcess
     ? (undefined as unknown as DataSource)
     : new DataSource({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
-          type: DatabaseType,
-          charset: "utf8mb4",
-          url: process.env.DATABASE,
-          entities: [path.join(__dirname, "..", "entities", "*.js")],
-          synchronize: !!process.env.DB_SYNC,
-          logging: !!process.env.DB_LOGGING,
-          bigNumberStrings: false,
-          supportBigNumbers: true,
-          name: "default",
-          migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
-      });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
+    type: DatabaseType,
+
+    charset: "utf8mb4",
+    url: process.env.DATABASE,
+    entities: [path.join(__dirname, "..", "entities", "*.js")],
+    synchronize: !!process.env.DB_SYNC,
+    logging: !!process.env.DB_LOGGING,
+    bigNumberStrings: false,
+    supportBigNumbers: true,
+    migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : []
+});
 
 // Gets the existing database connection
 export function getDatabase(): DataSource | null {

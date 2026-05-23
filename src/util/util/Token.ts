@@ -81,8 +81,8 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
             }
 
-            // eslint-disable-next-line prefer-const
-            let [user, session] = await Promise.all([
+            // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
+            const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
                     select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
@@ -90,6 +90,8 @@ export const checkToken = (
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
             ]);
+            let session = arr[1];
+            const user = arr[0];
 
             if (!user) {
                 logAuth("validateUser rejected: User not found");

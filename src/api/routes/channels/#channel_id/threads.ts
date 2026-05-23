@@ -70,7 +70,9 @@ router.post(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: {
+                available_tags: true
+            },
         });
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
