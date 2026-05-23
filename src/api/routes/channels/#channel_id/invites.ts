@@ -108,7 +108,6 @@ router.get(
         }
         const { guild_id } = channel;
 
-        // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
         const invites = await Invite.find({
             where: { guild_id, channel_id },
             relations: PublicInviteRelation,

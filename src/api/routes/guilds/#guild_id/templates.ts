@@ -23,23 +23,23 @@ import { HTTPError } from "lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
-const TemplateGuildProjection: (keyof Guild)[] = [
-    "id",
-    "name",
-    "description",
-    "region",
-    "verification_level",
-    "default_message_notifications",
-    "explicit_content_filter",
-    "preferred_locale",
-    "afk_timeout",
+const TemplateGuildProjection: { [key: keyof Guild]: true } = {
+    id: true,
+    name: true,
+    description: true,
+    region: true,
+    verification_level: true,
+    default_message_notifications: true,
+    explicit_content_filter: true,
+    preferred_locale: true,
+    afk_timeout: true,
     // "roles",
     // "channels",
-    "afk_channel_id",
-    "system_channel_id",
-    "system_channel_flags",
-    "icon",
-];
+    afk_channel_id: true,
+    system_channel_id: true,
+    system_channel_flags: true,
+    icon: true,
+};
 
 router.get(
     "/",
@@ -83,7 +83,6 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
-        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
             select: TemplateGuildProjection,
@@ -140,7 +139,6 @@ router.put(
     }),
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
-        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
             select: TemplateGuildProjection,

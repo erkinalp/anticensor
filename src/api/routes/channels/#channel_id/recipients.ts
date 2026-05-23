@@ -57,7 +57,6 @@ router.put(
                 user_id: user_id,
             });
 
-            // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
             await emitEvent({
                 event: "CHANNEL_RECIPIENT_ADD",
                 data: {

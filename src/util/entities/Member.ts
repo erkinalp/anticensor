@@ -316,7 +316,6 @@ export class Member extends BaseClassWithoutId {
             throw new HTTPError(`You are at the ${maxGuilds} server limit.`, 403);
         }
 
-        // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
         const guild = await Guild.findOneOrFail({
             where: {
                 id: guild_id,

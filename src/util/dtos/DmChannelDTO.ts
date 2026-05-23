@@ -44,7 +44,6 @@ export class DmChannelDTO {
                 channel.recipients
                     ?.filter((r) => !excluded_recipients.includes(r.user_id))
                     .map((r) => {
-                        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
                         return User.findOneOrFail({
                             where: { id: r.user_id },
                             select: PublicUserProjection,

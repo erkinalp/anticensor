@@ -58,7 +58,6 @@ router.get(
 
         await Member.IsInGuildOrFail(req.user_id, guild_id);
 
-        // TODO(typeorm-v1): `select` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(f => [f, true]) ?? [])`. If it already holds the v1 object shape `{ field: true }`, no change needed.
         const members = await Member.find({
             where: { guild_id, ...query },
             select: PublicMemberProjection,

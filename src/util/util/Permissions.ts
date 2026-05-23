@@ -286,11 +286,10 @@ export async function getPermission(
 
     if (guild_id) {
         if (typeof guild_id === "string") {
-            // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
             guild = await Guild.findOneOrFail({
                 where: { id: guild_id },
-                select: ["id", "owner_id", ...(opts.guild_select || [])],
-                relations: opts.guild_relations,
+                select: Object.fromEntries(["id", "owner_id", ...(opts.guild_select || [])].map((_) => [_, true])),
+                relations: opts.guild_relations && Object.fromEntries(opts.guild_relations.map((_) => [_, true])),
             });
         } else {
             guild = guild_id;
@@ -299,7 +298,7 @@ export async function getPermission(
 
         member = await Member.findOneOrFail({
             where: { guild_id: guild.id, id: user_id },
-            relations: ["roles", ...(opts.member_relations || [])],
+            relations: Object.fromEntries(["roles", ...(opts.member_relations || [])].map((_) => [_, true])),
             // select: [
             // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
             // "roles",

@@ -81,7 +81,6 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
             }
 
-            // TODO(typeorm-v1): `relations` no longer accepts a string array. This value references a variable whose shape can't be determined statically — if it holds `string[]`, wrap it: `Object.fromEntries(<expr>?.map(r => [r, true]) ?? [])` (dot-paths need extra nesting handling). If it already holds the v1 object shape, no change needed.
             const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
