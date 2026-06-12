@@ -25,6 +25,7 @@ export class RabbitMqSingleWriter extends BaseEventWriter {
     private readonly host: string;
     private connection?: ChannelModel;
     private channel?: Channel;
+    private intentionalClose = false;
 
     constructor(host: string) {
         super();
@@ -54,6 +55,7 @@ export class RabbitMqSingleWriter extends BaseEventWriter {
 
         this.connection.on("close", () => {
             console.error("[RabbitMQSingleWriter] Connection closed");
+            if (this.intentionalClose) return;
             sleep(1000).then(() => {
                 this.init().catch((e) => console.error("[RabbitMQSingleWriter] Failed to schedule reconnection:", e));
             });
@@ -61,6 +63,7 @@ export class RabbitMqSingleWriter extends BaseEventWriter {
     }
 
     async close(): Promise<void> {
+        this.intentionalClose = true;
         await this.channel?.close();
         this.channel = undefined;
         await this.connection?.close();

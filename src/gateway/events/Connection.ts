@@ -50,11 +50,6 @@ const openConnectionCount = Monitoring.attachMetric(
 export async function Connection(this: WS.Server, socket: WebSocket, request: IncomingMessage) {
     openConnections.push(socket);
     openConnectionCount.set(openConnections.length);
-    socket.on("close", () => {
-        const index = openConnections.indexOf(socket);
-        if (index !== -1) openConnections.splice(index, 1);
-        openConnectionCount.set(openConnections.length);
-    });
 
     const onShutdown = async () => {
         await Send(socket, {
@@ -73,6 +68,13 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
 
         socket.close(1000);
     };
+
+    socket.on("close", () => {
+        const index = openConnections.indexOf(socket);
+        if (index !== -1) openConnections.splice(index, 1);
+        openConnectionCount.set(openConnections.length);
+        ProcessLifecycle.eventEmitter.off("stopping", onShutdown);
+    });
 
     if (ProcessLifecycle.state == "stopping" || ProcessLifecycle.state == "stopped") return await onShutdown();
     ProcessLifecycle.eventEmitter.on("stopping", onShutdown);

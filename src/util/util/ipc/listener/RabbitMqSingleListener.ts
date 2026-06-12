@@ -30,6 +30,7 @@ export class RabbitMqSingleListener extends BaseEventListener {
     private readonly host: string;
     private connection?: ChannelModel;
     private channel?: Channel;
+    private intentionalClose = false;
     eventEmitter: EventEmitter;
     openListenersMetric: Gauge.Internal<string>;
 
@@ -39,10 +40,10 @@ export class RabbitMqSingleListener extends BaseEventListener {
         this.host = host;
 
         RabbitMqSingleListener.openListenersMetric = Monitoring.attachMetric(
-            "spacebar_ipc_unix_listener_open_listener_count",
+            "spacebar_ipc_rabbitmqsingle_listener_open_listener_count",
             new Gauge({
                 name: "spacebar_ipc_rabbitmqsingle_listener_open_listener_count",
-                help: "Amount of open listeners on unix socket",
+                help: "Amount of open listeners on rabbitmq-single",
                 labelNames: ["host"],
             }),
         );
@@ -73,6 +74,7 @@ export class RabbitMqSingleListener extends BaseEventListener {
 
         this.connection.on("close", () => {
             console.error("[RabbitMQSingleListener] Connection closed");
+            if (this.intentionalClose) return;
             sleep(1000).then(() => {
                 this.init().catch((e) => console.error("[RabbitMQSingleListener] Failed to schedule reconnection:", e));
             });
@@ -103,6 +105,7 @@ export class RabbitMqSingleListener extends BaseEventListener {
     }
 
     async close(): Promise<void> {
+        this.intentionalClose = true;
         await this.channel?.close();
         this.channel = undefined;
         await this.connection?.close();
