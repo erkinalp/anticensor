@@ -136,12 +136,6 @@ public partial class Guild
     [Column("discovery_excluded")]
     public bool DiscoveryExcluded { get; set; }
 
-    [Column("discovery_weight")]
-    public int DiscoveryWeight { get; set; }
-
-    [Column("discovery_excluded")]
-    public bool DiscoveryExcluded { get; set; }
-
     [ForeignKey("AfkChannelId")]
     [InverseProperty("GuildAfkChannels")]
     public virtual Channel? AfkChannel { get; set; }
