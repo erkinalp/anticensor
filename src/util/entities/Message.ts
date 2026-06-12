@@ -20,7 +20,6 @@ import { User } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { Channel } from "./Channel";
-
 import { Application } from "./Application";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, FindOneOptions, Raw, Not, BaseEntity, In } from "typeorm";
 import { BaseClass } from "./BaseClass";
@@ -251,6 +250,10 @@ export class Message extends BaseClass {
 
     @Column({ type: "simple-json", nullable: true })
     reply_ids?: string[];
+
+    get isWebhook() {
+        return this.webhook_id != null && this.webhook != null;
+    }
 
     static async fillReplies(messages: Message[]) {
         const ms = messages

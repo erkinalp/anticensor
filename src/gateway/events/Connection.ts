@@ -27,15 +27,11 @@ import { Close } from "./Close";
 import { Message } from "./Message";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "node:url";
-import { Config, ErlpackType } from "@spacebar/util";
+import { Config } from "@spacebar/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
-
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
+import { ProcessLifecycle } from "../../util/util/ProcessLifecycle";
+import { Monitoring } from "../../util/monitoring/Monitoring";
+import { Gauge } from "prom-client";
 
 // TODO: check rate limit
 // TODO: specify rate limit in config
@@ -43,12 +39,43 @@ try {
 
 export const openConnections: WebSocket[] = [];
 
+const openConnectionCount = Monitoring.attachMetric(
+    "spacebar_gateway_open_connection_count",
+    new Gauge({
+        name: "spacebar_gateway_open_connection_count",
+        help: "The total number of HTTP requests received",
+    }),
+);
+
 export async function Connection(this: WS.Server, socket: WebSocket, request: IncomingMessage) {
     openConnections.push(socket);
+    openConnectionCount.set(openConnections.length);
     socket.on("close", () => {
         const index = openConnections.indexOf(socket);
         if (index !== -1) openConnections.splice(index, 1);
+        openConnectionCount.set(openConnections.length);
     });
+
+    const onShutdown = async () => {
+        await Send(socket, {
+            op: OPCODES.Reconnect,
+            s: socket.sequence++,
+            d: Math.round(Math.random() * 5000),
+        });
+
+        const closeListeners = socket.listeners("close");
+        for (const listener of closeListeners) {
+            socket.off("close", listener);
+            // noinspection JSVoidFunctionReturnValueUsed - awaiting results
+            const res = listener.call(socket, 1000, 0) as void | Promise<void>;
+            if (res) await res;
+        }
+
+        socket.close(1000);
+    };
+
+    if (ProcessLifecycle.state == "stopping" || ProcessLifecycle.state == "stopped") return await onShutdown();
+    ProcessLifecycle.eventEmitter.on("stopping", onShutdown);
 
     const forwardedFor = Config.get().security.forwardedFor;
     const ipAddress = forwardedFor ? (request.headers[forwardedFor.toLowerCase()] as string) : request.socket.remoteAddress;
@@ -107,8 +134,6 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
             console.error(`[Gateway/${socket.ipAddress}] Unknown encoding: ${socket.encoding}`);
             return socket.close(CLOSECODES.Decode_error);
         }
-
-        if (socket.encoding === "etf" && !erlpack) throw new Error("Erlpack is not installed: 'npm i @yukikaze-bot/erlpack'");
 
         socket.version = Number(searchParams.get("version")) || 8;
         if (socket.version != 8) {

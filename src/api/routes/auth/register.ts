@@ -17,12 +17,13 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan } from "@spacebar/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan, Stopwatch } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
+import { BcryptWorkerPool } from "../../../util/util/workers/bcrypt/BcryptWorkerPool";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -45,6 +46,13 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
+        const totalSw = Stopwatch.startNew();
+        const incSw = Stopwatch.startNew();
+        const logTrace = (...data: unknown[]) => {
+            if (process.env.LOG_VERBOSE_TRACES !== "true") return;
+            console.log("[Register]", ...data, `[${totalSw.elapsed().toString()} (+${incSw.getElapsedAndReset().totalMilliseconds}ms)]`);
+        };
+
         const body = req.body as RegisterSchema;
         const { register, security, limits } = Config.get();
         const ip = req.ip!;
@@ -133,77 +141,82 @@ router.post(
             }
         }
 
+        logTrace("Basic checks");
+
         //region IP checks
-        const cacheBlockedIp = (ip: string, reason: string) => {
-            recentlyBlockedIps[ip] = {
-                firstHit: new Date(),
-                lastHit: new Date(),
-                hits: 0,
-                reason,
+        if (register.enableAbuseIpDb || register.enableIpData) {
+            const cacheBlockedIp = (ip: string, reason: string) => {
+                recentlyBlockedIps[ip] = {
+                    firstHit: new Date(),
+                    lastHit: new Date(),
+                    hits: 0,
+                    reason,
+                };
+                console.log(`[Register] ${ip} blocked from registration:`, reason);
             };
-            console.log(`[Register] ${ip} blocked from registration:`, reason);
-        };
 
-        if (!regTokenUsed && recentlyBlockedIps[ip]) {
-            if (new TimeSpan(recentlyBlockedIps[ip].firstHit.getTime(), new Date().getTime()).totalHours >= 24) delete recentlyBlockedIps[ip];
-            else {
-                recentlyBlockedIps[ip].lastHit = new Date();
-                recentlyBlockedIps[ip].hits++;
-                console.log(
-                    `[Register] ${ip} blocked from registration: blocked since ${recentlyBlockedIps[ip].firstHit} with ${recentlyBlockedIps[ip].hits} hits and reason:`,
-                    recentlyBlockedIps[ip].reason,
-                );
-                throw new HTTPError("Your IP is blocked from registration");
-            }
-        }
-
-        if (!regTokenUsed && register.enableAbuseIpDb) {
-            const blacklist = await AbuseIpDbClient.getBlacklist();
-            if (blacklist) {
-                const entry = blacklist.data.find((e) => e.ipAddress === ip);
-
-                if (entry && entry.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
-                    cacheBlockedIp(ip, `AbuseIPDB score ${entry.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (BLACKLIST)`);
+            if (!regTokenUsed && recentlyBlockedIps[ip]) {
+                if (new TimeSpan(recentlyBlockedIps[ip].firstHit.getTime(), new Date().getTime()).totalHours >= 24) delete recentlyBlockedIps[ip];
+                else {
+                    recentlyBlockedIps[ip].lastHit = new Date();
+                    recentlyBlockedIps[ip].hits++;
+                    console.log(
+                        `[Register] ${ip} blocked from registration: blocked since ${recentlyBlockedIps[ip].firstHit} with ${recentlyBlockedIps[ip].hits} hits and reason:`,
+                        recentlyBlockedIps[ip].reason,
+                    );
                     throw new HTTPError("Your IP is blocked from registration");
                 }
             }
 
-            const checkIp = await AbuseIpDbClient.checkIpAddress(ip);
-            if (checkIp?.data && checkIp.data.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
-                cacheBlockedIp(ip, `AbuseIPDB score ${checkIp.data.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (CHECK)`);
-                throw new HTTPError("Your IP is blocked from registration");
-            }
-        }
+            if (!regTokenUsed && register.enableAbuseIpDb) {
+                const blacklist = await AbuseIpDbClient.getBlacklist();
+                if (blacklist) {
+                    const entry = blacklist.data.find((e) => e.ipAddress === ip);
 
-        if (!regTokenUsed && register.enableIpData) {
-            const ipData = await IpDataClient.getIpInfo(ip);
-            if (ipData) {
-                if (!ipData.threat) {
-                    console.log("Invalid IPData.co response, missing threat field", ipData);
-                }
-                const categories = Object.entries(ipData.threat)
-                    .filter(([key, value]) => key.startsWith("is_") && value === true)
-                    .map(([key]) => key.replace("is_", ""));
-                const blockedCategories = new Set(categories).intersection(new Set(register.blockIpDataCoThreatTypes));
-                if (blockedCategories.size > 0) {
-                    cacheBlockedIp(ip, `IPData.co threat types ${Array.from(blockedCategories).join(", ")}`);
-                    throw new HTTPError("Your IP is blocked from registration");
+                    if (entry && entry.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
+                        cacheBlockedIp(ip, `AbuseIPDB score ${entry.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (BLACKLIST)`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    }
                 }
 
-                if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
-                    cacheBlockedIp(ip, `IPData.co ASN type ${ipData.asn.type} is blocked`);
+                const checkIp = await AbuseIpDbClient.checkIpAddress(ip);
+                if (checkIp?.data && checkIp.data.abuseConfidenceScore >= register.blockAbuseIpDbAboveScore) {
+                    cacheBlockedIp(ip, `AbuseIPDB score ${checkIp.data.abuseConfidenceScore} >= ${register.blockAbuseIpDbAboveScore} (CHECK)`);
                     throw new HTTPError("Your IP is blocked from registration");
-                } else if (!ipData.asn.type) {
-                    console.log("[Register] IPData.co response missing asn.type field", ipData);
-                }
-
-                if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
-                    cacheBlockedIp(ip, `IPData.co ASN ${ipData.asn.name} is blocked`);
-                    throw new HTTPError("Your IP is blocked from registration");
-                } else if (!ipData.asn.asn) {
-                    console.log("[Register] IPData.co response missing asn.asn field", ipData);
                 }
             }
+
+            if (!regTokenUsed && register.enableIpData) {
+                const ipData = await IpDataClient.getIpInfo(ip);
+                if (ipData) {
+                    if (!ipData.threat) {
+                        console.log("Invalid IPData.co response, missing threat field", ipData);
+                    }
+                    const categories = Object.entries(ipData.threat)
+                        .filter(([key, value]) => key.startsWith("is_") && value === true)
+                        .map(([key]) => key.replace("is_", ""));
+                    const blockedCategories = new Set(categories).intersection(new Set(register.blockIpDataCoThreatTypes));
+                    if (blockedCategories.size > 0) {
+                        cacheBlockedIp(ip, `IPData.co threat types ${Array.from(blockedCategories).join(", ")}`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    }
+
+                    if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
+                        cacheBlockedIp(ip, `IPData.co ASN type ${ipData.asn.type} is blocked`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    } else if (!ipData.asn.type) {
+                        console.log("[Register] IPData.co response missing asn.type field", ipData);
+                    }
+
+                    if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
+                        cacheBlockedIp(ip, `IPData.co ASN ${ipData.asn.name} is blocked`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    } else if (!ipData.asn.asn) {
+                        console.log("[Register] IPData.co response missing asn.asn field", ipData);
+                    }
+                }
+            }
+            logTrace("IP checks");
         }
         //endregion
 
@@ -241,6 +254,8 @@ router.post(
                 },
             });
         }
+
+        logTrace("Email checks");
 
         if (register.dateOfBirth.required && !body.date_of_birth) {
             throw FieldErrors({
@@ -293,6 +308,7 @@ router.post(
                 });
             }
             // the salt is saved in the password refer to bcrypt docs
+            // body.password = await BcryptWorkerPool.GetBcryptWorker().hashPassword(body.password, 12);
             body.password = await bcrypt.hash(body.password, 12);
         } else if (register.password.required) {
             throw FieldErrors({
@@ -302,6 +318,7 @@ router.post(
                 },
             });
         }
+        logTrace("Password checks");
 
         if (!regTokenUsed && !body.invite && (register.requireInvite || (register.guestsRequireInvite && !register.email))) {
             // require invite to register -> e.g. for organizations to send invites to their employees
@@ -330,6 +347,7 @@ router.post(
                 },
             });
         }
+        logTrace("Absolute register rate checks");
 
         const { maxUsername } = Config.get().limits.user;
         if (body.username.length > maxUsername) {
@@ -342,13 +360,16 @@ router.post(
         }
 
         const user = await User.register({ ...body, req });
+        logTrace("Register user");
 
         if (body.invite) {
             // await to fail if the invite doesn't exist (necessary for requireInvite to work properly) (username only signups are possible)
             await Invite.joinGuild(user.id, body.invite);
+            logTrace("Accept invite");
         }
 
-        return res.json({ token: await generateToken(user.id) });
+        res.json({ token: await generateToken(user.id) });
+        logTrace("Generate token");
     },
 );
 

@@ -25,6 +25,9 @@
         <Project Path="Models/Spacebar.Models.Gateway/Spacebar.Models.Gateway.csproj" />
         <Project Path="Models/Spacebar.Models.Generic/Spacebar.Models.Generic.csproj" />
     </Folder>
+    <Folder Name="/Tests/">
+        <Project Path="Tests/Spacebar.Tests/Spacebar.Tests.csproj" />
+    </Folder>
     <Folder Name="/Utilities/">
         <Project Path="Utilities/ConfigTest/ConfigTest.csproj" />
         <Project Path="Utilities/DiscordEmojiConverter/DiscordEmojiConverter.csproj" />
@@ -35,6 +38,7 @@
         <Project Path="Utilities/Spacebar.Cdn.Migration/Spacebar.Cdn.Migration.csproj" />
         <Project Path="Utilities/Spacebar.CleanSettingsRows/Spacebar.CleanSettingsRows.csproj" />
         <Project Path="Utilities/Spacebar.Client/Spacebar.Client.csproj" />
+        <Project Path="Utilities/Spacebar.Sdk/Spacebar.Sdk.csproj" />
     </Folder>
     <Project Path="Spacebar.AdminApi/Spacebar.AdminApi.csproj" />
     <Project Path="Spacebar.Cdn.Worker/Spacebar.Cdn.Worker.Q16-HDRI.x86_64.csproj" />
