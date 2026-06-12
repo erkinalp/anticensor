@@ -263,14 +263,6 @@ export class Message extends BaseClass {
     @Column({ nullable: true })
     sku_id?: string;
 
-    @Column({ type: "jsonb", nullable: true })
-    @JsonRemoveEmpty
-    paywall?: {
-        sku_id: string;
-        price: { amount: number; currency: string };
-        preview_text?: string;
-    };
-
     get isWebhook() {
         return this.webhook_id != null && this.webhook != null;
     }

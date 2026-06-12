@@ -11164,38 +11164,6 @@
                     "sku_id": {
                         "type": "string"
                     },
-                    "paywall": {
-                        "type": "object",
-                        "properties": {
-                            "sku_id": {
-                                "type": "string"
-                            },
-                            "price": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "integer"
-                                    },
-                                    "currency": {
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "amount",
-                                    "currency"
-                                ]
-                            },
-                            "preview_text": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "price",
-                            "sku_id"
-                        ]
-                    },
                     "isWebhook": {
                         "type": "boolean"
                     },
@@ -26995,7 +26963,7 @@
                 ]
             }
         },
-        "/channels/{channel_id}/messages/ppv/{message_id}/paywall": {
+        "/channels/{channel_id}/messages/ppv/{message_id}/sku": {
             "get": {
                 "security": [
                     {

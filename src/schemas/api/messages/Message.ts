@@ -210,11 +210,6 @@ export interface PublicMessage {
     changelog_id?: Snowflake;
     reply_ids?: string[];
     sku_id?: Snowflake;
-    paywall?: {
-        sku_id: string;
-        price: { amount: number; currency: string };
-        preview_text?: string;
-    };
     // soundboard_sounds?: SoundboardSound[];
     potions?: Potion[];
     shared_client_theme?: SharedClientTheme;

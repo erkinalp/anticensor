@@ -39,12 +39,12 @@ router.post(
             where: { id: message_id, channel_id },
         });
 
-        if (!message.paywall) {
-            throw new HTTPError("This message is not paywalled", 400);
+        if (!message.sku_id) {
+            throw new HTTPError("This message is not gated by an SKU", 400);
         }
 
         const existingEntitlement = await Entitlement.findOne({
-            where: { sku_id: message.paywall.sku_id, user_id: req.user_id, deleted: false },
+            where: { sku_id: message.sku_id, user_id: req.user_id, deleted: false },
         });
 
         if (existingEntitlement) {
@@ -52,7 +52,7 @@ router.post(
             return;
         }
 
-        const sku = await SKU.findOneOrFail({ where: { id: message.paywall.sku_id } });
+        const sku = await SKU.findOneOrFail({ where: { id: message.sku_id } });
 
         const entitlement = Entitlement.create({
             id: Snowflake.generate(),
@@ -78,7 +78,7 @@ router.post(
 );
 
 router.get(
-    "/:message_id/paywall",
+    "/:message_id/sku",
     route({
         responses: { 200: {} },
     }),
@@ -90,18 +90,18 @@ router.get(
             where: { id: message_id, channel_id },
         });
 
-        if (!message.paywall) {
-            throw new HTTPError("This message is not paywalled", 400);
+        if (!message.sku_id) {
+            throw new HTTPError("This message is not gated by an SKU", 400);
         }
 
+        const sku = await SKU.findOneOrFail({ where: { id: message.sku_id } });
+
         const hasAccess = await Entitlement.findOne({
-            where: { sku_id: message.paywall.sku_id, user_id: req.user_id, deleted: false },
+            where: { sku_id: message.sku_id, user_id: req.user_id, deleted: false },
         });
 
         res.json({
-            sku_id: message.paywall.sku_id,
-            price: message.paywall.price,
-            preview_text: message.paywall.preview_text,
+            ...sku,
             unlocked: !!hasAccess,
         });
     },
