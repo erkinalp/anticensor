@@ -21,6 +21,7 @@ import {
     CryptoPaymentService,
     Entitlement,
     EntitlementType,
+    getRights,
     KillBillService,
     SKU,
     SKUFlags,
@@ -63,6 +64,9 @@ router.post(
     async (req: Request, res: Response) => {
         const body = req.body as CryptoPaymentCreateSchema;
         const userId = req.user_id;
+
+        const rights = await getRights(userId);
+        rights.hasThrow("DEBTABLE");
 
         if (!CryptoPaymentService.isEnabled()) {
             throw new HTTPError("Crypto payments are not enabled on this instance", 404);

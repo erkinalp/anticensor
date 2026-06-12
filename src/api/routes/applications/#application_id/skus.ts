@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, SKU, Snowflake } from "@spacebar/util";
+import { Application, getRights, SKU, Snowflake } from "@spacebar/util";
 import { SKUCreateSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 
@@ -54,6 +54,9 @@ router.post(
     async (req: Request, res: Response) => {
         const application_id = req.params.application_id as string;
         const body = req.body as SKUCreateSchema;
+
+        const rights = await getRights(req.user_id);
+        rights.hasThrow("CREDITABLE");
 
         await Application.findOneOrFail({ where: { id: application_id } });
 
