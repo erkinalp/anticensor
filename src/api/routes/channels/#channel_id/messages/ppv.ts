@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Entitlement, EntitlementType, getRights, Message, SKU, Snowflake, emitEvent } from "@spacebar/util";
+import { Entitlement, EntitlementType, getRights, Message, SKU, Snowflake, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -34,12 +34,6 @@ router.post(
 
         const rights = await getRights(req.user_id);
         rights.hasThrow("DEBTABLE");
-
-        const channel = await Channel.findOneOrFail({ where: { id: channel_id } });
-
-        if (![1, 3].includes(channel.type)) {
-            throw new HTTPError("PPV messages are only supported in DM channels", 400);
-        }
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
