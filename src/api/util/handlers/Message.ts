@@ -1,57 +1,65 @@
 /*
-    Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-    Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2023 Spacebar and Spacebar Contributors
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, fillMessageUrlEmbeds } from "@spacebar/api";
+import { fillMessageUrlEmbeds, randomString } from "@spacebar/api";
 import {
     Application,
+    arrayDistributeSequentially,
+    arrayPartition,
     Attachment,
     Channel,
+    CloudAttachment,
     Config,
+    DiscordApiErrors,
     emitEvent,
     EVERYONE_MENTION,
+    FieldErrors,
+    getDatabase,
     getPermission,
     getRights,
     Guild,
+    handleFile,
     HERE_MENTION,
+    mathLogBase,
+    Member,
     Message,
     MessageCreateEvent,
+    MessageFlags,
+    Permissions,
+    ReadState,
     Role,
     ROLE_MENTION,
+    Session,
+    Snowflake,
     Sticker,
+    Stopwatch,
+    TraceNode,
+    TraceRoot,
+    TraceSubTree,
     User,
-    //CHANNEL_MENTION,
     USER_MENTION,
     Webhook,
-    handleFile,
-    Permissions,
-    DiscordApiErrors,
-    CloudAttachment,
-    ReadState,
-    Member,
-    Session,
-    MessageFlags,
-    FieldErrors,
-    getDatabase,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { In, Or, Equal, IsNull } from "typeorm";
+import { Equal, In, Or } from "typeorm";
 import {
     ActionRowComponent,
+    BaseMessageComponents,
     ButtonStyle,
     ChannelType,
     Embed,
@@ -60,18 +68,17 @@ import {
     MessageCreateAttachment,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    MessageReferenceType,
     MessageType,
     Reaction,
     ReadStateType,
     UnfurledMediaItem,
-    BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
+
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
-
-const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)>?/g;
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
@@ -341,7 +348,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         message.author = await User.findOneOrFail({
             where: { id: opts.author_id },
         });
-        message.author.clean_data();
         const rights = await getRights(opts.author_id);
         message.author.clean_data();
         rights.hasThrow("SEND_MESSAGES");
@@ -493,139 +499,9 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         throw new HTTPError("Empty messages are not allowed", 50006);
     }
 
-    let content = opts.content;
+    message.content = opts.content?.trim();
 
-    // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
-    //const mention_channel_ids = [] as string[];
-    const mention_role_ids = [] as string[];
-    const mention_user_ids = [] as string[];
-    let mention_everyone = false;
-
-    if (content) {
-        // TODO: explicit-only mentions
-        // TODO: make mentions lazy
-        message.content = content.trim();
-        content = content.replace(/ *`[^)]*` */g, ""); // remove codeblocks
-        // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
-        /*for (const [, mention] of content.matchAll(CHANNEL_MENTION)) {
-			if (!mention_channel_ids.includes(mention))
-				mention_channel_ids.push(mention);
-		}*/
-
-        for (const [, mention] of content.matchAll(USER_MENTION)) {
-            if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
-        }
-
-        await Promise.all(
-            Array.from(content.matchAll(ROLE_MENTION)).map(async ([, mention]) => {
-                const role = await Role.findOneOrFail({
-                    where: { id: mention, guild_id: channel.guild_id },
-                });
-                if (role.mentionable || opts.webhook_id || permission?.has("MANAGE_ROLES")) {
-                    mention_role_ids.push(mention);
-                }
-            }),
-        );
-
-        if (opts.webhook_id || permission?.has("MENTION_EVERYONE")) {
-            mention_everyone = !!content.match(EVERYONE_MENTION) || !!content.match(HERE_MENTION);
-        }
-    }
-
-    if (message.message_reference?.message_id) {
-        const referencedMessage = await Message.findOne({
-            where: {
-                id: message.message_reference.message_id,
-                channel_id: message.channel_id,
-            },
-            relations: {
-                mentions: true,
-                mention_roles: true,
-            },
-        });
-        if (referencedMessage && referencedMessage.author_id !== message.author_id) {
-            message.mentions.push(
-                // @ts-expect-error it does not like the .toPublicUser() lol
-                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
-            );
-        }
-
-        // FORWARD
-        if (message.message_reference.type === 1) {
-            message.type = MessageType.DEFAULT;
-
-            if (message.referenced_message) {
-                // TODO: mention_roles and mentions arrays - not needed it seems, but discord still returns that
-                message.message_snapshots = [message.referenced_message.toSnapshot()];
-            }
-        }
-    }
-
-    // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
-    /*message.mention_channels = mention_channel_ids.map((x) =>
-		Channel.create({ id: x }),
-	);*/
-    message.mention_roles = (await Promise.all(mention_role_ids.map((x) => Role.findOne({ where: { id: x } })))).filter((role) => role !== null);
-
-    message.mentions = [...message.mentions, ...(await Promise.all(mention_user_ids.map((x) => User.findOne({ where: { id: x } })))).filter((user) => user !== null)];
-
-    message.mention_everyone = mention_everyone;
-    async function fillInMissingIDs(ids: string[]) {
-        const states = await ReadState.findBy({
-            user_id: Or(...ids.map((id) => Equal(id))),
-            channel_id: channel.id,
-        });
-        const users = new Set(ids);
-        states.forEach((state) => users.delete(state.user_id));
-        if (!users.size) {
-            return;
-        }
-        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
-    }
-    if (ephermal) {
-        const id = message.interaction_metadata?.user_id;
-        if (id) {
-            let pinged = mention_everyone || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
-            if (!pinged) pinged = !!message.mentions.find((user) => user.id === id);
-            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }) => Equal(id))) } }));
-            if (pinged) {
-                //stuff
-            }
-        }
-    } else if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-        if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-            if (channel.recipients) {
-                await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
-            }
-        } else {
-            await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
-        }
-        const repository = ReadState.getRepository();
-        const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-        await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
-        await repository.increment(condition, "mention_count", 1);
-    } else {
-        const users = new Set<string>([
-            ...(message.mention_roles.length
-                ? await Member.find({
-                      where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
-                  })
-                : []
-            ).map((member) => member.id),
-            ...message.mentions.map((user) => user.id),
-        ]);
-        if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
-            const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
-            (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
-        }
-        if (users.size) {
-            const repository = ReadState.getRepository();
-            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-
-            await fillInMissingIDs([...users]);
-            await repository.increment(condition, "mention_count", 1);
-        }
-    }
+    await handleMessageMentionsAsync(message);
 
     const attachmentIndices = new Map(message.attachments?.map((attachment, index) => [`attachment://${attachment.filename}`, index]));
     const attachmentsToRemove = new Set<number>();
@@ -683,7 +559,8 @@ export async function postHandleMessage(message: Message) {
         embed.type ||= EmbedType.rich;
     });
 
-    if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
+    if (message.isWebhook || (await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS))
+        await fillMessageUrlEmbeds(message);
 }
 
 export async function sendMessage(opts: MessageOptions) {
@@ -785,4 +662,229 @@ export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateClou
     });
     console.log("[Message] Converted cloud attachment to", realAtt);
     return realAtt;
+}
+
+async function handleMessageMentionsAsync(message: Message) {
+    const sw = Stopwatch.startNew(),
+        totalSw = Stopwatch.startNew();
+    const trace: TraceNode = { micros: 0, calls: [] };
+    const traceRoot: TraceRoot = ["handleMessageMentionsAsync", trace];
+
+    const channel = await Channel.findOneOrFail({
+        where: { id: message.channel_id },
+        relations: { recipients: true },
+    });
+    trace.calls.push(`getChannel(${channel.id})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+    const permissionTargetId = message.isWebhook ? message.webhook?.application_id : (message.author_id ?? message.author?.id);
+    const permission =
+        permissionTargetId != null
+            ? await getPermission(permissionTargetId, channel.guild_id, channel)
+            : message.guild_id != null
+              ? new Permissions((await Role.findOneOrFail({ where: { id: message.guild_id ?? message.guild?.id } })).permissions)
+              : Permissions.DEFAULT_DM_PERMISSIONS;
+    trace.calls.push(`getPermissions`, { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+    let content = message.content;
+
+    // TODO: sets
+    // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
+    //const mention_channel_ids = [] as string[];
+    let mention_everyone = false;
+    let mention_here = false;
+    const mention_user_id_set = new Set<string>();
+    const mention_role_id_set = new Set<string>();
+
+    if (content) {
+        const contentSw = Stopwatch.startNew();
+        const contentTrace: TraceNode = { micros: 0, calls: [] };
+        // TODO: explicit-only mentions
+        // TODO: make mentions lazy
+        content = content.replace(/ *`[^)]*` */g, ""); // remove codeblocks
+        // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
+        /*for (const [, mention] of content.matchAll(CHANNEL_MENTION)) {
+			if (!mention_channel_ids.includes(mention))
+				mention_channel_ids.push(mention);
+		}*/
+        contentTrace.calls.push("filterCodeblocks", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+        for (const [, mention] of content.matchAll(USER_MENTION)) mention_user_id_set.add(mention);
+        for (const [, mention] of content.matchAll(ROLE_MENTION)) mention_role_id_set.add(mention);
+        if (message.webhook?.id || message.webhook_id || permission?.has("MENTION_EVERYONE") || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+            mention_everyone = !!content.match(EVERYONE_MENTION);
+            mention_here = !!content.match(HERE_MENTION);
+        }
+        contentTrace.calls.push("parseMentions", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+        let mentionedRoles = await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
+        contentTrace.calls.push("queryMentionRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+        // Silently drop invalid role mentions (e.g. from DMs, cross-guild pastes) rather
+        // than failing the whole message send.
+        if (mention_role_id_set.size != mentionedRoles.length) {
+            mention_role_id_set.clear();
+            mentionedRoles.forEach((r) => mention_role_id_set.add(r.id));
+        }
+
+        if (!(message.webhook?.id || message.webhook_id || permission?.has("MANAGE_ROLES"))) {
+            mentionedRoles = mentionedRoles.filter((x) => x.mentionable);
+            mention_role_id_set.clear();
+            mentionedRoles.forEach((r) => mention_role_id_set.add(r.id));
+        }
+
+        contentTrace.calls.push("validateMentionRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
+        contentTrace.micros = contentSw.elapsed().totalMicroseconds;
+        trace.calls.push("parseContent", contentTrace);
+    }
+
+    if (message.message_reference?.message_id) {
+        const referencedMessage = await Message.findOne({
+            where: {
+                id: message.message_reference.message_id,
+                channel_id: message.channel_id,
+            },
+            relations: {
+                mentions: true,
+                mention_roles: true,
+            },
+        });
+        if (referencedMessage && referencedMessage.author_id !== message.author_id) {
+            message.mentions.push(
+                // @ts-expect-error it does not like the .toPublicUser() lol
+                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
+            );
+        }
+
+        if (message.message_reference.type === MessageReferenceType.FORWARD) {
+            message.type = MessageType.DEFAULT;
+
+            if (message.referenced_message) {
+                // TODO: mention_roles and mentions arrays - not needed it seems, but discord still returns that
+                message.message_snapshots = [message.referenced_message.toSnapshot()];
+            }
+        }
+        trace.calls.push("handleMessageReference", { micros: sw.getElapsedAndReset().totalMicroseconds });
+    }
+
+    // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
+    /*message.mention_channels = mention_channel_ids.map((x) =>
+		Channel.create({ id: x }),
+	);*/
+    message.mention_roles = await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
+    message.mentions = [...message.mentions, ...(await User.find({ where: { id: In(mention_user_id_set.values().toArray()) } }))];
+    message.mention_everyone = mention_everyone;
+    trace.calls.push("fillMessageMentionProperties", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+    const fillInMissingIDs = async (ids: string[], trace?: TraceSubTree) => {
+        const fillMessageSw = Stopwatch.startNew(),
+            subSw = Stopwatch.startNew();
+        const subTrace: TraceSubTree = { micros: 0, calls: [] };
+        try {
+            const states = await ReadState.find({
+                where: {
+                    user_id: In(ids),
+                    channel_id: channel.id,
+                    read_state_type: ReadStateType.CHANNEL,
+                },
+                select: { user_id: true },
+            });
+            subTrace.calls.push("findReadStates", { micros: subSw.getElapsedAndReset().totalMicroseconds });
+
+            const users = new Set(ids);
+            states.forEach((state) => users.delete(state.user_id));
+            subTrace.calls.push("collectMissingIds", { micros: subSw.getElapsedAndReset().totalMicroseconds });
+
+            if (!users.size) {
+                subTrace.calls.push("--noop--", { micros: subSw.getElapsedAndReset().totalMicroseconds });
+                return;
+            }
+
+            const newReadStateSeqs = arrayDistributeSequentially(users.values().toArray(), Math.max(1, mathLogBase(users.size, 2))).map((seq) =>
+                seq.map((user_id) => ({ id: Snowflake.generate(), user_id, channel_id: channel.id, read_state_type: ReadStateType.CHANNEL })),
+            );
+            subTrace.calls.push(`constructNewReadStatesChunked(${newReadStateSeqs.length})`, { micros: subSw.getElapsedAndReset().totalMicroseconds });
+
+            await Promise.all(
+                newReadStateSeqs.map((seq) =>
+                    // just a safety thing... handle postgres hard limit at 65535 parameters, at 4 params per object... 16384
+                    seq.length > 15000
+                        ? fillInMissingIDs(
+                              seq.map((rs) => rs.user_id),
+                              subTrace,
+                          )
+                        : ReadState.insert(seq).catch((e) => {
+                              console.log("Failed to bulk insert", seq.length, "new ReadStates, trying again (race condition/too many params?)...\nDetails:", e);
+                              return fillInMissingIDs(
+                                  seq.map((rs) => rs.user_id),
+                                  subTrace,
+                              );
+                          }),
+                ),
+            );
+            subTrace.calls.push("insertNewReadStatesChunked", { micros: subSw.getElapsedAndReset().totalMicroseconds });
+        } finally {
+            trace?.calls.push(`fillInMissingIDs(${ids.length})`, { micros: fillMessageSw.getElapsedAndReset().totalMicroseconds, calls: subTrace.calls });
+        }
+    };
+
+    if ((message.flags & (1 << 6)) !== 0) {
+        // ephemeral messages
+        const id = message.interaction_metadata?.user_id;
+        if (id) {
+            let pinged = mention_everyone || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
+            if (!pinged) pinged = !!message.mentions.find((user) => user.id === id);
+            // TODO: can we somehow rewrite this into an In(...) query?
+            if (!pinged) pinged = !!(await Member.find({ where: { id, roles: Or(...message.mention_roles.map(({ id }) => Equal(id))) } }));
+            if (pinged) {
+                //stuff
+            }
+        }
+        trace.calls.push("ephemeralPinged", { micros: sw.getElapsedAndReset().totalMicroseconds });
+    } else if (mention_everyone) {
+        if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+            if (channel.recipients) {
+                await fillInMissingIDs(
+                    channel.recipients.map((r) => r.user_id),
+                    trace,
+                );
+            }
+        } else {
+            await fillInMissingIDs(
+                (await Member.find({ where: { guild_id: channel.guild_id }, select: { id: true } })).map((m) => m.id),
+                trace,
+            );
+        }
+        const repository = ReadState.getRepository();
+        await repository.increment({ channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }, "mention_count", 1);
+        trace.calls.push("mentionEveryone", { micros: sw.getElapsedAndReset().totalMicroseconds });
+    } else {
+        const users = new Set<string>([
+            ...(message.mention_roles.length
+                ? await Member.find({
+                      where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                  })
+                : []
+            ).map((member) => member.id),
+            ...message.mentions.map((user) => user.id),
+        ]);
+        trace.calls.push("getUsers", { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+        if (mention_here) {
+            // TODO: incorporate sessions
+            const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map((m) => m.id);
+            (await Session.find({ where: { user_id: In(ids) } })).forEach((s) => users.add(s.user_id));
+            trace.calls.push("mentionHere", { micros: sw.getElapsedAndReset().totalMicroseconds });
+        }
+
+        if (users.size) {
+            const repository = ReadState.getRepository();
+
+            await fillInMissingIDs([...users], trace);
+            await repository.increment({ user_id: In(users.values().toArray()), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }, "mention_count", 1);
+            trace.calls.push("updateMentionedUserReadStates", { micros: sw.getElapsedAndReset().totalMicroseconds });
+        }
+    }
+
+    trace.micros = totalSw.elapsed().totalMicroseconds;
+    if (process.env.LOG_MENTION_TRACE === "true") new console.Console({ stdout: process.stdout, inspectOptions: { depth: 20 } }).log("Mention handling trace:", trace);
 }

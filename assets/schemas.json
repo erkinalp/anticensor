@@ -231,7 +231,7 @@
                 "type": "boolean"
             },
             "status": {
-                "$ref": "#/definitions/Status"
+                "$ref": "#/definitions/SetPrivateStatus"
             },
             "activities": {
                 "type": "array",
@@ -241,6 +241,9 @@
             },
             "since": {
                 "type": "integer"
+            },
+            "client_status": {
+                "$ref": "#/definitions/ClientStatus"
             }
         },
         "additionalProperties": false,
@@ -3991,9 +3994,7 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "number",
-                "properties": {},
-                "additionalProperties": false
+                "type": "bigint"
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -4012,9 +4013,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "number",
-                    "properties": {},
-                    "additionalProperties": false
+                    "type": "bigint"
                 }
             },
             "guild_subscriptions": {
@@ -8261,7 +8260,7 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "Status": {
+    "SetPrivateStatus": {
         "enum": [
             "dnd",
             "idle",
@@ -8445,6 +8444,28 @@
             4,
             5
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ClientStatus": {
+        "type": "object",
+        "properties": {
+            "desktop": {
+                "type": "string"
+            },
+            "mobile": {
+                "type": "string"
+            },
+            "web": {
+                "type": "string"
+            },
+            "embedded": {
+                "type": "string"
+            },
+            "vr": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ChannelPermissionOverwriteType": {
@@ -10224,7 +10245,7 @@
                 "$ref": "#/definitions/ClientStatus"
             },
             "status": {
-                "$ref": "#/definitions/Status"
+                "$ref": "#/definitions/PrivateStatus"
             },
             "is_admin_session": {
                 "type": "boolean"
@@ -10264,26 +10285,15 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ClientStatus": {
-        "type": "object",
-        "properties": {
-            "desktop": {
-                "type": "string"
-            },
-            "mobile": {
-                "type": "string"
-            },
-            "web": {
-                "type": "string"
-            },
-            "embedded": {
-                "type": "string"
-            },
-            "vr": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
+    "PrivateStatus": {
+        "enum": [
+            "dnd",
+            "idle",
+            "invisible",
+            "offline",
+            "online"
+        ],
+        "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ExtendedLocationInfo": {
@@ -11691,6 +11701,9 @@
                     "type": "string"
                 }
             },
+            "isWebhook": {
+                "type": "boolean"
+            },
             "id": {
                 "type": "string"
             }
@@ -11701,6 +11714,7 @@
             "embeds",
             "flags",
             "id",
+            "isWebhook",
             "mention_channels",
             "mention_roles",
             "mentions",
@@ -15653,7 +15667,11 @@
                 "type": "boolean"
             },
             "type": {
-                "type": "integer"
+                "enum": [
+                    0,
+                    1
+                ],
+                "type": "number"
             }
         },
         "additionalProperties": false,

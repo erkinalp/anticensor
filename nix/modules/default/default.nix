@@ -18,6 +18,7 @@ in
 {
   imports = [
     ./integration-nginx.nix
+    ./integration-prometheus.nix
     ./users.nix
     (import ./gw-sharding.nix self)
     (import ./pion-sfu.nix self)
@@ -53,6 +54,20 @@ in
       type = lib.types.str;
       default = "./files";
       description = "Path to store CDN files.";
+    };
+
+    ipcMethod = lib.mkOption {
+      type = lib.types.enum [
+        "unix"
+        "rabbitmq-single"
+        "rabbitmq-legacy"
+      ];
+      default = "unix";
+      description = ''
+        How messages should be passed between services.
+        Note that the C# services (eg. Admin API) currently only supports the "unix" method!
+        Read more at https://docs.spacebar.chat/setup/server/installation/generic/ipc/.
+      '';
     };
 
     extraEnvironment = lib.mkOption {
@@ -98,7 +113,6 @@ in
       environment = builtins.mapAttrs (_: val: builtins.toString val) (
         {
           # things we set by default...
-          EVENT_TRANSMISSION = "unix";
           EVENT_SOCKET_PATH = "/run/spacebar/";
         }
         // cfg.extraEnvironment
@@ -108,6 +122,7 @@ in
           CONFIG_READONLY = 1;
           PORT = toString cfg.apiEndpoint.localPort;
           STORAGE_LOCATION = cfg.cdnPath;
+          EVENT_TRANSMISSION = cfg.ipcMethod;
         }
       );
       serviceConfig = {
@@ -121,7 +136,6 @@ in
       environment = builtins.mapAttrs (_: val: builtins.toString val) (
         {
           # things we set by default...
-          EVENT_TRANSMISSION = "unix";
           EVENT_SOCKET_PATH = "/run/spacebar/";
         }
         // cfg.extraEnvironment
@@ -131,6 +145,7 @@ in
           CONFIG_READONLY = 1;
           PORT = toString cfg.gatewayEndpoint.localPort;
           STORAGE_LOCATION = cfg.cdnPath;
+          EVENT_TRANSMISSION = cfg.ipcMethod;
           APPLY_DB_MIGRATIONS = "false";
         }
       );
@@ -144,7 +159,6 @@ in
       environment = builtins.mapAttrs (_: val: builtins.toString val) (
         {
           # things we set by default...
-          EVENT_TRANSMISSION = "unix";
           EVENT_SOCKET_PATH = "/run/spacebar/";
         }
         // cfg.extraEnvironment
@@ -154,6 +168,7 @@ in
           CONFIG_READONLY = 1;
           PORT = toString cfg.cdnEndpoint.localPort;
           STORAGE_LOCATION = cfg.cdnPath;
+          EVENT_TRANSMISSION = cfg.ipcMethod;
           APPLY_DB_MIGRATIONS = "false";
         }
       );

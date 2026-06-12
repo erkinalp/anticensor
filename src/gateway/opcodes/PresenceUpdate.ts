@@ -17,7 +17,7 @@
 */
 
 import { WebSocket, Payload } from "@spacebar/gateway";
-import { emitEvent, PresenceUpdateEvent, Session, User } from "@spacebar/util";
+import { emitEvent, InternalStatusOrder, PresenceUpdateEvent, PrivateStatus, PublicStatus, PublicStatusOrder, Session, User } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { ActivitySchema } from "@spacebar/schemas";
 
@@ -26,7 +26,13 @@ export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
     check.call(this, ActivitySchema, d);
     const presence = d as ActivitySchema;
 
-    await Session.update({ session_id: this.session_id }, { status: presence.status, activities: presence.activities });
+    if (d.status === "unknown") {
+        const sessions = await Session.find({ where: { user_id: this.user_id } });
+        if (sessions.length === 0) return;
+        d.status = sessions.sort((a, b) => InternalStatusOrder[a.status] - InternalStatusOrder[b.status])[0].getPublicStatus();
+    }
+
+    await Session.update({ session_id: this.session_id }, { status: presence.status as PrivateStatus, activities: presence.activities });
 
     const session = await Session.findOneOrFail({
         select: { client_status: true },

@@ -246,7 +246,7 @@
                         "type": "boolean"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/Status"
+                        "$ref": "#/components/schemas/SetPrivateStatus"
                     },
                     "activities": {
                         "type": "array",
@@ -256,6 +256,9 @@
                     },
                     "since": {
                         "type": "integer"
+                    },
+                    "client_status": {
+                        "$ref": "#/components/schemas/ClientStatus"
                     }
                 },
                 "required": [
@@ -3765,9 +3768,7 @@
                         "additionalProperties": false
                     },
                     "intents": {
-                        "type": "number",
-                        "properties": {},
-                        "additionalProperties": false
+                        "type": "number"
                     },
                     "presence": {
                         "$ref": "#/components/schemas/ActivitySchema"
@@ -3786,9 +3787,7 @@
                         "maxItems": 2,
                         "type": "array",
                         "items": {
-                            "type": "number",
-                            "properties": {},
-                            "additionalProperties": false
+                            "type": "number"
                         }
                     },
                     "guild_subscriptions": {
@@ -7740,7 +7739,7 @@
             "ErrorList": {
                 "type": "object"
             },
-            "Status": {
+            "SetPrivateStatus": {
                 "enum": [
                     "dnd",
                     "idle",
@@ -7921,6 +7920,26 @@
                     4,
                     5
                 ]
+            },
+            "ClientStatus": {
+                "type": "object",
+                "properties": {
+                    "desktop": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "web": {
+                        "type": "string"
+                    },
+                    "embedded": {
+                        "type": "string"
+                    },
+                    "vr": {
+                        "type": "string"
+                    }
+                }
             },
             "ChannelPermissionOverwriteType": {
                 "type": "number",
@@ -9595,7 +9614,7 @@
                         "$ref": "#/components/schemas/ClientStatus"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/Status"
+                        "$ref": "#/components/schemas/PrivateStatus"
                     },
                     "is_admin_session": {
                         "type": "boolean"
@@ -9633,25 +9652,15 @@
                     "user_id"
                 ]
             },
-            "ClientStatus": {
-                "type": "object",
-                "properties": {
-                    "desktop": {
-                        "type": "string"
-                    },
-                    "mobile": {
-                        "type": "string"
-                    },
-                    "web": {
-                        "type": "string"
-                    },
-                    "embedded": {
-                        "type": "string"
-                    },
-                    "vr": {
-                        "type": "string"
-                    }
-                }
+            "PrivateStatus": {
+                "enum": [
+                    "dnd",
+                    "idle",
+                    "invisible",
+                    "offline",
+                    "online"
+                ],
+                "type": "string"
             },
             "ExtendedLocationInfo": {
                 "type": "object",
@@ -10988,6 +10997,9 @@
                             "type": "string"
                         }
                     },
+                    "isWebhook": {
+                        "type": "boolean"
+                    },
                     "id": {
                         "type": "string"
                     }
@@ -10997,6 +11009,7 @@
                     "embeds",
                     "flags",
                     "id",
+                    "isWebhook",
                     "mention_channels",
                     "mention_roles",
                     "mentions",
@@ -14623,7 +14636,11 @@
                         "type": "boolean"
                     },
                     "type": {
-                        "type": "integer"
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "type": "number"
                     }
                 }
             },

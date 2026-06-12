@@ -398,6 +398,9 @@ function columnizedObjectDiff(a, b, trackEqual = false) {
 
 const showScanDepth = process.env.SCHEMAS_SHOW_SCAN_DEPTH === "true";
 async function removeAllMatchingRecursive(o, selector, maxDepth = 32, path = "$") {
+    // process.stdout.write("S");
+    // console.log("scan @", path, "with depth", maxDepth, typeof o, o);
+    // await printEnd(path, path.length);
     if (!o) return o;
     for (const [k, v] of Object.entries(o)) {
         if (selector(k, v, o)) {
@@ -414,3 +417,30 @@ async function removeAllMatchingRecursive(o, selector, maxDepth = 32, path = "$"
 }
 
 main().then(() => {});
+
+// this is broken, figure this out someday - would be really neat to have
+async function printEnd(str, len) {
+    const width = process.stdout.columns || 80;
+    const height = process.stdout.rows || 25;
+
+    const storePos = "\x1b[s";
+    const restPos = "\x1b[u";
+    const eraseAfter = "\x1b[0K";
+    const eraseLine = "\x1b[2K";
+    const down1 = "\x1b[1E";
+    const up1 = "\x1b[1F";
+    const setCol = (col) => `\x1b[${col}G`;
+    const setTopPos = (col) => `\x1b[1;${col}H`;
+    const setBottomPos = (col) => `\x1b[${height};${col}H`;
+
+    const startColumn = Math.max(1, width - len + 1);
+
+    process.stdout.write(`\n\n\n${up1}${up1}${up1}`);
+    // process.stdout.write(`${storePos}${down1}${eraseAfter}${setTopPos(startColumn)}${str}${restPos}`);//${up1}`);
+    process.stdout.write(`${storePos}${setCol(startColumn)}${str}${restPos}`);
+    await sleep(12);
+}
+
+async function sleep(delay) {
+    return new Promise((res, rej) => setTimeout(res, delay));
+}

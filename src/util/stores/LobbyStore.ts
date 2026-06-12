@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { emitEvent } from "../util/Event";
+import { emitEvent } from "../util/ipc/Event";
 import { LobbyMemberDTO } from "../dtos";
 
 declare global {

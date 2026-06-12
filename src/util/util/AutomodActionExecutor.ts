@@ -1,7 +1,7 @@
 import { AutomodActionTypes, DiscordApiErrors } from "./Constants";
 import { Channel, Message, Member } from "../entities";
 import { MessageType, EmbedType } from "@spacebar/schemas";
-import { emitEvent } from "./Event";
+import { emitEvent } from "./ipc/Event";
 
 interface AutomodAction {
     type: number;

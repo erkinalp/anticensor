@@ -129,7 +129,8 @@ export default class SpotifyConnection extends RefreshableConnection {
             .unauthorized(async () => {
                 // assume the token was revoked
                 await connectedAccount.revoke();
-                return DiscordApiErrors.CONNECTION_REVOKED;
+                // TODO: this used to be return, investigate how to properly handle this, or how this even behaves?
+                throw DiscordApiErrors.CONNECTION_REVOKED;
             })
             .json<ConnectedAccountCommonOAuthTokenResponse>()
             .catch((e) => {

@@ -1,4 +1,7 @@
-self:
+{
+  self,
+  withIpc ? "unix",
+}:
 {
   config,
   lib,
@@ -8,11 +11,13 @@ self:
 
 let
   sb = import ../lib/mkEndpoint.nix;
+  isRabbitMqTest = lib.strings.hasPrefix "rabbitmq" withIpc;
 in
 {
-  name = "test-bundle-starts";
+  name = "test-bundle-starts" + lib.optionalString (withIpc != "unix") ("_ipc=" + withIpc);
   skipTypeCheck = true;
   skipLint = true;
+  globalTimeout = 120;
 
   nodes.machine = {
     imports = [ self.nixosModules.default ];
@@ -30,19 +35,20 @@ in
             LOG_REQUESTS = "-"; # Log all requests
             LOG_VALIDATION_ERRORS = true;
           };
+          ipcMethod = withIpc;
+
+          settings = {
+            rabbitmq = {
+              host = lib.mkIf isRabbitMqTest "amqp://guest:guest@127.0.0.1:5672";
+            };
+          };
 
           nginx.enable = true;
-          offload = {
-            enable = true;
-            gateway = {
-              enableGuildSync = true;
-            };
-            extraConfiguration.ConnectionStrings.Spacebar = "Host=127.0.0.1; Username=Spacebar; Password=postgres; Database=spacebar; Port=5432; Include Error Detail=true; Maximum Pool Size=1000; Command Timeout=6000; Timeout=600;";
-          };
         };
       in
       lib.trace ("Testing with config: " + builtins.toJSON cfg) cfg;
     services.nginx.enable = true;
+    services.rabbitmq.enable = isRabbitMqTest;
     services.postgresql = {
       enable = true;
       initdbArgs = [
@@ -67,6 +73,8 @@ in
     };
   };
 
+  # https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests
+  # https://nixos.org/manual/nixpkgs/unstable/#tester-runNixOSTest
   testScript = ''
     machine.wait_for_unit("spacebar-api")
     machine.wait_for_unit("spacebar-cdn")
@@ -76,7 +84,13 @@ in
     machine.wait_for_open_port(3001)
     machine.wait_for_open_port(3002)
     machine.wait_for_open_port(3003)
-    # If well known works, its probably fine(tm)?
+
+    # this should be working
     machine.succeed("curl -f http://api.sb.localhost/.well-known/spacebar/client")
+
+    # check if metrics endpoint works on all services
+    machine.succeed("curl -f http://api.sb.localhost/metrics")
+    machine.succeed("curl -f http://gateway.sb.localhost/metrics")
+    machine.succeed("curl -f http://cdn.sb.localhost/metrics")
   '';
 }
