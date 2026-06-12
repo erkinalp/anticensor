@@ -4891,12 +4891,16 @@
     },
     "ApplicationEntitlementsResponse": {
         "type": "array",
-        "items": {},
+        "items": {
+            "$ref": "#/definitions/Entitlement"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationSkusResponse": {
         "type": "array",
-        "items": {},
+        "items": {
+            "$ref": "#/definitions/SKU"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "APIApplicationArray": {
@@ -7795,6 +7799,150 @@
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SKUCreateSchema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "access_type": {
+                "type": "integer"
+            },
+            "dependent_sku_id": {
+                "type": "string"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "release_date": {
+                "type": "string"
+            },
+            "premium": {
+                "type": "boolean"
+            },
+            "legal_notice": {
+                "type": "string"
+            },
+            "price": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "exponent": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "amount",
+                    "currency",
+                    "exponent"
+                ]
+            },
+            "price_tier": {
+                "type": "integer"
+            },
+            "show_age_gate": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EntitlementCreateSchema": {
+        "type": "object",
+        "properties": {
+            "sku_id": {
+                "type": "string"
+            },
+            "owner_id": {
+                "type": "string"
+            },
+            "owner_type": {
+                "description": "1 = guild subscription, 2 = user subscription",
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "owner_id",
+            "owner_type",
+            "sku_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CryptoPaymentCreateSchema": {
+        "type": "object",
+        "properties": {
+            "sku_id": {
+                "type": "string"
+            },
+            "network": {
+                "type": "string"
+            },
+            "token_address": {
+                "type": "string"
+            },
+            "sender_wallet": {
+                "type": "string"
+            },
+            "is_custodial": {
+                "type": "boolean"
+            },
+            "guild_id": {
+                "description": "For guild subscriptions",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "network",
+            "sender_wallet",
+            "sku_id",
+            "token_address"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CryptoPaymentConfirmSchema": {
+        "type": "object",
+        "properties": {
+            "transaction_hash": {
+                "type": "string"
+            },
+            "payment_intent_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "payment_intent_id",
+            "transaction_hash"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "EmojisResponse": {
@@ -11701,6 +11849,33 @@
                     "type": "string"
                 }
             },
+            "role_subscription_data": {
+                "type": "object",
+                "properties": {
+                    "role_subscription_listing_id": {
+                        "type": "string"
+                    },
+                    "tier_name": {
+                        "type": "string"
+                    },
+                    "total_months_subscribed": {
+                        "type": "integer"
+                    },
+                    "is_renewal": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "is_renewal",
+                    "role_subscription_listing_id",
+                    "tier_name",
+                    "total_months_subscribed"
+                ]
+            },
+            "sku_id": {
+                "type": "string"
+            },
             "isWebhook": {
                 "type": "boolean"
             },
@@ -15234,6 +15409,201 @@
             "id",
             "public_flags",
             "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "Entitlement": {
+        "type": "object",
+        "properties": {
+            "sku_id": {
+                "type": "string"
+            },
+            "sku": {
+                "$ref": "#/definitions/SKU"
+            },
+            "application_id": {
+                "type": "string"
+            },
+            "application": {
+                "$ref": "#/definitions/Application"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "user": {
+                "$ref": "#/definitions/User"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/Guild"
+            },
+            "type": {
+                "$ref": "#/definitions/EntitlementType"
+            },
+            "deleted": {
+                "type": "boolean"
+            },
+            "starts_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "ends_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "consumed": {
+                "type": "boolean"
+            },
+            "subscription_id": {
+                "type": "string"
+            },
+            "promotion_id": {
+                "type": "string"
+            },
+            "gift_code_flags": {
+                "type": "integer"
+            },
+            "id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application",
+            "application_id",
+            "consumed",
+            "deleted",
+            "gift_code_flags",
+            "id",
+            "sku",
+            "sku_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SKU": {
+        "type": "object",
+        "properties": {
+            "application_id": {
+                "type": "string"
+            },
+            "application": {
+                "$ref": "#/definitions/Application"
+            },
+            "type": {
+                "$ref": "#/definitions/SKUType"
+            },
+            "name": {
+                "type": "string"
+            },
+            "slug": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "access_type": {
+                "$ref": "#/definitions/SKUAccessType"
+            },
+            "dependent_sku_id": {
+                "type": "string"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "release_date": {
+                "type": "string"
+            },
+            "premium": {
+                "type": "boolean"
+            },
+            "legal_notice": {
+                "type": "string"
+            },
+            "price": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "exponent": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "amount",
+                    "currency",
+                    "exponent"
+                ]
+            },
+            "price_tier": {
+                "type": "integer"
+            },
+            "show_age_gate": {
+                "type": "boolean"
+            },
+            "id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "access_type",
+            "application",
+            "application_id",
+            "flags",
+            "id",
+            "name",
+            "premium",
+            "show_age_gate",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SKUType": {
+        "type": "number",
+        "enum": [
+            2,
+            3,
+            5,
+            6
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SKUAccessType": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EntitlementType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -36,6 +36,8 @@ import {
     Snowflake,
     ThreadMember,
     PrivateStatus,
+    Entitlement,
+    Subscription,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
 import {
@@ -595,6 +597,36 @@ export interface RelationshipRemoveEvent extends Event {
     data: Omit<PublicRelationship, "nickname">;
 }
 
+export interface EntitlementCreateEvent extends Event {
+    event: "ENTITLEMENT_CREATE";
+    data: Entitlement;
+}
+
+export interface EntitlementUpdateEvent extends Event {
+    event: "ENTITLEMENT_UPDATE";
+    data: Entitlement;
+}
+
+export interface EntitlementDeleteEvent extends Event {
+    event: "ENTITLEMENT_DELETE";
+    data: Entitlement;
+}
+
+export interface SubscriptionCreateEvent extends Event {
+    event: "SUBSCRIPTION_CREATE";
+    data: Subscription;
+}
+
+export interface SubscriptionUpdateEvent extends Event {
+    event: "SUBSCRIPTION_UPDATE";
+    data: Subscription;
+}
+
+export interface SubscriptionDeleteEvent extends Event {
+    event: "SUBSCRIPTION_DELETE";
+    data: Subscription;
+}
+
 export interface GatewaySessionClientInfo {
     version: number;
     os: string;
@@ -730,7 +762,13 @@ export type EventData =
     | ThreadDeleteEvent
     | ThreadListSyncEvent
     | ThreadMemberUpdateEvent
-    | ThreadMembersUpdateEvent;
+    | ThreadMembersUpdateEvent
+    | EntitlementCreateEvent
+    | EntitlementUpdateEvent
+    | EntitlementDeleteEvent
+    | SubscriptionCreateEvent
+    | SubscriptionUpdateEvent
+    | SubscriptionDeleteEvent;
 
 // located in collection events
 
@@ -790,6 +828,12 @@ export enum EVENTEnum {
     ThreadListSync = "THREAD_LIST_SYNC",
     ThreadMemberUpdate = "THREAD_MEMBER_UPDATE",
     ThreadMembersUpdate = "THREAD_MEMBERS_UPDATE",
+    EntitlementCreate = "ENTITLEMENT_CREATE",
+    EntitlementUpdate = "ENTITLEMENT_UPDATE",
+    EntitlementDelete = "ENTITLEMENT_DELETE",
+    SubscriptionCreate = "SUBSCRIPTION_CREATE",
+    SubscriptionUpdate = "SUBSCRIPTION_UPDATE",
+    SubscriptionDelete = "SUBSCRIPTION_DELETE",
 }
 
 export type EVENT =
@@ -859,6 +903,12 @@ export type EVENT =
     | "THREAD_LIST_SYNC"
     | "THREAD_MEMBER_UPDATE"
     | "THREAD_MEMBERS_UPDATE"
+    | "ENTITLEMENT_CREATE"
+    | "ENTITLEMENT_UPDATE"
+    | "ENTITLEMENT_DELETE"
+    | "SUBSCRIPTION_CREATE"
+    | "SUBSCRIPTION_UPDATE"
+    | "SUBSCRIPTION_DELETE"
     | CUSTOMEVENTS;
 
 export type CUSTOMEVENTS =

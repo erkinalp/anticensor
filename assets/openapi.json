@@ -4633,11 +4633,15 @@
             },
             "ApplicationEntitlementsResponse": {
                 "type": "array",
-                "items": {}
+                "items": {
+                    "$ref": "#/components/schemas/Entitlement"
+                }
             },
             "ApplicationSkusResponse": {
                 "type": "array",
-                "items": {}
+                "items": {
+                    "$ref": "#/components/schemas/SKU"
+                }
             },
             "APIApplicationArray": {
                 "type": "array",
@@ -7312,6 +7316,142 @@
                         "nullable": true
                     }
                 }
+            },
+            "SKUCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "access_type": {
+                        "type": "integer"
+                    },
+                    "dependent_sku_id": {
+                        "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "release_date": {
+                        "type": "string"
+                    },
+                    "premium": {
+                        "type": "boolean"
+                    },
+                    "legal_notice": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "currency": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "exponent": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "amount",
+                            "currency",
+                            "exponent"
+                        ]
+                    },
+                    "price_tier": {
+                        "type": "integer"
+                    },
+                    "show_age_gate": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            },
+            "EntitlementCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "owner_id": {
+                        "type": "string"
+                    },
+                    "owner_type": {
+                        "description": "1 = guild subscription, 2 = user subscription",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "owner_id",
+                    "owner_type",
+                    "sku_id"
+                ]
+            },
+            "CryptoPaymentCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "network": {
+                        "type": "string"
+                    },
+                    "token_address": {
+                        "type": "string"
+                    },
+                    "sender_wallet": {
+                        "type": "string"
+                    },
+                    "is_custodial": {
+                        "type": "boolean"
+                    },
+                    "guild_id": {
+                        "description": "For guild subscriptions",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "network",
+                    "sender_wallet",
+                    "sku_id",
+                    "token_address"
+                ]
+            },
+            "CryptoPaymentConfirmSchema": {
+                "type": "object",
+                "properties": {
+                    "transaction_hash": {
+                        "type": "string"
+                    },
+                    "payment_intent_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "payment_intent_id",
+                    "transaction_hash"
+                ]
             },
             "EmojisResponse": {
                 "type": "array",
@@ -10997,6 +11137,33 @@
                             "type": "string"
                         }
                     },
+                    "role_subscription_data": {
+                        "type": "object",
+                        "properties": {
+                            "role_subscription_listing_id": {
+                                "type": "string"
+                            },
+                            "tier_name": {
+                                "type": "string"
+                            },
+                            "total_months_subscribed": {
+                                "type": "integer"
+                            },
+                            "is_renewal": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "is_renewal",
+                            "role_subscription_listing_id",
+                            "tier_name",
+                            "total_months_subscribed"
+                        ]
+                    },
+                    "sku_id": {
+                        "type": "string"
+                    },
                     "isWebhook": {
                         "type": "boolean"
                     },
@@ -14238,6 +14405,194 @@
                     "username"
                 ]
             },
+            "Entitlement": {
+                "type": "object",
+                "properties": {
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "$ref": "#/components/schemas/SKU"
+                    },
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/Application"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/Guild"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/EntitlementType"
+                    },
+                    "deleted": {
+                        "type": "boolean"
+                    },
+                    "starts_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "ends_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "consumed": {
+                        "type": "boolean"
+                    },
+                    "subscription_id": {
+                        "type": "string"
+                    },
+                    "promotion_id": {
+                        "type": "string"
+                    },
+                    "gift_code_flags": {
+                        "type": "integer"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "application",
+                    "application_id",
+                    "consumed",
+                    "deleted",
+                    "gift_code_flags",
+                    "id",
+                    "sku",
+                    "sku_id",
+                    "type"
+                ]
+            },
+            "SKU": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/Application"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/SKUType"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "access_type": {
+                        "$ref": "#/components/schemas/SKUAccessType"
+                    },
+                    "dependent_sku_id": {
+                        "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "release_date": {
+                        "type": "string"
+                    },
+                    "premium": {
+                        "type": "boolean"
+                    },
+                    "legal_notice": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "currency": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "exponent": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "amount",
+                            "currency",
+                            "exponent"
+                        ]
+                    },
+                    "price_tier": {
+                        "type": "integer"
+                    },
+                    "show_age_gate": {
+                        "type": "boolean"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "access_type",
+                    "application",
+                    "application_id",
+                    "flags",
+                    "id",
+                    "name",
+                    "premium",
+                    "show_age_gate",
+                    "type"
+                ]
+            },
+            "SKUType": {
+                "type": "number",
+                "enum": [
+                    2,
+                    3,
+                    5,
+                    6
+                ]
+            },
+            "SKUAccessType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
+            },
+            "EntitlementType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8
+                ]
+            },
             "Categories": {
                 "type": "object",
                 "properties": {
@@ -14698,6 +15053,9 @@
             "name": "beaker"
         },
         {
+            "name": "billing"
+        },
+        {
             "name": "categories"
         },
         {
@@ -14783,6 +15141,9 @@
         },
         {
             "name": "science"
+        },
+        {
+            "name": "skus"
         },
         {
             "name": "stage-instances"
@@ -18471,6 +18832,71 @@
                 },
                 "tags": [
                     "stage-instances"
+                ]
+            }
+        },
+        "/skus/{sku_id}/subscriptions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "sku_id"
+                    }
+                ],
+                "tags": [
+                    "skus"
+                ]
+            }
+        },
+        "/skus/{sku_id}/subscriptions/{subscription_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "sku_id"
+                    },
+                    {
+                        "name": "subscription_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "subscription_id"
+                    }
+                ],
+                "tags": [
+                    "skus"
                 ]
             }
         },
@@ -22446,6 +22872,263 @@
                 ]
             }
         },
+        "/guilds/{guild_id}/premium/subscriptions/tiers": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "post": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/tiers/{tier_id}": {
+            "patch": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "delete": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/tiers/{tier_id}/subscribe": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/mine": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/monetization-analytics/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
         "/guilds/{guild_id}/messages/search/": {
             "get": {
                 "security": [
@@ -26243,6 +26926,80 @@
                 ]
             }
         },
+        "/channels/{channel_id}/messages/ppv/{message_id}/unlock": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/ppv/{message_id}/sku": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
         "/channels/{channel_id}/messages/pins/{message_id}": {
             "put": {
                 "x-permission-required": "VIEW_CHANNEL",
@@ -27818,6 +28575,182 @@
                 ]
             }
         },
+        "/billing/subscriptions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/subscriptions/{subscription_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "subscription_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "subscription_id"
+                    }
+                ],
+                "tags": [
+                    "billing"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "subscription_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "subscription_id"
+                    }
+                ],
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/killbill-webhook/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/crypto/methods": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/crypto/intents": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CryptoPaymentCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/crypto/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CryptoPaymentConfirmSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
+        "/billing/crypto/webhook": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
         "/beaker/": {
             "post": {
                 "security": [
@@ -28591,6 +29524,42 @@
                 "tags": [
                     "applications"
                 ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SKUCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
             }
         },
         "/applications/{application_id}/": {
@@ -29028,6 +29997,151 @@
                             "type": "string"
                         },
                         "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EntitlementCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/entitlements/{entitlement_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "entitlement_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "entitlement_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/entitlements/{entitlement_id}/consume": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "entitlement_id"
                     }
                 ],
                 "tags": [

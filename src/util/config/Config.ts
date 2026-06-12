@@ -38,6 +38,7 @@ import {
     SecurityConfiguration,
     TemplateConfiguration,
     UserConfiguration,
+    BillingConfiguration,
 } from "./types";
 
 export class ConfigValue {
@@ -63,4 +64,5 @@ export class ConfigValue {
     offload: OffloadConfiguration = new OffloadConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    billing: BillingConfiguration = new BillingConfiguration();
 }

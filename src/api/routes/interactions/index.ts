@@ -20,7 +20,7 @@ import { randomBytes } from "node:crypto";
 import { InteractionFailureReason, InteractionSchema, InteractionType } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, Member, Message, Snowflake } from "@spacebar/util";
+import { Config, emitEvent, Entitlement, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, Member, Message, Snowflake } from "@spacebar/util";
 import { pendingInteractions } from "@spacebar/util/imports/Interactions";
 import { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 
@@ -43,6 +43,13 @@ router.post("/", route({}), async (req: Request, res: Response) => {
 
     const user = req.user;
 
+    const userEntitlements = await Entitlement.find({
+        where: [
+            { application_id: body.application_id, user_id: req.user_id, deleted: false },
+            ...(body.guild_id ? [{ application_id: body.application_id, guild_id: body.guild_id, deleted: false }] : []),
+        ],
+    });
+
     const interactionData: Partial<InteractionCreateSchema> = {
         id: interactionId,
         application_id: body.application_id,
@@ -50,7 +57,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         type: body.type,
         token: interactionToken,
         version: 1,
-        entitlements: [],
+        entitlements: userEntitlements,
         authorizing_integration_owners: { "0": req.user_id },
         attachment_size_limit: Config.get().cdn.maxAttachmentSize,
     };

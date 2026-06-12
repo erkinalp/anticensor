@@ -251,6 +251,18 @@ export class Message extends BaseClass {
     @Column({ type: "simple-json", nullable: true })
     reply_ids?: string[];
 
+    @Column({ type: "jsonb", nullable: true })
+    @JsonRemoveEmpty
+    role_subscription_data?: {
+        role_subscription_listing_id: string;
+        tier_name: string;
+        total_months_subscribed: number;
+        is_renewal: boolean;
+    };
+
+    @Column({ nullable: true })
+    sku_id?: string;
+
     get isWebhook() {
         return this.webhook_id != null && this.webhook != null;
     }

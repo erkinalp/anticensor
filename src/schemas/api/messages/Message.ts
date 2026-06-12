@@ -195,7 +195,12 @@ export interface PublicMessage {
     // interaction_metadata?: MessageInteraction; // TODO
     // resolved?: ResolvedData; // TODO
     thread?: PublicChannel;
-    // role_subscription_data?: MessageRoleSubscription;
+    role_subscription_data?: {
+        role_subscription_listing_id: string;
+        tier_name: string;
+        total_months_subscribed: number;
+        is_renewal: boolean;
+    };
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
@@ -204,6 +209,7 @@ export interface PublicMessage {
     poll?: Poll;
     changelog_id?: Snowflake;
     reply_ids?: string[];
+    sku_id?: Snowflake;
     // soundboard_sounds?: SoundboardSound[];
     potions?: Potion[];
     shared_client_theme?: SharedClientTheme;
