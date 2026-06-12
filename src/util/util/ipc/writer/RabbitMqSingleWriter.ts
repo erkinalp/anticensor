@@ -77,25 +77,45 @@ export class RabbitMqSingleWriter extends BaseEventWriter {
 
         // todo check if channel is closed
         if ((this.channel as unknown as { closed?: boolean }).closed) this.channel = await this.connection.createChannel();
-        await this.channel.assertExchange("-", "fanout", {
+        const channel = this.channel;
+        await channel.assertExchange("-", "fanout", {
             durable: false, // ensure that messages arent written to disk
         });
 
-        let success = false;
-        try {
-            success = this.channel.publish(
-                "-",
-                "",
-                Buffer.from(JSON.stringify({ id: (event.guild_id || event.channel_id || event.user_id || event.session_id) as string, event })),
-                {},
-            );
-        } catch (e) {
-            console.error("[RabbitMqSingleWriter] Got error while publishing event:", e);
-        }
+        const payload = Buffer.from(JSON.stringify({ id: (event.guild_id || event.channel_id || event.user_id || event.session_id) as string, event }));
 
-        if (!success) {
-            console.log("[RabbitMqSingleWriter] Publishing message was not successful, retrying...");
-            await this.emit(event);
+        const maxAttempts = 10;
+        for (let attempt = 1; ; attempt++) {
+            let success = false;
+            try {
+                success = channel.publish("-", "", payload, {});
+            } catch (e) {
+                console.error("[RabbitMqSingleWriter] Got error while publishing event:", e);
+            }
+
+            if (success) break;
+
+            if (attempt >= maxAttempts) {
+                console.error(`[RabbitMqSingleWriter] Dropping event after ${maxAttempts} failed publish attempts`);
+                break;
+            }
+
+            // publish() returned false => write buffer full (backpressure). Wait for the
+            // channel's 'drain' event before retrying, with a capped timeout as a fallback.
+            await new Promise<void>((resolve) => {
+                const onDrain = () => {
+                    clearTimeout(timer);
+                    resolve();
+                };
+                const timer = setTimeout(
+                    () => {
+                        channel.removeListener("drain", onDrain);
+                        resolve();
+                    },
+                    Math.min(100 * attempt, 5000),
+                );
+                channel.once("drain", onDrain);
+            });
         }
     }
 }

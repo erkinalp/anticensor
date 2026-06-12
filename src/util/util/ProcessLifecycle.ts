@@ -55,6 +55,20 @@ export class ProcessLifecycle {
     }
 }
 
+for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"] as const) {
+    process.on(signal, () => {
+        if (ProcessLifecycle.state === "stopping" || ProcessLifecycle.state === "stopped") return;
+        console.log(`Received ${signal}, shutting down gracefully...`);
+        ProcessLifecycle.Shutdown()
+            .then(() => ProcessLifecycle.Finalize())
+            .then(() => process.exit(0))
+            .catch((e) => {
+                console.error("Error during graceful shutdown:", e);
+                process.exit(1);
+            });
+    });
+}
+
 process.on("SIGUSR1", () => {
     console.log("Handling SIGUSR1:");
     whyIsNodeRunning();

@@ -80,8 +80,8 @@ export class RabbitMqSingleListener extends BaseEventListener {
 
         // actually set up event receiving?
         await this.channel.assertExchange("-", "fanout", { durable: false });
-        const q = await this.channel.assertQueue("-", {
-            exclusive: false,
+        const q = await this.channel.assertQueue("", {
+            exclusive: true,
             autoDelete: true,
             messageTtl: 5000,
         });

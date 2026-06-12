@@ -719,13 +719,11 @@ async function handleMessageMentionsAsync(message: Message) {
         let mentionedRoles = await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
         contentTrace.calls.push("queryMentionRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
-        //TODO: should this throw at all?
+        // Silently drop invalid role mentions (e.g. from DMs, cross-guild pastes) rather
+        // than failing the whole message send.
         if (mention_role_id_set.size != mentionedRoles.length) {
-            const missingRoles = mention_role_id_set
-                .values()
-                .filter((x) => !mentionedRoles.find((r) => r.id == x))
-                .toArray();
-            throw new HTTPError("Mentioned invalid roles: " + missingRoles.join(", "), 500);
+            mention_role_id_set.clear();
+            mentionedRoles.forEach((r) => mention_role_id_set.add(r.id));
         }
 
         if (!(message.webhook?.id || message.webhook_id || permission?.has("MANAGE_ROLES"))) {
