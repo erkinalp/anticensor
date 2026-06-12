@@ -28,6 +28,7 @@ export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
 
     if (d.status === "unknown") {
         const sessions = await Session.find({ where: { user_id: this.user_id } });
+        if (sessions.length === 0) return;
         d.status = sessions.sort((a, b) => InternalStatusOrder[a.status] - InternalStatusOrder[b.status])[0].getPublicStatus();
     }
 

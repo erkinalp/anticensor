@@ -18,7 +18,7 @@ public class AuthenticationMiddleware(
 
         TokenValidationResult? res = null;
         try {
-            await authService.ValidateTokenAsync(context.Request);
+            res = await authService.ValidateTokenAsync(context.Request);
         }
         catch (Exception e) {
             logger.LogError("Failed to validate access token: {e}", e);
