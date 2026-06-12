@@ -37,7 +37,7 @@ in
       }
     ]
     ++ (lib.map (port: {
-      job_name = "spacebar-gateway-${builtins.toString port}";
+      job_name = "spacebar-gateway-extra-${builtins.toString port}";
       scrape_interval = "1s";
       static_configs = [
         { targets = [ "localhost:${builtins.toString port}" ]; }

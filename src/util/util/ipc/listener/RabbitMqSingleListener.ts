@@ -100,6 +100,7 @@ export class RabbitMqSingleListener extends BaseEventListener {
             },
             {
                 consumerTag,
+                noAck: true,
             },
         );
     }
