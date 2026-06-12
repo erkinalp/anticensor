@@ -3994,9 +3994,7 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "number",
-                "properties": {},
-                "additionalProperties": false
+                "type": "bigint"
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -4015,9 +4013,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "number",
-                    "properties": {},
-                    "additionalProperties": false
+                    "type": "bigint"
                 }
             },
             "guild_subscriptions": {
@@ -11852,6 +11848,65 @@
                 "items": {
                     "type": "string"
                 }
+            },
+            "role_subscription_data": {
+                "type": "object",
+                "properties": {
+                    "role_subscription_listing_id": {
+                        "type": "string"
+                    },
+                    "tier_name": {
+                        "type": "string"
+                    },
+                    "total_months_subscribed": {
+                        "type": "integer"
+                    },
+                    "is_renewal": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "is_renewal",
+                    "role_subscription_listing_id",
+                    "tier_name",
+                    "total_months_subscribed"
+                ]
+            },
+            "sku_id": {
+                "type": "string"
+            },
+            "paywall": {
+                "type": "object",
+                "properties": {
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "currency": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "preview_text": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "price",
+                    "sku_id"
+                ]
             },
             "isWebhook": {
                 "type": "boolean"

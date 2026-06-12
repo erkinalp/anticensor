@@ -69,3 +69,5 @@ export * from "./ConsentGrant";
 export * from "./SKU";
 export * from "./Entitlement";
 export * from "./Subscription";
+export * from "./GuildSubscriptionTier";
+export * from "./GuildMemberSubscription";

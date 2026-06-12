@@ -3768,9 +3768,7 @@
                         "additionalProperties": false
                     },
                     "intents": {
-                        "type": "number",
-                        "properties": {},
-                        "additionalProperties": false
+                        "type": "number"
                     },
                     "presence": {
                         "$ref": "#/components/schemas/ActivitySchema"
@@ -3789,9 +3787,7 @@
                         "maxItems": 2,
                         "type": "array",
                         "items": {
-                            "type": "number",
-                            "properties": {},
-                            "additionalProperties": false
+                            "type": "number"
                         }
                     },
                     "guild_subscriptions": {
@@ -11140,6 +11136,65 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "role_subscription_data": {
+                        "type": "object",
+                        "properties": {
+                            "role_subscription_listing_id": {
+                                "type": "string"
+                            },
+                            "tier_name": {
+                                "type": "string"
+                            },
+                            "total_months_subscribed": {
+                                "type": "integer"
+                            },
+                            "is_renewal": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "is_renewal",
+                            "role_subscription_listing_id",
+                            "tier_name",
+                            "total_months_subscribed"
+                        ]
+                    },
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "paywall": {
+                        "type": "object",
+                        "properties": {
+                            "sku_id": {
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "integer"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "amount",
+                                    "currency"
+                                ]
+                            },
+                            "preview_text": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "price",
+                            "sku_id"
+                        ]
                     },
                     "isWebhook": {
                         "type": "boolean"
@@ -22849,6 +22904,263 @@
                 ]
             }
         },
+        "/guilds/{guild_id}/premium/subscriptions/tiers": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "post": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/tiers/{tier_id}": {
+            "patch": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "delete": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/tiers/{tier_id}/subscribe": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "tier_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "tier_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/premium/subscriptions/mine": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/monetization-analytics/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
         "/guilds/{guild_id}/messages/search/": {
             "get": {
                 "security": [
@@ -26639,6 +26951,80 @@
                             "type": "string"
                         },
                         "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/ppv/{message_id}/unlock": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/ppv/{message_id}/paywall": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
                     }
                 ],
                 "tags": [
