@@ -59,3 +59,4 @@ export * from "./Version";
 export * from "./ConnectionPrivacy";
 export * from "./DmPrivacy";
 export * from "./Presence";
+export * from "./billing";
