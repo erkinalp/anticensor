@@ -20,7 +20,7 @@ import { Config } from "./Config";
 import { FieldErrors } from "./FieldError";
 import { HTTPError } from "lambert-server";
 
-export function ValidateName(name: string) {
+export function ValidateName(name: string, includesChecks = true) {
     const check_username = name.replace(/\s/g, "");
     if (!check_username) {
         throw FieldErrors({
@@ -40,6 +40,7 @@ export function ValidateName(name: string) {
             },
         });
     }
+    if (!includesChecks) return check_username;
 
     const { blockedContains, blockedEquals } = general.user;
     for (const word of blockedContains) {
@@ -53,5 +54,5 @@ export function ValidateName(name: string) {
             throw new HTTPError(`Username cannot be "${word}"`, 400);
         }
     }
-    return name;
+    return check_username;
 }
