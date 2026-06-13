@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@harmony/util";
+import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role, ValidateName } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RoleModifySchema } from "@harmony/schemas";
@@ -121,6 +121,7 @@ router.patch(
         const role = await Role.findOneOrFail({
             where: { id: role_id, guild: { id: guild_id } },
         });
+        if (body.name) body.name = ValidateName(body.name);
         role.assign({
             ...body,
             permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || "0")),
