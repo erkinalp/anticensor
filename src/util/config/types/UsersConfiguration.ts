@@ -17,7 +17,7 @@
 */
 
 export class UserConfiguration {
-    blockedContains: string[] = ["discord", "clyde", "spacebar", "steam", "community", "support", "ticket"];
+    blockedContains: string[] = ["discord", "clyde", "spacebar", "steam", "community", "support", "ticket", "harmony", "fermi"];
     blockedEquals: string[] = ["everyone", "here"];
     botsCanUseInvites = false;
 }

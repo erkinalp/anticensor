@@ -23,7 +23,7 @@ import { Request, Response, Router } from "express";
 import { FindOptionsWhere, LessThan, MoreThan } from "typeorm";
 
 const router = Router({ mergeParams: true });
-
+//TODO stub
 router.get(
     "/",
     route({

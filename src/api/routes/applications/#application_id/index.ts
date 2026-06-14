@@ -44,7 +44,7 @@ router.get(
         });
         if (app.owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        return res.json(app);
+        return res.json(app.toJSON());
     },
 );
 
@@ -106,7 +106,7 @@ router.patch(
 
         await app.save();
 
-        return res.json(app);
+        return res.json(app.toJSON());
     },
 );
 

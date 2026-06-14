@@ -56,6 +56,7 @@ export default class SpotifyConnection extends RefreshableConnection {
          * So to prevent spamming the spotify api we disable the ability to refresh.
          */
         this.refreshEnabled = false;
+        this.icon_url = "https://simpleicons.org/icons/spotify.svg";
 
         this.settings = ConnectionLoader.getConnectionConfig<SpotifySettings>(this.id, this.settings);
 

@@ -55,7 +55,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     /^(GET|HEAD) \/guilds\/\d+\/widget\.(json|png)/,
     /^(GET|HEAD) \/guilds\/\d+\/shield\.svg/,
     // Connections
-    /^(POST|HEAD) \/connections\/\w+\/callback/,
+    /^(POST|HEAD|GET) \/connections\/\w+\/callback/,
     // Image proxy
     /^(GET|HEAD) \/imageproxy\/[A-Za-z0-9+/]\/\d+x\d+\/.+/,
 ];

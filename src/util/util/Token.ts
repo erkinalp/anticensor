@@ -23,7 +23,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 // TODO: dont use deprecated APIs lol
-import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
+import { FindOptionsRelationByString, FindOptionsRelations, FindOptionsSelect, FindOptionsSelectByString } from "typeorm";
 import { randomUpperString } from "@spacebar/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
@@ -62,8 +62,8 @@ function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: numb
 export const checkToken = (
     token: string,
     opts?: {
-        select?: FindOptionsSelectByString<User>;
-        relations?: FindOptionsRelationByString;
+        select?: FindOptionsSelect<User>;
+        relations?: FindOptionsRelations<User>;
         ipAddress?: string;
         fingerprint?: string;
     },
@@ -85,7 +85,7 @@ export const checkToken = (
             let [user, session] = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
-                    select: [...(opts?.select || []), "id", "bot", "disabled", "deleted", "rights", "data"],
+                    select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
                     relations: opts?.relations,
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,

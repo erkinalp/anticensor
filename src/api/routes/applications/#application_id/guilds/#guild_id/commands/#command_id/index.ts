@@ -19,7 +19,7 @@
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, FieldErrors, Guild, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, checkCommand, FieldErrors, Guild, Member, Snowflake } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -32,7 +32,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     }
 
     const guildExists = await Guild.exists({ where: { id: req.params.guild_id as string } });
-
+    //TODO this seems like it's just informing bots when a guild id does not exist, it should likely just error that the member does not exist.
     if (!guildExists) {
         res.status(404).send({ code: 404, message: "Unknown Server" });
         return;
@@ -82,37 +82,7 @@ router.patch(
 
         const body = req.body as ApplicationCommandCreateSchema;
 
-        if (!body.type) {
-            body.type = 1;
-        }
-
-        if (body.name.trim().length < 1 || body.name.trim().length > 32) {
-            // TODO: configurable?
-            throw FieldErrors({
-                name: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 1 and 32 in length.`,
-                },
-            });
-        }
-
-        const commandForDb: ApplicationCommandSchema = {
-            application_id: req.params.application_id as string,
-            name: body.name.trim(),
-            name_localizations: body.name_localizations,
-            description: body.description?.trim() || "",
-            description_localizations: body.description_localizations,
-            default_member_permissions: body.default_member_permissions || null,
-            contexts: body.contexts,
-            dm_permission: body.dm_permission || true,
-            global_popularity_rank: 1,
-            handler: body.handler,
-            integration_types: body.integration_types,
-            nsfw: body.nsfw,
-            options: body.options,
-            type: body.type,
-            version: Snowflake.generate(),
-        };
+        const commandForDb = checkCommand(body, req.params.application_id as string);
 
         const commandExists = await ApplicationCommand.exists({
             where: { application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, id: req.params.command_id as string, name: body.name.trim() },
@@ -140,7 +110,7 @@ router.delete("/", route({}), async (req: Request, res: Response) => {
     }
 
     const guildExists = await Guild.exists({ where: { id: req.params.guild_id as string } });
-
+    //TODO this seems like it's just informing bots when a guild id does not exist, it should likely just error that the member does not exist.
     if (!guildExists) {
         res.status(404).send({ code: 404, message: "Unknown Server" });
         return;

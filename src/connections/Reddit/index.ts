@@ -52,6 +52,7 @@ export default class RedditConnection extends Connection {
     settings: RedditSettings = new RedditSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/reddit.svg";
         this.settings = ConnectionLoader.getConnectionConfig<RedditSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

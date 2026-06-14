@@ -56,6 +56,7 @@ export default class YoutubeConnection extends Connection {
     settings: YoutubeSettings = new YoutubeSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/youtube.svg";
         this.settings = ConnectionLoader.getConnectionConfig<YoutubeSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

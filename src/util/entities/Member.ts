@@ -304,7 +304,7 @@ export class Member extends BaseClassWithoutId {
         ]);
     }
 
-    static async addToGuild(user_id: string, guild_id: string, isRegistration: boolean = false) {
+    static async addToGuild(user_id: string, guild_id: string, isRegistration: boolean = false, errorIfIn: boolean = true) {
         const totalSw = Stopwatch.startNew();
         const incSw = Stopwatch.startNew();
         const logTrace = (...data: unknown[]) => {
@@ -319,7 +319,10 @@ export class Member extends BaseClassWithoutId {
             if (await isBanned) throw DiscordApiErrors.USER_BANNED;
             logTrace("Check bans");
 
-            if (await isMember) throw new HTTPError("You are already a member of this guild", 400);
+            if (await isMember) {
+                if (!errorIfIn) return;
+                throw new HTTPError("You are already a member of this guild", 400);
+            }
             logTrace("Check existing membership");
 
             const { maxGuilds } = Config.get().limits.user;

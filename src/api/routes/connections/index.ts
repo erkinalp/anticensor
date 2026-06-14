@@ -16,11 +16,33 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { APIConnectionsConfiguration } from "#schemas";
 import { route } from "@spacebar/api";
-import { ConnectionConfig } from "@spacebar/util";
+import { ConnectionConfig, ConnectionStore } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
+function makeRes() {
+    const config = structuredClone(ConnectionConfig.get());
+
+    Object.keys(config).forEach((key) => {
+        delete config[key].clientId;
+        delete config[key].clientSecret;
+    });
+
+    const connections = new Map([...ConnectionStore.connections.values()].map((_) => [_.id, _] as const));
+    Object.entries(config as APIConnectionsConfiguration).forEach(([key, value]) => {
+        const con = connections.get(key);
+        console.log(key, con);
+        if (!con) return;
+
+        value.icon_url = con.icon_url;
+    });
+
+    resp = config;
+    return resp;
+}
+let resp: unknown;
 router.get(
     "/",
     route({
@@ -31,14 +53,11 @@ router.get(
         },
     }),
     (req: Request, res: Response) => {
-        const config = ConnectionConfig.get();
-
-        Object.keys(config).forEach((key) => {
-            delete config[key].clientId;
-            delete config[key].clientSecret;
-        });
-
-        res.json(config);
+        if (resp) {
+            res.json(resp);
+            return;
+        }
+        res.json(makeRes());
     },
 );
 

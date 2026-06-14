@@ -111,7 +111,7 @@ export async function executeWebhook(req: Request, res: Response): Promise<void>
         id: messageId,
         ...bodyMsg,
         username: body.username || webhook.name,
-        avatar_url: body.avatar_url || webhook.avatar,
+        avatar_url: body.avatar_url,
         type: 0,
         pinned: false,
         webhook_id: webhook.id,

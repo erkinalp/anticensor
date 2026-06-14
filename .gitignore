@@ -9,7 +9,7 @@ assets/cache
 .env
 config.json
 assets/cacheMisses
-
+.eslintcache
 .vscode/settings.json
 
 build
@@ -31,3 +31,9 @@ schemas_final/
 temp/
 !/extra/admin-api/Utilities/Spacebar.AdminApi.TestClient/wwwroot/lib/bootstrap/dist/
 *.qcow2
+
+# Editors
+*~
+
+# Testing
+scripts/test_config.json

@@ -41,6 +41,7 @@ export default class DiscordConnection extends Connection {
     settings: DiscordSettings = new DiscordSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/discord.svg";
         this.settings = ConnectionLoader.getConnectionConfig<DiscordSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);
@@ -108,8 +109,11 @@ export default class DiscordConnection extends Connection {
                 throw DiscordApiErrors.GENERAL_ERROR;
             });
     }
+    async handleCallback(params: ConnectionCallbackSchema) {
+        return this.handleCallbackGet(params as unknown as Record<string, string>);
+    }
 
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+    async handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
         const { state, code } = params;
         if (!code) throw new Error("No code provided");
 
@@ -124,8 +128,8 @@ export default class DiscordConnection extends Connection {
         return await this.createConnection({
             user_id: userId,
             external_id: userInfo.id,
-            friend_sync: params.friend_sync,
-            name: `${userInfo.username}#${userInfo.discriminator}`,
+            friend_sync: params.friend_sync === "true",
+            name: `${userInfo.username}#${userInfo.discriminator.padStart(4, "0")}`,
             type: this.id,
         });
     }

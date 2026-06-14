@@ -80,4 +80,10 @@ export class ConnectedAccount extends BaseClass {
         this.token_data = null;
         await this.save();
     }
+    toJSON() {
+        return {
+            ...this,
+            metadata: this.metadata_,
+        };
+    }
 }

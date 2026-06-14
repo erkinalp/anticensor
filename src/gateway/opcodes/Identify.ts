@@ -90,7 +90,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         checkToken(identify.token, {
             // relations: {"relationships", "relationships.to", "settings"],
             // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: [...PrivateUserProjection, "rights"],
+            select: { ...Object.fromEntries(PrivateUserProjection.map((_) => [_, true] as const)), rights: true },
         }),
     );
 

@@ -19,7 +19,7 @@
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, FieldErrors, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -63,37 +63,7 @@ router.patch(
 
         const body = req.body as ApplicationCommandCreateSchema;
 
-        if (!body.type) {
-            body.type = 1;
-        }
-
-        if (body.name.trim().length < 1 || body.name.trim().length > 32) {
-            // TODO: configurable?
-            throw FieldErrors({
-                name: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 1 and 32 in length.`,
-                },
-            });
-        }
-
-        const commandForDb: ApplicationCommandSchema = {
-            application_id: req.params.application_id as string,
-            name: body.name.trim(),
-            name_localizations: body.name_localizations,
-            description: body.description?.trim() || "",
-            description_localizations: body.description_localizations,
-            default_member_permissions: body.default_member_permissions || null,
-            contexts: body.contexts,
-            dm_permission: body.dm_permission || true,
-            global_popularity_rank: 1,
-            handler: body.handler,
-            integration_types: body.integration_types,
-            nsfw: body.nsfw,
-            options: body.options,
-            type: body.type,
-            version: Snowflake.generate(),
-        };
+        const commandForDb = checkCommand(body, req.params.application_id as string);
 
         await ApplicationCommand.update({ name: body.name.trim() }, commandForDb);
         res.send(commandForDb);
