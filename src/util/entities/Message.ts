@@ -43,7 +43,7 @@ import {
     PartialUser,
     InteractionType,
 } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+import { Config, MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -289,7 +289,10 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
-        // this.clean_data();
+        let avatar = this.avatar;
+        if (avatar && !URL.canParse(avatar)) {
+            avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
+        }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,

@@ -60,3 +60,5 @@ export * from "./ConnectionPrivacy";
 export * from "./DmPrivacy";
 export * from "./Presence";
 export * from "./billing";
+export * from "./checkUsername";
+export * from "./checkCommand";

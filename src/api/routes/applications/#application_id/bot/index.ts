@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, DiscordApiErrors, FieldErrors, User, createAppBotUser, generateToken, handleFile } from "@spacebar/util";
+import { Application, DiscordApiErrors, FieldErrors, User, checkUsername, createAppBotUser, generateToken, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
@@ -118,7 +118,10 @@ router.patch(
 
         if (app.owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar as string);
+        if (body.username) checkUsername(body.username, req);
+
+        if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar);
+        if (body.banner) body.banner = await handleFile(`/banners/${app.id}`, body.banner);
 
         app.bot.assign(body);
 

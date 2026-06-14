@@ -45,6 +45,7 @@ export default class BattleNetConnection extends Connection {
     settings: BattleNetSettings = new BattleNetSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/battledotnet.svg";
         this.settings = ConnectionLoader.getConnectionConfig<BattleNetSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

@@ -358,13 +358,18 @@ router.post(
                 },
             });
         }
+        let invite: Invite | undefined;
+
+        if (body.invite) {
+            invite = await Invite.findOneOrFail({ where: { code: body.invite } });
+            if (invite.isExpired()) throw new Error("Invite is expired");
+        }
 
         const user = await User.register({ ...body, req });
         logTrace("Register user");
 
-        if (body.invite) {
-            // await to fail if the invite doesn't exist (necessary for requireInvite to work properly) (username only signups are possible)
-            await Invite.joinGuild(user.id, body.invite);
+        if (invite) {
+            await Invite.joinGuild(user.id, invite, false);
             logTrace("Accept invite");
         }
 

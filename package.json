@@ -5,7 +5,7 @@
     "scripts": {
         "prepare": "husky install",
         "postinstall": "patch-package",
-        "start": "node --enable-source-maps dist/bundle/start.js",
+        "start": "node --enable-source-maps --trace-deprecation dist/bundle/start.js",
         "start:api": "node --enable-source-maps dist/api/start.js",
         "start:cdn": "node --enable-source-maps dist/cdn/start.js",
         "start:gateway": "node --enable-source-maps dist/gateway/start.js",
@@ -16,7 +16,7 @@
         "build:src:tsgo": "rm -rf dist/* tsconfig.tsbuildinfo && tsgo -b -v",
         "watch": "tsc -w -b .",
         "test": "node -r dotenv/config -r module-alias/register --enable-source-maps scripts/test.js",
-        "lint": "eslint .",
+        "lint": "eslint . --cache",
         "setup": "npm run build && npm run generate:schema",
         "sync:db": "npm run build && node -r dotenv/config -r module-alias/register --enable-source-maps scripts/syncronise.js",
         "generate:rights": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/rights.js",
@@ -31,12 +31,12 @@
     "types": "src/bundle/index.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/spacebarchat/server.git"
+        "url": "git+https://github.com/erkinalp/anticensor.git"
     },
     "author": "Spacebar",
     "license": "AGPL-3.0-only",
     "bugs": {
-        "url": "https://github.com/spacebarchat/server/issues"
+        "url": "https://github.com/erkinalp/anticensor/issues"
     },
     "imports": {
         "#*": "./dist/*/index.js"
@@ -79,6 +79,7 @@
         "typescript-json-schema": "^0.67.4"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.1037.0",
         "@protobuf-ts/runtime": "^2.11.1",
         "@spacebarchat/pion-webrtc": "^0.0.4",
         "@toondepauw/node-zstd": "^2.0.0",

@@ -49,6 +49,7 @@ export default class TwitchConnection extends RefreshableConnection {
     settings: TwitchSettings = new TwitchSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/twitch.svg";
         this.settings = ConnectionLoader.getConnectionConfig<TwitchSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

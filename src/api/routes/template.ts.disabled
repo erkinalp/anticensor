@@ -1,7 +1,7 @@
 //TODO: this is a template for a generic route
 
 import { Router, Request, Response } from "express";
-import { route } from "@spacebar/api";
+import { route } from "@harmony/api";
 const router = Router({ mergeParams: true });
 
 router.get("/",route({}), async (req: Request, res: Response) => {

@@ -48,6 +48,7 @@ export default class FacebookConnection extends Connection {
     settings: FacebookSettings = new FacebookSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/facebook.svg";
         this.settings = ConnectionLoader.getConnectionConfig<FacebookSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

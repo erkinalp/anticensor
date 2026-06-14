@@ -63,5 +63,6 @@ export type APIConnectionsConfiguration = Record<
     string,
     {
         enabled: boolean;
+        icon_url?: string;
     }
 >;

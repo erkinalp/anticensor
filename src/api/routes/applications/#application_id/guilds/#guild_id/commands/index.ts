@@ -19,7 +19,8 @@
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, FieldErrors, Guild, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, checkCommand, FieldErrors, Guild, Member, Snowflake } from "@spacebar/util";
+import { In } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -33,6 +34,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 
     const guildExists = await Guild.exists({ where: { id: req.params.guild_id as string } });
 
+    //TODO this seems like it's just informing bots when a guild id does not exist, it should likely just error that the member does not exist.
     if (!guildExists) {
         res.status(404).send({ code: 404, message: "Unknown Server" });
         return;
@@ -62,6 +64,7 @@ router.post(
 
         const guildExists = await Guild.exists({ where: { id: req.params.guild_id as string } });
 
+        //TODO this seems like it's just informing bots when a guild id does not exist, it should likely just error that the member does not exist.
         if (!guildExists) {
             res.status(404).send({ code: 404, message: "Unknown Server" });
             return;
@@ -74,38 +77,7 @@ router.post(
 
         const body = req.body as ApplicationCommandCreateSchema;
 
-        if (!body.type) {
-            body.type = 1;
-        }
-
-        if (body.name.trim().length < 1 || body.name.trim().length > 32) {
-            // TODO: configurable?
-            throw FieldErrors({
-                name: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 1 and 32 in length.`,
-                },
-            });
-        }
-
-        const commandForDb: ApplicationCommandSchema = {
-            application_id: req.params.application_id as string,
-            guild_id: req.params.guild_id as string,
-            name: body.name.trim(),
-            name_localizations: body.name_localizations,
-            description: body.description?.trim() || "",
-            description_localizations: body.description_localizations,
-            default_member_permissions: body.default_member_permissions || null,
-            contexts: body.contexts,
-            dm_permission: body.dm_permission || true,
-            global_popularity_rank: 1,
-            handler: body.handler,
-            integration_types: body.integration_types,
-            nsfw: body.nsfw,
-            options: body.options,
-            type: body.type,
-            version: Snowflake.generate(),
-        };
+        const commandForDb = checkCommand(body, req.params.application_id as string);
 
         const commandExists = await ApplicationCommand.exists({
             where: { application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, name: body.name.trim() },
@@ -115,7 +87,7 @@ router.post(
             await ApplicationCommand.update({ application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, name: body.name.trim() }, commandForDb);
         } else {
             commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-            await ApplicationCommand.save(commandForDb);
+            await ApplicationCommand.save({ ...commandForDb, guild_id: req.params.guild_id as string });
         }
 
         res.send(body);
@@ -136,7 +108,7 @@ router.put(
         }
 
         const guildExists = await Guild.exists({ where: { id: req.params.guild_id as string } });
-
+        //TODO this seems like it's just informing bots when a guild id does not exist, it should likely just error that the member does not exist.
         if (!guildExists) {
             res.status(404).send({ code: 404, message: "Unknown Server" });
             return;
@@ -152,58 +124,30 @@ router.put(
         // Remove commands not present in array
         const applicationCommands = await ApplicationCommand.find({ where: { application_id: req.params.application_id as string, guild_id: req.params.guild_id as string } });
 
-        const commandNamesInArray = body.map((c) => c.name);
-        const commandsNotInArray = applicationCommands.filter((c) => !commandNamesInArray.includes(c.name));
+        const commandNamesInArray = new Set(body.map((c) => c.name));
+        const commandsNotInArray = applicationCommands.filter((c) => !commandNamesInArray.has(c.name));
 
-        for (const command of commandsNotInArray) {
-            await ApplicationCommand.delete({ application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, id: command.id });
-        }
+        await ApplicationCommand.delete({
+            application_id: req.params.application_id as string,
+            guild_id: req.params.guild_id as string,
+            id: In(commandsNotInArray.map(({ id }) => id)),
+        });
 
-        for (const command of body) {
-            if (!command.type) {
-                command.type = 1;
-            }
-
-            if (command.name.trim().length < 1 || command.name.trim().length > 32) {
-                // TODO: configurable?
-                throw FieldErrors({
-                    name: {
-                        code: "BASE_TYPE_BAD_LENGTH",
-                        message: `Must be between 1 and 32 in length.`,
-                    },
-                });
-            }
-
-            const commandForDb: ApplicationCommandSchema = {
-                application_id: req.params.application_id as string,
-                guild_id: req.params.guild_id as string,
-                name: command.name.trim(),
-                name_localizations: command.name_localizations,
-                description: command.description?.trim() || "",
-                description_localizations: command.description_localizations,
-                default_member_permissions: command.default_member_permissions || null,
-                contexts: command.contexts,
-                dm_permission: command.dm_permission || true,
-                global_popularity_rank: 1,
-                handler: command.handler,
-                integration_types: command.integration_types,
-                nsfw: command.nsfw,
-                options: command.options,
-                type: command.type,
-                version: Snowflake.generate(),
-            };
-
-            const commandExists = await ApplicationCommand.exists({
-                where: { application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, name: command.name },
-            });
-
-            if (commandExists) {
-                await ApplicationCommand.update({ application_id: req.params.application_id as string, guild_id: req.params.guild_id as string, name: command.name }, commandForDb);
-            } else {
-                commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-                await ApplicationCommand.save(commandForDb);
-            }
-        }
+        await Promise.all(
+            body.map(async (command) => {
+                const commandForDb = checkCommand(command, req.params.application_id as string);
+                const commandExists = commandNamesInArray.has(command.name);
+                if (commandExists) {
+                    await ApplicationCommand.update(
+                        { application_id: req.params.application_id as string, name: command.name.trim(), guild_id: req.params.guild_id as string },
+                        commandForDb,
+                    );
+                } else {
+                    commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
+                    await ApplicationCommand.save({ ...commandForDb, guild_id: req.params.guild_id as string });
+                }
+            }),
+        );
 
         res.send(body);
     },

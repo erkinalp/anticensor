@@ -418,7 +418,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
 
             message.avatar = await handleFile(`/avatars/${opts.webhook_id}`, dataUri as string);
-            message.author.avatar = message.avatar;
         }
     } else {
         permission ||= await getPermission(opts.author_id, channel.guild_id, channel);

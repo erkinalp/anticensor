@@ -22,7 +22,7 @@ import { SKUCreateSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
-
+//TODO stub
 router.get(
     "/",
     route({

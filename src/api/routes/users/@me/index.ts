@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
+import { checkUsername, Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
@@ -121,26 +121,7 @@ router.patch(
         }
 
         if (body.username) {
-            const check_username = body?.username?.replace(/\s/g, "").trim();
-            if (!check_username) {
-                throw FieldErrors({
-                    username: {
-                        code: "BASE_TYPE_REQUIRED",
-                        message: req.t("common:field.BASE_TYPE_REQUIRED"),
-                    },
-                });
-            }
-
-            const { maxUsername } = Config.get().limits.user;
-            if (check_username.length > maxUsername || check_username.length < 2) {
-                throw FieldErrors({
-                    username: {
-                        code: "BASE_TYPE_BAD_LENGTH",
-                        message: `Must be between 2 and ${maxUsername} in length.`,
-                    },
-                });
-            }
-
+            checkUsername(body.username, req);
             if (!body.password) {
                 throw FieldErrors({
                     password: {

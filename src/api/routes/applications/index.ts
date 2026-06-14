@@ -37,7 +37,7 @@ router.get(
             where: { owner: { id: req.user_id } },
             relations: { owner: true, bot: true },
         });
-        res.json(results).status(200);
+        res.json(results.map((_) => _.toJSON())).status(200);
     },
 );
 
@@ -52,6 +52,7 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
+        //TODO respect team_id
         const body = req.body as ApplicationCreateSchema;
 
         const app = Application.create({
@@ -68,7 +69,7 @@ router.post(
             await createAppBotUser(app, req);
         } else await app.save();
 
-        res.json(app);
+        res.json(app.toJSON());
     },
 );
 

@@ -23,6 +23,7 @@ import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";
 import { WebhookType } from "@spacebar/schemas";
+import { Config } from "@spacebar/util";
 
 @Entity({
     name: "webhooks",
@@ -99,6 +100,10 @@ export class Webhook extends BaseClass {
         onDelete: "CASCADE",
     })
     source_channel: Channel;
+
+    toJSON() {
+        return { ...this, url: Config.get().api.endpointPublic + "/api/webhooks/" + this.id + "/" + this.token };
+    }
 
     url: string;
 }

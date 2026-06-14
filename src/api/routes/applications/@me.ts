@@ -43,7 +43,7 @@ router.get(
             relations: { owner: true, bot: true },
         });
 
-        return res.json(app);
+        return res.json(app.toJSON());
     },
 );
 
@@ -92,7 +92,7 @@ router.patch(
 
         await app.save();
 
-        return res.json(app);
+        return res.json(app.toJSON());
     },
 );
 

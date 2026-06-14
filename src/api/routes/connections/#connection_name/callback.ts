@@ -57,5 +57,38 @@ router.post("/", route({ requestBody: "ConnectionCallbackSchema" }), async (req:
 
     res.sendStatus(204);
 });
+router.get("/", route({}), async (req: Request, res: Response) => {
+    const { connection_name } = req.params as { [key: string]: string };
+    const connection = ConnectionStore.connections.get(connection_name);
+    if (!connection)
+        throw FieldErrors({
+            provider_id: {
+                code: "BASE_TYPE_CHOICES",
+                message: req.t("common:field.BASE_TYPE_CHOICES", {
+                    types: Array.from(ConnectionStore.connections.keys()).join(", "),
+                }),
+            },
+        });
+
+    if (!connection.settings.enabled)
+        throw FieldErrors({
+            provider_id: {
+                message: "This connection has been disabled server-side.",
+            },
+        });
+
+    const userId = connection.getUserId(req.query.state as string);
+    const connectedAccnt = await connection.handleCallbackGet(req.query as { [key: string]: string });
+
+    // whether we should emit a connections update event, only used when a connection doesnt already exist
+    if (connectedAccnt)
+        await emitEvent({
+            event: "USER_CONNECTIONS_UPDATE",
+            data: { ...connectedAccnt, token_data: undefined },
+            user_id: userId,
+        });
+
+    res.send("<script>close()</script>");
+});
 
 export default router;

@@ -49,6 +49,7 @@ export default class EpicGamesConnection extends Connection {
     settings: EpicGamesSettings = new EpicGamesSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/epicgames.svg";
         this.settings = ConnectionLoader.getConnectionConfig<EpicGamesSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);

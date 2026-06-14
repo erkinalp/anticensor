@@ -40,6 +40,7 @@ export default class GitHubConnection extends Connection {
     settings: GitHubSettings = new GitHubSettings();
 
     init(): void {
+        this.icon_url = "https://simpleicons.org/icons/github.svg";
         this.settings = ConnectionLoader.getConnectionConfig<GitHubSettings>(this.id, this.settings);
 
         if (this.settings.enabled && (!this.settings.clientId || !this.settings.clientSecret)) throw new Error(`Invalid settings for connection ${this.id}`);
