@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { TenorMediaTypes } from "@harmony/schemas";
-import { getGifProvidor } from "@harmony/util";
+import { getGifProvider } from "@harmony/util";
 
 const router = Router({ mergeParams: true });
 
@@ -47,7 +47,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { media_format, locale,provider } = req.query as Record<string,string>;
 
-        const p = getGifProvidor(provider);
+        const p = getGifProvider(provider);
 
         res.json(await p.trendingGifs({media_format:media_format??"gif",locale})).status(200);
     },

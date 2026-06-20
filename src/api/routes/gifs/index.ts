@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getGifProvidors } from "#util";
+import { getGifProviders } from "#util";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 
@@ -29,7 +29,7 @@ router.get(
 
     }),
     async (req: Request, res: Response) => {
-		res.json(getGifProvidors().map(_=>({name:_.name})))
+		res.json(getGifProviders().map(_=>({name:_.name})))
     },
 );
 

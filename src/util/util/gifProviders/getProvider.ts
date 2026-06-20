@@ -2,7 +2,7 @@ import { Giphy } from "./giphy";
 import { Klipy } from "./klipy";
 import { Tenor } from "./tenor";
 
-export function getGifProvidor(prov?:string){
+export function getGifProvider(prov?:string){
 	switch(prov){
 		default:
 			return new Giphy();
@@ -12,6 +12,6 @@ export function getGifProvidor(prov?:string){
 			return new Tenor();
 	}
 }
-export function getGifProvidors(){
+export function getGifProviders(){
 	return [new Giphy(),new Klipy(),new Tenor()].filter(_=>_.enabled())
 }

@@ -18,7 +18,7 @@
 
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { getGifProvidor } from "@harmony/util";
+import { getGifProvider } from "@harmony/util";
 
 const router = Router({ mergeParams: true });
 
@@ -41,7 +41,7 @@ router.get(
 
         const { media_format, locale,provider } = req.query as Record<string,string>;
 
-        const p = getGifProvidor(provider);
+        const p = getGifProvider(provider);
 
         res.json(await p.trending({media_format:media_format??"gif",locale})).status(200);
     },
