@@ -54,7 +54,7 @@ router.get(
 
         const p = getGifProvidor(provider);
 
-        res.json(await p.search({q,media_format,locale,limit})).status(200);
+        res.json(await p.search({q,media_format:media_format??"gif",locale,limit})).status(200);
     },
 );
 

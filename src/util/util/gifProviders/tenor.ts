@@ -5,9 +5,9 @@ import { HTTPError } from '../lambert-server';
 
 export class Tenor extends GifProvider{
 	getGifApiKey() {
-		const { enabled, provider, apiKey } = Config.get().gif;
+		const { enabled, apiKey } = Config.get().gif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);
-		if (provider !== "tenor" || !apiKey) throw new HTTPError(`${provider} gif provider not supported`);
+		if ( !apiKey) throw new HTTPError(`key not supplied`);
 
 		return apiKey;
 	}

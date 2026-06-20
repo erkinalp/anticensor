@@ -49,7 +49,7 @@ router.get(
 
         const p = getGifProvidor(provider);
 
-        res.json(await p.trendingGifs({media_format,locale})).status(200);
+        res.json(await p.trendingGifs({media_format:media_format??"gif",locale})).status(200);
     },
 );
 
