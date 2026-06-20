@@ -4,6 +4,7 @@ import { GifProvider } from "./gifProvider";
 import { HTTPError } from '../lambert-server';
 
 export class Tenor extends GifProvider{
+	name:"Tenor"
 	getGifApiKey() {
 		const { enabled, apiKey } = Config.get().gif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);
@@ -22,6 +23,15 @@ export class Tenor extends GifProvider{
 			height: result.media[0].mp4.dims[1],
 			preview: result.media[0].mp4.preview,
 		};
+	}
+	enabled(): boolean {
+		try{
+			this.getGifApiKey();
+			return true
+		}catch{
+			//ignore error
+		}
+		return false;
 	}
 	async search({ q, media_format, locale, limit }: { q: string; media_format: string; locale?: string; limit?: string; }){
 		const apiKey = this.getGifApiKey();

@@ -34,6 +34,7 @@ interface KlipyCategory{
 
 }
 export class Klipy extends GifProvider{
+	name:"Klipy"
 	getGifApiKey() {
 		const { enabled, apiKey } = Config.get().klipygif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);
@@ -52,6 +53,15 @@ export class Klipy extends GifProvider{
 			height: result.file.md.mp4.height,
 			preview: result.blur_preview,
 		};
+	}
+	enabled(): boolean {
+		try{
+			this.getGifApiKey();
+			return true
+		}catch{
+			//ignore error
+		}
+		return false;
 	}
 	async search({ q, media_format, locale, limit }: { q: string; media_format: string; locale?: string; limit?: string; }){
 		const apiKey = this.getGifApiKey();

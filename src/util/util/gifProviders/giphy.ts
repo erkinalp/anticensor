@@ -19,6 +19,7 @@ interface GiphyGif{
 	}
 }
 export class Giphy extends GifProvider{
+	name:"Giphy";
 	getGifApiKey() {
 		const { enabled, apiKey } = Config.get().giphygif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);
@@ -49,6 +50,15 @@ export class Giphy extends GifProvider{
 		const results  = await response.json() as {data:GiphyGif[]};
 		return results.data.map(this.parseGifResult);
 
+	}
+	enabled(): boolean {
+		try{
+			this.getGifApiKey();
+			return true
+		}catch{
+			//ignore error
+		}
+		return false;
 	}
 	async trending({locale,media_format}:{locale?:string,media_format:string}): Promise<TrendingResponse> {
 

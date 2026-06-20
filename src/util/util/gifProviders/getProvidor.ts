@@ -12,3 +12,6 @@ export function getGifProvidor(prov?:string){
 			return new Tenor();
 	}
 }
+export function getGifProvidors(){
+	return [new Giphy(),new Klipy(),new Tenor()].filter(_=>_.enabled())
+}
