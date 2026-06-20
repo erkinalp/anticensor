@@ -110,9 +110,9 @@ router.patch(
         const withParents = body.filter((x) => x.parent_id !== undefined);
         const withPositions = body.filter((x) => x.position !== undefined);
         // You can't do it with Promise.all or the way this is being done is super incorrect
-        for await (const opt of withPositions) {
+        for (const opt of withPositions) {
             const channel = await Channel.findOneOrFail({
-                where: { id: opt.id },
+                where: { id: opt.id, guild_id },
             });
 
             notMentioned.splice(opt.position as number, 0, channel.id);
