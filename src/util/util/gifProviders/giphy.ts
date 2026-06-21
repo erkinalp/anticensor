@@ -20,6 +20,7 @@ interface GiphyGif{
 }
 export class Giphy extends GifProvider{
 	name:"Giphy";
+	api_name:"giphy";
 	getGifApiKey() {
 		const { enabled, apiKey } = Config.get().giphygif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);

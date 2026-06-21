@@ -34,7 +34,8 @@ interface KlipyCategory{
 
 }
 export class Klipy extends GifProvider{
-	name:"Klipy"
+	name:"Klipy";
+	api_name:"klipy";
 	getGifApiKey() {
 		const { enabled, apiKey } = Config.get().klipygif;
 		if (!enabled) throw new HTTPError(`Gifs are disabled`);

@@ -29,7 +29,7 @@ router.get(
 
     }),
     async (req: Request, res: Response) => {
-		res.json(getGifProviders().map(_=>({name:_.name})))
+		res.json(getGifProviders().map(_=>({name:_.name,api_name:_.api_name})))
     },
 );
 

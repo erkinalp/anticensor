@@ -6,4 +6,5 @@ export abstract class GifProvider{
 	abstract trendingGifs(opts:{locale?:string,media_format:string}):Promise<GifResponse[]>
 	abstract enabled():boolean
 	abstract name:string;
+	abstract api_name:string;
 }
