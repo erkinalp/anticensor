@@ -19,7 +19,7 @@
 import { Config } from "./Config";
 import { FieldErrors } from "./FieldError";
 
-export function ValidateName(name: string, field: string = "username") {
+export function ValidateName(name: string, field: string = "username", maxLength?: number) {
     const check_username = name.replace(/\s/g, "");
     if (!check_username) {
         throw FieldErrors({
@@ -30,12 +30,12 @@ export function ValidateName(name: string, field: string = "username") {
         });
     }
     const general = Config.get();
-    const { maxUsername } = general.limits.user;
-    if (check_username.length > maxUsername || check_username.length < 2) {
+    const limit = maxLength ?? general.limits.user.maxUsername;
+    if (check_username.length > limit || check_username.length < 2) {
         throw FieldErrors({
             [field]: {
                 code: "BASE_TYPE_BAD_LENGTH",
-                message: `Must be between 2 and ${maxUsername} in length.`,
+                message: `Must be between 2 and ${limit} in length.`,
             },
         });
     }

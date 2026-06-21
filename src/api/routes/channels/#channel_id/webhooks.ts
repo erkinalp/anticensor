@@ -86,7 +86,7 @@ router.post(
         name = trimSpecial(name);
 
         if (name) {
-            ValidateName(name, "name");
+            ValidateName(name, "name", 80);
         }
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);
