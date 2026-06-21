@@ -17,7 +17,6 @@
 */
 
 import { route } from "@harmony/api";
-import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { TenorMediaTypes } from "@harmony/schemas";
 import { getGifProvider } from "@harmony/util";
