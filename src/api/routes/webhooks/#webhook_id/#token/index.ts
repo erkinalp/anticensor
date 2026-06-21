@@ -163,7 +163,7 @@ router.patch(
             throw new HTTPError("Empty webhook updates are not allowed", 50006);
         }
         if (body.name) {
-            ValidateName(body.name);
+            ValidateName(body.name, "name", 80);
         }
         if (body.avatar) {
             body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);

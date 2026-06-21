@@ -18,25 +18,24 @@
 
 import { Config } from "./Config";
 import { FieldErrors } from "./FieldError";
-import { HTTPError } from "lambert-server";
 
-export function ValidateName(name: string) {
+export function ValidateName(name: string, field: string = "username", maxLength?: number) {
     const check_username = name.replace(/\s/g, "");
     if (!check_username) {
         throw FieldErrors({
-            username: {
+            [field]: {
                 code: "BASE_TYPE_REQUIRED",
                 message: "common:field.BASE_TYPE_REQUIRED",
             },
         });
     }
     const general = Config.get();
-    const { maxUsername } = general.limits.user;
-    if (check_username.length > maxUsername || check_username.length < 2) {
+    const limit = maxLength ?? general.limits.user.maxUsername;
+    if (check_username.length > limit || check_username.length < 2) {
         throw FieldErrors({
-            username: {
+            [field]: {
                 code: "BASE_TYPE_BAD_LENGTH",
-                message: `Must be between 2 and ${maxUsername} in length.`,
+                message: `Must be between 2 and ${limit} in length.`,
             },
         });
     }
@@ -44,13 +43,23 @@ export function ValidateName(name: string) {
     const { blockedContains, blockedEquals } = general.user;
     for (const word of blockedContains) {
         if (name.toLowerCase().includes(word)) {
-            throw new HTTPError(`Username cannot contain "${word}"`, 400);
+            throw FieldErrors({
+                [field]: {
+                    code: "NAME_BLOCKED",
+                    message: `Name cannot contain "${word}"`,
+                },
+            });
         }
     }
 
     for (const word of blockedEquals) {
         if (name.toLowerCase() === word) {
-            throw new HTTPError(`Username cannot be "${word}"`, 400);
+            throw FieldErrors({
+                [field]: {
+                    code: "NAME_BLOCKED",
+                    message: `Name cannot be "${word}"`,
+                },
+            });
         }
     }
     return name;

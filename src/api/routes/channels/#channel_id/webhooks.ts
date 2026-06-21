@@ -85,9 +85,8 @@ router.post(
         let { avatar, name } = req.body as WebhookCreateSchema;
         name = trimSpecial(name);
 
-        // TODO: move this
         if (name) {
-            ValidateName(name);
+            ValidateName(name, "name", 80);
         }
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);

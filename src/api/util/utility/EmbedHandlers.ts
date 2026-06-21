@@ -653,35 +653,26 @@ export async function fillMessageUrlEmbeds(message: Message) {
     const linkMatches = getMessageContentUrls(message).filter((l) => !l.startsWith("<") && !l.endsWith(">"));
 
     // Filter out embeds that could be links, start from scratch
-    message.embeds = message.embeds.filter((embed) => embed.type === "rich");
+    const richEmbeds = message.embeds.filter((embed) => embed.type === "rich");
+    message.embeds = richEmbeds;
 
     if (linkMatches.length == 0) return message;
 
     const uniqueLinks: string[] = arrayDistinctBy(linkMatches, normalizeUrl);
 
-    if (uniqueLinks.length === 0) {
-        // No valid unique links found, update message to remove old embeds
-        message.embeds = message.embeds.filter((embed) => embed.type === "rich");
-        await saveAndEmitMessageUpdate(message);
-        return message;
-    }
+    if (uniqueLinks.length === 0) return message;
 
-    // avoid a race condition updating the same row
-    let messageUpdateLock = saveAndEmitMessageUpdate(message);
-    await getOrUpdateEmbedCache(uniqueLinks, async (url, embeds) => {
-        if (url !== "cached" && message.embeds.length + embeds.length > Config.get().limits.message.maxEmbeds) return;
+    let embedsChanged = false;
+    await getOrUpdateEmbedCache(uniqueLinks, async (_url, embeds) => {
+        if (_url !== "cached" && message.embeds.length + embeds.length > Config.get().limits.message.maxEmbeds) return;
         message.embeds.push(...embeds);
         if (message.embeds.length > Config.get().limits.message.maxEmbeds) message.embeds = message.embeds.slice(0, Config.get().limits.message.maxEmbeds);
-
-        try {
-            await messageUpdateLock;
-        } catch {
-            /* empty */
-        }
-        messageUpdateLock = saveAndEmitMessageUpdate(message);
+        embedsChanged = true;
     });
 
-    await saveAndEmitMessageUpdate(message);
+    if (embedsChanged) {
+        await saveAndEmitMessageUpdate(message);
+    }
     return message;
 }
 

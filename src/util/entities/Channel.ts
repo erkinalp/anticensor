@@ -530,8 +530,7 @@ export class Channel extends BaseClass {
             });
         }
 
-        if (recipients.length === 1) return channel_dto;
-        else return channel_dto.excludedRecipients([creator_user_id]);
+        return channel_dto.excludedRecipients([creator_user_id]);
     }
 
     static async checkServerDmReopenPrivacy(channel: Channel, creatorUserId: string) {

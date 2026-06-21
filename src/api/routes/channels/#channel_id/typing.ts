@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Member, TypingStartEvent } from "@spacebar/util";
+import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, Message, TypingStartEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
@@ -39,6 +39,18 @@ router.post(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
+
+        if (channel.rate_limit_per_user) {
+            const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: user_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
+                ?.timestamp;
+            if (lastMsgTime && Date.now() - channel.rate_limit_per_user * 1000 < +lastMsgTime) {
+                const permission = await getPermission(user_id, channel.guild_id, channel_id);
+                if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
+                    throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
+                }
+            }
+        }
+
         const member = await Member.findOne({
             where: { id: user_id, guild_id: channel.guild_id },
             relations: { roles: true, user: true },

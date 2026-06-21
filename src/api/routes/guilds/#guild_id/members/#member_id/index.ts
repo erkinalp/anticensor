@@ -17,7 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    Emoji,
+    FieldErrors,
+    getPermission,
+    getRights,
+    Guild,
+    GuildMemberUpdateEvent,
+    handleFile,
+    Member,
+    Role,
+    Sticker,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
@@ -100,6 +114,15 @@ router.patch(
                 permission.hasThrow("MANAGE_NICKNAMES");
             } else {
                 permission.hasThrow("CHANGE_NICKNAME");
+            }
+
+            if (body.nick && body.nick.length > 32) {
+                throw FieldErrors({
+                    nick: {
+                        code: "BASE_TYPE_BAD_LENGTH",
+                        message: "Must be between 1 and 32 in length.",
+                    },
+                });
             }
 
             if (!body.nick) {
