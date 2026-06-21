@@ -1,9 +1,11 @@
 import { Request, Response, Router } from "express";
 import { handleMessage, postHandleMessage, route } from "@harmony/api";
-import { MessageEditSchema,} from "@harmony/schemas";
+import { ChannelType, MessageEditSchema,} from "@harmony/schemas";
 import {
+    Channel,
     DiscordApiErrors,
     Message,
+    MessageDeleteEvent,
     MessageUpdateEvent,
     Webhook,
     emitEvent,
@@ -41,6 +43,17 @@ router.patch(
             relations: { attachments: true },
         });
 
+        const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
+        let sendChannel = webhook.channel;
+        if (thread_id) {
+            sendChannel = await Channel.findOneOrFail({
+                where: {
+                    id: thread_id,
+                    parent_id: webhook.channel.id,
+                },
+            });
+        }
+
         // no longer necessary, somehow resolved by updating the type of `attachments`...?
         // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
         const new_message = await handleMessage({
@@ -49,7 +62,7 @@ router.patch(
             message_reference: message.message_reference,
             ...body,
             author_id: undefined,
-            channel_id:webhook.channel_id,
+            channel_id:sendChannel.id,
             id: message_id,
             edited_timestamp: new Date(),
         });
@@ -57,7 +70,7 @@ router.patch(
         await new_message.save();
         await emitEvent({
             event: "MESSAGE_UPDATE",
-            channel_id:webhook.channel_id,
+            channel_id:sendChannel.id,
             data: {
                 ...new_message.toJSON(),
                 nonce: undefined,
@@ -88,4 +101,69 @@ router.patch(
         });
     },
 );
+
+router.delete(
+    "/",
+    route({
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { webhook_id, token,message_id } = req.params as { [key: string]: string };
+
+		const webhook = await Webhook.findOne({
+			where: {
+				id: webhook_id,
+			},
+			relations: { channel: true, guild: true, application: true },
+		});
+
+		if (!webhook) {
+			throw DiscordApiErrors.UNKNOWN_WEBHOOK;
+		}
+
+		if (webhook.token !== token) {
+			throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
+		}
+        const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
+        let sendChannel = webhook.channel;
+        if (thread_id) {
+            sendChannel = await Channel.findOneOrFail({
+                where: {
+                    id: thread_id,
+                    parent_id: webhook.channel.id,
+                },
+            });
+        }
+        if (sendChannel.type === ChannelType.GUILD_PUBLIC_THREAD) {
+            if (sendChannel.message_count !== undefined) sendChannel.message_count--;
+            await sendChannel.save();
+        }
+        await Message.findOneOrFail({
+            where: { id: message_id, webhook_id:webhook_id },
+        });
+
+
+
+        await Message.delete({ id: message_id });
+
+        await emitEvent({
+            event: "MESSAGE_DELETE",
+            channel_id:sendChannel.id,
+            data: {
+                id: message_id,
+                channel_id:sendChannel.id,
+                guild_id: sendChannel.guild_id,
+            },
+        } satisfies MessageDeleteEvent);
+
+        res.sendStatus(204);
+    },
+);
+
 export default router;
