@@ -199,6 +199,10 @@ router.get(
             }
 
             messages = await Message.find(query);
+
+            if (after) {
+                messages.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+            }
         }
 
         await Message.fillReplies(messages);

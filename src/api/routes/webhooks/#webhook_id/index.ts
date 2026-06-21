@@ -145,7 +145,7 @@ router.patch(
         if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
 
         if (body.name) {
-            ValidateName(body.name);
+            ValidateName(body.name, "name");
         }
 
         const channel_id = body.channel_id || webhook.channel_id;

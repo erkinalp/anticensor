@@ -21,7 +21,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTabl
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent, DiscordApiErrors, Stopwatch } from "../util";
+import { Config, emitEvent, DiscordApiErrors, FieldErrors, Stopwatch } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -277,6 +277,15 @@ export class Member extends BaseClassWithoutId {
     }
 
     static async changeNickname(user_id: string, guild_id: string, nickname: string) {
+        if (nickname && nickname.length > 32) {
+            throw FieldErrors({
+                nick: {
+                    code: "BASE_TYPE_BAD_LENGTH",
+                    message: "Must be between 1 and 32 in length.",
+                },
+            });
+        }
+
         const member = await Member.findOneOrFail({
             where: {
                 id: user_id,

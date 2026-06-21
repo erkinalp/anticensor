@@ -11700,10 +11700,7 @@
                                 "type": "string"
                             }
                         },
-                        "additionalProperties": false,
-                        "required": [
-                            "text"
-                        ]
+                        "additionalProperties": false
                     },
                     "image": {
                         "$ref": "#/components/schemas/EmbedImage"

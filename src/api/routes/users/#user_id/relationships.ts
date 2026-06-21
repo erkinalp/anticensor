@@ -55,7 +55,7 @@ router.get(
                         username: relation_user.username,
                         avatar: relation_user.avatar,
                         discriminator: relation_user.discriminator,
-                        public_flags: relation_user.public_flags,
+                        public_flags: Number(relation_user.public_flags) || 0,
                     });
                 }
         }

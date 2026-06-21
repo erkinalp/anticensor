@@ -30,7 +30,7 @@ export class MinimalPublicUserDTO {
         this.avatar = user.avatar;
         this.discriminator = user.discriminator;
         this.id = user.id;
-        this.public_flags = user.public_flags;
+        this.public_flags = Number(user.public_flags) || 0;
         this.username = user.username;
         this.badge_ids = user.badge_ids;
     }

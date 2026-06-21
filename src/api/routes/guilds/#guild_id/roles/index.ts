@@ -64,6 +64,7 @@ router.post(
         if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
 
         const everyoneRole = await Role.findOne({ where: { id: guild_id } });
+        const defaultPermissions = everyoneRole?.permissions || "0";
 
         const role = Role.create({
             // values before ...body are default and can be overridden
@@ -74,7 +75,7 @@ router.post(
             ...body,
             guild_id: guild_id,
             managed: false,
-            permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || everyoneRole?.permissions || 0)),
+            permissions: body.permissions ? String((req.permission?.bitfield || 0n) & BigInt(body.permissions)) : defaultPermissions,
             tags: undefined,
             icon: undefined,
             unicode_emoji: undefined,
