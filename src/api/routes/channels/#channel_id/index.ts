@@ -43,10 +43,10 @@ router.get(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        if (!channel.guild_id) return res.send(channel);
+        if (!channel.guild_id) return res.send(channel.toJSON());
 
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
-        return res.send(channel);
+        return res.send(channel.toJSON());
     },
 );
 
@@ -182,10 +182,11 @@ router.patch(
 
         if (payload.applied_tags) {
             if (channel.isThread()) {
+                if(!channel.parent_id) throw new HTTPError("Channel does not have owner")
                 const parent = await Channel.findOneOrFail({
                     where: {
-                        id: channel.parent_id as string,
                         guild_id,
+                        id: channel.parent_id,
                     },
                     relations: ["available_tags"],
                 });

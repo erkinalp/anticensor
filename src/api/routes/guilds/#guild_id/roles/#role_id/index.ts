@@ -119,7 +119,7 @@ router.patch(
         else body.icon = undefined;
 
         const role = await Role.findOneOrFail({
-            where: { id: role_id, guild: { id: guild_id } },
+            where: { id: role_id, guild_id },
         });
         role.assign({
             ...body,
