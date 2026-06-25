@@ -295,6 +295,7 @@ router.post(
         stripNulls: {
             components: true,
             embeds: true,
+            allowed_mentions: true,
         },
         permission: "VIEW_CHANNEL",
         right: "SEND_MESSAGES",

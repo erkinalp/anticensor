@@ -357,7 +357,9 @@ export interface InviteDeleteEvent extends Event {
 
 export interface MessageCreateEvent extends Event {
     event: "MESSAGE_CREATE";
-    data: PublicMessage;
+    data: PublicMessage & {
+        guild_id?: string;
+    };
 }
 
 export interface MessageUpdateEvent extends Event {
