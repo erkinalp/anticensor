@@ -185,10 +185,11 @@ export class Member extends BaseClassWithoutId {
             where: { id: guild_id },
         });
         if (guild.owner_id === user_id) throw new Error("The owner cannot be removed from the guild");
-        const member = await Member.findOneOrFail({
+        const member = await Member.findOne({
             where: { id: user_id, guild_id },
             relations: { user: true },
         });
+        if (!member) return;
 
         // use promise all to execute all promises at the same time -> save time
         return Promise.all([
@@ -304,7 +305,7 @@ export class Member extends BaseClassWithoutId {
         ]);
     }
 
-    static async addToGuild(user_id: string, guild_id: string) {
+    static async addToGuild(user_id: string, guild_id: string, errorIfIn = true) {
         const user = await User.getPublicUser(user_id);
         const isBanned = await Ban.count({ where: { guild_id, user_id } });
         if (isBanned) {
@@ -349,8 +350,10 @@ export class Member extends BaseClassWithoutId {
             await Member.count({
                 where: { id: user.id, guild: { id: guild_id } },
             })
-        )
+        ) {
+            if (!errorIfIn) return;
             throw new HTTPError("You are already a member of this guild", 400);
+        }
 
         const member = {
             id: user_id,
@@ -419,9 +422,10 @@ export class Member extends BaseClassWithoutId {
         ]);
 
         if (guild.system_channel_id) {
-            const channel = await Channel.findOneOrFail({
-                where: { id: guild.system_channel_id },
+            const channel = await Channel.findOne({
+                where: { id: guild.system_channel_id, guild_id: guild.id },
             });
+            if (!channel) return;
             // Send a welcome message
             const message = Message.create({
                 type: 7,

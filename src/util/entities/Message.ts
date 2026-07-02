@@ -43,7 +43,7 @@ import {
     UnfurledMediaItem,
 } from "@harmony/schemas";
 import { PartialUser } from "@harmony/schemas";
-import { MessageFlags } from "@harmony/util";
+import { Config, convertTimestamp, MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -254,13 +254,17 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
+        let avatar = this.avatar;
+        if (avatar && !URL.canParse(avatar)) {
+            avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
+        }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,
             channel: undefined,
 
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
+            timestamp: convertTimestamp(this.timestamp),
+            edited_timestamp: convertTimestamp(this.edited_timestamp),
 
             author_id: undefined,
             member_id: undefined,
@@ -282,7 +286,7 @@ export class Message extends BaseClass {
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
             reactions: this.reactions ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
+            sticker_items: this.sticker_items?.length ? this.sticker_items : undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
             author: {

@@ -18,6 +18,13 @@
 
 export class GifConfiguration {
     enabled: boolean = true;
-    provider = "tenor" as const; // more coming soon
     apiKey?: string = "LIVDSRZULELA";
+}
+export class KlipyGifConfiguration {
+    enabled: boolean = true;
+    apiKey?: string;
+}
+export class GiphyGifConfiguration{
+	enabled: boolean = true;
+    apiKey?: string;
 }

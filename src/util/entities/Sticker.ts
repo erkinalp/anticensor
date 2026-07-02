@@ -21,6 +21,7 @@ import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { User } from "./User";
 import { StickerFormatType, StickerType } from "@harmony/schemas";
+import { StickerPack } from "./StickerPack";
 
 @Entity({
     name: "stickers",
@@ -43,11 +44,11 @@ export class Sticker extends BaseClass {
     pack_id?: string;
 
     @JoinColumn({ name: "pack_id" })
-    @ManyToOne(() => require("./StickerPack").StickerPack, {
+    @ManyToOne(() => StickerPack, {
         onDelete: "CASCADE",
         nullable: true,
     })
-    pack: import("./StickerPack").StickerPack;
+    pack: StickerPack;
 
     @Column({ nullable: true })
     guild_id?: string;

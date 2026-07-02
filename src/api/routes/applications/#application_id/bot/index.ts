@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Application, DiscordApiErrors, FieldErrors, User, createAppBotUser, generateToken, handleFile } from "@harmony/util";
+import { Application, DiscordApiErrors, FieldErrors, User, checkUsername, createAppBotUser, generateToken, handleFile } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
@@ -66,12 +66,16 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        const bot = await User.findOneOrFail({ where: { id: req.params.application_id as string } });
-        const owner = req.user;
+        const app = await Application.findOneOrFail({
+            where: { id: req.params.application_id as string },
+            relations: { bot: true, owner: true },
+        });
+        const bot = app.bot;
+        const owner = app.owner;
 
-        if (owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+        if (owner.id != req.user_id || !bot) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        if (owner.totp_secret && (!req.body.code || verifyToken(owner.totp_secret, req.body.code))) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (owner.totp_secret && (!req.body.code || !verifyToken(owner.totp_secret, req.body.code))) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
 
         bot.data = { hash: undefined, valid_tokens_since: new Date() };
 
@@ -118,7 +122,10 @@ router.patch(
 
         if (app.owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar as string);
+        if (body.username) checkUsername(body.username, req);
+
+        if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar);
+        if (body.banner) body.banner = await handleFile(`/banners/${app.id}`, body.banner);
 
         app.bot.assign(body);
 
