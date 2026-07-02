@@ -36,7 +36,7 @@ router.get(
             relations: { stickers: true },
         });
 
-        res.json({ sticker_packs });
+        res.json({ sticker_packs: sticker_packs.map((_) => _.toJSON()) });
     },
 );
 

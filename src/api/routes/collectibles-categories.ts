@@ -22,6 +22,7 @@ import { CollectiblesCategoriesResponse } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 
+//TODO stub
 router.get(
     "/",
     route({
