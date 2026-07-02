@@ -185,10 +185,11 @@ export class Member extends BaseClassWithoutId {
             where: { id: guild_id },
         });
         if (guild.owner_id === user_id) throw new Error("The owner cannot be removed from the guild");
-        const member = await Member.findOneOrFail({
+        const member = await Member.findOne({
             where: { id: user_id, guild_id },
             relations: { user: true },
         });
+        if (!member) return;
 
         // use promise all to execute all promises at the same time -> save time
         return Promise.all([
@@ -421,9 +422,10 @@ export class Member extends BaseClassWithoutId {
         ]);
 
         if (guild.system_channel_id) {
-            const channel = await Channel.findOneOrFail({
-                where: { id: guild.system_channel_id },
+            const channel = await Channel.findOne({
+                where: { id: guild.system_channel_id, guild_id: guild.id },
             });
+            if (!channel) return;
             // Send a welcome message
             const message = Message.create({
                 type: 7,
