@@ -189,6 +189,8 @@ export interface PublicMessage {
     referenced_message?: PublicMessage | null;
     message_snapshots?: MessageSnapshot[];
     // call?: MessageCall;
+    interaction_metadata?: { user?: PartialUser; user_id: string };
+    interaction?: { user?: PartialUser };
     // interaction?: PartialMessageInteraction; // TODO
     // interaction_metadata?: MessageInteraction; // TODO
     // resolved?: ResolvedData; // TODO

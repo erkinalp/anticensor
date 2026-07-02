@@ -21,6 +21,7 @@ import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@harmony/
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@harmony/schemas";
 
 import { Request, Response, Router } from "express";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
@@ -46,10 +47,11 @@ router.post(
             where: { id: message_id, channel_id },
             relations: ["guild"],
         });
+        if (message.flags && 1 << 5) throw new HTTPError("Message already has a thread");
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        const user = await User.findOneOrFail({ where: { id: req.user_id } });
+        const user = req.user ?? (await User.findOneOrFail({ where: { id: req.user_id } }));
 
         const thread = await Channel.createChannel(
             {
@@ -73,7 +75,7 @@ router.post(
                     create_timestamp: new Date().toISOString(),
                 },
             },
-            void 0,
+            undefined,
             { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
         );
 

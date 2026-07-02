@@ -44,6 +44,7 @@ router.post(
                 code: 400,
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
+
         const channels = await Channel.find({ where: { id: In(body.channels) } });
         await Promise.all(
             channels.map(async (channel) => {

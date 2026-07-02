@@ -543,10 +543,12 @@ export class Channel extends BaseClass {
             event: "CHANNEL_RECIPIENT_REMOVE",
             data: {
                 channel_id: channel.id,
-                user: await User.findOneOrFail({
-                    where: { id: user_id },
-                    select: PublicUserProjection,
-                }),
+                user: (
+                    await User.findOneOrFail({
+                        where: { id: user_id },
+                        select: PublicUserProjection,
+                    })
+                ).toPublicUser(),
             },
             channel_id: channel.id,
         } satisfies ChannelRecipientRemoveEvent);
