@@ -42,7 +42,7 @@ router.get(
     async (req: Request, res: Response) => {
         const {
             content,
-            // include_nsfw, // TODO
+            include_nsfw, // TODO
             offset,
             sort_order,
             // sort_by, // TODO: Handle 'relevance'
@@ -106,10 +106,12 @@ router.get(
                                           where: { guild_id: req.params.guild_id as string },
                                           select: { id: true },
                                       })
-                                  ).map(async (channel) => {
-                                      const perm = await getPermission(req.user_id, req.params.guild_id as string, channel.id);
-                                      return perm.has("VIEW_CHANNEL") && perm.has("READ_MESSAGE_HISTORY") ? channel : undefined;
-                                  }),
+                                  )
+                                      .filter((_) => include_nsfw !== "false" || !_.nsfw)
+                                      .map(async (channel) => {
+                                          const perm = await getPermission(req.user_id, req.params.guild_id as string, channel.id);
+                                          return perm.has("VIEW_CHANNEL") && perm.has("READ_MESSAGE_HISTORY") ? channel : undefined;
+                                      }),
                               )
                           )
                               .filter((_) => _ !== undefined)
