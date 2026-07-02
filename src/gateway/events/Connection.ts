@@ -27,15 +27,8 @@ import { Close } from "./Close";
 import { Message } from "./Message";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "url";
-import { Config, ErlpackType } from "@harmony/util";
+import { Config } from "@harmony/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
-
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
 
 // TODO: check rate limit
 // TODO: specify rate limit in config
@@ -108,9 +101,7 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
         }
         socket.encoding = (encoding as "json" | "etf" | null) ?? "json";
 
-        if (socket.encoding === "etf" && !erlpack) throw new Error("Erlpack is not installed: 'npm i @yukikaze-bot/erlpack'");
-
-        socket.version = Number(searchParams.get("v")) || 8;
+        socket.version = Number(searchParams.get("version")) || 8;
         //TODO this should be much more flexable
         if (socket.version !== 8 && socket.version !== 9 && socket.version !== 10) {
             console.error(`[Gateway/${socket.ipAddress}] Invalid API version: ${socket.version}`);

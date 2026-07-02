@@ -33,7 +33,7 @@ TODO: apply the delete bit by bit to prevent client and database stress
 router.post(
     "/",
     route({
-        /*body: "PurgeSchema",*/
+        requestBody: "PurgeSchema",
         responses: {
             204: {},
             400: {

@@ -1,23 +1,22 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
-	
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
 	by the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
-	
+
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { CLOSECODES, Payload, WebSocket } from "@harmony/gateway";
-import { ErlpackType } from "@harmony/util";
 import fs from "fs/promises";
 import BigIntJson from "json-bigint";
 import path from "path";
@@ -28,12 +27,7 @@ import { PayloadSchema } from "@harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
+import { unpack } from "harmony-erlpack";
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
     let data: Payload;
@@ -58,10 +52,10 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
             }
         }
         data = bigIntJson.parse(buffer as string);
-    } else if (this.encoding === "etf" && Buffer.isBuffer(buffer) && erlpack) {
+    } else if (this.encoding === "etf" && Buffer.isBuffer(buffer)) {
         try {
-            data = erlpack.unpack(buffer);
-        } catch {
+            data = unpack(buffer.buffer, { offset: buffer.byteOffset }) as unknown as Payload;
+        } catch (e) {
             console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode ETF payload`);
             return this.close(CLOSECODES.Decode_error);
         }
