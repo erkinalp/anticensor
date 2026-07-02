@@ -19,18 +19,12 @@
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, FieldErrors, Snowflake } from "@harmony/util";
+import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@harmony/util";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
 router.get("/", route({}), async (req: Request, res: Response) => {
-    const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
-
-    if (!applicationExists) {
-        res.status(404).send({ code: 404, message: "Unknown application" });
-        return;
-    }
-
     const command = await ApplicationCommand.findOne({ where: { application_id: req.params.application_id as string, id: req.params.command_id as string } });
 
     if (!command) {
@@ -38,7 +32,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         return;
     }
 
-    res.send(command);
+    res.send(command.toJSON());
 });
 
 router.patch(
@@ -47,6 +41,7 @@ router.patch(
         requestBody: "ApplicationCommandCreateSchema",
     }),
     async (req: Request, res: Response) => {
+        if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
         if (!applicationExists) {
@@ -63,44 +58,15 @@ router.patch(
 
         const body = req.body as ApplicationCommandCreateSchema;
 
-        if (!body.type) {
-            body.type = 1;
-        }
+        const commandForDb = checkCommand(body, req.params.application_id as string);
 
-        if (body.name.trim().length < 1 || body.name.trim().length > 32) {
-            // TODO: configurable?
-            throw FieldErrors({
-                name: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 1 and 32 in length.`,
-                },
-            });
-        }
-
-        const commandForDb: ApplicationCommandSchema = {
-            application_id: req.params.application_id as string,
-            name: body.name.trim(),
-            name_localizations: body.name_localizations,
-            description: body.description?.trim() || "",
-            description_localizations: body.description_localizations,
-            default_member_permissions: body.default_member_permissions || null,
-            contexts: body.contexts,
-            dm_permission: body.dm_permission || true,
-            global_popularity_rank: 1,
-            handler: body.handler,
-            integration_types: body.integration_types,
-            nsfw: body.nsfw,
-            options: body.options,
-            type: body.type,
-            version: Snowflake.generate(),
-        };
-
-        await ApplicationCommand.update({ name: body.name.trim() }, commandForDb);
+        await ApplicationCommand.update({ name: body.name.trim(), id: req.params.command_id as string }, commandForDb);
         res.send(commandForDb);
     },
 );
 
 router.delete("/", route({}), async (req: Request, res: Response) => {
+    if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {

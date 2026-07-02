@@ -20,6 +20,7 @@ import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, RelationId } from 
 import { deleteFile } from "../util";
 import { BaseClass } from "./BaseClass";
 import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing";
+import { Message } from "./Message";
 
 @Entity({
     name: "attachments",
@@ -51,10 +52,10 @@ export class Attachment extends BaseClass {
     message_id: string;
 
     @JoinColumn({ name: "message_id" })
-    @ManyToOne(() => require("./Message").Message, (message: import("./Message").Message) => message.attachments, {
+    @ManyToOne(() => Message, (message: Message) => message.attachments, {
         onDelete: "CASCADE",
     })
-    message: import("./Message").Message;
+    message: Message;
 
     @BeforeRemove()
     onDelete() {

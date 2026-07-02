@@ -25,7 +25,11 @@ let sharp: undefined | false | { default: typeof import("sharp") } = undefined;
 
 let Jimp: JimpType | undefined = undefined;
 try {
-    Jimp = require("jimp") as JimpType;
+    import("jimp")
+        .then((_) => {
+            Jimp = _.Jimp as JimpType;
+        })
+        .catch(() => {});
 } catch {
     // empty
 }

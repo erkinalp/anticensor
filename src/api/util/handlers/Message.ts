@@ -467,7 +467,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
 
             message.avatar = await handleFile(`/avatars/${opts.webhook_id}`, dataUri as string);
-            message.author.avatar = message.avatar;
         }
     } else {
         permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
@@ -781,7 +780,8 @@ export async function postHandleMessage(message: Message) {
         embed.type ||= EmbedType.rich;
     });
 
-    if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
+    if (message.webhook || (await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS))
+        await fillMessageUrlEmbeds(message);
 }
 
 export async function sendMessage(opts: MessageOptions) {
