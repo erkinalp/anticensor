@@ -79,7 +79,7 @@ router.patch(
         await emitEvent({
             event: "GUILD_MEMBER_UPDATE",
             guild_id,
-            data: { ...member, roles: member.roles.map((x) => x.id) },
+            data: { ...member.toJSON(), roles: member.roles.map((x) => x.id) },
         } satisfies GuildMemberUpdateEvent);
 
         res.json(member);

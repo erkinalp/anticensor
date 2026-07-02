@@ -18,8 +18,7 @@
 
 import { Router } from "express";
 const router: Router = Router({ mergeParams: true });
-// TODO:
-
+// TODO stub, not really but idk what to call *this*
 export default router;
 
 /**

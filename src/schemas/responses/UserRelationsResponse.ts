@@ -15,6 +15,10 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { User } from "@harmony/util";
+import { PublicUser } from "@harmony/schemas";
 
-export type UserRelationsResponse = (Pick<User, "id"> & Pick<User, "username"> & Pick<User, "discriminator"> & Pick<User, "avatar"> & Pick<User, "public_flags">)[];
+export type UserRelationsResponse = (Pick<PublicUser, "id"> &
+    Pick<PublicUser, "username"> &
+    Pick<PublicUser, "discriminator"> &
+    Pick<PublicUser, "avatar"> &
+    Pick<PublicUser, "public_flags">)[];
