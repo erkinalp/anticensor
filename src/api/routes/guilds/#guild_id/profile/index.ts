@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions } from "@harmony/util";
+import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions, ValidateName } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeProfileSchema } from "@harmony/schemas";
 
@@ -44,6 +44,10 @@ router.patch(
         let { member_id } = req.params as { [key: string]: string };
         const body = req.body as MemberChangeProfileSchema;
         if (member_id === "@me") member_id = req.user_id;
+
+        if (body.nick) {
+            ValidateName(body.nick);
+        }
 
         const permission = await getPermission(req.user_id, guild_id);
 
