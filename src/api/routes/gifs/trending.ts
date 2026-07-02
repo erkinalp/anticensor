@@ -17,9 +17,8 @@
 */
 
 import { route } from "@harmony/api";
-import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { TenorCategoriesResults, TenorTrendingResults } from "@harmony/schemas";
+import { getGifProvider } from "@harmony/util";
 
 const router = Router({ mergeParams: true });
 
@@ -34,39 +33,17 @@ router.get(
         },
         responses: {
             200: {
-                body: "TenorTrendingResponse",
+                body: "TrendingResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Custom providers
-        // TODO: return gifs as mp4
-        // const { media_format, locale } = req.query;
-        const { locale } = req.query;
 
-        const apiKey = getGifApiKey();
+        const { media_format, locale,provider } = req.query as Record<string,string>;
 
-        const [responseSource, trendGifSource] = await Promise.all([
-            fetch(`https://g.tenor.com/v1/categories?locale=${locale}&key=${apiKey}`, {
-                method: "get",
-                headers: { "Content-Type": "application/json" },
-            }),
-            fetch(`https://g.tenor.com/v1/trending?locale=${locale}&key=${apiKey}`, {
-                method: "get",
-                headers: { "Content-Type": "application/json" },
-            }),
-        ]);
+        const p = getGifProvider(provider);
 
-        const { tags } = (await responseSource.json()) as TenorCategoriesResults;
-        const { results } = (await trendGifSource.json()) as TenorTrendingResults;
-
-        res.json({
-            categories: tags.map((x) => ({
-                name: x.searchterm,
-                src: x.image,
-            })),
-            gifs: [parseGifResult(results[0])],
-        }).status(200);
+        res.json(await p.trending({media_format:media_format??"gif",locale})).status(200);
     },
 );
 

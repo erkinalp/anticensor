@@ -46,7 +46,7 @@ router.get(
     async (req: Request, res: Response) => {
         // const { client_id, scope, response_type, redirect_url } = req.query;
         const { client_id } = req.query;
-        if (!client_id) {
+        if (!(typeof client_id  === "string")) {
             throw FieldErrors({
                 client_id: {
                     code: "BASE_TYPE_REQUIRED",
@@ -57,7 +57,7 @@ router.get(
 
         const app = await Application.findOne({
             where: {
-                id: client_id as string,
+                id: client_id
             },
             relations: { bot: true },
         });
