@@ -63,8 +63,8 @@ router.get(
         }
 
         // Setup canvas
-        const { createCanvas, loadImage } = require("canvas");
-        const sizeOf = require("image-size");
+        const { createCanvas, loadImage } = await import("canvas");
+        const { imageSizeFromFile } = await import("image-size/fromFile");
 
         // TODO: Widget style templates need Spacebar branding
         const source = path.join(__dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
@@ -73,7 +73,7 @@ router.get(
         }
 
         // Create base template image for parameter
-        const { width, height } = await sizeOf(source);
+        const { width, height } = await imageSizeFromFile(source);
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
         const template = await loadImage(source);
@@ -118,8 +118,10 @@ router.get(
 );
 
 async function drawIcon(canvas: any, x: number, y: number, scale: number, icon: string) {
-    const { loadImage } = require("canvas");
-    const img = await loadImage(await storage.get(icon));
+    const { loadImage } = await import("canvas");
+    const p = await storage.get(icon);
+    if (!p) return;
+    const img = await loadImage(p);
 
     // Do some canvas clipping magic!
     canvas.save();
