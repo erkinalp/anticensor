@@ -108,15 +108,15 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const userQueryTime = taskSw.getElapsedAndReset();
 
     // Check intents
-    if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
+    if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111; // TODO: what is this number?
     this.intents = new Intents(identify.intents);
 
     // TODO: actually do intent things.
 
     // Validate sharding
     if (identify.shard) {
-        this.shard_id = identify.shard[0];
-        this.shard_count = identify.shard[1];
+        this.shard_id = BigInt(identify.shard[0]);
+        this.shard_count = BigInt(identify.shard[1]);
 
         if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
             // TODO: why do we even care about this right now?

@@ -32,6 +32,7 @@ import {
     ChannelType,
     Collectibles,
     DisplayNameStyle,
+    PartialUser,
     PrimaryGuild,
     PrivateUserProjection,
     PublicUser,
@@ -218,7 +219,7 @@ export class User extends BaseClass {
         Object.keys(PublicUserProjection).forEach((x) => {
             user[x] = this[x as keyof typeof PublicUserProjection];
         });
-        return user as PublicUser;
+        return user satisfies PublicUser;
     }
 
     toPrivateUser(extraFields: (keyof User)[] = []) {

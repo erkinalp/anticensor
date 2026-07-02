@@ -24,6 +24,7 @@ import * as console from "node:console";
 export class NewUrlUserSignatureData {
     ip?: string;
     userAgent?: string;
+    user_id?: string;
 
     constructor(data: NewUrlUserSignatureData) {
         this.ip = data.ip;
