@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@harmony/util";
+import { MessageType } from "@harmony/schemas";
+import { route, sendMessage } from "@harmony/api";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageUpdateEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 
@@ -41,7 +42,7 @@ router.put(
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
         const message = await Message.findOneOrFail({
-            where: { id: message_id },
+            where: { id: message_id, channel_id },
             relations: { author: true },
         });
 
@@ -57,34 +58,9 @@ router.put(
 
         message.pinned_at = new Date();
 
-        const author = await User.getPublicUser(req.user_id);
-
-        const systemPinMessage = Message.create({
-            timestamp: new Date(),
-            type: 6,
-            guild_id: message.guild_id,
-            channel_id: message.channel_id,
-            author,
-            message_reference: {
-                message_id: message.id,
-                channel_id: message.channel_id,
-                guild_id: message.guild_id,
-            },
-            reactions: [],
-            attachments: [],
-            embeds: [],
-            sticker_items: [],
-            edited_timestamp: undefined,
-            mentions: [],
-            mention_channels: [],
-            mention_roles: [],
-            mention_everyone: false,
-        });
-
-        await message.save();
         const publicMsg = message.toJSON();
-        const publicSystem = systemPinMessage.toJSON();
         await Promise.all([
+            message.save(),
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id,
@@ -99,12 +75,17 @@ router.put(
                     last_pin_timestamp: undefined,
                 },
             } satisfies ChannelPinsUpdateEvent),
-            systemPinMessage.save(),
-            emitEvent({
-                event: "MESSAGE_CREATE",
+            sendMessage({
+                timestamp: new Date(),
+                type: MessageType.CHANNEL_PINNED_MESSAGE,
                 channel_id: message.channel_id,
-                data: publicSystem,
-            } satisfies MessageCreateEvent),
+                author_id: req.user_id,
+                message_reference: {
+                    message_id: message.id,
+                    channel_id: message.channel_id,
+                    guild_id: message.guild_id,
+                },
+            }),
         ]);
 
         res.sendStatus(204);
@@ -128,7 +109,7 @@ router.delete(
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
         const message = await Message.findOneOrFail({
-            where: { id: message_id },
+            where: { id: message_id, channel_id },
             relations: { author: true },
         });
 
@@ -136,13 +117,13 @@ router.delete(
 
         message.pinned_at = null;
 
-        await message.save();
-        const publicMsg2 = message.toJSON();
+        const publicMsg = message.toJSON();
         await Promise.all([
+            message.save(),
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id,
-                data: publicMsg2,
+                data: publicMsg,
             } satisfies MessageUpdateEvent),
             emitEvent({
                 event: "CHANNEL_PINS_UPDATE",
@@ -162,7 +143,7 @@ router.delete(
 router.get(
     "/",
     route({
-        permission: ["READ_MESSAGE_HISTORY"],
+        permission: "READ_MESSAGE_HISTORY",
         responses: {
             200: {
                 body: "APIMessageArray",
