@@ -73,6 +73,7 @@ router.post(
         const securityKey = await SecurityKey.findOneOrFail({
             where: {
                 key_id: Buffer.from(clientAttestationResponse.rawId, "base64url").toString("base64"),
+                user_id: user.id,
             },
         });
 
