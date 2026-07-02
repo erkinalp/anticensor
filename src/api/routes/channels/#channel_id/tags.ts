@@ -133,6 +133,7 @@ router.delete(
 
         const tag = await Tag.findOneByOrFail({
             id: tag_id,
+            channel_id
         });
         channel.available_tags = channel.available_tags?.filter((t) => t.id !== tag.id);
 

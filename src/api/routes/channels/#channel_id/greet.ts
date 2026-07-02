@@ -21,6 +21,7 @@ import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker }
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { GreetRequestSchema, MessageType } from "@harmony/schemas";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -46,6 +47,9 @@ router.post(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
+        if(payload.message_reference?.channel_id && payload.message_reference?.channel_id !== channel_id){
+            throw new HTTPError("Can't reply to messages across channels")
+        }
 
         const targetMessage = await Message.findOneOrFail({
             where: {
