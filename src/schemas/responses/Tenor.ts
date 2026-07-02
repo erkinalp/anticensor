@@ -56,10 +56,9 @@ export type TenorCategory = {
     name: string;
 };
 
-export type TenorCategoriesResults = {
-    tags: TenorCategory[];
-};
-
+export interface TenorCategoriesResults{
+    tags:TenorCategory[]
+}
 export type TenorTrendingResults = {
     next: string;
     results: TenorGif[];
@@ -71,7 +70,7 @@ export type TenorSearchResults = {
     results: TenorGif[];
 };
 
-export interface TenorGifResponse {
+export interface GifResponse {
     id: string;
     title: string;
     url: string;
@@ -82,9 +81,12 @@ export interface TenorGifResponse {
     preview: string;
 }
 
-export interface TenorTrendingResponse {
-    categories: TenorCategoriesResults;
-    gifs: TenorGifResponse[];
+export interface TrendingResponse {
+    categories: {
+        name:string,
+        src:string
+    }[];
+    gifs: GifResponse[];
 }
 
-export type TenorGifsResponse = TenorGifResponse[];
+export type GifsResponse = GifResponse[];
