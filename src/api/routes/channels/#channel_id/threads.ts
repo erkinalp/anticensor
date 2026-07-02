@@ -37,7 +37,7 @@ import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, IsNull } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -173,7 +173,7 @@ router.post(
                 // have to fetch ourselves otherwise.
                 if (!message.member) {
                     message.member = await Member.findOneOrFail({
-                        where: { id: req.user_id, guild_id: message.guild_id },
+                        where: { id: req.user_id, guild_id: message.guild_id?message.guild_id:IsNull() },
                         relations: { roles: true },
                     });
                 }
@@ -257,7 +257,7 @@ router.get(
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
-        const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
+        const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id ?? IsNull(), id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
             order,

@@ -20,6 +20,7 @@ import { route } from "@harmony/api";
 import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@harmony/schemas";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -155,6 +156,7 @@ router.patch(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+        const guild_id = channel.guild_id;
 
         if (channel.isThread()) {
             if (channel.owner_id !== req.user.id) {
@@ -177,12 +179,17 @@ router.patch(
                 channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
             }
         }
+        if (payload.parent_id) {
+            if (!(await Channel.exists({ where: { id: payload.parent_id, guild_id } }))) throw new HTTPError("parent channel does not exist");
+        }
 
         if (payload.applied_tags) {
             if (channel.isThread()) {
+                if(!channel.parent_id) throw new HTTPError("Channel does not have owner")
                 const parent = await Channel.findOneOrFail({
                     where: {
-                        id: channel.parent_id as string,
+                        guild_id,
+                        id: channel.parent_id,
                     },
                     relations: ["available_tags"],
                 });

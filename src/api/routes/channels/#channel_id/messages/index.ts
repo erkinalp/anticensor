@@ -46,7 +46,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
+import { FindManyOptions, FindOperator, IsNull, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { URL } from "url";
 import {
     AcknowledgeDeleteSchema,
@@ -227,6 +227,7 @@ router.post(
         stripNulls: {
             components: true,
             embeds: true,
+            allowed_mentions: true,
         },
         permission: "VIEW_CHANNEL",
         right: "SEND_MESSAGES",
@@ -254,7 +255,7 @@ router.post(
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
-                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id! } });
+                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id?channel.guild_id:IsNull() } });
 
                 if (!(await ThreadMember.existsBy({ member_idx: member.index, id: channel_id }))) {
                     const threadMember = ThreadMember.create({

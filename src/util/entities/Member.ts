@@ -422,9 +422,10 @@ export class Member extends BaseClassWithoutId {
         ]);
 
         if (guild.system_channel_id) {
-            const channel = await Channel.findOneOrFail({
-                where: { id: guild.system_channel_id },
+            const channel = await Channel.findOne({
+                where: { id: guild.system_channel_id, guild_id: guild.id },
             });
+            if (!channel) return;
             // Send a welcome message
             const message = Message.create({
                 type: 7,

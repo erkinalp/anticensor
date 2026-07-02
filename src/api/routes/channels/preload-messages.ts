@@ -17,7 +17,7 @@
 */
 
 import { route } from "@harmony/api";
-import { Config, Message } from "@harmony/util";
+import { Channel, Config, Message } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@harmony/schemas";
 import { In } from "typeorm";
@@ -45,10 +45,23 @@ router.post(
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
 
-        const messages = await Message.find({
-            where: { channel_id: In(body.channels) },
-            order: { timestamp: "DESC" },
-        });
+        const channels = await Channel.find({ where: { id: In(body.channels) } });
+        await Promise.all(
+            channels.map(async (channel) => {
+                const perm = await channel.getUserPermissions({ user: req.user });
+                perm.hasThrow("READ_MESSAGE_HISTORY");
+            }),
+        );
+        const messages = (
+            await Promise.all(
+                body.channels.map((channelId) =>
+                    Message.findOne({
+                        where: { channel_id: channelId },
+                        order: { timestamp: "DESC" },
+                    }),
+                ),
+            )
+        ).filter((x) => x !== null) as Message[];
 
         const filteredMessages = messages.map((message) => {
             const x = message.toJSON();

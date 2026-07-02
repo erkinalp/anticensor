@@ -21,7 +21,7 @@ import { Channel, emitEvent, Member, Permissions, ThreadCreateEvent, ThreadDelet
 import { ChannelType, Snowflake } from "@harmony/schemas";
 
 import { Request, Response, Router } from "express";
-import { MoreThan } from "typeorm";
+import { IsNull, MoreThan } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -82,7 +82,7 @@ router.post(
                 (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_MESSAGES);
         }
 
-        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
+        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id?thread.guild_id:IsNull() } });
 
         if (await ThreadMember.existsBy({ member_idx: member.index, id: channel_id })) {
             return res.status(204).send();
@@ -136,7 +136,7 @@ router.delete(
         if (user_id != "@me") (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_THREADS);
         else user_id = req.user_id;
 
-        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
+        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id?thread.guild_id:IsNull() } });
         const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
         await threadMember.remove();
 

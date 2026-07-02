@@ -281,7 +281,7 @@ router.delete(
             await channel.save();
         }
         const message = await Message.findOneOrFail({
-            where: { id: message_id },
+            where: { id: message_id, channel_id },
         });
 
         const rights = req.rights ?? (await getRights(req.user_id));

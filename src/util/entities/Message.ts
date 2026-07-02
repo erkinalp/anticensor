@@ -43,7 +43,7 @@ import {
     UnfurledMediaItem,
 } from "@harmony/schemas";
 import { PartialUser } from "@harmony/schemas";
-import { Config, MessageFlags } from "@harmony/util";
+import { Config, convertTimestamp, MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -263,8 +263,8 @@ export class Message extends BaseClass {
             channel_id: this.channel_id ?? this.channel.id,
             channel: undefined,
 
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
+            timestamp: convertTimestamp(this.timestamp),
+            edited_timestamp: convertTimestamp(this.edited_timestamp),
 
             author_id: undefined,
             member_id: undefined,

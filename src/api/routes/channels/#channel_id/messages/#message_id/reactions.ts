@@ -227,7 +227,7 @@ router.put(
         const member = channel.guild_id
             ? (
                   await Member.findOneOrFail({
-                      where: { id: req.user_id },
+                      where: { id: req.user_id, guild_id:channel.guild_id },
                       relations: { roles: true, user: true },
                       select: {
                           index: true,

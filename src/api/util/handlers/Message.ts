@@ -779,7 +779,8 @@ export async function postHandleMessage(message: Message) {
         embed.type ||= EmbedType.rich;
     });
 
-    if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
+    if (message.webhook || (await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS))
+        await fillMessageUrlEmbeds(message);
 }
 
 export async function sendMessage(opts: MessageOptions) {
