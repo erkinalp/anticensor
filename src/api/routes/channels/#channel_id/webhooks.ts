@@ -85,6 +85,10 @@ router.post(
         }
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);
+        let token: string;
+        do {
+            token = crypto.randomBytes(24).toString("base64url");
+        } while (token.startsWith("-"));
 
         const hook = await Webhook.create({
             type: WebhookType.Incoming,
@@ -94,7 +98,7 @@ router.post(
             channel_id: channel.id,
             user_id: req.user_id,
             application: (await Application.findOneBy({ id: req.user_id })) ?? undefined,
-            token: crypto.randomBytes(24).toString("base64url"),
+            token,
         }).save();
 
         const user = await User.getPublicUser(req.user_id);

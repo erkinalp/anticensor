@@ -185,10 +185,11 @@ export class Member extends BaseClassWithoutId {
             where: { id: guild_id },
         });
         if (guild.owner_id === user_id) throw new Error("The owner cannot be removed from the guild");
-        const member = await Member.findOneOrFail({
+        const member = await Member.findOne({
             where: { id: user_id, guild_id },
             relations: { user: true },
         });
+        if (!member) return;
 
         // use promise all to execute all promises at the same time -> save time
         return Promise.all([
