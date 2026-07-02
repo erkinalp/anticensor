@@ -23,11 +23,25 @@ import { Request, Response, Router } from "express";
 import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, InteractionType, Member, Message, Snowflake } from "@harmony/util";
 import { pendingInteractions } from "@harmony/util/imports/Interactions";
 import { InteractionCreateSchema } from "@harmony/schemas/api/bots/InteractionCreateSchema";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
 router.post("/", route({}), async (req: Request, res: Response) => {
     const body = req.body as InteractionSchema;
+
+    if (body.type === InteractionType.MessageComponent) {
+        const mid = body.message_id;
+        if (!mid) throw new HTTPError("Message ID not provided");
+        const m = await Message.findOneOrFail({
+            where: {
+                id: mid,
+            },
+        });
+        if (m.author_id !== body.application_id) throw new HTTPError("interactions can only go to the author of the message");
+    } else {
+        if (!body.message_id) throw new HTTPError("Message ID not allowed for this type of interaction");
+    }
 
     const interactionId = Snowflake.generate();
     const interactionToken = randomBytes(24).toString("base64url");
