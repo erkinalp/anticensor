@@ -175,7 +175,7 @@ router.get(
 );
 
 router.put(
-    "/:emoji/:user_id",
+    "/:emoji/@me",
     route({
         permission: "READ_MESSAGE_HISTORY",
         right: "SELF_ADD_REACTIONS",
@@ -189,8 +189,7 @@ router.put(
         },
     }),
     async (req: Request, res: Response) => {
-        const { message_id, channel_id, user_id } = req.params as { [key: string]: string };
-        if (user_id !== "@me") throw new HTTPError("Invalid user");
+        const { message_id, channel_id } = req.params as { [key: string]: string };
         const emoji = getEmoji(req.params.emoji as string);
 
         const channel = await Channel.findOneOrFail({
@@ -287,7 +286,7 @@ router.delete(
 
         if (user_id === "@me") user_id = req.user_id;
         else {
-            const permissions = await getPermission(req.user_id, undefined, channel_id);
+            const permissions = req.permission ?? (await getPermission(req.user_id, undefined, channel_id));
             permissions.hasThrow("MANAGE_MESSAGES");
         }
 
@@ -297,7 +296,7 @@ router.delete(
         already_added.count--;
 
         if (already_added.count <= 0) arrayRemove(message.reactions, already_added);
-        else already_added.user_ids.splice(already_added.user_ids.indexOf(user_id), 1);
+        else arrayRemove(already_added.user_ids, user_id);
 
         await message.save();
 
@@ -345,7 +344,7 @@ router.delete(
 
         if (user_id === "@me") user_id = req.user_id;
         else {
-            const permissions = await getPermission(req.user_id, undefined, channel_id);
+            const permissions = req.permission ?? (await getPermission(req.user_id, undefined, channel_id));
             permissions.hasThrow("MANAGE_MESSAGES");
         }
 
@@ -355,7 +354,7 @@ router.delete(
         already_added.count--;
 
         if (already_added.count <= 0) arrayRemove(message.reactions, already_added);
-        else already_added.user_ids.splice(already_added.user_ids.indexOf(user_id), 1);
+        else arrayRemove(already_added.user_ids, user_id);
 
         await message.save();
 

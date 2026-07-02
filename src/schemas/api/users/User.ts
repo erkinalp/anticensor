@@ -24,7 +24,7 @@ interface UserEntityPleaseRewriteThankYou {
     id: Snowflake;
     username: string;
     discriminator: string;
-    avatar?: string;
+    avatar: string | null;
     accent_color?: number;
     banner?: string;
     theme_colors?: number[];

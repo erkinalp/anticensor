@@ -20,13 +20,8 @@ import { Payload, WebSocket } from "@harmony/gateway";
 import fs from "fs/promises";
 import path from "path";
 
-import { ErlpackType, JSONReplacer } from "@harmony/util";
-let erlpack: ErlpackType | null = null;
-try {
-    erlpack = require("@yukikaze-bot/erlpack") as ErlpackType;
-} catch (e) {
-    console.log("Failed to import @yukikaze-bot/erlpack: ", e);
-}
+import { JSONReplacer } from "@harmony/util";
+import { pack } from "harmony-erlpack";
 
 // don't care
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,21 +49,21 @@ export async function Send(socket: WebSocket, data: Payload) {
         await fs.writeFile(path.join("dump", id, `${Date.now()}.out.json`), JSON.stringify(data, null, 2));
     }
 
-    let buffer: Buffer | string;
-    if (socket.encoding === "etf" && erlpack) {
+    let buffer: Buffer | ArrayBuffer | string;
+    if (socket.encoding === "etf") {
         // Erlpack doesn't like Date objects, encodes them as {}
         data = recurseJsonReplace(data);
-        buffer = erlpack.pack(data);
-    }
-    // TODO: encode circular object
-    else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);
+
+        buffer = pack(data);
+    } else if (socket.encoding === "json") buffer = JSON.stringify(data, JSONReplacer);
     else return;
 
     // TODO: compression
     if (socket.compress === "zlib-stream") {
         buffer = socket.deflate!.process(buffer) as Buffer;
     } else if (socket.compress === "zstd-stream") {
-        if (typeof buffer === "string") buffer = Buffer.from(buffer as string);
+        if (typeof buffer === "string") buffer = Buffer.from(buffer);
+        else if (buffer instanceof ArrayBuffer) buffer = Buffer.from(buffer);
 
         buffer = (await socket.zstdEncoder!.encode(buffer as Buffer)) as Buffer;
     }
