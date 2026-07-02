@@ -58,3 +58,4 @@ export * from "./Version";
 export * from "./checkUsername";
 export * from "./checkCommand";
 export * from "./gifProviders";
+export * from "./timestamp";
