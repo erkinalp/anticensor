@@ -20,6 +20,7 @@ import { FileStorage } from "./FileStorage";
 import path from "path";
 import fs from "fs";
 import { red } from "picocolors";
+import { S3Storage } from "./S3Storage";
 process.cwd();
 
 export interface Storage {
@@ -86,10 +87,11 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
     const forcePathStyle = process.env.STORAGE_FORCE_PATH_STYLE === "true";
 
     if (process.env.STORAGE_FORCE_PATH_STYLE === undefined) {
-        console.warn(`[CDN] STORAGE_FORCE_PATH_STYLE is not set for S3 provider; defaulting to virtual-hosted style. Set STORAGE_FORCE_PATH_STYLE=true to enable path-style addressing.`);
+        console.warn(
+            `[CDN] STORAGE_FORCE_PATH_STYLE is not set for S3 provider; defaulting to virtual-hosted style. Set STORAGE_FORCE_PATH_STYLE=true to enable path-style addressing.`,
+        );
     }
 
-    const { S3Storage } = require("./S3Storage");
     storage = new S3Storage(region, bucket, endpoint, forcePathStyle, location);
 }
 
