@@ -120,7 +120,7 @@ router.patch(
             // for some reason, they don't update in the assign.
             guild.features = body.features;
         }
-        if (!body.system_channel_id) body.system_channel_id = null;
+        if (body.system_channel_id === null) body.system_channel_id = null;
 
         // TODO: check if body ids are valid
         guild.assign(body);
