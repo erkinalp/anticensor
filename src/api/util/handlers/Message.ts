@@ -71,6 +71,7 @@ import {
     v1CompTypes,
     PartialUser,
 } from "@harmony/schemas";
+import { proxyFetch } from "../../../util/util/porxyFetch";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -121,7 +122,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
             },
         });
     } else {
-        const res = await fetch(url);
+        const res = await proxyFetch(url);
         if (!res.ok) throw new HTTPError("URL did not return OK");
         const blob = await res.blob();
         const name = url.pathname.split("/").findLast((_) => _) || id;
@@ -461,7 +462,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.author.username = message.username;
         }
         if (opts.avatar_url) {
-            const avatarData = await fetch(opts.avatar_url);
+            const avatarData = await proxyFetch(opts.avatar_url);
             const base64 = await avatarData.arrayBuffer().then((x) => Buffer.from(x).toString("base64"));
 
             const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;

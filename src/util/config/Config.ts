@@ -37,6 +37,7 @@ import {
     SecurityConfiguration,
     TemplateConfiguration,
     UserConfiguration,
+    ProxyConfiguration,
 } from "./types";
 
 export class ConfigValue {
@@ -61,4 +62,5 @@ export class ConfigValue {
     user: UserConfiguration = new UserConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    proxy = new ProxyConfiguration();
 }
