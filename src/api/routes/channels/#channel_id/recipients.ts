@@ -26,6 +26,7 @@ const router: Router = Router({ mergeParams: true });
 router.put(
     "/:user_id",
     route({
+        permission: "VIEW_CHANNEL",
         responses: {
             201: {},
             404: {},
@@ -78,6 +79,7 @@ router.put(
 router.delete(
     "/:user_id",
     route({
+        permission: "VIEW_CHANNEL",
         responses: {
             204: {},
             404: {},
