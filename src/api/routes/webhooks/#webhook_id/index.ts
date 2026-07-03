@@ -123,7 +123,7 @@ router.patch(
         if (body.channel_id)
             webhook.assign({
                 channel: await Channel.findOneOrFail({
-                    where: { id: channel_id },
+                    where: { id: channel_id, guild_id: webhook.guild_id },
                 }),
             });
 
