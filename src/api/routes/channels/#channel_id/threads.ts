@@ -37,7 +37,7 @@ import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, IsNull } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -110,7 +110,7 @@ router.post(
                     create_timestamp: new Date().toISOString(),
                 },
             },
-            void 0,
+            undefined,
             { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
         );
 
@@ -155,8 +155,8 @@ router.post(
                           parse: body.message.allowed_mentions.parse as ("users" | "roles" | "everyone")[],
                       }
                     : undefined,
-            } as Parameters<typeof handleMessage>[0];
-            const message = await handleMessage({
+            } as Parameters<typeof sendMessage>[0];
+            const message = await sendMessage({
                 ...bodyMsg,
                 id: thread.id,
                 type: 0,
@@ -167,22 +167,16 @@ router.post(
                 attachments,
                 timestamp: new Date(),
             });
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore wrong type but idk why it's mad
-            message.edited_timestamp = null;
+            message.edited_timestamp = undefined;
             if (message.guild_id) {
                 // handleMessage will fetch the Member, but only if they are not guild owner.
                 // have to fetch ourselves otherwise.
                 if (!message.member) {
                     message.member = await Member.findOneOrFail({
-                        where: { id: req.user_id, guild_id: message.guild_id },
+                        where: { id: req.user_id, guild_id: message.guild_id?message.guild_id:IsNull() },
                         relations: { roles: true },
                     });
                 }
-
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
             }
             let read_state = await ReadState.findOne({
                 where: { user_id: req.user_id, channel_id },
@@ -263,7 +257,7 @@ router.get(
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
-        const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
+        const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id ?? IsNull(), id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
             order,

@@ -21,7 +21,7 @@ import { Request, Response, Router } from "express";
 import { CollectiblesShopResponse } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
-
+//TODO stub
 router.get(
     "/",
     route({

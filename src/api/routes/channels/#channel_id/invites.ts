@@ -51,7 +51,7 @@ router.post(
         isTextChannel(channel.type);
 
         if (!channel.guild_id) {
-            throw new HTTPError("This channel doesn't exist", 404);
+            throw new HTTPError("Channel does not belong to a guild");
         }
         const { guild_id } = channel;
 

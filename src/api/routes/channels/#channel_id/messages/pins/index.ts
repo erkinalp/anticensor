@@ -40,7 +40,7 @@ router.put(
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
         const message = await Message.findOneOrFail({
-            where: { id: message_id },
+            where: { id: message_id, channel_id },
             relations: { author: true },
         });
 
@@ -56,7 +56,7 @@ router.put(
 
         message.pinned_at = new Date();
 
-        const author = await User.getPublicUser(req.user_id);
+        const author = req.user ?? (await User.findOneOrFail({ where: { id: req.user_id } }));
 
         const systemPinMessage = Message.create({
             timestamp: new Date(),
@@ -127,21 +127,21 @@ router.delete(
         const { channel_id, message_id } = req.params as { [key: string]: string };
 
         const message = await Message.findOneOrFail({
-            where: { id: message_id },
+            where: { id: message_id, channel_id },
             relations: { author: true },
         });
 
         if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
-
+        //TODO should this error if it's not pinned already?
         message.pinned_at = null;
 
         await message.save();
-        const publicMsg2 = message.toJSON();
+        const publicMsg = message.toJSON();
         await Promise.all([
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id,
-                data: publicMsg2,
+                data: publicMsg,
             } satisfies MessageUpdateEvent),
             emitEvent({
                 event: "CHANNEL_PINS_UPDATE",
@@ -161,7 +161,7 @@ router.delete(
 router.get(
     "/",
     route({
-        permission: ["READ_MESSAGE_HISTORY"],
+        permission: "READ_MESSAGE_HISTORY",
         responses: {
             200: {
                 body: "APIMessageArray",

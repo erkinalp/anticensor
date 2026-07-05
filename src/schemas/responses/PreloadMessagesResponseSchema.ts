@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message } from "@harmony/util";
+import { PublicMessage } from "@harmony/schemas";
 
-export type PreloadMessagesResponseSchema = Message[];
+export type PreloadMessagesResponseSchema = PublicMessage[];

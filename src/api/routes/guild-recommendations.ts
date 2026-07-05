@@ -42,10 +42,10 @@ router.get(
         const genLoadId = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");
 
         const guilds = showAllGuilds
-            ? await Guild.find({ take: Math.abs(Number(limit || 24)) })
+            ? await Guild.find({ take: Math.abs(Number(limit ?? 24)) })
             : await Guild.find({
                   where: { features: Like("%DISCOVERABLE%") },
-                  take: Math.abs(Number(limit || 24)),
+                  take: Math.abs(Number(limit ?? 24)),
               });
         res.send({
             recommended_guilds: guilds,

@@ -32,6 +32,7 @@ import {
     ChannelType,
     Collectibles,
     DisplayNameStyle,
+    PartialUser,
     PrimaryGuild,
     PrivateUserProjection,
     PublicUser,
@@ -94,13 +95,13 @@ export class User extends BaseClass {
     @Column({ select: false })
     nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
 
-    @Column({ select: false })
+    @Column()
     mfa_enabled: boolean = false; // if multi factor authentication is enabled
 
-    @Column({ select: false, default: false })
+    @Column({ default: false })
     webauthn_enabled: boolean = false; // if webauthn multi factor authentication is enabled
 
-    @Column({ select: false, nullable: true })
+    @Column({ nullable: true })
     totp_secret?: string = "";
 
     @Column({ nullable: true, select: false })
@@ -218,7 +219,7 @@ export class User extends BaseClass {
         PublicUserProjection.forEach((x) => {
             user[x] = this[x];
         });
-        return user as PublicUser;
+        return user satisfies PublicUser;
     }
 
     toPrivateUser(extraFields: (keyof User)[] = []) {
