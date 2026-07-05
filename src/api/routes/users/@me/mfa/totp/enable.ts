@@ -68,7 +68,7 @@ router.post(
         await User.update({ id: req.user_id }, { mfa_enabled: true, totp_secret: body.secret });
 
         res.send({
-            token: await generateToken(user.id),
+            token: await generateToken(req.user_id),
             backup_codes: backup_codes.map((x) => ({
                 ...x,
                 expired: undefined,
