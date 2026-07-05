@@ -21,6 +21,7 @@ import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@harmony/util";
 import { In, IsNull } from "typeorm";
+import { HTTPError } from "lambert-server";
 
 const router = Router({ mergeParams: true });
 
@@ -72,6 +73,7 @@ router.put(
         requestBody: "BulkApplicationCommandCreateSchema",
     }),
     async (req: Request, res: Response) => {
+        if (req.user_id !== req.params.application_id) throw new HTTPError("you are not the application");
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
         if (!applicationExists) {
