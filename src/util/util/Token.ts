@@ -177,7 +177,6 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
     const keyPair = await loadOrGenerateKeypair();
 
     let newSession;
-    console.log("making session");
     do {
         newSession = Session.create({
             session_id: randomUpperString(10), // readable at a glance
@@ -187,11 +186,9 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
             status: "online",
             client_info: {},
         });
-        console.log(newSession.session_id);
-    } while (await Session.findOne({ where: { session_id: newSession.session_id } }));
-    console.log("save");
+    } while (await Session.exists({ where: { session_id: newSession.session_id } }));
+
     await newSession.save();
-    console.log("saved");
 
     return new Promise((res, rej) => {
         const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
