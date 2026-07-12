@@ -156,19 +156,22 @@ router.post(
                     console.log(`[Register] ${ip} blocked from registration: IPData.co threat types ${Array.from(blockedCategories).join(", ")}`);
                     throw new HTTPError("Your IP is blocked from registration");
                 }
+                if (ipData.asn) {
+                    if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
+                        console.log(`[Register] ${ip} blocked from registration: IPData.co ASN type ${ipData.asn.type} is blocked`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    } else if (!ipData.asn.type) {
+                        console.log("[Register] IPData.co response missing asn.type field", ipData);
+                    }
 
-                if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
-                    console.log(`[Register] ${ip} blocked from registration: IPData.co ASN type ${ipData.asn.type} is blocked`);
-                    throw new HTTPError("Your IP is blocked from registration");
-                } else if (!ipData.asn.type) {
-                    console.log("[Register] IPData.co response missing asn.type field", ipData);
-                }
-
-                if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
-                    console.log(`[Register] ${ip} blocked from registration: IPData.co ASN ${ipData.asn.name} is blocked`);
-                    throw new HTTPError("Your IP is blocked from registration");
-                } else if (!ipData.asn.asn) {
-                    console.log("[Register] IPData.co response missing asn.asn field", ipData);
+                    if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
+                        console.log(`[Register] ${ip} blocked from registration: IPData.co ASN ${ipData.asn.name} is blocked`);
+                        throw new HTTPError("Your IP is blocked from registration");
+                    } else if (!ipData.asn.asn) {
+                        console.log("[Register] IPData.co response missing asn.asn field", ipData);
+                    }
+                } else {
+                    //TODO what to do here
                 }
             }
         }
