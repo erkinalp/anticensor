@@ -282,7 +282,7 @@ export class Message extends BaseClass {
             nonce: this.nonce ?? undefined,
             tts: this.tts ?? false,
             guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
+            webhook: undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
             reactions: this.reactions ?? undefined,
@@ -293,7 +293,7 @@ export class Message extends BaseClass {
                 ...(this.author?.toPublicUser() ?? undefined),
                 // Webhooks
                 username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
+                avatar: avatar ?? this.author?.avatar ?? null,
             },
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
