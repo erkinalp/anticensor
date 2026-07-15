@@ -22,6 +22,7 @@ import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@harmony/schemas";
 import { In } from "typeorm";
 import { HTTPError } from "#util/util/lambert-server";
+import { permission } from "process";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -32,6 +33,7 @@ router.get(
                 body: "APIChannelArray",
             },
         },
+        permission: [],
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
