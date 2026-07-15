@@ -22,7 +22,6 @@ import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@harmony/schemas";
 import { In } from "typeorm";
 import { HTTPError } from "#util/util/lambert-server";
-import { permission } from "process";
 const router = Router({ mergeParams: true });
 
 router.get(
