@@ -217,6 +217,7 @@ export class User extends BaseClass {
         const clean = this.toJSON();
         const user: Partial<PublicUser> = {};
         PublicUserProjection.forEach((x) => {
+            //@ts-expect-error for now this is expected, we will find some fixes
             user[x] = clean[x];
         });
         return user as PublicUser;
