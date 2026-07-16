@@ -19,7 +19,7 @@
 import { Request } from "express";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { Random } from "../util";
+import { convertTimestamp, Random } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
 import { Member } from "./Member";
@@ -214,12 +214,12 @@ export class User extends BaseClass {
 
     toPublicUser() {
         this.clean_data();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const user: any = {};
+        const clean = this.toJSON();
+        const user: Partial<PublicUser> = {};
         PublicUserProjection.forEach((x) => {
-            user[x] = this[x];
+            user[x] = clean[x];
         });
-        return user satisfies PublicUser;
+        return user as PublicUser;
     }
 
     toPrivateUser(extraFields: (keyof User)[] = []) {
@@ -401,5 +401,12 @@ export class User extends BaseClass {
             .getMany();
 
         return qry;
+    }
+    toJSON() {
+        return {
+            ...this,
+            premium_since: convertTimestamp(this.premium_since),
+            created_at: convertTimestamp(this.created_at),
+        };
     }
 }
