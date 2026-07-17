@@ -476,6 +476,7 @@ export class Member extends BaseClassWithoutId {
         return {
             ...this,
             joined_at: convertTimestamp(this.joined_at),
+            author: this.user.toJSON(),
         };
     }
 }
