@@ -21,7 +21,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTabl
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent, DiscordApiErrors } from "../util";
+import { Config, emitEvent, DiscordApiErrors, convertTimestamp } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -461,14 +461,21 @@ export class Member extends BaseClassWithoutId {
 
     toPublicMember() {
         const member: Partial<PublicMember> = {};
+        const json = this.toJSON();
         PublicMemberProjection.forEach((x) => {
             //@ts-expect-error this is really fine
-            member[x] = this[x];
+            member[x] = json[x];
         });
 
         if (this.roles) member.roles = this.roles.map((x: Role) => x.id);
         if (this.user) member.user = this.user.toPublicUser();
 
         return member as PublicMember;
+    }
+    toJSON() {
+        return {
+            ...this,
+            joined_at: convertTimestamp(this.joined_at),
+        };
     }
 }
