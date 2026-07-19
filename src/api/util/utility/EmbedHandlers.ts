@@ -25,7 +25,7 @@ import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
 import { proxyFetch } from "../../../util/util/porxyFetch";
 
-export function getDefaultFetchOptions(): RequestInit {
+export function getDefaultFetchOptions() {
     return {
         redirect: "follow",
         headers: {
@@ -34,7 +34,7 @@ export function getDefaultFetchOptions(): RequestInit {
         },
         // size: 1024 * 1024 * 5, 	// grabbed from config later
         method: "GET",
-    };
+    } as const;
 }
 
 const makeEmbedImage = (url: string | undefined, width: number | undefined, height: number | undefined): Required<EmbedImage> | undefined => {
