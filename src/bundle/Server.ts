@@ -42,18 +42,21 @@ server.on("request", app);
 const api = new Api.SpacebarServer({ server, port, production, app });
 const cdn = new CDNServer({ server, port, production, app });
 const gateway = new Gateway.Server({ server, port, production });
-const webrtc = new Webrtc.Server({
-    server: undefined,
-    port: wrtcWsPort,
-    production,
-});
+const disableWebRTC = process.env.NO_WEBRTC === "true";
+const webrtc = disableWebRTC
+    ? null
+    : new Webrtc.Server({
+          server: undefined,
+          port: wrtcWsPort,
+          production,
+      });
 
 process.on("SIGTERM", async () => {
     console.log("Shutting down due to SIGTERM");
     await gateway.stop();
     await cdn.stop();
     await api.stop();
-    await webrtc.stop();
+    await webrtc?.stop();
     server.close();
 });
 
@@ -75,7 +78,7 @@ async function main() {
     }
 
     await new Promise((resolve) => server.listen({ port }, () => resolve(undefined)));
-    await Promise.all([api.start(), cdn.start(), gateway.start(), webrtc.start()]);
+    await Promise.all([api.start(), cdn.start(), gateway.start(), webrtc?.start()]);
 
     if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-bundle-${cluster.worker ? cluster.worker.id : port}`);
     process.title = `sb-bundle-${cluster.worker ? cluster.worker.id : port}`;

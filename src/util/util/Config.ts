@@ -33,10 +33,11 @@ let pairs: ConfigEntity[];
 // Config keys are separated with _
 
 export class Config {
-    public static async init(force: boolean = false) {
+    public static async init(force: boolean = false, jsonOnly = false) {
         if (config && !force) return config;
         console.log("[Config] Loading configuration...");
         if (!process.env.CONFIG_PATH) {
+            if (jsonOnly) throw new Error("WebRTC server only allows for JSON config");
             pairs = await validateConfig();
             config = pairsToConfig(pairs);
         } else {
@@ -45,6 +46,7 @@ export class Config {
                 const file = JSON.parse((await fs.readFile(process.env.CONFIG_PATH)).toString());
                 config = file;
             } else config = new ConfigValue();
+
             pairs = generatePairs(config);
         }
 
@@ -70,6 +72,7 @@ export class Config {
 
         await this.set(config);
         validateFinalConfig(config);
+
         return config;
     }
     public static get() {

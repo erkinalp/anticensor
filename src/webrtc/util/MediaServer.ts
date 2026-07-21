@@ -28,15 +28,10 @@ export const WRTC_PORT_MAX = process.env.WRTC_PORT_MAX ? parseInt(process.env.WR
 const selectedWrtcLibrary = process.env.WRTC_LIBRARY;
 
 // could not find a way to hide stack trace from base Error object
-class NoConfiguredLibraryError implements Error {
-    name: string;
-    message: string;
-    stack?: string | undefined;
-    cause?: unknown;
-
+class NoConfiguredLibraryError extends Error {
     constructor(message: string) {
+        super(message);
         this.name = "NoConfiguredLibraryError";
-        this.message = message;
     }
 }
 

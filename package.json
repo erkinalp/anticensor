@@ -7,6 +7,7 @@
         "postinstall": "patch-package",
         "start": "node --enable-source-maps  --trace-deprecation dist/bundle/start.js",
         "start:api": "node --enable-source-maps dist/api/start.js",
+        "makeWebRTCToken": "node --enable-source-maps dist/util/scripts/makeWebRTCToken.js",
         "start:cdn": "node --enable-source-maps dist/cdn/start.js",
         "start:gateway": "node --enable-source-maps dist/gateway/start.js",
         "start:webrtc": "node --enable-source-maps dist/webrtc/start.js",
