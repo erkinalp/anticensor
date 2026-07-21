@@ -34,7 +34,6 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     // server_id can be one of the following: a unique id for a GO Live stream, a channel id for a DM voice call, or a guild id for a guild voice channel
     // not sure if there's a way to determine whether a snowflake is a channel id or a guild id without checking if it exists in db
     // luckily we will only have to determine this once
-    console.log("fetch 1", config.api.endpointPrivate + "/api/internal/webrtc/session");
     const resp = (await (
         await fetch(config.api.endpointPrivate + "/api/internal/webrtc/session", {
             body: JSON.stringify({ server_id, user_id, token, session_id } satisfies WebRTCSessionFindSchema),
@@ -43,7 +42,6 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
         })
     ).json()) as { type: "guild-voice" | "dm-voice" | "stream"; authenticated: boolean; stream_id?: string; channel_id?: string };
     const { type, authenticated, stream_id, channel_id } = resp;
-    console.log("fetch 1 done", resp);
     if (stream_id) {
         this.once("close", async () => {
             await fetch(config.api.endpointPrivate + "/api/internal/webrtc/session", {
