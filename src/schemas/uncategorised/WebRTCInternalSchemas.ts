@@ -25,3 +25,6 @@ export interface WebRTCSessionFindSchema {
 export interface WebRTCDeleteSessionSchema {
     stream_id: string;
 }
+export interface WebRTCHasStreamSchema {
+    stream_id: string;
+}

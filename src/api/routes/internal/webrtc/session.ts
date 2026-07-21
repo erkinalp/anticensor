@@ -16,20 +16,32 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { StreamSession, VoiceState } from "@harmony/util";
+import { Stream, StreamSession, VoiceState } from "@harmony/util";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { WebRTCDeleteSessionSchema, WebRTCSessionFindSchema } from "@harmony/schemas";
+import { WebRTCDeleteSessionSchema, WebRTCHasStreamSchema, WebRTCSessionFindSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 
+router.post(
+    "/findStream",
+    route({
+        requestBody: "WebRTCHasStreamSchema",
+    }),
+    async (req: Request, res: Response) => {
+        const { stream_id } = req.body as WebRTCHasStreamSchema;
+        const stream = await Stream.findOne({
+            where: { id: stream_id },
+        });
+        res.json({ stream_exists: !!stream, owner_id: stream?.owner_id });
+    },
+);
 router.post(
     "/",
     route({
         requestBody: "WebRTCSessionFindSchema",
     }),
     async (req: Request, res: Response) => {
-        console.log("test");
         let type: "guild-voice" | "dm-voice" | "stream" = "guild-voice";
         let authenticated = false;
         let stream_id: undefined | string = undefined;
@@ -60,6 +72,7 @@ router.post(
                 },
                 relations: { stream: true },
             });
+            console.log({ stream_id: server_id, user_id, token, session_id }, streamSession);
 
             if (streamSession) {
                 type = "stream";
