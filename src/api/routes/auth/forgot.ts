@@ -39,6 +39,7 @@ router.post(
         const config = Config.get();
         if (client !== undefined) {
             if (!config.general.trustedClients.includes(client)) {
+                //Silently ignore, the client does not need to know if it's on this list from this API
                 client = undefined;
             }
         }
