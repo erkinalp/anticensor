@@ -291,7 +291,7 @@ export class Message extends BaseClass {
                     if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
                     return y;
                 }) ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
+            sticker_items: this.sticker_items?.length ? this.sticker_items : undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
             author: {
