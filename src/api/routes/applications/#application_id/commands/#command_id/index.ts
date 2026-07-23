@@ -20,7 +20,7 @@ import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmo
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@harmony/util";
-import { HTTPError } from "#util/util/lambert-server";
+import { HTTPError } from "lambert-server";
 
 const router = Router({ mergeParams: true });
 
