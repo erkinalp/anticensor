@@ -283,7 +283,7 @@ export class Message extends BaseClass {
             nonce: this.nonce ?? undefined,
             tts: this.tts ?? false,
             guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
+            webhook: undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
             reactions:
@@ -291,14 +291,14 @@ export class Message extends BaseClass {
                     if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
                     return y;
                 }) ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
+            sticker_items: this.sticker_items?.length ? this.sticker_items : undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
             author: {
                 ...(this.author?.toPublicUser() ?? undefined),
                 // Webhooks
                 username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
+                avatar: avatar ?? this.author?.avatar ?? null,
             },
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
