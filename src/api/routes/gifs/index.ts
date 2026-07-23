@@ -20,17 +20,10 @@ import { getGifProviders } from "#util";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 
-
 const router = Router({ mergeParams: true });
 
-router.get(
-    "/",
-    route({
-
-    }),
-    async (req: Request, res: Response) => {
-		res.json(getGifProviders().map(_=>({name:_.name,api_name:_.api_name})))
-    },
-);
+router.get("/", route({}), async (req: Request, res: Response) => {
+    res.json(getGifProviders().map((_) => ({ name: _.name, api_name: _.api_name })));
+});
 
 export default router;
