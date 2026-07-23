@@ -47,8 +47,9 @@ router.post(
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
-            select: { data: true, email: true },
+            select: { data: true, email: true, totp_secret: true },
         });
+        if (user.totp_secret) throw new HTTPError("2FA is already set up for user.");
 
         // TODO: Are guests allowed to enable 2fa?
         if (user.data.hash) {
@@ -68,7 +69,7 @@ router.post(
         await User.update({ id: req.user_id }, { mfa_enabled: true, totp_secret: body.secret });
 
         res.send({
-            token: await generateToken(user.id),
+            token: await generateToken(req.user_id),
             backup_codes: backup_codes.map((x) => ({
                 ...x,
                 expired: undefined,
