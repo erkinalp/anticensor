@@ -27,7 +27,9 @@ import {
     ExternalTokensConfiguration,
     GeneralConfiguration,
     GifConfiguration,
+    GiphyGifConfiguration,
     GuildConfiguration,
+    KlipyGifConfiguration,
     LimitsConfiguration,
     LoginConfiguration,
     PasswordResetConfiguration,
@@ -37,6 +39,7 @@ import {
     SecurityConfiguration,
     TemplateConfiguration,
     UserConfiguration,
+    ProxyConfiguration,
 } from "./types";
 
 export class ConfigValue {
@@ -52,6 +55,8 @@ export class ConfigValue {
     regions: RegionConfiguration = new RegionConfiguration();
     guild: GuildConfiguration = new GuildConfiguration();
     gif: GifConfiguration = new GifConfiguration();
+    klipygif: KlipyGifConfiguration = new KlipyGifConfiguration();
+    giphygif: GiphyGifConfiguration = new GiphyGifConfiguration();
     rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
     templates: TemplateConfiguration = new TemplateConfiguration();
     defaults: DefaultsConfiguration = new DefaultsConfiguration();
@@ -61,4 +66,5 @@ export class ConfigValue {
     user: UserConfiguration = new UserConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    proxy = new ProxyConfiguration();
 }

@@ -20,6 +20,8 @@ import { route } from "@harmony/api";
 import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@harmony/schemas";
+import { In } from "typeorm";
+import { HTTPError } from "#util/util/lambert-server";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -30,6 +32,7 @@ router.get(
                 body: "APIChannelArray",
             },
         },
+        permission: [],
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -109,41 +112,40 @@ router.patch(
 
         const withParents = body.filter((x) => x.parent_id !== undefined);
         const withPositions = body.filter((x) => x.position !== undefined);
-        // You can't do it with Promise.all or the way this is being done is super incorrect
-        for await (const opt of withPositions) {
-            const channel = await Channel.findOneOrFail({
-                where: { id: opt.id },
-            });
+        const find = [...new Set([...withPositions.map((_) => _.id), ...withParents.flatMap((_) => (_.parent_id ? [_.id, _.parent_id] : _.id))])];
+        const channels = await Channel.find({
+            where: {
+                id: In(find),
+                guild_id,
+            },
+        });
+        find.forEach((id) => {
+            const channel = channels.find((_) => _.id === id);
+            if (!channel) throw new HTTPError(`Channel id ${id} not found`);
+        });
+        const proms: Promise<unknown>[] = [];
+        for (const opt of withPositions) {
+            const channel = channels.find((_) => _.id === opt.id)!;
 
             notMentioned.splice(opt.position as number, 0, channel.id);
             channel.position = notMentioned.findIndex((_) => _ === channel.id);
 
-            await emitEvent({
-                event: "CHANNEL_UPDATE",
-                data: channel.toJSON(),
-                channel_id: channel.id,
-                guild_id,
-            } satisfies ChannelUpdateEvent);
+            proms.push(
+                emitEvent({
+                    event: "CHANNEL_UPDATE",
+                    data: channel.toJSON(),
+                    channel_id: channel.id,
+                    guild_id,
+                } satisfies ChannelUpdateEvent),
+            );
         }
         // Due to this also being able to change the order, this needs to be done in order
         // have to do the parents after the positions
-        for await (const opt of withParents) {
-            const [channel, parent] = await Promise.all([
-                Channel.findOneOrFail({
-                    where: { id: opt.id },
-                }),
-                opt.parent_id
-                    ? Channel.findOneOrFail({
-                          where: { id: opt.parent_id },
-                          select: {
-                              permission_overwrites: true,
-                              id: true,
-                          },
-                      })
-                    : null,
-            ]);
+        for (const opt of withParents) {
+            const channel = channels.find((_) => _.id === opt.id)!;
+            const parent = channels.find((_) => _.id === opt.parent_id);
 
-            if (opt.lock_permissions && parent) await Channel.update({ id: channel.id }, { permission_overwrites: parent.permission_overwrites });
+            if (opt.lock_permissions && parent) proms.push(Channel.update({ id: channel.id }, { permission_overwrites: parent.permission_overwrites }));
             if (parent && opt.position === undefined) {
                 const parentPos = notMentioned.indexOf(parent.id);
                 notMentioned.splice(parentPos + 1, 0, channel.id);
@@ -151,17 +153,19 @@ router.patch(
             }
             channel.parent = parent || undefined;
             channel.parent_id = parent?.id || null;
-            await channel.save();
+            proms.push(channel.save());
 
-            await emitEvent({
-                event: "CHANNEL_UPDATE",
-                data: channel?.toJSON(),
-                channel_id: channel.id,
-                guild_id,
-            } satisfies ChannelUpdateEvent);
+            proms.push(
+                emitEvent({
+                    event: "CHANNEL_UPDATE",
+                    data: channel.toJSON(),
+                    channel_id: channel.id,
+                    guild_id,
+                } satisfies ChannelUpdateEvent),
+            );
         }
 
-        await Guild.update({ id: guild_id }, { channel_ordering: notMentioned });
+        await Promise.all([...proms, Guild.update({ id: guild_id }, { channel_ordering: notMentioned })]);
 
         return res.sendStatus(204);
     },

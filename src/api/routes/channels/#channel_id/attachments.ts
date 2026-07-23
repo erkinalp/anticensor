@@ -28,6 +28,7 @@ router.post(
     "/",
     route({
         requestBody: "UploadAttachmentRequestSchema",
+        permission: "ATTACH_FILES",
         responses: {
             200: {
                 body: "UploadAttachmentResponseSchema",
@@ -44,13 +45,6 @@ router.post(
 
         const user = req.user;
         const channel = await Channel.findOneOrFail({ where: { id: channel_id } });
-
-        if (!(await channel.getUserPermissions({ user_id: req.user_id })).has(Permissions.FLAGS.ATTACH_FILES)) {
-            return res.status(403).json({
-                code: 403,
-                message: "Missing Permissions: ATTACH_FILES",
-            });
-        }
 
         const cdnUrl = Config.get().cdn.endpointPublic;
         const batchId = `CLOUD_${user.id}_${randomString(128)}`;
@@ -95,7 +89,7 @@ router.post(
                     original_content_type: a.userOriginalContentType,
                 };
             }),
-        } as UploadAttachmentResponseSchema);
+        } satisfies UploadAttachmentResponseSchema);
     },
 );
 

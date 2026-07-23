@@ -68,7 +68,7 @@ router.post(
         );
 
         return res.json({
-            token: await generateToken(user.id),
+            token: await generateToken(req.user_id),
         });
     },
 );

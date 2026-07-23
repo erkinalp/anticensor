@@ -44,8 +44,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const channel = await Channel.findOneOrFail({
-            where: { guild_id: req.params.guild_id as string },
-            select: { id: true },
+            where: { id: channel_id }
         });
         const {
             content,
@@ -80,12 +79,7 @@ router.get(
             },
             take: parsedLimit || 0,
             where: {
-                guild: {
-                    id: channel.guild_id,
-                },
-                channel: {
-                    id: channel_id,
-                },
+                channel_id
             },
             relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
             skip: offset ? Number(offset) : 0,
@@ -99,6 +93,7 @@ router.get(
         if (content) query.where.content = Like(`%${content}%`);
 
         const messages: Message[] = await Message.find(query);
+        await Message.fillReplies(messages);
         delete query.take;
         const total_results = await Message.count(query);
 

@@ -103,9 +103,9 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const { rule_id } = req.params as { [key: string]: string };
+        const { rule_id,guild_id } = req.params as { [key: string]: string };
         const rule = await AutomodRule.findOneOrFail({
-            where: { id: rule_id },
+            where: { id: rule_id,guild_id },
         });
 
         const data = req.body as AutomodRuleSchema;
@@ -131,8 +131,8 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { rule_id } = req.params as { [key: string]: string };
-        await AutomodRule.delete({ id: rule_id });
+        const { rule_id, guild_id } = req.params as { [key: string]: string };
+        await AutomodRule.delete({ id: rule_id, guild_id });
         return res.status(204).send();
     },
 );

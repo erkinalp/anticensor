@@ -38,4 +38,5 @@ export interface GuildCreateResponse extends Omit<GuildUpdateSchema, "name"> {
     nsfw_level?: number;
     nsfw: boolean;
     parent?: string;
+    system_channel_id?: string;
 }

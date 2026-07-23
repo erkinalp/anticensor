@@ -20,17 +20,11 @@ import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmo
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@harmony/util";
+import { HTTPError } from "lambert-server";
 
 const router = Router({ mergeParams: true });
 
 router.get("/", route({}), async (req: Request, res: Response) => {
-    const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
-
-    if (!applicationExists) {
-        res.status(404).send({ code: 404, message: "Unknown application" });
-        return;
-    }
-
     const command = await ApplicationCommand.findOne({ where: { application_id: req.params.application_id as string, id: req.params.command_id as string } });
 
     if (!command) {
@@ -38,7 +32,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         return;
     }
 
-    res.send(command);
+    res.send(command.toJSON());
 });
 
 router.patch(
@@ -47,6 +41,7 @@ router.patch(
         requestBody: "ApplicationCommandCreateSchema",
     }),
     async (req: Request, res: Response) => {
+        if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
         if (!applicationExists) {
@@ -65,12 +60,13 @@ router.patch(
 
         const commandForDb = checkCommand(body, req.params.application_id as string);
 
-        await ApplicationCommand.update({ name: body.name.trim() }, commandForDb);
+        await ApplicationCommand.update({ name: body.name.trim(), id: req.params.command_id as string }, commandForDb);
         res.send(commandForDb);
     },
 );
 
 router.delete("/", route({}), async (req: Request, res: Response) => {
+    if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {

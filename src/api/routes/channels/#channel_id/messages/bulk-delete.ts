@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { BulkDeleteSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { In, Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -32,6 +34,7 @@ router.post(
     "/",
     route({
         requestBody: "BulkDeleteSchema",
+        right: "SELF_DELETE_MESSAGES",
         responses: {
             204: {},
             400: {
@@ -48,22 +51,34 @@ router.post(
         });
         if (!channel.guild_id) throw new HTTPError("Can't bulk delete dm channel messages", 400);
 
-        const rights = await getRights(req.user_id);
-        rights.hasThrow("SELF_DELETE_MESSAGES");
+        const rights = req.rights ?? (await getRights(req.user_id));
 
-        const superuser = rights.has("MANAGE_MESSAGES");
         const permission = await getPermission(req.user_id, channel?.guild_id, channel_id);
 
         const { maxBulkDelete } = Config.get().limits.message;
 
-        const { messages } = req.body as { messages: string[] };
+        const { messages } = req.body as BulkDeleteSchema;
         if (messages.length === 0) throw new HTTPError("You must specify messages to bulk delete");
-        if (!superuser) {
+
+        if (!rights.has("MANAGE_MESSAGES")) {
             permission.hasThrow("MANAGE_MESSAGES");
             if (messages.length > maxBulkDelete) throw new HTTPError(`You cannot delete more than ${maxBulkDelete} messages`);
         }
+        if (
+            await Message.exists({
+                where: {
+                    id: In(messages),
+                    channel_id: Not(channel_id),
+                },
+            })
+        ) {
+            throw new HTTPError("Messages not found");
+        }
 
-        await Message.delete(messages);
+        await Message.delete({
+            id: In(messages),
+            channel_id,
+        });
 
         await emitEvent({
             event: "MESSAGE_DELETE_BULK",

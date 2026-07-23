@@ -33,8 +33,6 @@ export function initStats() {
     if (os.platform() == "linux") {
         try {
             const osReleaseLines = readFileSync("/etc/os-release", "utf8").split("\n");
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             const osRelease: { [key: string]: string } = {};
             for (const line of osReleaseLines) {
                 if (!line) continue;
@@ -51,8 +49,8 @@ export function initStats() {
     if (process.getuid && process.getuid() === 0) {
         console.warn(
             red(
-                `[Process] Warning Spacebar is running as root, this highly discouraged and might expose your system vulnerable to attackers.` +
-                    `Please run Spacebar as a user without root privileges.`,
+                `[Process] Warning Harmony is running as root, this highly discouraged and might expose your system vulnerable to attackers.` +
+                    `Please run Harmony as a user without root privileges.`,
             ),
         );
     }

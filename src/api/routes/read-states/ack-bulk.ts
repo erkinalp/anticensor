@@ -20,6 +20,7 @@ import { route } from "@harmony/api";
 import { ReadState } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { AckBulkSchema } from "@harmony/schemas";
+import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -38,17 +39,23 @@ router.post(
 
         // TODO: what is read_state_type ?
 
+        const states = new Map(
+            (
+                await ReadState.find({
+                    where: {
+                        user_id: req.user_id,
+                        channel_id: In(body.read_states.map(({ channel_id }) => channel_id)),
+                    },
+                })
+            ).map((state) => [state.channel_id, state] as const),
+        );
+
         await Promise.all([
             // for every new state
             ...body.read_states.map(async (x) => {
                 // find an existing one
                 const ret =
-                    (await ReadState.findOne({
-                        where: {
-                            user_id: req.user_id,
-                            channel_id: x.channel_id,
-                        },
-                    })) ??
+                    states.get(x.channel_id) ??
                     // if it doesn't exist, create it (not a promise)
                     ReadState.create({
                         user_id: req.user_id,

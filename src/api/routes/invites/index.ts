@@ -149,7 +149,7 @@ router.delete(
             } satisfies InviteDeleteEvent),
         ]);
 
-        res.json({ invite: invite });
+        res.json({ invite: invite.toJSON() });
     },
 );
 

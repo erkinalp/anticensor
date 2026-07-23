@@ -98,6 +98,7 @@
         "fido2-lib": "^3.5.9",
         "file-type": "^21.3.4",
         "form-data": "^4.0.5",
+        "harmony-erlpack": "^0.0.1",
         "i18next": "^25.10.10",
         "i18next-fs-backend": "^2.6.1",
         "i18next-http-middleware": "^3.9.2",
@@ -117,6 +118,7 @@
         "reflect-metadata": "^0.2.2",
         "tslib": "^2.8.1",
         "typeorm": "^0.3.28",
+        "undici": "^8.6.0",
         "wretch": "^2.11.1",
         "ws": "^8.20.0"
     },
@@ -131,7 +133,7 @@
     },
     "optionalDependencies": {
         "@sendgrid/mail": "^8.1.6",
-        "@yukikaze-bot/erlpack": "^1.0.1",
+        "canvas": "^3.2.3",
         "jimp": "^1.6.0",
         "mailgun.js": "^12.7.1",
         "node-mailjet": "^6.0.11",
