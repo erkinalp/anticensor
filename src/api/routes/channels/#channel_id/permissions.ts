@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@harmony/util";
+import { Channel, ChannelUpdateEvent, emitEvent, Member, Permissions, Role } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -41,6 +41,8 @@ router.put(
     async (req: Request, res: Response) => {
         const { channel_id, overwrite_id } = req.params as { [key: string]: string };
         const body = req.body as ChannelPermissionOverwriteSchema;
+        Permissions.checkOverwrite(BigInt(body.allow), true);
+        Permissions.checkOverwrite(BigInt(body.deny), false);
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
