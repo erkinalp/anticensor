@@ -596,7 +596,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             },
         });
         if (referencedMessage && referencedMessage.author_id !== message.author_id) {
-            message.mentions.push((await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser());
+            message.mentions.push(await User.findOneOrFail({ where: { id: referencedMessage.author_id } }));
         }
 
         // FORWARD
