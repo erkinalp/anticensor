@@ -1,6 +1,6 @@
 /*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Harmony: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Harmony and Harmony Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,17 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelCreateSchema } from "@harmony/schemas";
-
-export interface GuildCreateSchema {
-    /**
-     * @maxLength 100
-     */
-    name?: string;
-    region?: string;
-    icon?: string | null;
-    channels?: ChannelCreateSchema[];
-    //system_channel_id?: string; //TODO what in the world does this even mean here??
-    guild_template_code?: string;
-    staff_only?: boolean;
+export class ProxyConfiguration {
+    enabled: boolean = false;
+    proxy_url?: string;
+    token?: string;
 }

@@ -21,7 +21,7 @@ import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, checkCommand, DiscordApiErrors, FieldErrors, Snowflake } from "@harmony/util";
 import { In, IsNull } from "typeorm";
-import { HTTPError } from "#util/util/lambert-server";
+import { HTTPError } from "lambert-server";
 
 const router = Router({ mergeParams: true });
 

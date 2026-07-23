@@ -19,8 +19,10 @@
 import { BulkDeleteSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@harmony/util";
+import { BulkDeleteSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { In, Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -63,8 +65,21 @@ router.post(
             permission.hasThrow("MANAGE_MESSAGES");
             if (messages.length > maxBulkDelete) throw new HTTPError(`You cannot delete more than ${maxBulkDelete} messages`);
         }
+        if (
+            await Message.exists({
+                where: {
+                    id: In(messages),
+                    channel_id: Not(channel_id),
+                },
+            })
+        ) {
+            throw new HTTPError("Messages not found");
+        }
 
-        await Message.delete(messages);
+        await Message.delete({
+            id: In(messages),
+            channel_id,
+        });
 
         await emitEvent({
             event: "MESSAGE_DELETE_BULK",
