@@ -19,7 +19,6 @@
 import { BulkDeleteSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@harmony/util";
-import { BulkDeleteSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In, Not } from "typeorm";
