@@ -66,6 +66,10 @@ router.patch(
 
         const member = await Member.findOneOrFail({
             where: { id: req.user_id, guild_id: req.params.guild_id as string },
+            select: {
+                settings: true,
+                index: true,
+            },
         });
         OrmUtils.mergeDeep(member.settings || {}, body);
         await member.save();
