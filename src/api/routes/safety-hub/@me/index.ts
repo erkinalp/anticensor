@@ -22,7 +22,7 @@ import { Request, Response, Router } from "express";
 import { AccountStandingResponse, AccountStandingState, AppealEligibility } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
-
+//TODO stub
 router.get(
     "/",
     route({

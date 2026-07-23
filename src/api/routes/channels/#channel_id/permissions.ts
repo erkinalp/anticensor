@@ -45,14 +45,18 @@ router.put(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        if (!channel.guild_id) throw new HTTPError("Channel not found", 404);
+        if (!channel.guild_id) throw new HTTPError("Channel does not belong to a guild");
+        if (channel.isThread()) throw new HTTPError("Can't set permissions on a thread");
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
 
         if (body.type === ChannelPermissionOverwriteType.role) {
             if (!(await Role.count({ where: { id: overwrite_id } }))) throw new HTTPError("role not found", 404);
         } else if (body.type === ChannelPermissionOverwriteType.member) {
             if (!(await Member.count({ where: { id: overwrite_id } }))) throw new HTTPError("user not found", 404);
-        } else throw new HTTPError("type not supported", 501);
+        } else {
+            //TODO group overrides?
+            throw new HTTPError("type not supported", 501);
+        }
 
         let overwrite: ChannelPermissionOverwrite | undefined = channel.permission_overwrites?.find((x) => x.id === overwrite_id);
         if (!overwrite) {
@@ -64,8 +68,8 @@ router.put(
             };
             channel.permission_overwrites?.push(overwrite);
         }
-        overwrite.allow = String((req.permission?.bitfield || 0n) & (BigInt(body.allow) || BigInt("0")));
-        overwrite.deny = String((req.permission?.bitfield || 0n) & (BigInt(body.deny) || BigInt("0")));
+        overwrite.allow = String((req.permission?.bitfield ?? 0n) & BigInt(body.allow));
+        overwrite.deny = String((req.permission?.bitfield ?? 0n) & BigInt(body.deny));
 
         await Promise.all([
             channel.save(),

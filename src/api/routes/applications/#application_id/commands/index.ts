@@ -19,7 +19,7 @@
 import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmony/schemas";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, checkCommand, FieldErrors, Snowflake } from "@harmony/util";
+import { Application, ApplicationCommand, checkCommand, DiscordApiErrors, FieldErrors, Snowflake } from "@harmony/util";
 import { In, IsNull } from "typeorm";
 import { HTTPError } from "lambert-server";
 
@@ -43,6 +43,7 @@ router.post(
         requestBody: "ApplicationCommandCreateSchema",
     }),
     async (req: Request, res: Response) => {
+        if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
         if (!applicationExists) {
@@ -73,7 +74,7 @@ router.put(
         requestBody: "BulkApplicationCommandCreateSchema",
     }),
     async (req: Request, res: Response) => {
-        if (req.user_id !== req.params.application_id) throw new HTTPError("you are not the application");
+        if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
         if (!applicationExists) {

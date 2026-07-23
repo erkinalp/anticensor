@@ -96,13 +96,13 @@ router.post(
                         id: interactionId,
                         name: interaction.commandName,
                         type: 2,
-                        user,
+                        user: user.toPublicUser(),
                     },
                     interaction_metadata: {
                         id: interactionId,
                         type: 2,
                         user_id: interaction.userId,
-                        user,
+                        user: user.toPublicUser(),
                         authorizing_integration_owners: {
                             "1": interaction.userId,
                         },

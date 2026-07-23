@@ -43,7 +43,7 @@ import {
     UnfurledMediaItem,
 } from "@harmony/schemas";
 import { PartialUser } from "@harmony/schemas";
-import { Config, MessageFlags } from "@harmony/util";
+import { Config, convertTimestamp, MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -253,7 +253,7 @@ export class Message extends BaseClass {
         }
     }
 
-    toJSON(shallow = false): PublicMessage {
+    toJSON(shallow = false, user_id?: string): PublicMessage {
         let avatar = this.avatar;
         if (avatar && !URL.canParse(avatar)) {
             avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
@@ -263,11 +263,12 @@ export class Message extends BaseClass {
             channel_id: this.channel_id ?? this.channel.id,
             channel: undefined,
 
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
+            timestamp: convertTimestamp(this.timestamp),
+            edited_timestamp: convertTimestamp(this.edited_timestamp),
 
             author_id: undefined,
             member_id: undefined,
+            member: this.member?.toPublicMember(),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
@@ -285,7 +286,11 @@ export class Message extends BaseClass {
             webhook: undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
+            reactions:
+                this.reactions?.map((y: Partial<Reaction>) => {
+                    if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
+                    return y;
+                }) ?? undefined,
             sticker_items: this.sticker_items ?? undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
@@ -326,7 +331,7 @@ export class Message extends BaseClass {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
         return {
-            ...this,
+            ...(this instanceof Message ? this.toJSON(undefined, data.user_id) : this),
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {

@@ -17,9 +17,10 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@harmony/util";
+import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, Relationship, User } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, PublicUserProjection } from "@harmony/schemas";
+import { ChannelType, PublicUserProjection, RelationshipType } from "@harmony/schemas";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -38,6 +39,9 @@ router.put(
             where: { id: channel_id },
             relations: { recipients: true },
         });
+
+        const rel = await Relationship.findOneOrFail({ where: { from_id: user_id } });
+        if (rel.type !== RelationshipType.friends) throw new HTTPError("You must be friends to add someone to a DM");
 
         if (channel.type !== ChannelType.GROUP_DM) {
             const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
