@@ -23,6 +23,12 @@ export class Permissions extends BitField {
         if (this.bitfield & Permissions.FLAGS.ADMINISTRATOR) {
             this.bitfield = Permissions.ALL_PERMISSIONS;
         }
+        if (!(this.bitfield & Permissions.FLAGS.VIEW_CHANNEL)) {
+            this.bitfield = 0n;
+        }
+        if (!(this.bitfield & Permissions.FLAGS.SEND_MESSAGES)) {
+            this.bitfield &= ~Permissions.denySendsImp;
+        }
     }
 
     static FLAGS = {
@@ -88,6 +94,34 @@ export class Permissions extends BitField {
          */
         // CUSTOM_PERMISSION: BigInt(1) << BigInt(0) + CUSTOM_PERMISSION_OFFSET
     };
+    static denySendsImp = this.FLAGS.MENTION_EVERYONE | this.FLAGS.SEND_TTS_MESSAGES | this.FLAGS.ATTACH_FILES | this.FLAGS.EMBED_LINKS;
+    static cantOverwiteMask =
+        this.FLAGS.ADMINISTRATOR |
+        this.FLAGS.KICK_MEMBERS |
+        this.FLAGS.BAN_MEMBERS |
+        this.FLAGS.MANAGE_GUILD |
+        this.FLAGS.VIEW_AUDIT_LOG |
+        this.FLAGS.VIEW_GUILD_INSIGHTS |
+        this.FLAGS.CHANGE_NICKNAME |
+        this.FLAGS.MANAGE_NICKNAMES |
+        this.FLAGS.MODERATE_MEMBERS |
+        this.FLAGS.VIEW_CREATOR_MONETIZATION_ANALYTICS |
+        this.FLAGS.CREATE_GUILD_EXPRESSIONS |
+        this.FLAGS.CREATE_GUILD_EXPRESSIONS;
+    static checkOverwrite(perm: bigint, allow: boolean) {
+        const b = perm & this.cantOverwiteMask;
+        if (b) {
+            let name: string = "";
+            for (const [key, bit] of Object.entries(this.FLAGS)) {
+                if (bit & b) {
+                    name = key;
+                    break;
+                }
+            }
+            if (!name) throw new HTTPError("couldn't find permission name", 500);
+            throw new HTTPError(`Can't ${allow ? "allow" : "deny"} ${name} with overwrites`);
+        }
+    }
 
     static ALL_PERMISSIONS = Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0));
 
@@ -115,27 +149,32 @@ export class Permissions extends BitField {
         if (!this.cache) throw new Error("permission cache not available");
         overwrites = overwrites.filter((x) => {
             if (x.type === ChannelPermissionOverwriteType.role && this.cache.roles?.some((r) => r.id === x.id)) return true;
-            if (x.type === ChannelPermissionOverwriteType.member && x.id == this.cache.user_id) return true;
             return false;
         });
-        return new Permissions(Permissions.channelPermission(overwrites, this.bitfield));
+        this.bitfield = Permissions.channelPermission(overwrites, this.bitfield);
+        const member = overwrites.find((x) => {
+            return x.type === ChannelPermissionOverwriteType.member && x.id == this.cache.user_id;
+        });
+        if (member) {
+            this.bitfield &= ~BigInt(member.deny);
+            this.bitfield |= BigInt(member.allow);
+        }
+        return new Permissions(this.bitfield);
     }
 
-    static channelPermission(overwrites: ChannelPermissionOverwrite[], init?: bigint) {
+    static channelPermission(overwrites: ChannelPermissionOverwrite[], perms: bigint = 0n) {
         // TODO: do not deny any permissions if admin
-        return overwrites.reduce(
-            (permission, overwrite) => {
-                // apply disallowed permission
-                // * permission: current calculated permission (e.g. 010)
-                // * deny contains all denied permissions (e.g. 011)
-                // * allow contains all explicitly allowed permisions (e.g. 100)
-                return (permission & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow);
-                // ~ operator inverts deny (e.g. 011 -> 100)
-                // & operator only allows 1 for both ~deny and permission (e.g. 010 & 100 -> 000)
-                // | operators adds both together (e.g. 000 + 100 -> 100)
-            },
-            init || BigInt(0),
-        );
+        const allow =
+            overwrites.reduce((permission, overwrite) => {
+                return permission | BigInt(overwrite.allow);
+            }, 0n) & ~Permissions.cantOverwiteMask;
+        const deny =
+            overwrites.reduce((permission, overwrite) => {
+                return permission | BigInt(overwrite.deny);
+            }, 0n) & ~Permissions.cantOverwiteMask;
+        perms &= ~deny;
+        perms |= allow;
+        return perms;
     }
 
     static rolePermission(roles: Role[]) {
@@ -165,10 +204,16 @@ export class Permissions extends BitField {
         if (channel?.overwrites) {
             const overwrites = channel.overwrites.filter((x) => {
                 if (x.type === ChannelPermissionOverwriteType.role && user.roles.includes(x.id)) return true;
-                if (x.type === ChannelPermissionOverwriteType.member && x.id == user.id) return true;
                 return false;
             });
             permission = Permissions.channelPermission(overwrites, permission);
+            const member = channel.overwrites.find((x) => {
+                return x.type === ChannelPermissionOverwriteType.member && x.id == user.id;
+            });
+            if (member) {
+                permission &= ~BigInt(member.deny);
+                permission |= BigInt(member.allow);
+            }
         }
 
         if (channel?.recipient_ids) {

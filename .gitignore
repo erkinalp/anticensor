@@ -37,3 +37,6 @@ temp/
 
 # Testing
 scripts/test_config.json
+
+assets/openapi.json
+assets/schemas.json

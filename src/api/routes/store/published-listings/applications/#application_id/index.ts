@@ -20,9 +20,8 @@ import { Request, Response, Router } from "express";
 import { route } from "@harmony/api";
 
 const router: Router = Router({ mergeParams: true });
-
+//TODO stub
 router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
     // const id = req.params.id;
     res.json({
         id: "",

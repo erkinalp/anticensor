@@ -40,11 +40,14 @@ router.get(
         const configLimit = Config.get().guild.discovery.limit;
         const hideJoinedGuilds = Config.get().guild.discovery.hideJoinedGuilds;
         const hiddenGuildIds = hideJoinedGuilds
-            ? await Member.find({
-                  where: { id: req.user_id },
-                  select: { guild_id: true },
-              }).then((members) => members.map((member) => member.guild_id))
+            ? (
+                  await Member.find({
+                      where: { id: req.user_id },
+                      select: { guild_id: true },
+                  })
+              ).map((member) => member.guild_id)
             : [];
+
         const query = {
             where: {
                 id: Not(In(hiddenGuildIds)),
@@ -53,6 +56,7 @@ router.get(
                 ...(showAllGuilds ? {} : { features: Like("%DISCOVERABLE%") }),
             },
             order: {
+                //TODO re-weight this
                 discovery_weight: "DESC",
                 member_count: "DESC",
             },

@@ -17,7 +17,19 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@harmony/util";
+import {
+    Channel,
+    ChannelDeleteEvent,
+    ChannelUpdateEvent,
+    Recipient,
+    emitEvent,
+    handleFile,
+    Config,
+    FieldError,
+    ErrorList,
+    makeObjectErrorContent,
+    Permissions,
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@harmony/schemas";
 import { HTTPError } from "#util/util/lambert-server";
@@ -171,6 +183,12 @@ router.patch(
         } else {
             req.permission!.hasThrow("MANAGE_CHANNELS");
         }
+        if (payload.permission_overwrites) {
+            payload.permission_overwrites.forEach((_) => {
+                Permissions.checkOverwrite(BigInt(_.allow), true);
+                Permissions.checkOverwrite(BigInt(_.deny), false);
+            });
+        }
 
         if (payload.available_tags) {
             if (channel.isForum() && channel.available_tags) {
@@ -187,7 +205,7 @@ router.patch(
 
         if (payload.applied_tags) {
             if (channel.isThread()) {
-                if(!channel.parent_id) throw new HTTPError("Channel does not have owner")
+                if (!channel.parent_id) throw new HTTPError("Channel does not have owner");
                 const parent = await Channel.findOneOrFail({
                     where: {
                         guild_id,
