@@ -1,6 +1,6 @@
 /*
 	Harmony: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Harmony and Harmony Contributors
+	Copyright (C) 2026 Harmony and Harmony Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,14 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getGifProviders } from "#util";
-import { route } from "@harmony/api";
-import { Request, Response, Router } from "express";
-
-const router = Router({ mergeParams: true });
-
-router.get("/", route({}), async (req: Request, res: Response) => {
-    res.json(getGifProviders().map((_) => ({ name: _.name, api_name: _.api_name })));
-});
-
-export default router;
+export class ProxyConfiguration {
+    enabled: boolean = false;
+    proxy_url?: string;
+    token?: string;
+}
