@@ -34,12 +34,10 @@ router.post(
             200: {},
             403: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
-
-        const permission = await getPermission(req.user_id, undefined, channel_id);
-        permission.hasThrow("VIEW_CHANNEL");
 
         let read_state = await ReadState.findOne({
             where: { user_id: req.user_id, channel_id },

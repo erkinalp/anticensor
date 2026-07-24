@@ -19,7 +19,7 @@
 import { Request } from "express";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { Random } from "../util";
+import { convertTimestamp, Random } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
 import { Member } from "./Member";
@@ -32,6 +32,7 @@ import {
     ChannelType,
     Collectibles,
     DisplayNameStyle,
+    PartialUser,
     PrimaryGuild,
     PrivateUserProjection,
     PublicUser,
@@ -94,13 +95,13 @@ export class User extends BaseClass {
     @Column({ select: false })
     nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
 
-    @Column({ select: false })
+    @Column()
     mfa_enabled: boolean = false; // if multi factor authentication is enabled
 
-    @Column({ select: false, default: false })
+    @Column({ default: false })
     webauthn_enabled: boolean = false; // if webauthn multi factor authentication is enabled
 
-    @Column({ select: false, nullable: true })
+    @Column({ nullable: true })
     totp_secret?: string = "";
 
     @Column({ nullable: true, select: false })
@@ -213,10 +214,11 @@ export class User extends BaseClass {
 
     toPublicUser() {
         this.clean_data();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const user: any = {};
+        const clean = this.toJSON();
+        const user: Partial<PublicUser> = {};
         PublicUserProjection.forEach((x) => {
-            user[x] = this[x];
+            //@ts-expect-error for now this is expected, we will find some fixes
+            user[x] = clean[x];
         });
         return user as PublicUser;
     }
@@ -400,5 +402,12 @@ export class User extends BaseClass {
             .getMany();
 
         return qry;
+    }
+    toJSON() {
+        return {
+            ...this,
+            premium_since: convertTimestamp(this.premium_since),
+            created_at: convertTimestamp(this.created_at),
+        };
     }
 }

@@ -47,10 +47,11 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
+import { FindManyOptions, FindOperator, IsNull, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { URL } from "url";
 import {
     AcknowledgeDeleteSchema,
+    ChannelType,
     isTextChannel,
     MessageCreateAttachment,
     MessageCreateCloudAttachment,
@@ -95,6 +96,7 @@ router.get(
             403: {},
             404: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
@@ -110,8 +112,7 @@ router.get(
         const limit = Number(req.query.limit) || 50;
         if (limit < 1 || limit > 100) throw new HTTPError("limit must be between 1 and 100", 422);
 
-        const permissions = await getPermission(req.user_id, channel.guild_id, channel_id);
-        permissions.hasThrow("VIEW_CHANNEL");
+        const permissions = req.permission ?? (await getPermission(req.user_id, channel.guild_id, channel_id));
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json([]);
 
         const query: FindManyOptions<Message> & {
@@ -166,78 +167,14 @@ router.get(
         }
 
         await Message.fillReplies(messages);
-        const endpoint = Config.get().cdn.endpointPublic;
 
-        const ret = messages.map((msg) => {
-            const x = msg.toJSON();
+        const ret = messages.map((msg) => msg.withSignedAttachments(req));
 
-            Message.cleanUserJSON(x, req.user_id);
-            if (!x.author)
-                x.author = {
-                    id: "4",
-                    discriminator: "0000",
-                    username: "Spacebar Ghost",
-                    public_flags: 0,
-                    avatar: null,
-                } as PartialUser;
-            x.attachments?.forEach((y: Attachment) => {
-                // dynamically set attachment proxy_url in case the endpoint changed
-                const uri = y.proxy_url.startsWith("http") ? y.proxy_url : `https://example.org${y.proxy_url}`;
-
-                const url = new URL(uri);
-                if (endpoint) {
-                    const newBase = new URL(endpoint);
-                    url.protocol = newBase.protocol;
-                    url.hostname = newBase.hostname;
-                    url.port = newBase.port;
-                }
-
-                y.proxy_url = url.toString();
-
-                y.proxy_url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.proxy_url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.proxy_url)
-                    .toString();
-
-                y.url = getUrlSignature(
-                    new NewUrlSignatureData({
-                        url: y.url,
-                        userAgent: req.headers["user-agent"],
-                        ip: req.ip,
-                    }),
-                )
-                    .applyToUrl(y.url)
-                    .toString();
-            });
-
-            /**
-			Some clients ( discord.js ) only check if a property exists within the response,
-			which causes errors when, say, the `application` property is `null`.
-			**/
-
-            // for (var curr in x) {
-            // 	if (x[curr] === null)
-            // 		delete x[curr];
-            // }
-
-            return x;
-        });
-        //console.log(ret);
-
-        type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
-        };
         await Promise.all(
-            (ret as MessageWithInteraction[])
+            ret
                 .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
                 .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
+                    x.interaction_metadata!.user = x.interaction!.user = (await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } })).toPublicUser();
                 }),
         );
 
@@ -278,6 +215,7 @@ router.post(
         stripNulls: {
             components: true,
             embeds: true,
+            allowed_mentions: true,
         },
         permission: "VIEW_CHANNEL",
         right: "SEND_MESSAGES",
@@ -306,7 +244,7 @@ router.post(
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
-                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id! } });
+                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id ? channel.guild_id : IsNull() } });
 
                 if (!(await ThreadMember.existsBy({ member_idx: member.index, id: channel_id }))) {
                     const threadMember = ThreadMember.create({
@@ -350,7 +288,7 @@ router.post(
         }
 
         // handle blocked users in dms
-        if (channel.recipients?.length == 2) {
+        if (channel.type == ChannelType.DM && channel.recipients) {
             const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
             if (otherUser) {
                 const relationship = await Relationship.findOne({
@@ -375,7 +313,7 @@ router.post(
                 },
             });
             if (existing) {
-                return res.json(existing);
+                return res.json(existing.toJSON());
             }
         }
 
@@ -447,8 +385,8 @@ router.post(
         }
 
         if (channel.isThread()) {
-            channel.message_count = (channel.message_count || 0) + 1;
-            channel.total_message_sent = (channel.total_message_sent || 0) + 1;
+            channel.message_count = (channel.message_count ?? 0) + 1;
+            channel.total_message_sent = (channel.total_message_sent ?? 0) + 1;
             channel.last_message_id = message.id;
             await Promise.all([
                 channel.save(),
@@ -470,10 +408,6 @@ router.post(
                 });
                 message.member.clean_data();
             }
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
         }
 
         let read_state = await ReadState.findOne({

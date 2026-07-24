@@ -20,7 +20,7 @@ import { route } from "@harmony/api";
 import { HubWaitlistSignupResponse, HubWaitlistSignupSchema } from "@harmony/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
-
+//TODO stub
 router.post(
     "/signup",
     route({

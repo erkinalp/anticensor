@@ -17,9 +17,22 @@
 */
 
 import { route } from "@harmony/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@harmony/util";
+import {
+    Channel,
+    ChannelDeleteEvent,
+    ChannelUpdateEvent,
+    Recipient,
+    emitEvent,
+    handleFile,
+    Config,
+    FieldError,
+    ErrorList,
+    makeObjectErrorContent,
+    Permissions,
+} from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@harmony/schemas";
+import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -42,10 +55,10 @@ router.get(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
-        if (!channel.guild_id) return res.send(channel);
+        if (!channel.guild_id) return res.send(channel.toJSON());
 
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
-        return res.send(channel);
+        return res.send(channel.toJSON());
     },
 );
 
@@ -83,6 +96,7 @@ router.delete(
             ]);
         } else if (channel.type === ChannelType.GROUP_DM) {
             await Channel.removeRecipientFromChannel(channel, req.user_id);
+            //TODO does this not need MANAGE_THREADS instead of manage channels for threads?
         } else if (channel.isThread()) {
             await Promise.all([
                 Channel.delete({ id: channel_id }),
@@ -102,18 +116,20 @@ router.delete(
                 const channels = await Channel.find({
                     where: { parent_id: channel_id },
                 });
-                for await (const c of channels) {
-                    c.parent_id = null;
+                await Promise.all(
+                    channels.map(async (c) => {
+                        c.parent_id = null;
 
-                    await Promise.all([
-                        c.save(),
-                        emitEvent({
-                            event: "CHANNEL_UPDATE",
-                            data: c.toJSON(),
-                            channel_id: c.id,
-                        } satisfies ChannelUpdateEvent),
-                    ]);
-                }
+                        await Promise.all([
+                            c.save(),
+                            emitEvent({
+                                event: "CHANNEL_UPDATE",
+                                data: c.toJSON(),
+                                channel_id: c.id,
+                            } satisfies ChannelUpdateEvent),
+                        ]);
+                    }),
+                );
             }
 
             await Promise.all([
@@ -152,6 +168,7 @@ router.patch(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+        const guild_id = channel.guild_id;
 
         if (channel.isThread()) {
             if (channel.owner_id !== req.user.id) {
@@ -164,6 +181,12 @@ router.patch(
         } else {
             req.permission!.hasThrow("MANAGE_CHANNELS");
         }
+        if (payload.permission_overwrites) {
+            payload.permission_overwrites.forEach((_) => {
+                Permissions.checkOverwrite(BigInt(_.allow), true);
+                Permissions.checkOverwrite(BigInt(_.deny), false);
+            });
+        }
 
         if (payload.available_tags) {
             if (channel.isForum() && channel.available_tags) {
@@ -174,12 +197,17 @@ router.patch(
                 channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
             }
         }
+        if (payload.parent_id) {
+            if (!(await Channel.exists({ where: { id: payload.parent_id, guild_id } }))) throw new HTTPError("parent channel does not exist");
+        }
 
         if (payload.applied_tags) {
             if (channel.isThread()) {
+                if (!channel.parent_id) throw new HTTPError("Channel does not have owner");
                 const parent = await Channel.findOneOrFail({
                     where: {
-                        id: channel.parent_id as string,
+                        guild_id,
+                        id: channel.parent_id,
                     },
                     relations: ["available_tags"],
                 });

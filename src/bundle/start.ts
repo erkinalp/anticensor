@@ -58,7 +58,7 @@ if (cluster.isPrimary) {
         console.log(`[Process] Starting with ${cores} threads`);
 
         if (cores === 1) {
-            require("./Server");
+            import("./Server.js");
         } else {
             process.env.EVENT_TRANSMISSION = "process";
 
@@ -83,5 +83,5 @@ if (cluster.isPrimary) {
         }
     });
 } else {
-    require("./Server");
+    import("./Server.js");
 }

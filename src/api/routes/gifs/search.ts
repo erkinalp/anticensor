@@ -17,9 +17,9 @@
 */
 
 import { route } from "@harmony/api";
-import { getGifApiKey, parseGifResult } from "@harmony/util";
 import { Request, Response, Router } from "express";
-import { TenorGif, TenorMediaTypes } from "@harmony/schemas";
+import { TenorMediaTypes } from "@harmony/schemas";
+import { getGifProvider } from "@harmony/util";
 
 const router = Router({ mergeParams: true });
 
@@ -44,24 +44,17 @@ router.get(
         },
         responses: {
             200: {
-                body: "TenorGifsResponse",
+                body: "GifsResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Custom providers
-        const { q, media_format, locale } = req.query;
 
-        const apiKey = getGifApiKey();
+        const { q, media_format, locale,limit,provider } = req.query as Record<string,string>;
 
-        const response = await fetch(`https://g.tenor.com/v1/search?q=${q}&media_format=${media_format}&locale=${locale}&key=${apiKey}`, {
-            method: "get",
-            headers: { "Content-Type": "application/json" },
-        });
+        const p = getGifProvider(provider);
 
-        const { results } = (await response.json()) as { results: TenorGif[] };
-
-        res.json(results.map(parseGifResult)).status(200);
+        res.json(await p.search({q,media_format:media_format??"gif",locale,limit})).status(200);
     },
 );
 
