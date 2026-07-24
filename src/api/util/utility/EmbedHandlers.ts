@@ -23,8 +23,9 @@ import crypto from "crypto";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
+import { proxyFetch } from "../../../util/util/porxyFetch";
 
-export function getDefaultFetchOptions(): RequestInit {
+export function getDefaultFetchOptions() {
     return {
         redirect: "follow",
         headers: {
@@ -33,7 +34,7 @@ export function getDefaultFetchOptions(): RequestInit {
         },
         // size: 1024 * 1024 * 5, 	// grabbed from config later
         method: "GET",
-    };
+    } as const;
 }
 
 const makeEmbedImage = (url: string | undefined, width: number | undefined, height: number | undefined): Required<EmbedImage> | undefined => {
@@ -111,7 +112,7 @@ export const getMetaDescriptions = (text: string) => {
 
 const doFetch = async (url: URL, opts?: RequestInit) => {
     try {
-        const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
+        const res = await proxyFetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
         if (res.headers.get("content-length")) {
             const contentLength = parseInt(res.headers.get("content-length")!);
             if (Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize) {
@@ -125,7 +126,7 @@ const doFetch = async (url: URL, opts?: RequestInit) => {
 };
 
 const genericImageHandler = async (url: URL): Promise<Embed | null> => {
-    const type = await fetch(url, {
+    const type = await proxyFetch(url, {
         ...getDefaultFetchOptions(),
         method: "HEAD",
     });
@@ -160,7 +161,7 @@ export const EmbedHandlers: {
 } = {
     // the url does not have a special handler
     default: async (url: URL) => {
-        const type = await fetch(url, {
+        const type = await proxyFetch(url, {
             ...getDefaultFetchOptions(),
             method: "HEAD",
         });
@@ -245,7 +246,7 @@ export const EmbedHandlers: {
             `&tweet.fields=created_at,public_metrics` +
             `&user.fields=profile_image_url`;
 
-        const response = await fetch(endpointUrl, {
+        const response = await proxyFetch(endpointUrl, {
             ...getDefaultFetchOptions(),
             headers: {
                 authorization: `Bearer ${token}`,

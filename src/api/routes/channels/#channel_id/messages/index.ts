@@ -255,7 +255,7 @@ router.post(
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
-                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id?channel.guild_id:IsNull() } });
+                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id ? channel.guild_id : IsNull() } });
 
                 if (!(await ThreadMember.existsBy({ member_idx: member.index, id: channel_id }))) {
                     const threadMember = ThreadMember.create({
@@ -324,7 +324,7 @@ router.post(
                 },
             });
             if (existing) {
-                return res.json(existing);
+                return res.json(existing.toJSON());
             }
         }
 
