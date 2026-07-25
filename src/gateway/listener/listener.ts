@@ -311,15 +311,20 @@ function figurePermissionForEvent(this: WebSocket, opts: EventOpts): { channelPe
     if (channel_id) {
         channel_id = this.parrentThreadMap.get(channel_id) ?? channel_id;
     }
+    const retObj = { channelPerm: new Permissions("ADMINISTRATOR"), guildPerm: new Permissions("ADMINISTRATOR") };
     if ((!guild_id && !channel_id) || guild_id === "@me") {
-        return { channelPerm: new Permissions("ADMINISTRATOR"), guildPerm: new Permissions("ADMINISTRATOR") };
+        return retObj;
     } else if (!channel_id && guild_id) {
-        return { channelPerm: this.permissions[guild_id], guildPerm: this.permissions[guild_id] };
+        retObj.channelPerm = this.permissions[guild_id] ?? retObj.channelPerm;
+        retObj.guildPerm = this.permissions[guild_id] ?? retObj.guildPerm;
     } else if (!guild_id && channel_id) {
-        return { channelPerm: this.permissions[channel_id], guildPerm: this.permissions[channel_id] };
+        retObj.channelPerm = this.permissions[channel_id] ?? retObj.channelPerm;
+        retObj.guildPerm = this.permissions[channel_id] ?? retObj.guildPerm;
     } else {
-        return { channelPerm: this.permissions[channel_id as string], guildPerm: this.permissions[guild_id as string] };
+        retObj.channelPerm = this.permissions[channel_id as string] ?? retObj.channelPerm;
+        retObj.guildPerm = this.permissions[guild_id as string] ?? retObj.channelPerm;
     }
+    return retObj;
 }
 // TODO: only subscribe for events that are in the connection intents
 async function consume(this: WebSocket, opts: EventOpts) {
