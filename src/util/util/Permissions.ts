@@ -159,7 +159,7 @@ export class Permissions extends BitField {
             bitfield &= ~BigInt(member.deny);
             bitfield |= BigInt(member.allow);
         }
-        return new Permissions(this.bitfield);
+        return new Permissions(bitfield);
     }
 
     static channelPermission(overwrites: ChannelPermissionOverwrite[], perms: bigint = 0n) {
