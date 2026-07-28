@@ -89,22 +89,21 @@ router.patch(
             }
         }
 
-        if (body.email) {
-            if (!body.email && Config.get().register.email.required)
-                throw FieldErrors({
-                    email: {
-                        message: req.t("auth:register.EMAIL_INVALID"),
-                        code: "EMAIL_INVALID",
-                    },
-                });
-            if (!body.password)
-                throw FieldErrors({
-                    password: {
-                        message: req.t("auth:login.INVALID_PASSWORD"),
-                        code: "INVALID_PASSWORD",
-                    },
-                });
-        }
+        if (!body.email && Config.get().register.email.required)
+            throw FieldErrors({
+                email: {
+                    message: req.t("auth:register.EMAIL_INVALID"),
+                    code: "EMAIL_INVALID",
+                },
+            });
+
+        if (!body.password)
+            throw FieldErrors({
+                password: {
+                    message: req.t("auth:login.INVALID_PASSWORD"),
+                    code: "INVALID_PASSWORD",
+                },
+            });
 
         if (body.new_password) {
             if (!body.password && user.email) {
@@ -161,14 +160,14 @@ router.patch(
         }
 
         if (body.bio) {
-            const { maxBio } = Config.get().limits.user;
+        const { maxBio } = Config.get().limits.user;
             if (body.bio.length > maxBio) {
-                throw FieldErrors({
-                    bio: {
-                        code: "BIO_INVALID",
-                        message: `Bio must be less than ${maxBio} in length`,
-                    },
-                });
+            throw FieldErrors({
+                bio: {
+                    code: "BIO_INVALID",
+                    message: `Bio must be less than ${maxBio} in length`,
+                },
+            });
             }
         }
 
