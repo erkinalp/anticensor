@@ -124,6 +124,7 @@ export class Message extends BaseClass {
 
     @Column()
     @CreateDateColumn()
+    @Index()
     timestamp: Date;
 
     @Column({ nullable: true })
