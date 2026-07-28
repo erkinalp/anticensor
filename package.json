@@ -120,7 +120,7 @@
         "typeorm": "^0.3.28",
         "undici": "^8.6.0",
         "wretch": "^2.11.1",
-        "ws": "^8.20.0"
+        "ws": "^8.21.1"
     },
     "_moduleAliases": {
         "@harmony/api": "dist/api",
