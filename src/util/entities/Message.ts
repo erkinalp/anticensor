@@ -257,8 +257,8 @@ export class Message extends BaseClass {
 
     toJSON(shallow = false, user_id?: string): PublicMessage {
         let avatar = this.avatar;
-        if (avatar && !URL.canParse(avatar)) {
-            avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
+        if (avatar && URL.canParse(avatar)) {
+            avatar = avatar.match(/[^/]*$/gm)![0];
         }
         if (this.poll?.results && this.poll.results.is_finalized && Date.now() < +new Date(this.poll.expiry)) {
             this.poll.results.is_finalized = true;
