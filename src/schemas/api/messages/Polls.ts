@@ -16,23 +16,24 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialEmoji } from "@harmony/schemas";
+import { PartialEmoji, Snowflake } from "@harmony/schemas";
 
 export interface Poll {
     question: PollMedia;
     answers: PollAnswer[];
-    expiry: Date;
+    expiry: string;
     allow_multiselect: boolean;
+    layout_type: 1;
     results?: PollResult;
 }
 
 export interface PollMedia {
-    text?: string;
+    text: string;
     emoji?: PartialEmoji;
 }
 
 export interface PollAnswer {
-    answer_id?: string;
+    answer_id: number;
     poll_media: PollMedia;
 }
 
@@ -42,7 +43,9 @@ export interface PollResult {
 }
 
 export interface PollAnswerCount {
-    id: string;
+    id: number;
     count: number;
-    me_voted: boolean;
+    user_ids: Snowflake[];
+    //not saved in DB
+    me_voted?: boolean;
 }

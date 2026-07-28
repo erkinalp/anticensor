@@ -18,6 +18,7 @@
 
 import { WebSocket } from "@harmony/gateway";
 import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
+import { IsNull, Not } from "typeorm";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
@@ -31,28 +32,27 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
         // await Session.delete({ session_id: this.session_id });
 
         const voiceState = await VoiceState.findOne({
-            where: { user_id: this.user_id },
+            where: { user_id: this.user_id, session_id: this.session_id, channel_id: Not(IsNull()) },
         });
 
         // clear the voice state for this session if user was in voice channel
-        if (voiceState && voiceState.session_id === this.session_id && voiceState.channel_id) {
+        if (voiceState) {
             const prevGuildId = voiceState.guild_id;
-            const prevChannelId = voiceState.channel_id;
+            const prevChannelId = voiceState.channel_id as string;
 
-            // @ts-expect-error channel_id is nullable
             voiceState.channel_id = null;
-            // @ts-expect-error guild_id is nullable
             voiceState.guild_id = null;
             voiceState.self_stream = false;
             voiceState.self_video = false;
             await voiceState.save();
-
-            voiceState.member = await Member.findOneOrFail({
-                where: {
-                    id: voiceState.user_id,
-                    guild_id: prevGuildId,
-                },
-            });
+            if (prevGuildId) {
+                voiceState.member = await Member.findOneOrFail({
+                    where: {
+                        id: voiceState.user_id,
+                        guild_id: prevGuildId,
+                    },
+                });
+            }
             // let the users in previous guild/channel know that user disconnected
             await emitEvent({
                 event: "VOICE_STATE_UPDATE",
@@ -61,7 +61,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                     guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
                     member: voiceState.member.toPublicMember(),
                 },
-                guild_id: prevGuildId,
+                guild_id: prevGuildId ?? "@me",
                 channel_id: prevChannelId,
             } satisfies VoiceStateUpdateEvent);
         }
@@ -71,16 +71,18 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
         const sessions = await Session.find({
             where: { user_id: this.user_id },
         });
+        const acitveSession = sessions.find((_) => _.session_id === this.session_id);
+        if (acitveSession) {
+            acitveSession.status = "offline";
+            await acitveSession.save();
+        }
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: this.user_id,
             data: sessions.map((x) => x.toPrivateGatewayDeviceInfo()),
         } as SessionsReplace);
-        const session = sessions[0] || {
-            activities: [],
-            client_status: {},
-            status: "offline",
-        };
+
+        const session = Session.findActiveSession(sessions);
 
         const user = await User.getPublicUser(this.user_id).catch(() => undefined);
 
@@ -91,9 +93,9 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 user_id: this.user_id,
                 data: {
                     user: user,
-                    activities: session.activities,
-                    client_status: session?.client_status,
-                    status: session.getPublicStatus?.() ?? session.status,
+                    activities: session?.activities ?? [],
+                    client_status: session?.client_status ?? {},
+                    status: session?.getPublicStatus?.() ?? session?.status ?? "offline",
                 },
             } satisfies PresenceUpdateEvent);
     }
