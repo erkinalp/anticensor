@@ -17,7 +17,7 @@
 */
 
 export class MessageLimits {
-    maxCharacters: number = 4000;
+    maxCharacters: number = 6000;
     maxTTSCharacters: number = 160;
     maxReactions: number = 32;
     maxAttachmentSize: number = 1024 * 1024 * 50;
