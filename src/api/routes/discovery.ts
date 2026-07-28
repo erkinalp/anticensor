@@ -36,7 +36,7 @@ router.get(
         // Get locale instead
 
         // const { locale, primary_only } = req.query;
-        const { primary_only } = req.query;
+        const primary_only = req.query.primary_only === "true";
 
         const out = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
 

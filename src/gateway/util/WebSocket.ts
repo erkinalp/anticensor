@@ -29,7 +29,7 @@ export interface WebSocket extends WS {
     session_id: string;
     accessToken: string;
     encoding: "etf" | "json";
-    compress?: "zlib-stream" | "zstd-stream";
+    compress?: "zlib-stream" | "zstd-stream" | "";
     ipAddress?: string;
     userAgent?: string; // for cdn request signing
     fingerprint?: string;

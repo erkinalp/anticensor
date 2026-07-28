@@ -25,6 +25,7 @@ import { storage } from "@harmony/cdn";
 import { CloudAttachment } from "@harmony/util";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { detectBufferMime } from "mime-detect";
 
 const router = Router({ mergeParams: true });
 
@@ -34,8 +35,8 @@ router.post("/:channel_id", multer.single("file"), async (req: Request, res: Res
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
     if (!req.file) throw new HTTPError("file missing");
-
-    const { buffer, mimetype, size, originalname } = req.file;
+    let { mimetype } = req.file;
+    const { buffer, size, originalname } = req.file;
     const { channel_id } = req.params as { [key: string]: string };
     const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
     const id = Snowflake.generate();
@@ -46,6 +47,7 @@ router.post("/:channel_id", multer.single("file"), async (req: Request, res: Res
     await storage.set(path, buffer);
     let width;
     let height;
+    mimetype = (await detectBufferMime(buffer)) || mimetype;
     if (mimetype.includes("image")) {
         const dimensions = imageSize(buffer);
         if (dimensions) {
@@ -80,7 +82,7 @@ router.get("/:channel_id/:id/:filename", cache, async (req: Request, res: Respon
 
     let hasValidAuth = false;
     if (req.headers.signature) {
-        hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
+        hasValidAuth = req.headers.signature === Config.get().security.requestSignature;
         if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
     } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
     else {
@@ -159,6 +161,7 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("fil
         await storage.set(path, buffer);
 
         let mimeType = att.userOriginalContentType;
+        mimeType = (await detectBufferMime(buffer)) || mimeType;
         if (att.userOriginalContentType === null) {
             const ft = await fileTypeFromBuffer(buffer);
             mimeType = att.contentType = ft?.mime || "application/octet-stream";

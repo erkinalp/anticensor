@@ -38,12 +38,13 @@ import {
     MessageType,
     PartialMessage,
     Poll,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
 } from "@harmony/schemas";
 import { PartialUser } from "@harmony/schemas";
-import { Config, MessageFlags } from "@harmony/util";
+import { Config, convertTimestamp, MessageFlags } from "@harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -124,6 +125,7 @@ export class Message extends BaseClass {
 
     @Column()
     @CreateDateColumn()
+    @Index()
     timestamp: Date;
 
     @Column({ nullable: true })
@@ -253,21 +255,25 @@ export class Message extends BaseClass {
         }
     }
 
-    toJSON(shallow = false): PublicMessage {
+    toJSON(shallow = false, user_id?: string): PublicMessage {
         let avatar = this.avatar;
-        if (avatar && !URL.canParse(avatar)) {
-            avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
+        if (avatar && URL.canParse(avatar)) {
+            avatar = avatar.match(/[^/]*$/gm)![0];
+        }
+        if (this.poll?.results && this.poll.results.is_finalized && Date.now() < +new Date(this.poll.expiry)) {
+            this.poll.results.is_finalized = true;
         }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,
             channel: undefined,
 
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
+            timestamp: convertTimestamp(this.timestamp),
+            edited_timestamp: convertTimestamp(this.edited_timestamp),
 
             author_id: undefined,
             member_id: undefined,
+            member: this.member?.toPublicMember(),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
@@ -282,18 +288,22 @@ export class Message extends BaseClass {
             nonce: this.nonce ?? undefined,
             tts: this.tts ?? false,
             guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
+            webhook: undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
+            reactions:
+                this.reactions?.map((y: Partial<Reaction>) => {
+                    if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
+                    return y;
+                }) ?? undefined,
+            sticker_items: this.sticker_items?.length ? this.sticker_items : undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
             author: {
                 ...(this.author?.toPublicUser() ?? undefined),
                 // Webhooks
                 username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
+                avatar: avatar ?? this.author?.avatar ?? null,
             },
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
@@ -305,6 +315,24 @@ export class Message extends BaseClass {
             referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
         };
     }
+    toUserSafeJSON(user_id: string) {
+        return Message.cleanUserJSON(this.toJSON(), user_id);
+    }
+    static stdRelations = {
+        author: true,
+        webhook: true,
+        application: true,
+        mentions: true,
+        mention_roles: true,
+        mention_channels: true,
+        sticker_items: true,
+        attachments: true,
+        thread: {
+            recipients: {
+                user: true,
+            },
+        },
+    } as const;
 
     toPartialMessage(): PartialMessage {
         return {
@@ -320,13 +348,26 @@ export class Message extends BaseClass {
             // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
         };
     }
+    static cleanUserJSON(json: PublicMessage, user_id: string) {
+        (json.reactions || []).forEach((y: Partial<Reaction>) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            if ((y.user_ids || []).includes(user_id)) y.me = true;
+            delete y.user_ids;
+        });
+        (json.poll?.results?.answer_counts || []).forEach((y: Partial<PollAnswerCount>) => {
+            if ((y.user_ids || []).includes(user_id)) y.me_voted = true;
+            else y.me_voted = false;
+            delete y.user_ids;
+        });
+    }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {
         function signMedia(media: UnfurledMediaItem) {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
         return {
-            ...this,
+            ...(this instanceof Message ? this.toJSON(undefined, data.user_id) : this),
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {

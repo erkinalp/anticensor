@@ -50,6 +50,7 @@ import {
     MessageFlags,
     FieldErrors,
     Snowflake,
+    RunningPolls,
 } from "@harmony/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -70,7 +71,10 @@ import {
     BaseMessageComponents,
     v1CompTypes,
     PartialUser,
+    Poll,
+    PollCreationSchema,
 } from "@harmony/schemas";
+import { proxyFetch } from "../../../util/util/porxyFetch";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -121,7 +125,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
             },
         });
     } else {
-        const res = await fetch(url);
+        const res = await proxyFetch(url);
         if (!res.ok) throw new HTTPError("URL did not return OK");
         const blob = await res.blob();
         const name = url.pathname.split("/").findLast((_) => _) || id;
@@ -331,11 +335,28 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         },
         [] as { attachment: MessageCreateCloudAttachment; index: number }[],
     );
+    let pollid = 1;
+    const saveRunningPoll = opts.poll && !("expiry" in opts.poll);
+
+    const poll: Poll | undefined = opts.poll
+        ? "expiry" in opts.poll
+            ? opts.poll
+            : {
+                  question: opts.poll.question,
+                  answers: opts.poll.answers.map((_) => ({
+                      answer_id: pollid++,
+                      poll_media: _.poll_media,
+                  })),
+                  expiry: new Date(Date.now() + opts.poll.duration * 60 * 60 * 1000).toISOString().replace("Z", "+00:00"),
+                  allow_multiselect: opts.poll.allow_multiselect ?? false,
+                  layout_type: 1,
+              }
+        : undefined;
 
     const message = Message.create({
         ...opts,
         message_reference: opts.message_reference ?? undefined,
-        poll: opts.poll,
+        poll,
         sticker_items: stickers,
         guild_id: channel.guild_id,
         channel_id: opts.channel_id,
@@ -346,6 +367,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
     });
+
     message.channel = channel;
 
     if (opts.author_id) {
@@ -461,7 +483,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.author.username = message.username;
         }
         if (opts.avatar_url) {
-            const avatarData = await fetch(opts.avatar_url);
+            const avatarData = await proxyFetch(opts.avatar_url);
             const base64 = await avatarData.arrayBuffer().then((x) => Buffer.from(x).toString("base64"));
 
             const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
@@ -527,7 +549,14 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
 			 otherwise backfilling won't work **/
-            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
+
+            if (
+                MessageType.THREAD_STARTER_MESSAGE !== message.type &&
+                MessageType.THREAD_CREATED !== message.type &&
+                message.type !== MessageType.CHANNEL_PINNED_MESSAGE &&
+                message.type !== MessageType.POLL_RESULT
+            )
+                message.type = MessageType.REPLY;
         }
     }
 
@@ -541,7 +570,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         !opts.poll &&
         !opts.components?.length &&
         opts.message_reference?.type != 1 &&
-        opts.type !== MessageType.THREAD_STARTER_MESSAGE
+        opts.type !== MessageType.THREAD_STARTER_MESSAGE &&
+        opts.type !== MessageType.CHANNEL_PINNED_MESSAGE
     ) {
         console.log("[Message] Rejecting empty message:", opts, message);
         throw new HTTPError("Empty messages are not allowed", 50006);
@@ -593,10 +623,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             },
         });
         if (referencedMessage && referencedMessage.author_id !== message.author_id) {
-            message.mentions.push(
-                // @ts-expect-error it does not like the .toPublicUser() lol
-                (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
-            );
+            message.mentions.push(await User.findOneOrFail({ where: { id: referencedMessage.author_id } }));
         }
 
         // FORWARD
@@ -779,8 +806,15 @@ export async function postHandleMessage(message: Message) {
         // we need to handle false-y values (empty string) here, so cant use ??=
         embed.type ||= EmbedType.rich;
     });
+    if (message.poll && !message.poll.results?.is_finalized)
+        RunningPolls.create({
+            id: message.id,
+            message,
+            closes: new Date(message.poll.expiry),
+        }).insert();
 
-    if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
+    if (message.webhook || (await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS))
+        await fillMessageUrlEmbeds(message);
 }
 
 export async function sendMessage(opts: MessageOptions) {
@@ -803,7 +837,7 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-interface MessageOptions extends MessageCreateSchema {
+type MessageOptions = Omit<MessageCreateSchema, "poll"> & {
     id?: string;
     type?: MessageType;
     pinned?: boolean;
@@ -818,4 +852,5 @@ interface MessageOptions extends MessageCreateSchema {
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
-}
+    poll?: Poll | PollCreationSchema;
+};

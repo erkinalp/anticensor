@@ -38,10 +38,15 @@ export function getMostRelevantSession(sessions: Session[]) {
         invisible: 3,
         offline: 4,
     };
-    // sort sessions by relevance
-    sessions = sessions.sort((a, b) => {
-        return statusMap[a.status] - statusMap[b.status] + ((a.activities?.length ?? 0) - (b.activities?.length ?? 0)) * 2;
-    });
+    let score = -1;
+    let bestSes = sessions.at(0);
+    for (const session of sessions) {
+        const thisScore = statusMap[session.status] + (session.activities?.length ?? 0) * 2;
+        if (thisScore > score && session.status !== "offline") {
+            score = thisScore;
+            bestSes = session;
+        }
+    }
 
-    return sessions[0];
+    return bestSes;
 }
