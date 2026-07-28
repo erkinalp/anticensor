@@ -134,6 +134,13 @@ export class Session extends BaseClassWithoutId {
             active: TimeSpan.fromDates(this.last_seen?.getTime() ?? 0, new Date().getTime()).totalMillis < inactiveTreshold,
         };
     }
+    static findActiveSession(sessions: Session[]) {
+        for (const session of sessions) {
+            if (session.status !== "offline") {
+                return session;
+            }
+        }
+    }
 
     async updateIpInfo() {
         const ipInfo = await IpDataClient.getIpInfo(this.last_seen_ip!);

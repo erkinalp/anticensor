@@ -79,7 +79,7 @@ router.patch(
         voiceState.member = await Member.findOneOrFail({
             where: {
                 id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
+                guild_id,
             },
         });
 
