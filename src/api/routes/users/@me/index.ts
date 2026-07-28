@@ -96,8 +96,8 @@ router.patch(
                     code: "EMAIL_INVALID",
                 },
             });
-
-        if (!body.password)
+        
+        if (!body.email && !body.password)
             throw FieldErrors({
                 password: {
                     message: req.t("auth:login.INVALID_PASSWORD"),
@@ -159,16 +159,14 @@ router.patch(
             }
         }
 
-        if (body.bio) {
         const { maxBio } = Config.get().limits.user;
-            if (body.bio.length > maxBio) {
+        if (body.bio && body.bio.length > maxBio) {
             throw FieldErrors({
                 bio: {
                     code: "BIO_INVALID",
                     message: `Bio must be less than ${maxBio} in length`,
                 },
             });
-            }
         }
 
         if ("display_name_font_id" in body) {
