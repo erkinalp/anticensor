@@ -89,21 +89,16 @@ router.patch(
             }
         }
 
-        if (!body.email && Config.get().register.email.required)
-            throw FieldErrors({
-                email: {
-                    message: req.t("auth:register.EMAIL_INVALID"),
-                    code: "EMAIL_INVALID",
-                },
-            });
-        
-        if (!body.email && !body.password)
-            throw FieldErrors({
-                password: {
-                    message: req.t("auth:login.INVALID_PASSWORD"),
-                    code: "INVALID_PASSWORD",
-                },
-            });
+        // If email is set, there must be a password set too
+        if (body.email) {
+            if (!body.password)
+                throw FieldErrors({
+                    password: {
+                        message: req.t("auth:login.INVALID_PASSWORD"),
+                        code: "INVALID_PASSWORD",
+                    },
+                });
+        }
 
         if (body.new_password) {
             if (!body.password && user.email) {
