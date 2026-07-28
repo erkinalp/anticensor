@@ -160,16 +160,14 @@ router.patch(
             }
         }
 
-        if (body.bio) {
-            const { maxBio } = Config.get().limits.user;
-            if (body.bio.length > maxBio) {
-                throw FieldErrors({
-                    bio: {
-                        code: "BIO_INVALID",
-                        message: `Bio must be less than ${maxBio} in length`,
-                    },
-                });
-            }
+        const { maxBio } = Config.get().limits.user;
+        if (body.bio && body.bio.length > maxBio) {
+            throw FieldErrors({
+                bio: {
+                    code: "BIO_INVALID",
+                    message: `Bio must be less than ${maxBio} in length`,
+                },
+            });
         }
 
         if ("display_name_font_id" in body) {

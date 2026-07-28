@@ -149,16 +149,23 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
         select: [...PrivateUserProjection, "data"],
     });
 
-    if (body.bio) {
-        const { maxBio } = Config.get().limits.user;
-        if (body.bio.length > maxBio) {
-            throw FieldErrors({
-                bio: {
-                    code: "BIO_INVALID",
-                    message: `Bio must be less than ${maxBio} in length`,
-                },
-            });
-        }
+    const { maxBio } = Config.get().limits.user;
+    if (body.bio && body.bio.length > maxBio) {
+        throw FieldErrors({
+            bio: {
+                code: "BIO_INVALID",
+                message: `Bio must be less than ${maxBio} in length`,
+            },
+        });
+    }
+    const { maxPronouns } = Config.get().limits.user;
+    if (body.pronouns && body.pronouns.length > maxPronouns) {
+        throw FieldErrors({
+            pronouns: {
+                code: "PRONOUNS_INVALID",
+                message: `Pronouns must be less than ${maxPronouns} in length`,
+            },
+        });
     }
 
     user.assign(body);
