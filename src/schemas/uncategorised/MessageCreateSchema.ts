@@ -63,8 +63,11 @@ export interface MessageCreateSchema {
 // TypeScript complains once this is used above
 export interface PollCreationSchema {
     question: PollMedia;
-    answers: PollAnswer[];
-    duration?: number;
+    answers: {
+        answer_id?: number;
+        poll_media: PollMedia;
+    }[];
+    duration: number;
     allow_multiselect?: boolean;
     layout_type?: number;
 }
