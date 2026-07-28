@@ -149,7 +149,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
         select: [...PrivateUserProjection, "data"],
     });
 
-    const { maxBio } = Config.get().limits.user;
+    const { maxBio, maxPronouns } = Config.get().limits.user;
     if (body.bio && body.bio.length > maxBio) {
         throw FieldErrors({
             bio: {
@@ -158,7 +158,6 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
             },
         });
     }
-    const { maxPronouns } = Config.get().limits.user;
     if (body.pronouns && body.pronouns.length > maxPronouns) {
         throw FieldErrors({
             pronouns: {
