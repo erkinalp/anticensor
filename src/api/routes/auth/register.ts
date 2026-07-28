@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@harmony/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, ValidateName } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -178,6 +178,7 @@ router.post(
 
         // TODO: gift_code_sku_id?
         // TODO: check password strength
+        ValidateName(body.username);
 
         const email = body.email;
         if (email) {
@@ -300,15 +301,6 @@ router.post(
             });
         }
 
-        const { maxUsername } = Config.get().limits.user;
-        if (body.username.length > maxUsername) {
-            throw FieldErrors({
-                username: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 2 and ${maxUsername} in length.`,
-                },
-            });
-        }
         let invite: Invite | undefined;
 
         if (body.invite) {
