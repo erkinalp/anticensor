@@ -34,7 +34,7 @@ export class Server {
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
-        this.production = production || false;
+        this.production = production ?? false;
 
         if (server) this.server = server;
         else {
@@ -91,8 +91,8 @@ export class Server {
                                         system: x.system / 1000,
                                     })),
                                     socketStates: {
-                                        open: openConnections.length,
-                                        sessions: openConnections.map((x) => {
+                                        open: openConnections.size,
+                                        sessions: [...openConnections].map((x) => {
                                             // console.log(x);
                                             return useFullWsObj
                                                 ? {

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export enum OPCODES {
+export const enum OPCODES {
     Dispatch = 0,
     Heartbeat = 1,
     Identify = 2,
