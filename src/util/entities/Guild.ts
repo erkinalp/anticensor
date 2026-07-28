@@ -331,6 +331,7 @@ export class Guild extends BaseClass {
                     },
                 },
             }),
+            premium_tier: this.premium_tier ?? 0,
             emojis: this.emojis ?? undefined,
             emoji_count: this.emojis ? this.emojis.length : undefined,
             stickers: this.stickers ?? undefined,

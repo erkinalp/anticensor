@@ -1,6 +1,6 @@
 /*
 	Harmony: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Harmony and Harmony Contributors
+	Copyright (C) 2026 Harmony and Harmony Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,14 +16,28 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getGifProviders } from "#util";
+import { Message, RunningPolls } from "@harmony/util";
 import { route } from "@harmony/api";
 import { Request, Response, Router } from "express";
-
+import { HTTPError } from "lambert-server";
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
-    res.json(getGifProviders().map((_) => ({ name: _.name, api_name: _.api_name })));
+router.post("/", route({}), async (req: Request, res: Response) => {
+    const { message_id, channel_id } = req.params as { [key: string]: string };
+    const poll = await RunningPolls.findOneOrFail({
+        where: {
+            id: message_id,
+        },
+        relations: {
+            message: Message.stdRelations,
+        },
+    });
+    if (poll.message.author_id !== req.user_id) throw new HTTPError("You did not create this poll");
+    if (poll.message.channel_id !== channel_id) throw new HTTPError("Message not found");
+    await poll.endPoll();
+    await poll.remove();
+
+    res.send(poll.message.toUserSafeJSON(req.user_id));
 });
 
 export default router;

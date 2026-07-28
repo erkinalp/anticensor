@@ -42,6 +42,7 @@ import {
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
+    Permissions,
 } from "@harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -56,6 +57,7 @@ import {
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     PartialUser,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     ReadStateType,
@@ -120,21 +122,7 @@ router.get(
             order: { timestamp: "DESC" },
             take: limit,
             where: { channel_id },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: Message.stdRelations,
         };
 
         let messages: Message[];
@@ -246,6 +234,7 @@ router.post(
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
         const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        if (body.poll) req.permission!.hasThrow("SEND_POLLS");
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -255,7 +244,7 @@ router.post(
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
-                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id?channel.guild_id:IsNull() } });
+                const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id ? channel.guild_id : IsNull() } });
 
                 if (!(await ThreadMember.existsBy({ member_idx: member.index, id: channel_id }))) {
                     const threadMember = ThreadMember.create({
@@ -324,7 +313,7 @@ router.post(
                 },
             });
             if (existing) {
-                return res.json(existing);
+                return res.json(existing.toJSON());
             }
         }
 

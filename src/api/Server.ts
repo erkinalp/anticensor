@@ -24,7 +24,7 @@ import morgan from "morgan";
 import path from "path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
-import { route } from "./util";
+import { route, startPollReap } from "./util";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
@@ -195,6 +195,7 @@ export class SpacebarServer extends Server {
         await ConnectionLoader.loadConnections();
 
         if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
+        startPollReap();
 
         return super.start();
     }

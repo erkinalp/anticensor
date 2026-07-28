@@ -38,6 +38,7 @@ import {
     MessageType,
     PartialMessage,
     Poll,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
@@ -124,6 +125,7 @@ export class Message extends BaseClass {
 
     @Column()
     @CreateDateColumn()
+    @Index()
     timestamp: Date;
 
     @Column({ nullable: true })
@@ -258,6 +260,9 @@ export class Message extends BaseClass {
         if (avatar && !URL.canParse(avatar)) {
             avatar = Config.get().cdn.endpointPublic + "/avatars/" + avatar;
         }
+        if (this.poll?.results && this.poll.results.is_finalized && Date.now() < +new Date(this.poll.expiry)) {
+            this.poll.results.is_finalized = true;
+        }
         return {
             ...this,
             channel_id: this.channel_id ?? this.channel.id,
@@ -283,7 +288,7 @@ export class Message extends BaseClass {
             nonce: this.nonce ?? undefined,
             tts: this.tts ?? false,
             guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
+            webhook: undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
             reactions:
@@ -291,14 +296,14 @@ export class Message extends BaseClass {
                     if ((y.user_ids || []).includes(user_id as string)) return { ...y, me: true };
                     return y;
                 }) ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
+            sticker_items: this.sticker_items?.length ? this.sticker_items : undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
             author: {
                 ...(this.author?.toPublicUser() ?? undefined),
                 // Webhooks
                 username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
+                avatar: avatar ?? this.author?.avatar ?? null,
             },
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
@@ -310,6 +315,24 @@ export class Message extends BaseClass {
             referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
         };
     }
+    toUserSafeJSON(user_id: string) {
+        return Message.cleanUserJSON(this.toJSON(), user_id);
+    }
+    static stdRelations = {
+        author: true,
+        webhook: true,
+        application: true,
+        mentions: true,
+        mention_roles: true,
+        mention_channels: true,
+        sticker_items: true,
+        attachments: true,
+        thread: {
+            recipients: {
+                user: true,
+            },
+        },
+    } as const;
 
     toPartialMessage(): PartialMessage {
         return {
@@ -324,6 +347,19 @@ export class Message extends BaseClass {
             //channel: this.channel, // TODO: ephemeral DM channels
             // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
         };
+    }
+    static cleanUserJSON(json: PublicMessage, user_id: string) {
+        (json.reactions || []).forEach((y: Partial<Reaction>) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            if ((y.user_ids || []).includes(user_id)) y.me = true;
+            delete y.user_ids;
+        });
+        (json.poll?.results?.answer_counts || []).forEach((y: Partial<PollAnswerCount>) => {
+            if ((y.user_ids || []).includes(user_id)) y.me_voted = true;
+            else y.me_voted = false;
+            delete y.user_ids;
+        });
     }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {
