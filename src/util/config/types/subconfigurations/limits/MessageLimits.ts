@@ -19,7 +19,7 @@
 export class MessageLimits {
     maxCharacters: number = 262144;
     maxTTSCharacters: number = 160;
-    maxReactions: number = 64;
+    maxReactions: number = 32;
     maxAttachmentSize: number = 1024 * 1024 * 50;
     maxBulkDelete: number = 1000;
     maxEmbedDownloadSize: number = 1024 * 1024 * 5;
