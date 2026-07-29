@@ -151,15 +151,15 @@ export class Permissions extends BitField {
             if (x.type === ChannelPermissionOverwriteType.role && this.cache.roles?.some((r) => r.id === x.id)) return true;
             return false;
         });
-        this.bitfield = Permissions.channelPermission(overwrites, this.bitfield);
+        let bitfield = Permissions.channelPermission(overwrites, this.bitfield);
         const member = overwrites.find((x) => {
             return x.type === ChannelPermissionOverwriteType.member && x.id == this.cache.user_id;
         });
         if (member) {
-            this.bitfield &= ~BigInt(member.deny);
-            this.bitfield |= BigInt(member.allow);
+            bitfield &= ~BigInt(member.deny);
+            bitfield |= BigInt(member.allow);
         }
-        return new Permissions(this.bitfield);
+        return new Permissions(bitfield);
     }
 
     static channelPermission(overwrites: ChannelPermissionOverwrite[], perms: bigint = 0n) {

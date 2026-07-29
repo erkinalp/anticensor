@@ -97,3 +97,4 @@ export * from "./MessageActivity";
 export * from "./PostDataSchema";
 export * from "./TagCreateSchema";
 export * from "./ChannelCreateSchema";
+export * from "./PollPutSchema";

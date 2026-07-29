@@ -362,6 +362,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
                     }),
                 ).components;
             }
+            Message.cleanUserJSON(data, this.user_id);
             break;
         default:
             break;
