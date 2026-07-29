@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
+import { WebSocket, Payload, OPCODES, Send } from "@harmony/gateway";
 import { Config } from "@harmony/util";
 
 export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) {

@@ -21,7 +21,7 @@ import path from "path";
 import { green, red, yellow } from "picocolors";
 import { DataSource } from "typeorm";
 // noinspection ES6PreferShortImport
-import { ConfigEntity } from "../entities/Config";
+
 import fs from "fs";
 
 // UUID extension option is only supported with postgres
@@ -99,6 +99,7 @@ export async function initDatabase(): Promise<DataSource> {
     // Crude way of detecting if the migrations table exists.
     const dbExists = async () => {
         try {
+            const ConfigEntity = (await import("../entities/Config.js")).ConfigEntity;
             await ConfigEntity.count();
             return true;
         } catch (e) {

@@ -30,7 +30,6 @@ const bigIntJson = BigIntJson({ storeAsString: true });
 import { unpack } from "harmony-erlpack";
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
-    // TODO: compression
     let data: Payload;
 
     if (
