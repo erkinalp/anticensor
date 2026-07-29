@@ -180,38 +180,6 @@ router.post(
         // TODO: check password strength
         ValidateName(body.username);
 
-        const email = body.email;
-        if (email) {
-            // replace all dots and chars after +, if its a gmail.com email
-            if (!email) {
-                throw FieldErrors({
-                    email: {
-                        code: "INVALID_EMAIL",
-                        message: req?.t("auth:register.INVALID_EMAIL"),
-                    },
-                });
-            }
-
-            // check if there is already an account with this email
-            const exists = await User.findOne({ where: { email: email } });
-
-            if (exists) {
-                throw FieldErrors({
-                    email: {
-                        code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
-                    },
-                });
-            }
-        } else if (register.email.required) {
-            throw FieldErrors({
-                email: {
-                    code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
-                },
-            });
-        }
-
         if (register.dateOfBirth.required && !body.date_of_birth) {
             throw FieldErrors({
                 date_of_birth: {
@@ -306,6 +274,38 @@ router.post(
         if (body.invite) {
             invite = await Invite.findOneOrFail({ where: { code: body.invite } });
             if (invite.isExpired()) throw new Error("Invite is expired");
+        }
+
+        const email = body.email;
+        if (email) {
+            // replace all dots and chars after +, if its a gmail.com email
+            if (!email) {
+                throw FieldErrors({
+                    email: {
+                        code: "INVALID_EMAIL",
+                        message: req?.t("auth:register.INVALID_EMAIL"),
+                    },
+                });
+            }
+
+            // check if there is already an account with this email
+            const exists = await User.findOne({ where: { email: email } });
+
+            if (exists) {
+                throw FieldErrors({
+                    email: {
+                        code: "EMAIL_ALREADY_REGISTERED",
+                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
+                    },
+                });
+            }
+        } else if (register.email.required) {
+            throw FieldErrors({
+                email: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                },
+            });
         }
 
         const user = await User.register({ ...body, req });
