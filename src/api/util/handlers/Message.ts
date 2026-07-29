@@ -622,7 +622,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 channel_id: message.channel_id,
             },
         });
-        if (referencedMessage && referencedMessage.author_id !== message.author_id) {
+        if (referencedMessage && referencedMessage.author_id !== message.author_id && MessageType.CHANNEL_PINNED_MESSAGE !== message.type) {
             message.mentions.push(await User.findOneOrFail({ where: { id: referencedMessage.author_id } }));
         }
 
