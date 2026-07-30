@@ -52,12 +52,13 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
     if (voiceState) {
         voiceState.self_stream = false;
         await voiceState.save();
-        voiceState.member = await Member.findOneOrFail({
-            where: {
-                id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
-            },
-        });
+        if (guildId !== "@me")
+            voiceState.member = await Member.findOneOrFail({
+                where: {
+                    id: voiceState.user_id,
+                    guild_id: guildId,
+                },
+            });
 
         await emitEvent({
             event: "VOICE_STATE_UPDATE",
