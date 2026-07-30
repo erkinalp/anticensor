@@ -258,8 +258,8 @@ function figurePermissionForEvent(this: WebSocket, opts: EventOpts): { channelPe
         case "CHANNEL_PINS_UPDATE":
         case "VOICE_STATE_UPDATE":
         case "WEBHOOKS_UPDATE":
-            guild_id = opts.data.guild_id;
-            channel_id = opts.data.channel_id;
+            guild_id = opts.data.guild_id ?? undefined;
+            channel_id = opts.data.channel_id ?? undefined;
             break;
         case "GUILD_CREATE":
         case "GUILD_DELETE":
@@ -525,7 +525,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
                         }),
                     ).components || [];
             }
-            Message.cleanUserJSON(data, this.user_id);
+            Message.cleanUserJSON(opts.data, this.user_id);
             break;
         default:
             break;

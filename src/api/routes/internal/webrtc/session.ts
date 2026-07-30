@@ -57,7 +57,7 @@ router.post(
         });
 
         if (voiceState) {
-            channel_id = voiceState.channel_id;
+            channel_id = voiceState.channel_id ?? undefined;
             type = voiceState.guild_id === server_id ? "guild-voice" : "dm-voice";
             authenticated = true;
         } else {
