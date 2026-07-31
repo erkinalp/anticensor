@@ -352,6 +352,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                   layout_type: 1,
               }
         : undefined;
+    opts.attachments = opts.attachments?.filter((_) => "uploaded_filename" in _ || _ instanceof Attachment);
 
     const message = Message.create({
         ...opts,
