@@ -23,7 +23,6 @@ import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
 import { storage } from "@harmony/cdn";
 import { CloudAttachment } from "@harmony/util";
-import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
 import { detectBufferMime } from "mime-detect";
 
@@ -102,8 +101,8 @@ router.get("/:channel_id/:id/:filename", cache, async (req: Request, res: Respon
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("File not found");
-    const type = await fileTypeFromBuffer(file);
-    let content_type = type?.mime || "application/octet-stream";
+    const mime = await detectBufferMime(file);
+    let content_type = mime || "application/octet-stream";
 
     if (SANITIZED_CONTENT_TYPE.includes(content_type)) {
         content_type = "application/octet-stream";
