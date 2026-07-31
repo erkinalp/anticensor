@@ -233,7 +233,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
-        const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        let attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
         if (body.poll) req.permission!.hasThrow("SEND_POLLS");
 
         const channel = await Channel.findOneOrFail({
@@ -338,6 +338,7 @@ router.post(
         }
 
         const files = (req.files as Express.Multer.File[]) ?? [];
+        attachments = attachments.filter((_) => "uploaded_filename" in _);
         for (const currFile of files) {
             try {
                 const file = await uploadFile(`/attachments/${channel.id}`, currFile);
@@ -417,7 +418,6 @@ router.post(
         read_state.last_message_id = message.id;
         //It's a little more complicated than this but this'll do
         read_state.mention_count = 0;
-
         await Promise.all([
             read_state.save(),
             message.save(),
