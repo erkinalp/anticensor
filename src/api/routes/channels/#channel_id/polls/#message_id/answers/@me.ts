@@ -42,12 +42,6 @@ router.put(
         if (message.poll.results.is_finalized) throw new HTTPError("Poll is finalized, can't change votes");
         const oldAn = new Set(message.poll.results.answer_counts.filter((_) => _.user_ids.includes(req.user_id)).map((_) => _.id));
 
-        const c = await Channel.findOneOrFail({
-            where: {
-                id: channel_id,
-            },
-        });
-
         await Promise.all([
             ...[...newAn.difference(oldAn)].map((answer_id) => {
                 let f = message.poll!.results!.answer_counts.find((_) => _.id === answer_id);
@@ -68,7 +62,7 @@ router.put(
                         user_id: req.user_id,
                         channel_id,
                         message_id,
-                        guild_id: c.guild_id,
+                        guild_id: message.guild_id,
                         answer_id,
                     },
                     channel_id,
@@ -84,7 +78,7 @@ router.put(
                         user_id: req.user_id,
                         channel_id,
                         message_id,
-                        guild_id: c.guild_id,
+                        guild_id: message.guild_id,
                         answer_id,
                     },
                     channel_id,
