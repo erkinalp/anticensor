@@ -20,7 +20,7 @@ import { CLOSECODES } from "@harmony/gateway";
 import { StreamSession, VoiceState } from "@harmony/util";
 import { validateSchema, VoiceIdentifySchema } from "@harmony/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
+import { SSRCs } from "harmony-webrtc-types";
 import { subscribeToProducers } from "./Video";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {

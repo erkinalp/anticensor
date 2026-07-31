@@ -45,7 +45,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^9.14.0",
-        "@spacebarchat/spacebar-webrtc-types": "^1.0.1",
+        "harmony-webrtc-types": "^1.0.0",
         "@types/amqplib": "^0.10.8",
         "@types/bcrypt": "^6.0.0",
         "@types/body-parser": "^1.19.6",
@@ -78,7 +78,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.1037.0",
-        "@spacebarchat/pion-webrtc": "^0.0.4",
+        "harmony-pion-webrtc": "^1.0.2",
         "@toondepauw/node-zstd": "^1.2.0",
         "ajv": "^8.18.0",
         "ajv-formats": "^3.0.1",
