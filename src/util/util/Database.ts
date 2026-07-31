@@ -56,6 +56,7 @@ export const DataSourceOptions = isHeadlessProcess
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
           type: DatabaseType,
+
           charset: "utf8mb4",
           url: process.env.DATABASE,
           entities: [path.join(__dirname, "..", "entities", "*.js")],
@@ -63,8 +64,11 @@ export const DataSourceOptions = isHeadlessProcess
           logging: !!process.env.DB_LOGGING,
           bigNumberStrings: false,
           supportBigNumbers: true,
-          name: "default",
           migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
+          invalidWhereValuesBehavior: {
+              null: "ignore",
+              undefined: "ignore",
+          },
       });
 
 // Gets the existing database connection

@@ -64,7 +64,7 @@ router.patch(
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
-            select: [...PrivateUserProjection, "data"],
+            select: { ...PrivateUserProjection, data: true },
         });
 
         // Populated on password change

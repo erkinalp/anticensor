@@ -37,7 +37,7 @@ router.get(
             where: { id: req.user_id as string },
             relations: { bot: true, owner: true },
             select: {
-                owner: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                owner: PublicUserProjection,
             },
         });
 
