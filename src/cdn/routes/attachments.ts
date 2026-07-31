@@ -162,8 +162,8 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("fil
         let mimeType = att.userOriginalContentType;
         mimeType = (await detectBufferMime(buffer)) || mimeType;
         if (att.userOriginalContentType === null) {
-            const ft = await fileTypeFromBuffer(buffer);
-            mimeType = att.contentType = ft?.mime || "application/octet-stream";
+            const ft = await detectBufferMime(buffer);
+            mimeType = att.contentType = ft || "application/octet-stream";
         }
 
         if (mimeType?.includes("image")) {
