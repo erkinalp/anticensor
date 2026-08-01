@@ -23,23 +23,23 @@ import { HTTPError } from "#lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
-const TemplateGuildProjection: (keyof Guild)[] = [
-    "id",
-    "name",
-    "description",
-    "region",
-    "verification_level",
-    "default_message_notifications",
-    "explicit_content_filter",
-    "preferred_locale",
-    "afk_timeout",
+const TemplateGuildProjection = {
+    id: true,
+    name: true,
+    description: true,
+    region: true,
+    verification_level: true,
+    default_message_notifications: true,
+    explicit_content_filter: true,
+    preferred_locale: true,
+    afk_timeout: true,
     // "roles",
     // "channels",
-    "afk_channel_id",
-    "system_channel_id",
-    "system_channel_flags",
-    "icon",
-];
+    afk_channel_id: true,
+    system_channel_id: true,
+    system_channel_flags: true,
+    icon: true,
+} as const;
 
 router.get(
     "/",

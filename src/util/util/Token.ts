@@ -24,6 +24,7 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
+
 import { randomUpperString } from "#harmony/api";
 import { TimeSpan } from "./Timespan.js";
 import { HTTPError } from "#lambert-server";
@@ -81,8 +82,7 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
             }
 
-            // eslint-disable-next-line prefer-const
-            let [user, session] = await Promise.all([
+            const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
                     select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
@@ -90,6 +90,8 @@ export const checkToken = (
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
             ]);
+            let session = arr[1];
+            const user = arr[0];
 
             if (!user) {
                 logAuth("validateUser rejected: User not found");

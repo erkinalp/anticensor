@@ -24,7 +24,7 @@ import { PublicUserProjection, RelationshipType, RelationshipPatchSchema } from 
 
 const router = Router({ mergeParams: true });
 
-const userProjection: (keyof User)[] = ["relationships", ...PublicUserProjection];
+const userProjection = { relationships: true, ...PublicUserProjection } as const;
 
 router.get(
     "/",

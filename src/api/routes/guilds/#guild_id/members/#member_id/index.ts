@@ -48,9 +48,9 @@ router.get(
             select: {
                 index: true,
                 // only grab public member props
-                ...Object.fromEntries(PublicMemberProjection.map((x) => [x, true])),
+                ...PublicMemberProjection,
                 // and public user props
-                user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                user: PublicUserProjection,
                 roles: {
                     id: true,
                 },

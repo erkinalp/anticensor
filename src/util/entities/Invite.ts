@@ -23,7 +23,7 @@ import { Guild } from "./Guild.js";
 import { Member } from "./Member.js";
 import { User } from "./User.js";
 
-export const PublicInviteRelation = ["inviter", "guild", "channel"];
+export const PublicInviteRelation = { inviter: true, guild: true, channel: true };
 
 @Entity({
     name: "invites",

@@ -305,9 +305,11 @@ export async function getPermission(
         select: { id: true, flags: true },
     });
     const query = {
-        relations: ["recipients", "thread_members", "thread_members.member", ...(opts.channel_relations || [])],
-        select: ["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])],
-    } as FindOneOptions<Channel>;
+        relations: { ...Object.fromEntries(["recipients", ...(opts.channel_relations || [])].map((_) => [_, true])), thread_members: { member: true } },
+        select: Object.fromEntries(
+            ["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])].map((_) => [_, true]),
+        ),
+    } satisfies FindOneOptions<Channel>;
     if (typeof channel_id === "string") {
         channel = await Channel.findOneOrFail({ where: { id: channel_id }, ...query });
         if (channel.guild_id) guild_id = channel.guild_id; // derive guild_id from the channel
@@ -333,8 +335,8 @@ export async function getPermission(
         if (typeof guild_id === "string") {
             guild = await Guild.findOneOrFail({
                 where: { id: guild_id },
-                select: ["id", "owner_id", ...(opts.guild_select || [])],
-                relations: opts.guild_relations,
+                select: Object.fromEntries(["id", "owner_id", ...(opts.guild_select || [])].map((_) => [_, true])),
+                relations: opts.guild_relations && Object.fromEntries(opts.guild_relations.map((_) => [_, true])),
             });
         } else {
             guild = guild_id;
@@ -343,7 +345,7 @@ export async function getPermission(
 
         member = await Member.findOneOrFail({
             where: { guild_id: guild.id, id: user_id },
-            relations: ["roles", ...(opts.member_relations || [])],
+            relations: Object.fromEntries(["roles", ...(opts.member_relations || [])].map((_) => [_, true])),
             // select: [
             // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
             // "roles",

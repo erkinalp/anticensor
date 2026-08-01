@@ -308,7 +308,17 @@ export class Message extends BaseClass {
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
             components: this.components ?? [],
-            poll: this.poll ?? undefined,
+            poll: this.poll
+                ? {
+                      ...this.poll,
+                      results: this.poll.results && {
+                          ...this.poll.results,
+                          answer_counts: this.poll.results.answer_counts.map((_) => {
+                              return { id: _.id, count: _.count, me_voted: _.user_ids.includes(user_id as string) };
+                          }),
+                      },
+                  }
+                : undefined,
             content: this.content ?? "",
             pinned: this.pinned,
             thread: this.thread ? this.thread.toJSON() : this.thread,

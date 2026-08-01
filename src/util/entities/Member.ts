@@ -461,8 +461,9 @@ export class Member extends BaseClassWithoutId {
 
     toPublicMember() {
         const member: Partial<PublicMember> = {};
+
         const json = this.toJSON();
-        PublicMemberProjection.forEach((x) => {
+        (Object.keys(PublicMemberProjection) as (keyof typeof PublicMemberProjection)[]).forEach((x) => {
             //@ts-expect-error this is really fine
             member[x] = json[x];
         });
