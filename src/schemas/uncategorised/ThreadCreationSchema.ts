@@ -17,8 +17,8 @@
 */
 
 import { BaseMessageComponents, ChannelType, Embed } from "#schemas/api";
-import { MessageActivity } from "./MessageActivity";
-import { MessageCreateAttachment, MessageCreateCloudAttachment } from "./MessageCreateSchema";
+import { MessageActivity } from "./MessageActivity.js";
+import { MessageCreateAttachment, MessageCreateCloudAttachment } from "./MessageCreateSchema.js";
 
 export interface ThreadCreationSchema {
     auto_archive_duration?: number;

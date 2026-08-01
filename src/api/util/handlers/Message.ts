@@ -74,7 +74,7 @@ import {
     Poll,
     PollCreationSchema,
 } from "#harmony/schemas";
-import { proxyFetch } from "../../../util/util/porxyFetch";
+import { proxyFetch } from "../../../util/util/porxyFetch.js";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images

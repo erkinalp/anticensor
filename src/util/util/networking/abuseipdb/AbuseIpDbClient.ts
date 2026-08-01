@@ -1,5 +1,5 @@
 import { Config, DateBuilder } from "#harmony/util";
-import { AbuseIpDbBlacklistResponse, AbuseIpDbCheckResponse } from "./AbuseIpDbSampleResponses";
+import { AbuseIpDbBlacklistResponse, AbuseIpDbCheckResponse } from "./AbuseIpDbSampleResponses.js";
 
 export class AbuseIpDbClient {
     private static ipCheckCache: Map<

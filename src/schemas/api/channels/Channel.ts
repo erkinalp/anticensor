@@ -1,8 +1,8 @@
 import { Channel, Guild, Invite, Message, ReadState, Recipient, Tag, ThreadMember, User, VoiceState, Webhook } from "#harmony/util";
 import { HTTPError } from "#lambert-server";
 import { Column, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { Snowflake } from "../../Identifiers";
-import { PartialUser, PublicMember } from "../users";
+import { Snowflake } from "../../Identifiers.js";
+import { PartialUser, PublicMember } from "../users/index.js";
 
 export enum ChannelType {
     GUILD_TEXT = 0, // a text channel within a guild

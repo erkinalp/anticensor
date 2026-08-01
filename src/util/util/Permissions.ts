@@ -2,8 +2,8 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import { Channel, Guild, Member, Role, User } from "../entities";
-import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
+import { Channel, Guild, Member, Role, User } from "../entities/index.js";
+import { BitField, BitFieldResolvable, BitFlag } from "./BitField.js";
 import { HTTPError } from "#lambert-server";
 import { ChannelPermissionOverwrite, ChannelPermissionOverwriteType, ChannelType, UserFlags } from "#harmony/schemas";
 import { FindOneOptions } from "typeorm";

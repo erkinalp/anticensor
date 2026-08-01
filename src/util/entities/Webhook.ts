@@ -17,11 +17,11 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { Application } from "./Application";
-import { BaseClass } from "./BaseClass";
-import { Channel } from "./Channel";
-import { Guild } from "./Guild";
-import { User } from "./User";
+import { Application } from "./Application.js";
+import { BaseClass } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
+import { Guild } from "./Guild.js";
+import { User } from "./User.js";
 import { WebhookType } from "#harmony/schemas";
 import { Config } from "#harmony/util";
 

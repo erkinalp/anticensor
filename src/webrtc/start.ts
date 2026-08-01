@@ -20,7 +20,7 @@ process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
 import { config } from "dotenv";
-import { Server } from "./Server";
+import { Server } from "./Server.js";
 import fs from "fs";
 import cluster from "cluster";
 config({ quiet: true });

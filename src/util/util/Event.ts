@@ -17,18 +17,19 @@
 */
 
 import { Channel } from "amqplib";
-import { RabbitMQ } from "./RabbitMQ";
+import { RabbitMQ } from "./RabbitMQ.js";
 import EventEmitter from "events";
-import { EVENT, Event } from "../interfaces";
+import { EVENT, Event } from "../interfaces/index.js";
 import { randomUUID } from "crypto";
 import path from "path";
 import { Socket } from "node:net";
 import { FSWatcher } from "node:fs";
-import { Stopwatch } from "./Stopwatch";
-import { Config } from "./Config";
+import { Stopwatch } from "./Stopwatch.js";
+import { Config } from "./Config.js";
 import net from "net";
 import fs from "fs";
-import { red } from "picocolors";
+import pkg from "picocolors";
+const { red } = pkg;
 
 export const events = new EventEmitter();
 let unixSocketListener: UnixSocketListener | null = null;

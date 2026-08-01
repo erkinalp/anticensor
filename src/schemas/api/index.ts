@@ -15,9 +15,9 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./bots";
-export * from "./channels";
-export * from "./developers";
-export * from "./guilds";
-export * from "./messages";
-export * from "./users";
+export * from "./bots/index.js";
+export * from "./channels/index.js";
+export * from "./developers/index.js";
+export * from "./guilds/index.js";
+export * from "./messages/index.js";
+export * from "./users/index.js";

@@ -18,7 +18,7 @@
 
 import { route } from "#harmony/api";
 import { FieldErrors } from "#harmony/util";
-import emailProviders from "email-providers/all.json";
+import emailProviders from "email-providers/all.json" with { type: "json" };
 import { Request, Response, Router } from "express";
 import { HTTPError } from "#lambert-server";
 import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "#harmony/schemas";

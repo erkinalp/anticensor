@@ -17,7 +17,7 @@
 */
 
 import { Readable } from "stream";
-import { Storage } from "./Storage";
+import { Storage } from "./Storage.js";
 
 const readableToBuffer = (readable: Readable): Promise<Buffer> =>
     new Promise((resolve, reject) => {

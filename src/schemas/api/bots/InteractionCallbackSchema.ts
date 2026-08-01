@@ -17,8 +17,8 @@
 */
 
 import { Message } from "#harmony/util";
-import { InteractionCallbackType } from "./InteractionCallbackType";
-import { AllowedMentions, BaseMessageComponents, Embed, MessageComponentType } from "../messages";
+import { InteractionCallbackType } from "./InteractionCallbackType.js";
+import { AllowedMentions, BaseMessageComponents, Embed, MessageComponentType } from "../messages/index.js";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "#schemas/uncategorised";
 
 export interface InteractionCallbackSchema {

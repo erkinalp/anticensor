@@ -21,7 +21,7 @@ import { StreamSession, VoiceState } from "#harmony/util";
 import { validateSchema, VoiceIdentifySchema } from "#harmony/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "#harmony/webrtc";
 import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
-import { subscribeToProducers } from "./Video";
+import { subscribeToProducers } from "./Video.js";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     clearTimeout(this.readyTimeout);

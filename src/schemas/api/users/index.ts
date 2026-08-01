@@ -15,8 +15,8 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./ConnectedAccount";
-export * from "./InstanceUserDeleteSchema";
-export * from "./Member";
-export * from "./User";
-export * from "./UserSettings";
+export * from "./ConnectedAccount.js";
+export * from "./InstanceUserDeleteSchema.js";
+export * from "./Member.js";
+export * from "./User.js";
+export * from "./UserSettings.js";

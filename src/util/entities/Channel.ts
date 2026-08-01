@@ -18,23 +18,23 @@
 
 import { HTTPError } from "#lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO } from "../dtos";
-import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
-import { BaseClass } from "./BaseClass";
-import { Guild } from "./Guild";
-import { Invite } from "./Invite";
-import { Message } from "./Message";
-import { Tag } from "./Tag";
-import { ReadState } from "./ReadState";
-import { Recipient } from "./Recipient";
-import { User } from "./User";
-import { VoiceState } from "./VoiceState";
-import { Webhook } from "./Webhook";
-import { Member } from "./Member";
+import { DmChannelDTO } from "../dtos/index.js";
+import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces/index.js";
+import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util/index.js";
+import { BaseClass } from "./BaseClass.js";
+import { Guild } from "./Guild.js";
+import { Invite } from "./Invite.js";
+import { Message } from "./Message.js";
+import { Tag } from "./Tag.js";
+import { ReadState } from "./ReadState.js";
+import { Recipient } from "./Recipient.js";
+import { User } from "./User.js";
+import { VoiceState } from "./VoiceState.js";
+import { Webhook } from "./Webhook.js";
+import { Member } from "./Member.js";
 import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "#harmony/schemas";
-import { OrmUtils } from "../imports";
-import { ThreadMember } from "./ThreadMember";
+import { OrmUtils } from "../imports/index.js";
+import { ThreadMember } from "./ThreadMember.js";
 
 @Entity({
     name: "channels",

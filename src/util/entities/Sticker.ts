@@ -17,11 +17,11 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Guild } from "./Guild";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { Guild } from "./Guild.js";
+import { User } from "./User.js";
 import { StickerFormatType, StickerType } from "#harmony/schemas";
-import { StickerPack } from "./StickerPack";
+import { StickerPack } from "./StickerPack.js";
 
 @Entity({
     name: "stickers",

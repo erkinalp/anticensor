@@ -18,12 +18,11 @@
 
 import { Router, Response, Request } from "express";
 import { Config, Snowflake } from "#harmony/util";
-import { storage } from "#harmony/cdn";
+import { storage, multer } from "#harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "#lambert-server";
 import crypto from "crypto";
-import { multer } from "../util/multer";
-import { cache, cacheNotFound } from "../util/cache";
+import { cache, cacheNotFound } from "../util/cache.js";
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon

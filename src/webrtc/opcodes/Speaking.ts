@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { mediaServer, VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util";
+import { mediaServer, VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util/index.js";
 
 // {"speaking":1,"delay":5,"ssrc":2805246727}
 

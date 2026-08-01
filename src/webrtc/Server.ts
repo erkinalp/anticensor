@@ -19,10 +19,11 @@ import dotenv from "dotenv";
 dotenv.config({ quiet: true });
 import { closeDatabase, Config, initDatabase, initEvent } from "#harmony/util";
 import http from "http";
-import ws from "ws";
-import { Connection } from "./events/Connection";
-import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util";
-import { green, yellow } from "picocolors";
+import * as ws from "ws";
+import { Connection } from "./events/Connection.js";
+import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util/index.js";
+import pkg from "picocolors";
+const { green, yellow } = pkg;
 
 export class Server {
     public ws: ws.Server;
@@ -50,7 +51,7 @@ export class Server {
         // 	});
         // });
 
-        this.ws = new ws.Server({
+        this.ws = new ws.WebSocketServer({
             maxPayload: 1024 * 1024 * 100,
             server: this.server,
         });

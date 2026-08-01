@@ -17,10 +17,10 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Team } from "./Team";
-import { User } from "./User";
-import { Guild } from "./Guild";
+import { BaseClass } from "./BaseClass.js";
+import { Team } from "./Team.js";
+import { User } from "./User.js";
+import { Guild } from "./Guild.js";
 
 @Entity({
     name: "applications",

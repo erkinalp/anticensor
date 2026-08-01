@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FileStorage } from "./FileStorage";
+import { FileStorage } from "./FileStorage.js";
 import path from "path";
 import fs from "fs";
-import { red } from "picocolors";
-import { S3Storage } from "./S3Storage";
+import pkg from "picocolors";
+const { red } = pkg;
+import { S3Storage } from "./S3Storage.js";
 process.cwd();
 
 export interface Storage {

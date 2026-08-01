@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { EndpointConfiguration } from "./EndpointConfiguration";
+import { EndpointConfiguration } from "./EndpointConfiguration.js";
 
 export class ApiConfiguration extends EndpointConfiguration {
     defaultVersion: string = "9";

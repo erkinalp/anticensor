@@ -17,8 +17,8 @@
 */
 
 import { OPCODES, Payload, WebSocket } from "#harmony/gateway";
-import { setHeartbeat } from "../util/Heartbeat";
-import { Send } from "../util/Send";
+import { setHeartbeat } from "../util/Heartbeat.js";
+import { Send } from "../util/Send.js";
 import { Session } from "#harmony/util";
 import { FindOptionsWhere } from "typeorm";
 

@@ -18,8 +18,8 @@
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 
-import { BaseClass } from "./BaseClass";
-import { Guild } from "./Guild";
+import { BaseClass } from "./BaseClass.js";
+import { Guild } from "./Guild.js";
 import { RoleColors } from "#harmony/schemas";
 
 @Entity({

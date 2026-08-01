@@ -15,10 +15,10 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./AuditLog";
-export * from "./Automod";
-export * from "./GuildProfileResponse";
-export * from "./GuildSchema";
-export * from "./Role";
-export * from "./Sticker";
-export * from "./VoiceState";
+export * from "./AuditLog.js";
+export * from "./Automod.js";
+export * from "./GuildProfileResponse.js";
+export * from "./GuildSchema.js";
+export * from "./Role.js";
+export * from "./Sticker.js";
+export * from "./VoiceState.js";

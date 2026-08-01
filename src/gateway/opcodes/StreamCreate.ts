@@ -1,6 +1,6 @@
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "#harmony/gateway";
 import { Channel, Config, emitEvent, Member, Snowflake, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { StreamCreateSchema } from "#harmony/schemas";
 
 export async function onStreamCreate(this: WebSocket, data: Payload) {

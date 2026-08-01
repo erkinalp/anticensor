@@ -17,15 +17,15 @@
 */
 
 import jwt from "jsonwebtoken";
-import { Config } from "./Config";
-import { InstanceBan, Session, User } from "../entities";
+import { Config } from "./Config.js";
+import { InstanceBan, Session, User } from "../entities/index.js";
 import crypto from "node:crypto";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
 import { randomUpperString } from "#harmony/api";
-import { TimeSpan } from "./Timespan";
+import { TimeSpan } from "./Timespan.js";
 import { HTTPError } from "#lambert-server";
 import path from "path";
 

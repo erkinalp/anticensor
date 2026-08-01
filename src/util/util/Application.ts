@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { Application, User } from "../entities";
+import { Application, User } from "../entities/index.js";
 
 export async function createAppBotUser(app: Application, req: Request) {
     const user = await User.register({

@@ -15,13 +15,13 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./ApplicationCommandCreateSchema";
-export * from "./ApplicationCommandSchema";
-export * from "./InteractionSchema";
-export * from "./InteractionCallbackSchema";
-export * from "./InteractionCallbackType";
-export * from "./InteractionCreateSchema";
-export * from "./SendableApplicationCommandDataSchema";
-export * from "./SendableMessageComponentDataSchema";
-export * from "./SendableModalSubmitDataSchema";
-export * from "./InteractionFailureReason";
+export * from "./ApplicationCommandCreateSchema.js";
+export * from "./ApplicationCommandSchema.js";
+export * from "./InteractionSchema.js";
+export * from "./InteractionCallbackSchema.js";
+export * from "./InteractionCallbackType.js";
+export * from "./InteractionCreateSchema.js";
+export * from "./SendableApplicationCommandDataSchema.js";
+export * from "./SendableMessageComponentDataSchema.js";
+export * from "./SendableModalSubmitDataSchema.js";
+export * from "./InteractionFailureReason.js";

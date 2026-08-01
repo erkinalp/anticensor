@@ -21,7 +21,7 @@ process.on("unhandledRejection", console.error);
 
 import { config } from "dotenv";
 config({ quiet: true });
-import { SpacebarServer } from "./Server";
+import { SpacebarServer } from "./Server.js";
 import cluster from "cluster";
 import os from "os";
 import fs from "fs";

@@ -28,18 +28,8 @@
         /* Modules */
         "module": "NodeNext" /* Specify what module code is generated. */,
         // "rootDir": "./src",                                  /* Specify the root folder within your source files. */
-        "moduleResolution": "nodenext" /* Specify how TypeScript looks up a file from a given module specifier. */,
+        "moduleResolution": "NodeNext" /* Specify how TypeScript looks up a file from a given module specifier. */,
         // "baseUrl": "./src/", //deprecated
-        "paths": {
-            //"*": ["./src/*"],
-            "@harmony/api*": ["./src/api"],
-            "@harmony/gateway*": ["./src/gateway"],
-            "@harmony/cdn*": ["./src/cdn"],
-            "@harmony/util*": ["./src/util"],
-            "@harmony/webrtc*": ["./src/webrtc"],
-            "@harmony/schemas*": ["./src/schemas"],
-            "lambert-server*": ["./src/util/util/lambert-server"]
-        } /* Specify a set of entries that re-map imports to additional lookup locations. */,
         "rootDir": "./src", // Required as of TypeScript 7
         // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
         // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

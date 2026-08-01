@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { Stopwatch, timePromise } from "./Stopwatch";
+import { Stopwatch, timePromise } from "./Stopwatch.js";
 
 describe("Stopwatch", () => {
     test("should be able to be initialised", () => {

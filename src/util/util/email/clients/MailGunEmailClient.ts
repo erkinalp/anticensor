@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseEmailClient, IEmail } from "./IEmailClient";
+import { BaseEmailClient, IEmail } from "./IEmailClient.js";
 import { Config } from "#harmony/util";
 
 // NOTE: mailgun supports SMTP, is there any point in maintaining this?

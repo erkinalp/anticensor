@@ -16,8 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "./Config";
-import { FieldErrors } from "./FieldError";
+import { Config } from "./Config.js";
+import { FieldErrors } from "./FieldError.js";
 import { HTTPError } from "#lambert-server";
 
 export function ValidateName(name: string, includesChecks = true) {

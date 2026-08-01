@@ -19,10 +19,10 @@
 import { CLOSECODES, setHeartbeat } from "#harmony/gateway";
 import { IncomingMessage } from "http";
 import { URL } from "url";
-import WS from "ws";
-import { VoiceOPCodes, WebRtcWebSocket, Send } from "../util";
-import { onClose } from "./Close";
-import { onMessage } from "./Message";
+import * as WS from "ws";
+import { VoiceOPCodes, WebRtcWebSocket, Send } from "../util/index.js";
+import { onClose } from "./Close.js";
+import { onMessage } from "./Message.js";
 
 // TODO: check rate limit
 // TODO: specify rate limit in config

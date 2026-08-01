@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./FileStorage";
-export * from "./multer";
-export * from "./Storage";
+export * from "./FileStorage.js";
+export * from "./multer.js";
+export * from "./Storage.js";

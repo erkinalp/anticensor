@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity } from "typeorm";
-import { BaseClassWithoutId } from "./BaseClass";
+import { BaseClassWithoutId } from "./BaseClass.js";
 
 @Entity({
     name: "badges",

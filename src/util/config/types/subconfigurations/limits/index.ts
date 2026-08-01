@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ChannelLimits";
-export * from "./GlobalRateLimits";
-export * from "./GuildLimits";
-export * from "./MessageLimits";
-export * from "./RateLimits";
-export * from "./UserLimits";
-export * from "./ratelimits/index";
+export * from "./ChannelLimits.js";
+export * from "./GlobalRateLimits.js";
+export * from "./GuildLimits.js";
+export * from "./MessageLimits.js";
+export * from "./RateLimits.js";
+export * from "./UserLimits.js";
+export * from "./ratelimits/index.js";

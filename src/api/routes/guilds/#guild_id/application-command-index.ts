@@ -53,7 +53,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         applicationCommands.push(await ApplicationCommand.find({ where: { application_id: application.id, guild_id: req.params.guild_id as string } }));
     }
 
-    const applicationCommandsSendable: ApplicationCommandSchema[] = [];
+    const applicationCommandsSendable: (ApplicationCommandSchema & { id?: string })[] = [];
 
     for (const command of applicationCommands.flat()) {
         applicationCommandsSendable.push({

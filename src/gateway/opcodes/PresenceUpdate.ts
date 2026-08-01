@@ -18,7 +18,7 @@
 
 import { WebSocket, Payload } from "#harmony/gateway";
 import { emitEvent, PresenceUpdateEvent, Session, User } from "#harmony/util";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { ActivitySchema } from "#harmony/schemas";
 
 export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {

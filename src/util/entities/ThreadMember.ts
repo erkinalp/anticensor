@@ -17,12 +17,12 @@
 */
 
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { ThreadMembersUpdateEvent } from "../interfaces";
-import { emitEvent } from "../util";
-import { BaseClassWithoutId } from "./BaseClass";
-import { Channel } from "./Channel";
+import { ThreadMembersUpdateEvent } from "../interfaces/index.js";
+import { emitEvent } from "../util/index.js";
+import { BaseClassWithoutId } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
 import { HTTPError } from "#lambert-server";
-import { Member } from "./Member";
+import { Member } from "./Member.js";
 
 // TODO: move
 interface ThreadMemberMuteConfig {

@@ -16,13 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util";
-import { onBackendVersion } from "./BackendVersion";
-import { onHeartbeat } from "./Heartbeat";
-import { onIdentify } from "./Identify";
-import { onSelectProtocol } from "./SelectProtocol";
-import { onSpeaking } from "./Speaking";
-import { onVideo } from "./Video";
+import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util/index.js";
+import { onBackendVersion } from "./BackendVersion.js";
+import { onHeartbeat } from "./Heartbeat.js";
+import { onIdentify } from "./Identify.js";
+import { onSelectProtocol } from "./SelectProtocol.js";
+import { onSpeaking } from "./Speaking.js";
+import { onVideo } from "./Video.js";
 
 export type OPCodeHandler = (this: WebRtcWebSocket, data: VoicePayload) => Promise<void>;
 

@@ -16,12 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
-
 import cluster, { Worker } from "cluster";
 import os from "os";
-import { red, bold, yellow, cyan, blueBright, redBright } from "picocolors";
-import { initStats } from "./stats";
+import pkg from "picocolors";
+const { red, bold, yellow, cyan, blueBright, redBright } = pkg;
+import { initStats } from "./stats.js";
 import { config } from "dotenv";
 
 config({ quiet: true });

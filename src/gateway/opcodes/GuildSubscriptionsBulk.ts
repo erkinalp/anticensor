@@ -1,7 +1,7 @@
 import { WebSocket, Payload } from "#harmony/gateway";
-import { onLazyRequest } from "./LazyRequest";
+import { onLazyRequest } from "./LazyRequest.js";
 import { GuildSubscriptionsBulkSchema } from "#harmony/schemas";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 
 export async function onGuildSubscriptionsBulk(this: WebSocket, payload: Payload) {
     const startTime = Date.now();

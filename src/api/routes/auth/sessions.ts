@@ -19,7 +19,7 @@ import { route } from "#harmony/api";
 import { createHash } from "node:crypto";
 import { emitEvent, Session } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { SessionsLogoutSchema } from "../../../schemas/api/users/SessionsSchemas";
+import { SessionsLogoutSchema } from "../../../schemas/api/users/SessionsSchemas.js";
 import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 router.get(

@@ -19,7 +19,7 @@
 import { config } from "dotenv";
 config({ quiet: true });
 
-import { CDNServer } from "./Server";
+import { CDNServer } from "./Server.js";
 import fs from "fs";
 import cluster from "cluster";
 const server = new CDNServer({ port: Number(process.env.PORT) || 3003 });

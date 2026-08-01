@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApiError } from "./ApiError";
+import { ApiError } from "./ApiError.js";
 
 export const WSCodes = {
     1000: "WS_CLOSE_REQUESTED",

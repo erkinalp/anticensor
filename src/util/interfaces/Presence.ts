@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ClientStatus, Status } from "./Status";
-import { Activity } from "./Activity";
+import { ClientStatus, Status } from "./Status.js";
+import { Activity } from "./Activity.js";
 import { PublicUser } from "#harmony/schemas";
 
 export interface Presence {

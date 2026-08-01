@@ -17,9 +17,9 @@
 */
 
 import crypto from "crypto";
-import { ConnectedAccount } from "../entities";
+import { ConnectedAccount } from "../entities/index.js";
 import { ConnectedAccountSchema, ConnectionCallbackSchema } from "#harmony/schemas";
-import { Config, DiscordApiErrors } from "../util";
+import { Config, DiscordApiErrors } from "../util/index.js";
 
 /**
  * A connection that can be used to connect to an external service.

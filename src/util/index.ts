@@ -18,11 +18,11 @@
 
 // NOTE: !! DO NOT REORDER THE IMPORTS !!
 
-export * from "./util/index";
-export * from "./interfaces/index";
-export * from "./entities/index";
-export * from "./dtos/index";
-export * from "./imports";
-export * from "./config";
-export * from "./connections";
-export * from "./Signing";
+export * from "./util/index.js";
+export * from "./interfaces/index.js";
+export * from "./entities/index.js";
+export * from "./dtos/index.js";
+export * from "./imports/index.js";
+export * from "./config/index.js";
+export * from "./connections/index.js";
+export * from "./Signing.js";

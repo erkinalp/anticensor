@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { BaseClassWithoutId } from "./BaseClass";
+import { BaseClassWithoutId } from "./BaseClass.js";
 
 // TODO: categories:
 // [{

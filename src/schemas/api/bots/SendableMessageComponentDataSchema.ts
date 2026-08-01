@@ -17,8 +17,8 @@
 */
 
 import { Snowflake } from "#harmony/util";
-import { MessageComponentType } from "../messages";
-import { ApplicationCommandType } from "./ApplicationCommandSchema";
+import { MessageComponentType } from "../messages/index.js";
+import { ApplicationCommandType } from "./ApplicationCommandSchema.js";
 
 export interface SendableMessageComponentDataSchema {
     component_type?: MessageComponentType;

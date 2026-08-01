@@ -17,7 +17,8 @@
 */
 
 import type { SignalingDelegate } from "@spacebarchat/spacebar-webrtc-types";
-import { green, red } from "picocolors";
+import pkg from "picocolors";
+const { green, red } = pkg;
 
 export let mediaServer: SignalingDelegate;
 

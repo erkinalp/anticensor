@@ -17,19 +17,19 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { Config, GuildWelcomeScreen, Snowflake, handleFile } from "..";
-import { Ban } from "./Ban";
-import { BaseClass } from "./BaseClass";
-import { Channel } from "./Channel";
-import { Emoji } from "./Emoji";
-import { Invite } from "./Invite";
-import { Member } from "./Member";
-import { Role } from "./Role";
-import { Sticker } from "./Sticker";
-import { Template } from "./Template";
-import { User } from "./User";
-import { VoiceState } from "./VoiceState";
-import { Webhook } from "./Webhook";
+import { Config, GuildWelcomeScreen, Snowflake, handleFile } from "../index.js";
+import { Ban } from "./Ban.js";
+import { BaseClass } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
+import { Emoji } from "./Emoji.js";
+import { Invite } from "./Invite.js";
+import { Member } from "./Member.js";
+import { Role } from "./Role.js";
+import { Sticker } from "./Sticker.js";
+import { Template } from "./Template.js";
+import { User } from "./User.js";
+import { VoiceState } from "./VoiceState.js";
+import { Webhook } from "./Webhook.js";
 import { arrayRemove } from "#harmony/util";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events

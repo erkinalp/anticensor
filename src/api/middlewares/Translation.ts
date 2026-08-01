@@ -19,7 +19,7 @@
 import fs from "fs";
 import path from "path";
 import i18next from "i18next";
-import i18nextMiddleware from "i18next-http-middleware";
+import * as i18nextMiddleware from "i18next-http-middleware";
 import i18nextBackend from "i18next-fs-backend";
 import { Router } from "express";
 

@@ -35,7 +35,7 @@ import {
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "#harmony/schemas";
 
 import { Request, Response, Router } from "express";
-import { messageUpload } from "./messages";
+import { messageUpload } from "./messages/index.js";
 import { HTTPError } from "#util/util/lambert-server";
 import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, IsNull } from "typeorm";
 
@@ -173,7 +173,7 @@ router.post(
                 // have to fetch ourselves otherwise.
                 if (!message.member) {
                     message.member = await Member.findOneOrFail({
-                        where: { id: req.user_id, guild_id: message.guild_id?message.guild_id:IsNull() },
+                        where: { id: req.user_id, guild_id: message.guild_id ? message.guild_id : IsNull() },
                         relations: { roles: true },
                     });
                 }

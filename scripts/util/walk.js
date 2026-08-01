@@ -15,11 +15,10 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-const fs = require("fs");
+import fs from "fs";
 
 /** dir: string. types: string[] ( file types ) */
-module.exports = function walk(dir, types = ["ts"]) {
+export default function walk(dir, types = ["ts"]) {
     var results = [];
     var list = fs.readdirSync(dir);
     list.forEach(function (file) {
@@ -34,4 +33,4 @@ module.exports = function walk(dir, types = ["ts"]) {
         }
     });
     return results;
-};
+}

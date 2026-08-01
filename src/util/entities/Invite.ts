@@ -17,11 +17,11 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
-import { BaseClassWithoutId } from "./BaseClass";
-import { Channel } from "./Channel";
-import { Guild } from "./Guild";
-import { Member } from "./Member";
-import { User } from "./User";
+import { BaseClassWithoutId } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
+import { Guild } from "./Guild.js";
+import { Member } from "./Member.js";
+import { User } from "./User.js";
 
 export const PublicInviteRelation = ["inviter", "guild", "channel"];
 

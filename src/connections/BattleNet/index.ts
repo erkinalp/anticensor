@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "#harmony/util";
 import wretch from "wretch";
-import { BattleNetSettings } from "./BattleNetSettings";
+import { BattleNetSettings } from "./BattleNetSettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface BattleNetConnectionUser {

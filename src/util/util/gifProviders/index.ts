@@ -1,2 +1,2 @@
-export * from "./gifProvider";
-export * from "./getProvider";
+export * from "./gifProvider.js";
+export * from "./getProvider.js";

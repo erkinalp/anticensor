@@ -17,9 +17,9 @@
 */
 
 import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Channel } from "./Channel";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
+import { User } from "./User.js";
 import { ReadStateFlags, ReadStateType } from "#harmony/schemas";
 
 // for read receipts

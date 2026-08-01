@@ -16,5 +16,5 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Server";
-export * from "./util/index";
+export * from "./Server.js";
+export * from "./util/index.js";

@@ -17,20 +17,20 @@
 */
 
 import { WebSocket, Payload } from "#harmony/gateway";
-import { onHeartbeat } from "./Heartbeat";
-import { onIdentify } from "./Identify";
-import { onLazyRequest } from "./LazyRequest";
-import { onPresenceUpdate } from "./PresenceUpdate";
-import { onRequestGuildMembers } from "./RequestGuildMembers";
-import { onResume } from "./Resume";
-import { onVoiceStateUpdate } from "./VoiceStateUpdate";
-import { onGuildSubscriptionsBulk } from "./GuildSubscriptionsBulk";
-import { onStreamCreate } from "./StreamCreate";
-import { onStreamDelete } from "./StreamDelete";
-import { onStreamWatch } from "./StreamWatch";
-import { onGuildSync } from "./GuildSync";
-import { onRequestChannelStatuses } from "./RequestChannelStatuses";
-import { onRequestChannelInfo } from "./RequestChannelInfo";
+import { onHeartbeat } from "./Heartbeat.js";
+import { onIdentify } from "./Identify.js";
+import { onLazyRequest } from "./LazyRequest.js";
+import { onPresenceUpdate } from "./PresenceUpdate.js";
+import { onRequestGuildMembers } from "./RequestGuildMembers.js";
+import { onResume } from "./Resume.js";
+import { onVoiceStateUpdate } from "./VoiceStateUpdate.js";
+import { onGuildSubscriptionsBulk } from "./GuildSubscriptionsBulk.js";
+import { onStreamCreate } from "./StreamCreate.js";
+import { onStreamDelete } from "./StreamDelete.js";
+import { onStreamWatch } from "./StreamWatch.js";
+import { onGuildSync } from "./GuildSync.js";
+import { onRequestChannelStatuses } from "./RequestChannelStatuses.js";
+import { onRequestChannelInfo } from "./RequestChannelInfo.js";
 
 export type OPCodeHandler = (this: WebSocket, data: Payload) => unknown;
 

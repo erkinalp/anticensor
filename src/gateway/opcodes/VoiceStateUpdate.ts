@@ -19,7 +19,7 @@
 import { Payload, WebSocket } from "#harmony/gateway";
 import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
 import { genVoiceToken } from "#harmony/gateway";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { Region, VoiceStateUpdateSchema } from "#harmony/schemas";
 // TODO: check if a voice server is setup
 

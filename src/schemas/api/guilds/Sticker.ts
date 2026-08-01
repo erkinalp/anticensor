@@ -1,5 +1,5 @@
-import { Snowflake } from "../../Identifiers";
-import { PartialUser } from "../users";
+import { Snowflake } from "../../Identifiers.js";
+import { PartialUser } from "../users/index.js";
 
 export type StickersResponse = StickerResponse[];
 export interface StickerResponse {

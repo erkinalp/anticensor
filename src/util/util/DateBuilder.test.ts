@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { DateBuilder } from "./DateBuilder";
+import { DateBuilder } from "./DateBuilder.js";
 
 describe("DateBuilder", () => {
     test("should be able to be initialised", () => {

@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "#harmony/util";
 import wretch from "wretch";
-import { XboxSettings } from "./XboxSettings";
+import { XboxSettings } from "./XboxSettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface XboxUserResponse {

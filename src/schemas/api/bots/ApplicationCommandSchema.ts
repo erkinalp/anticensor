@@ -19,7 +19,6 @@
 import { ApplicationCommandOption, Snowflake, StringStringDictionary } from "#harmony/schemas";
 
 export interface ApplicationCommandSchema {
-    id?: Snowflake;
     type?: ApplicationCommandType;
     application_id: Snowflake;
     guild_id?: Snowflake;

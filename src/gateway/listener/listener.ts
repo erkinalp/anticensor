@@ -31,11 +31,12 @@ import {
     Recipient,
     Relationship,
 } from "#harmony/util";
-import { CLOSECODES, OPCODES, Send } from "../util";
+import { CLOSECODES, OPCODES, Send } from "../util/index.js";
 import { WebSocket } from "#harmony/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicMember, RelationshipType } from "#harmony/schemas";
-import { bgRedBright } from "picocolors";
+import pkg from "picocolors";
+const { bgRedBright } = pkg;
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent

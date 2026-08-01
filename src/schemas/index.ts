@@ -15,11 +15,11 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./api";
-export * from "./gateway";
-export * from "./responses";
-export * from "./uncategorised";
-export * from "./webrtc";
-export * from "./HelperTypes";
-export * from "./Identifiers";
-export * from "./Validator";
+export * from "./api/index.js";
+export * from "./gateway/index.js";
+export * from "./responses/index.js";
+export * from "./uncategorised/index.js";
+export * from "./webrtc/index.js";
+export * from "./HelperTypes.js";
+export * from "./Identifiers.js";
+export * from "./Validator.js";

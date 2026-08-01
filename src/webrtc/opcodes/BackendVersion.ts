@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util";
+import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util/index.js";
 
 export async function onBackendVersion(this: WebRtcWebSocket, _: VoicePayload) {
     await Send(this, {

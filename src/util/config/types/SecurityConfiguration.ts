@@ -17,7 +17,7 @@
 */
 
 import crypto from "crypto";
-import { CaptchaConfiguration, TwoFactorConfiguration } from ".";
+import { CaptchaConfiguration, TwoFactorConfiguration } from "./index.js";
 
 export class SecurityConfiguration {
     captcha: CaptchaConfiguration = new CaptchaConfiguration();

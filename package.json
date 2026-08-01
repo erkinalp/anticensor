@@ -20,7 +20,7 @@
         "setup": "npm run build && npm run generate:schema",
         "sync:db": "npm run build && node -r dotenv/config -r module-alias/register --enable-source-maps scripts/syncronise.js",
         "generate:rights": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/rights.js",
-        "generate:schema": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/schema.js",
+        "generate:schema": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/schema.mjs",
         "generate:migration": "node -r dotenv/config -r module-alias/register --enable-source-maps node_modules/typeorm/cli.js migration:generate -d dist/util/util/Database.js",
         "generate:openapi": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/openapi.js",
         "add:license": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/license.js",
@@ -40,13 +40,14 @@
         "url": "https://codeberg.org/MelodyChat/Harmony/issues"
     },
     "imports": {
-        "#harmony/api": "dist/api",
-        "#harmony/cdn": "dist/cdn",
-        "#harmony/gateway": "dist/gateway",
-        "#harmony/util": "dist/util",
-        "#harmony/webrtc": "dist/webrtc",
-        "#harmony/schemas": "dist/schemas",
-        "#lambert-server": "dist/util/util/lambert-server"
+        "#harmony/api": "./dist/api/index.js",
+        "#harmony/cdn": "./dist/cdn/index.js",
+        "#harmony/gateway": "./dist/gateway/index.js",
+        "#harmony/util": "./dist/util/index.js",
+        "#harmony/webrtc": "./dist/webrtc/index.js",
+        "#harmony/schemas": "./dist/schemas/index.js",
+        "#lambert-server": "./dist/util/util/lambert-server/index.js",
+        "#*": "./dist/*/index.js"
     },
     "homepage": "https://redir.fermi.chat/home",
     "devDependencies": {

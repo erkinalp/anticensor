@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./DateOfBirth";
-export * from "./Email";
-export * from "./Password";
+export * from "./DateOfBirth.js";
+export * from "./Email.js";
+export * from "./Password.js";

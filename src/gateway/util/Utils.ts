@@ -1,7 +1,7 @@
 import { Event, VoiceState } from "#harmony/util";
-import { WebSocket } from "./WebSocket";
-import { OPCODES } from "./Constants";
-import { Send } from "./Send";
+import { WebSocket } from "./WebSocket.js";
+import { OPCODES } from "./Constants.js";
+import { Send } from "./Send.js";
 
 export function parseStreamKey(streamKey: string): {
     type: "guild" | "call";

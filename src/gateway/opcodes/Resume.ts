@@ -17,7 +17,7 @@
 */
 
 import { WebSocket } from "#harmony/gateway";
-import { Send } from "../util/Send";
+import { Send } from "../util/Send.js";
 
 export async function onResume(this: WebSocket) {
     // console.log("Got Resume -> cancel not implemented");

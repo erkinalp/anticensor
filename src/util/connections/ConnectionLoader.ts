@@ -19,8 +19,8 @@
 import { Connection } from "#harmony/util";
 import fs from "fs";
 import path from "path";
-import { ConnectionConfig } from "./ConnectionConfig";
-import { ConnectionStore } from "./ConnectionStore";
+import { ConnectionConfig } from "./ConnectionConfig.js";
+import { ConnectionStore } from "./ConnectionStore.js";
 
 const root = path.join(__dirname, "..", "..", "connections");
 const connectionsLoaded = false;

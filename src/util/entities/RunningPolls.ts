@@ -17,8 +17,8 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Message } from "./Message";
+import { BaseClass } from "./BaseClass.js";
+import { Message } from "./Message.js";
 import { sendMessage } from "#harmony/api";
 import { Embed, EmbedType, MessageType, PollAnswer } from "#harmony/schemas";
 import { emitEvent } from "#harmony/util";

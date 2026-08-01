@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./defaults";
-export * from "./guild";
-export * from "./kafka";
-export * from "./limits";
-export * from "./register";
-export * from "./security";
+export * from "./defaults/index.js";
+export * from "./guild/index.js";
+export * from "./kafka/index.js";
+export * from "./limits/index.js";
+export * from "./register/index.js";
+export * from "./security/index.js";

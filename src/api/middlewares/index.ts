@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Authentication";
-export * from "./BodyParser";
-export * from "./CORS";
-export * from "./ErrorHandler";
-export * from "./ImageProxy";
-export * from "./RateLimit";
-export * from "./Translation";
+export * from "./Authentication.js";
+export * from "./BodyParser.js";
+export * from "./CORS.js";
+export * from "./ErrorHandler.js";
+export * from "./ImageProxy.js";
+export * from "./RateLimit.js";
+export * from "./Translation.js";

@@ -18,14 +18,14 @@
 
 import fs from "fs/promises";
 import path from "node:path";
-import { User } from "../../entities";
-import { Config } from "../Config";
-import { generateToken } from "../Token";
-import { IEmail, IEmailClient } from "./clients/IEmailClient";
-import { SendGridEmailClient } from "./clients/SendGridEmailClient";
-import { SMTPEmailClient } from "./clients/SMTPEmailClient";
-import { MailGunEmailClient } from "./clients/MailGunEmailClient";
-import { MailJetEmailClient } from "./clients/MailJetEmailClient";
+import { User } from "../../entities/index.js";
+import { Config } from "../Config.js";
+import { generateToken } from "../Token.js";
+import { IEmail, IEmailClient } from "./clients/IEmailClient.js";
+import { SendGridEmailClient } from "./clients/SendGridEmailClient.js";
+import { SMTPEmailClient } from "./clients/SMTPEmailClient.js";
+import { MailGunEmailClient } from "./clients/MailGunEmailClient.js";
+import { MailJetEmailClient } from "./clients/MailJetEmailClient.js";
 
 const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "..", "assets");
 

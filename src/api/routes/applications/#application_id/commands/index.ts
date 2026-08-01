@@ -60,8 +60,7 @@ router.post(
         if (commandExists) {
             await ApplicationCommand.update({ application_id: req.params.application_id as string, name: body.name.trim() }, commandForDb);
         } else {
-            commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-            await ApplicationCommand.save(commandForDb);
+            await ApplicationCommand.save({ id: Snowflake.generate(), ...commandForDb });
         }
 
         res.send(body);
@@ -99,8 +98,7 @@ router.put(
                 if (commandExists) {
                     await ApplicationCommand.update({ application_id: req.params.application_id as string, name: command.name.trim() }, commandForDb);
                 } else {
-                    commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-                    await ApplicationCommand.save(commandForDb);
+                    await ApplicationCommand.save({ ...commandForDb, id: Snowflake.generate() });
                 }
             }),
         );

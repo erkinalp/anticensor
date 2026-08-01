@@ -18,8 +18,8 @@
 
 import FormData from "form-data";
 import { HTTPError } from "#lambert-server";
-import { Attachment } from "../entities";
-import { Config } from "./Config";
+import { Attachment } from "../entities/index.js";
+import { Config } from "./Config.js";
 
 export async function uploadFile(
     path: string,

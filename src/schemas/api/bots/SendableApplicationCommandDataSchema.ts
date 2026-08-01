@@ -17,8 +17,8 @@
 */
 
 import { Snowflake } from "#harmony/util";
-import { ApplicationCommandOption } from "../developers";
-import { ApplicationCommandType } from "./ApplicationCommandSchema";
+import { ApplicationCommandOption } from "../developers/index.js";
+import { ApplicationCommandType } from "./ApplicationCommandSchema.js";
 
 export interface SendableApplicationCommandDataSchema {
     id: Snowflake;

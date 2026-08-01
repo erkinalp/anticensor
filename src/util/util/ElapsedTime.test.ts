@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { ElapsedTime } from "./ElapsedTime";
+import { ElapsedTime } from "./ElapsedTime.js";
 
 describe("ElapsedTime", () => {
     test("should be able to be initialised", () => {

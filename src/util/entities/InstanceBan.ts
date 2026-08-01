@@ -17,7 +17,7 @@
 */
 
 import { Column, CreateDateColumn, Entity, FindOptionsWhere, Index, JoinColumn, OneToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
+import { BaseClass } from "./BaseClass.js";
 
 @Entity({
     name: "instance_bans",

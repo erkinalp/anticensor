@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DiscoveryConfiguration, AutoJoinConfiguration } from ".";
+import { DiscoveryConfiguration, AutoJoinConfiguration } from "./index.js";
 
 export class GuildConfiguration {
     discovery: DiscoveryConfiguration = new DiscoveryConfiguration();

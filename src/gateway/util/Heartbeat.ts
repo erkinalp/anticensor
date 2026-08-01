@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES } from "./Constants";
-import { WebSocket } from "./WebSocket";
+import { CLOSECODES } from "./Constants.js";
+import { WebSocket } from "./WebSocket.js";
 
 // TODO: make heartbeat timeout configurable
 export function setHeartbeat(socket: WebSocket) {

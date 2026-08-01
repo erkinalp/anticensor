@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Constants";
-export * from "./Send";
-export * from "./SessionUtils";
-export * from "./Heartbeat";
-export * from "./WebSocket";
-export * from "./Capabilities";
-export * from "./Utils";
+export * from "./Constants.js";
+export * from "./Send.js";
+export * from "./SessionUtils.js";
+export * from "./Heartbeat.js";
+export * from "./WebSocket.js";
+export * from "./Capabilities.js";
+export * from "./Utils.js";

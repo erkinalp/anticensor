@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Server";
-export * from "./util/";
-export * from "./opcodes/";
-export * from "./listener/listener";
+export * from "./Server.js";
+export * from "./util/index.js";
+export * from "./opcodes/index.js";
+export * from "./listener/listener.js";

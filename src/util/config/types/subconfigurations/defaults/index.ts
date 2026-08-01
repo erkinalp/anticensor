@@ -16,5 +16,5 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./GuildDefaults";
-export * from "./UserDefaults";
+export * from "./GuildDefaults.js";
+export * from "./UserDefaults.js";

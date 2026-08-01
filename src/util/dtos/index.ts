@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./ConnectedAccountDTO";
-export * from "./DmChannelDTO";
-export * from "./ReadyGuildDTO";
-export * from "./UserDTO";
+export * from "./ConnectedAccountDTO.js";
+export * from "./DmChannelDTO.js";
+export * from "./ReadyGuildDTO.js";
+export * from "./UserDTO.js";

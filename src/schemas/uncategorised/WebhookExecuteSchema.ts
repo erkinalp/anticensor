@@ -17,7 +17,7 @@
 */
 
 import { Embed } from "#harmony/schemas";
-import { MessageCreateAttachment, PollCreationSchema } from "./MessageCreateSchema";
+import { MessageCreateAttachment, PollCreationSchema } from "./MessageCreateSchema.js";
 
 export interface WebhookExecuteSchema {
     content?: string;

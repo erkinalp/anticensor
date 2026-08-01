@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "#harmony/util";
 import wretch from "wretch";
-import { DiscordSettings } from "./DiscordSettings";
+import { DiscordSettings } from "./DiscordSettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface UserResponse {

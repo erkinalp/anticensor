@@ -18,18 +18,17 @@
 
 import { Request } from "express";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
-import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { convertTimestamp, Random } from "../util";
-import { BaseClass } from "./BaseClass";
-import { ConnectedAccount } from "./ConnectedAccount";
-import { Member } from "./Member";
-import { Relationship } from "./Relationship";
-import { SecurityKey } from "./SecurityKey";
-import { Session } from "./Session";
-import { UserSettings } from "./UserSettings";
+import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "../index.js";
+import { convertTimestamp, Random } from "../util/index.js";
+import { BaseClass } from "./BaseClass.js";
+import { ConnectedAccount } from "./ConnectedAccount.js";
+import { Member } from "./Member.js";
+import { Relationship } from "./Relationship.js";
+import { SecurityKey } from "./SecurityKey.js";
+import { Session } from "./Session.js";
+import { UserSettings } from "./UserSettings.js";
 import {
     AvatarDecorationData,
-    ChannelType,
     Collectibles,
     DisplayNameStyle,
     PartialUser,
@@ -39,7 +38,8 @@ import {
     PublicUserProjection,
     UserPrivate,
 } from "#harmony/schemas";
-import { JsonNumber } from "../util/Decorators";
+import { ChannelType } from "#harmony/schemas";
+import { JsonNumber } from "../util/Decorators.js";
 
 @Entity({
     name: "users",

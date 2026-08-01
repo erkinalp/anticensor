@@ -21,8 +21,8 @@ import fs from "fs/promises";
 import BigIntJson from "json-bigint";
 import path from "path";
 import WS from "ws";
-import OPCodeHandlers from "../opcodes";
-import { check } from "../opcodes/instanceOf";
+import OPCodeHandlers from "../opcodes/index.js";
+import { check } from "../opcodes/instanceOf.js";
 import { PayloadSchema } from "#harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });

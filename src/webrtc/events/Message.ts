@@ -17,8 +17,8 @@
 */
 
 import { CLOSECODES } from "#harmony/gateway";
-import OPCodeHandlers from "../opcodes";
-import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util";
+import OPCodeHandlers from "../opcodes/index.js";
+import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util/index.js";
 
 export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
     try {

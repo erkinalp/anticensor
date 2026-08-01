@@ -18,7 +18,8 @@
 
 import os from "os";
 import { readFileSync } from "node:fs";
-import { red } from "picocolors";
+import pkg from "picocolors";
+const { red } = pkg;
 
 export function initStats() {
     console.log(`[Path] Running in ${process.cwd()}`);

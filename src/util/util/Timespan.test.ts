@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { TimeSpan } from "./Timespan";
+import { TimeSpan } from "./Timespan.js";
 
 describe("TimeSpan", () => {
     test("should be able to be initialised", () => {

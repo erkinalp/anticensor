@@ -22,7 +22,7 @@ import { storage } from "#harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "#lambert-server";
 import crypto from "crypto";
-import { multer } from "../util/multer";
+import { multer } from "../util/multer.js";
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon

@@ -17,7 +17,7 @@
 */
 
 import { CLOSECODES, setHeartbeat } from "#harmony/gateway";
-import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util";
+import { VoiceOPCodes, VoicePayload, WebRtcWebSocket, Send } from "../util/index.js";
 
 export async function onHeartbeat(this: WebRtcWebSocket, data: VoicePayload) {
     setHeartbeat(this);

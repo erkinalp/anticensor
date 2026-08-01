@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { APIErrorResponse } from "./APIErrorResponse";
-import { CaptchaRequiredResponse } from "./CaptchaRequiredResponse";
+import { APIErrorResponse } from "./APIErrorResponse.js";
+import { CaptchaRequiredResponse } from "./CaptchaRequiredResponse.js";
 
 export type APIErrorOrCaptchaResponse = CaptchaRequiredResponse | APIErrorResponse;

@@ -1,6 +1,6 @@
-import { Giphy } from "./giphy";
-import { Klipy } from "./klipy";
-import { Tenor } from "./tenor";
+import { Giphy } from "./giphy.js";
+import { Klipy } from "./klipy.js";
+import { Tenor } from "./tenor.js";
 
 export function getGifProvider(prov?:string){
 	switch(prov){

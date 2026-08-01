@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CollectiblesCategoryItem, StaticAnimatedAsset } from "./CollectiblesCategoriesResponse";
+import { CollectiblesCategoryItem, StaticAnimatedAsset } from "./CollectiblesCategoriesResponse.js";
 
 export interface CollectiblesShopResponse {
     shop_blocks: AnyShopBlock[];

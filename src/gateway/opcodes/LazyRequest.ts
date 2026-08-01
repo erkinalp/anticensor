@@ -18,8 +18,8 @@
 
 import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "#harmony/util";
 import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "#harmony/gateway";
-import murmur from "murmurhash-js/murmurhash3_gc";
-import { check } from "./instanceOf";
+import murmur from "murmurhash-js";
+import { check } from "./instanceOf.js";
 import { LazyRequestSchema } from "#harmony/schemas";
 
 // TODO: only show roles/members that have access to this channel

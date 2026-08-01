@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import Ajv from "ajv";
+import { Ajv } from "ajv";
 import addFormats from "ajv-formats";
 import fs from "fs";
 import path from "path";
@@ -51,7 +51,7 @@ export const ajv = new Ajv({
     allowUnionTypes: true,
 });
 
-addFormats(ajv);
+addFormats.default(ajv);
 
 export function validateSchema<G extends object>(schema: string, data: G): G {
     const valid = ajv.validate(schema, data);

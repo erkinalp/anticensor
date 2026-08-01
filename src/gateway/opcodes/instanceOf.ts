@@ -18,7 +18,7 @@
 
 import { instanceOf } from "#lambert-server";
 import { WebSocket } from "#harmony/gateway";
-import { CLOSECODES } from "../util/Constants";
+import { CLOSECODES } from "../util/Constants.js";
 
 export function check(this: WebSocket, schema: unknown, data: unknown) {
     try {

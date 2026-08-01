@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseClass } from "./BaseClass";
+import { BaseClass } from "./BaseClass.js";
 import { Entity, JoinColumn, ManyToOne, Column } from "typeorm";
-import { User } from "./User";
+import { User } from "./User.js";
 import { AutomodAction, AutomodRuleEventType, AutomodRuleTriggerMetadata, AutomodRuleTriggerType } from "#harmony/schemas";
 
 @Entity({

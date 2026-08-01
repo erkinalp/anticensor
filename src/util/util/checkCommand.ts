@@ -16,7 +16,7 @@ export function checkCommand(command: ApplicationCommandCreateSchema, appId: str
         });
     }
 
-    const commandForDb: ApplicationCommandSchema = {
+    const commandForDb = {
         application_id: appId,
         name: command.name.trim(),
         name_localizations: command.name_localizations,
@@ -32,6 +32,6 @@ export function checkCommand(command: ApplicationCommandCreateSchema, appId: str
         options: command.options,
         type: command.type,
         version: Snowflake.generate(),
-    };
+    } satisfies ApplicationCommandSchema;
     return commandForDb;
 }

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { MinimalPublicUserDTO } from "./UserDTO";
-import { Channel, User } from "../entities";
+import { MinimalPublicUserDTO } from "./UserDTO.js";
+import { Channel, User } from "../entities/index.js";
 import { PublicUserProjection } from "#harmony/schemas";
 
 export class DmChannelDTO {

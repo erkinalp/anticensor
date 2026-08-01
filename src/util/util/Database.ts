@@ -18,7 +18,8 @@
 
 import { config } from "dotenv";
 import path from "path";
-import { green, red, yellow } from "picocolors";
+import pkg from "picocolors";
+const { green, red, yellow } = pkg;
 import { DataSource } from "typeorm";
 // noinspection ES6PreferShortImport
 
@@ -58,13 +59,13 @@ export const DataSourceOptions = isHeadlessProcess
           type: DatabaseType,
           charset: "utf8mb4",
           url: process.env.DATABASE,
-          entities: [path.join(__dirname, "..", "entities", "*.js")],
+          entities: [path.join(__dirname, "..", "entities", "./index.js")],
           synchronize: !!process.env.DB_SYNC,
           logging: !!process.env.DB_LOGGING,
           bigNumberStrings: false,
           supportBigNumbers: true,
           name: "default",
-          migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
+          migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "./index.js")] : [],
       });
 
 // Gets the existing database connection

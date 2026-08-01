@@ -16,5 +16,5 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Captcha";
-export * from "./TwoFactor";
+export * from "./Captcha.js";
+export * from "./TwoFactor.js";

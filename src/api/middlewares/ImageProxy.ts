@@ -18,7 +18,8 @@
 
 import { Config, JimpType } from "#harmony/util";
 import { Request, Response } from "express";
-import { yellow } from "picocolors";
+import pkg from "picocolors";
+const { yellow } = pkg;
 import crypto from "crypto";
 
 let sharp: undefined | false | { default: typeof import("sharp") } = undefined;

@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { User } from "./User";
-import { Channel } from "./Channel";
+import { BaseClass } from "./BaseClass.js";
+import { User } from "./User.js";
+import { Channel } from "./Channel.js";
 
 @Entity({
     name: "streams",

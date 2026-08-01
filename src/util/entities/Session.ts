@@ -17,12 +17,12 @@
 */
 
 import crypto from "crypto";
-import { User } from "./User";
-import { BaseClassWithoutId } from "./BaseClass";
+import { User } from "./User.js";
+import { BaseClassWithoutId } from "./BaseClass.js";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
-import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces";
+import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces/index.js";
 import { randomUpperString } from "#harmony/api";
-import { DateBuilder, IpDataClient, TimeSpan } from "../util";
+import { DateBuilder, IpDataClient, TimeSpan } from "../util/index.js";
 
 @Entity({
     name: "sessions",

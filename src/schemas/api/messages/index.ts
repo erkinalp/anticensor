@@ -15,7 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./Components";
-export * from "./Embeds";
-export * from "./Message";
-export * from "./Polls";
+export * from "./Components.js";
+export * from "./Embeds.js";
+export * from "./Message.js";
+export * from "./Polls.js";

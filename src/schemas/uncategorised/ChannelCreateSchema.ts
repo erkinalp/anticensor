@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelModifySchema } from "./ChannelModifySchema";
+import { ChannelModifySchema } from "./ChannelModifySchema.js";
 
 export type ChannelCreateSchema = Omit<ChannelModifySchema, "available_tags">;

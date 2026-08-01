@@ -2,7 +2,7 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah, 2022 Erkin Alp Güney
 // @fc-license-skip
 
-import { BitField } from "./BitField";
+import { BitField } from "./BitField.js";
 
 export class MessageFlags extends BitField {
     static FLAGS = {

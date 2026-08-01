@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseClass } from "./BaseClass";
+import { BaseClass } from "./BaseClass.js";
 import { Entity, Column } from "typeorm";
-import { ReportMenuType } from "../../schemas/api/reports/ReportMenu";
+import { ReportMenuType } from "../../schemas/api/reports/ReportMenu.js";
 
 @Entity({
     name: "report_menus",

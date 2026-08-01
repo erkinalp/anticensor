@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, Emoji, Guild, Role, Sticker } from "../entities";
+import { Channel, Emoji, Guild, Role, Sticker } from "../entities/index.js";
 import { ChannelOverride, ChannelType, PublicMember, PublicUser, UserGuildSettings } from "#harmony/schemas";
 
 // TODO: this is not the best place for this type

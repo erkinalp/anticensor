@@ -17,8 +17,8 @@
 */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ConnectionConfigEntity } from "../entities";
-import { OrmUtils } from "../imports";
+import { ConnectionConfigEntity } from "../entities/index.js";
+import { OrmUtils } from "../imports/index.js";
 
 let config: any;
 let pairs: ConnectionConfigEntity[];

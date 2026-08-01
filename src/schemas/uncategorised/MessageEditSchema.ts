@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { MessageCreateSchema } from "./MessageCreateSchema";
+import { MessageCreateSchema } from "./MessageCreateSchema.js";
 
 export type MessageEditSchema = Omit<MessageCreateSchema, "type" | "poll">;

@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./VoiceIdentifySchema";
-export * from "./VoiceVideoSchema";
-export * from "./Region";
+export * from "./VoiceIdentifySchema.js";
+export * from "./VoiceVideoSchema.js";
+export * from "./Region.js";

@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "#harmony/util";
 import wretch from "wretch";
-import { SpotifySettings } from "./SpotifySettings";
+import { SpotifySettings } from "./SpotifySettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 export interface UserResponse {

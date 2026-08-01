@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getGifProviders } from "#util";
+import { getGifProviders } from "#harmony/util";
 import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
 

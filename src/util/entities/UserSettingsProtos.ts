@@ -17,8 +17,8 @@
 */
 
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
-import { BaseClassWithoutId } from "./BaseClass";
-import { User } from "./User";
+import { BaseClassWithoutId } from "./BaseClass.js";
+import { User } from "./User.js";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
 
 @Entity({

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseEmailClient, IEmail } from "./IEmailClient";
+import { BaseEmailClient, IEmail } from "./IEmailClient.js";
 import { Config } from "#harmony/util";
 
 export class MailJetEmailClient extends BaseEmailClient {
@@ -31,8 +31,8 @@ export class MailJetEmailClient extends BaseEmailClient {
 
         try {
             // try to import the transporter package
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
+            //@ts-expect-error idc for now
+            //TODO figure this out lol
             this.mailJet = new (await import("node-mailjet")).default({
                 apiKey: apiKey,
                 apiSecret: apiSecret,

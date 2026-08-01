@@ -1,5 +1,6 @@
-import { KittyLogo } from ".";
-import { blueBright } from "picocolors";
+import { KittyLogo } from "./index.js";
+import pkg from "picocolors";
+const { blueBright } = pkg;
 
 export class Logo {
     public static async printLogo() {

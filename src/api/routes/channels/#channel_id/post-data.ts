@@ -21,7 +21,7 @@ import { Channel, Member, Message } from "#harmony/util";
 import { PostDataSchema, PublicMessage } from "#harmony/schemas";
 
 import { Request, Response, Router } from "express";
-import { messageUpload } from "./messages";
+import { messageUpload } from "./messages/index.js";
 import { In } from "typeorm";
 
 const router = Router({ mergeParams: true });

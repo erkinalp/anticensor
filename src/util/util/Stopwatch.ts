@@ -18,7 +18,7 @@
 
 // Inspired by the dotnet Stopwatch class
 // Provides a simple interface to get elapsed time in high resolution
-import { ElapsedTime } from "./ElapsedTime";
+import { ElapsedTime } from "./ElapsedTime.js";
 
 export class Stopwatch {
     private startTime: bigint;

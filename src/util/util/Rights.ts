@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BitField } from "./BitField";
-import { BitFieldResolvable, BitFlag } from "./BitField";
-import { User } from "../entities";
+import { BitField } from "./BitField.js";
+import { BitFieldResolvable, BitFlag } from "./BitField.js";
+import { User } from "../entities/index.js";
 import { HTTPError } from "#lambert-server";
 
 export type RightResolvable = bigint | number | Rights | RightResolvable[] | RightString;

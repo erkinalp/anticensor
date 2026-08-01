@@ -17,14 +17,15 @@
 */
 
 import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "#harmony/util";
-import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
+import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares/index.js";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "#lambert-server";
 import morgan from "morgan";
 import path from "path";
-import { red } from "picocolors";
-import { initInstance } from "./util/handlers/Instance";
-import { route, startPollReap } from "./util";
+import pkg from "picocolors";
+const { red } = pkg;
+import { initInstance } from "./util/handlers/Instance.js";
+import { route, startPollReap } from "./util/index.js";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");

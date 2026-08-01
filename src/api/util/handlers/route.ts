@@ -17,7 +17,7 @@
 */
 
 import { DiscordApiErrors, EVENT, FieldErrors, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "#harmony/util";
-import { AnyValidateFunction } from "ajv/dist/core";
+import { AsyncValidateFunction, ValidateFunction } from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { ajv } from "#harmony/schemas";
 import { BigNumber } from "bignumber.js";
@@ -114,7 +114,7 @@ export function bigNumberToString(obj1: unknown) {
     }
 }
 export function route(opts: RouteOptions) {
-    let validate: AnyValidateFunction | undefined;
+    let validate: ValidateFunction | AsyncValidateFunction | undefined;
     if (opts.requestBody) {
         try {
             validate = ajv.getSchema(opts.requestBody);

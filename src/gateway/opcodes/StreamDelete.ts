@@ -1,6 +1,6 @@
 import { parseStreamKey, Payload, WebSocket } from "#harmony/gateway";
 import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { StreamDeleteSchema } from "#harmony/schemas";
 
 export async function onStreamDelete(this: WebSocket, data: Payload) {

@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity } from "typeorm";
-import { BaseClass } from "./BaseClass";
+import { BaseClass } from "./BaseClass.js";
 
 @Entity({
     name: "client_release",

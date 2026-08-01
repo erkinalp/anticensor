@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Constants";
-export * from "./MediaServer";
-export * from "./WebRtcWebSocket";
-export * from "./Send";
+export * from "./Constants.js";
+export * from "./MediaServer.js";
+export * from "./WebRtcWebSocket.js";
+export * from "./Send.js";

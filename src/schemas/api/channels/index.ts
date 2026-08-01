@@ -15,5 +15,5 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./Channel";
-export * from "./Webhook";
+export * from "./Channel.js";
+export * from "./Webhook.js";

@@ -16,5 +16,5 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./AutoJoin";
-export * from "./Discovery";
+export * from "./AutoJoin.js";
+export * from "./Discovery.js";

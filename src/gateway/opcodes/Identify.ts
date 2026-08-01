@@ -57,7 +57,7 @@ import {
     UserSettingsProtos,
     VoiceState,
 } from "#harmony/util";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "#harmony/schemas";

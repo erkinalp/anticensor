@@ -17,10 +17,10 @@
 */
 
 import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { deleteFile } from "../util";
-import { BaseClass } from "./BaseClass";
-import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing";
-import { Message } from "./Message";
+import { deleteFile } from "../util/index.js";
+import { BaseClass } from "./BaseClass.js";
+import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing.js";
+import { Message } from "./Message.js";
 
 @Entity({
     name: "attachments",

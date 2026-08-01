@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, ConnectionLoader, DiscordApiErrors, RefreshableConnection } from "#harmony/util";
 import wretch from "wretch";
-import { TwitterSettings } from "./TwitterSettings";
+import { TwitterSettings } from "./TwitterSettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface TwitterUserResponse {

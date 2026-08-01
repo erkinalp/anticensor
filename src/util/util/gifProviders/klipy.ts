@@ -1,7 +1,7 @@
 import { Config } from "#harmony/util";
 import { GifResponse, TenorCategoriesResults, TenorCategory, TenorGif, TenorTrendingResults, TrendingResponse } from "#harmony/schemas";
-import { GifProvider } from "./gifProvider";
-import { HTTPError } from "../lambert-server";
+import { GifProvider } from "./gifProvider.js";
+import { HTTPError } from "../lambert-server/index.js";
 interface KlipyGif {
     id: number;
     slug: string;

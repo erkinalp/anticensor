@@ -17,10 +17,10 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { User } from "./User.js";
 import crypto from "crypto";
-import { Config } from "../util";
+import { Config } from "../util/index.js";
 
 @Entity({
     name: "backup_codes",

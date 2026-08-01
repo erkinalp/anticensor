@@ -17,7 +17,7 @@
 */
 
 import { Config, IpDataClient } from "#harmony/util";
-import { distanceBetweenLocations } from "../utility/ipAddress";
+import { distanceBetweenLocations } from "../utility/ipAddress.js";
 
 export async function getVoiceRegions(ipAddress: string, vip: boolean) {
     const regions = Config.get().regions;

@@ -16,19 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { User } from "./User";
-import { Member } from "./Member";
-import { Role } from "./Role";
-import { Channel } from "./Channel";
-import { InteractionType } from "../interfaces";
-import { Application } from "./Application";
+import { User } from "./User.js";
+import { Member } from "./Member.js";
+import { Role } from "./Role.js";
+import { Channel } from "./Channel.js";
+import { InteractionType } from "../interfaces/index.js";
+import { Application } from "./Application.js";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, FindOneOptions, Raw, Not, BaseEntity, In } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Guild } from "./Guild";
-import { Webhook } from "./Webhook";
-import { Sticker } from "./Sticker";
-import { Attachment } from "./Attachment";
-import { NewUrlUserSignatureData } from "../Signing";
+import { BaseClass } from "./BaseClass.js";
+import { Guild } from "./Guild.js";
+import { Webhook } from "./Webhook.js";
+import { Sticker } from "./Sticker.js";
+import { Attachment } from "./Attachment.js";
+import { NewUrlUserSignatureData } from "../Signing.js";
 import {
     ApplicationCommandType,
     BaseMessageComponents,
@@ -45,7 +45,7 @@ import {
 } from "#harmony/schemas";
 import { PartialUser } from "#harmony/schemas";
 import { Config, convertTimestamp, MessageFlags } from "#harmony/util";
-import { JsonRemoveEmpty } from "../util/Decorators";
+import { JsonRemoveEmpty } from "../util/Decorators.js";
 
 @Entity({
     name: "messages",

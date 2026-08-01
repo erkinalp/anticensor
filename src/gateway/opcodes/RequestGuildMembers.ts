@@ -18,7 +18,7 @@
 
 import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "#harmony/util";
 import { WebSocket, Payload, OPCODES, Send } from "#harmony/gateway";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
 import { RequestGuildMembersSchema } from "#harmony/schemas";
 

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Snowflake } from "../../Identifiers";
+import { Snowflake } from "../../Identifiers.js";
 
 export type AutomodRuleTriggerMetadata = AutomodMentionSpamRule | AutomodSuspectedSpamRule | AutomodCommonlyFlaggedWordsRule | AutomodCustomWordsRule;
 

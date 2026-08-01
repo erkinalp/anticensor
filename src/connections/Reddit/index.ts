@@ -18,7 +18,7 @@
 
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "#harmony/util";
 import wretch from "wretch";
-import { RedditSettings } from "./RedditSettings";
+import { RedditSettings } from "./RedditSettings.js";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "#harmony/schemas";
 
 export interface UserResponse {

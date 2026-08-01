@@ -19,9 +19,9 @@
 import { Intents, ListenEventOpts, Permissions, Session } from "#harmony/util";
 import WS from "ws";
 import { Deflate, Inflate } from "fast-zlib";
-import { Capabilities } from "./Capabilities";
+import { Capabilities } from "./Capabilities.js";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
-import { QoSPayload } from "../opcodes/Heartbeat";
+import { QoSPayload } from "../opcodes/Heartbeat.js";
 
 export interface WebSocket extends WS {
     version: number;

@@ -18,9 +18,9 @@
 
 import { existsSync } from "fs";
 import fs from "fs/promises";
-import { OrmUtils } from "..";
-import { ConfigValue } from "../config";
-import { ConfigEntity } from "../entities";
+import { OrmUtils } from "../index.js";
+import { ConfigValue } from "../config/index.js";
+import { ConfigEntity } from "../entities/index.js";
 import { JsonValue } from "@protobuf-ts/runtime";
 
 // TODO: yaml instead of json

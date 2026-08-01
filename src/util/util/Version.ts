@@ -19,7 +19,8 @@
 import path from "path";
 import fs from "fs";
 import { execSync } from "child_process";
-import { red } from "picocolors";
+import pkg from "picocolors";
+const { red } = pkg;
 
 export function getRevInfoOrFail(): { rev: string | null; lastModified: number } {
     const rootDir = path.join(__dirname, "../../../");

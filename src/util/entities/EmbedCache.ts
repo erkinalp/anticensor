@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseClass } from "./BaseClass";
+import { BaseClass } from "./BaseClass.js";
 import { Entity, Column } from "typeorm";
 import { Embed } from "#harmony/schemas";
 

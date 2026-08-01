@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BitField } from "./BitField";
+import { BitField } from "./BitField.js";
 
 export class Intents extends BitField {
     static FLAGS = {

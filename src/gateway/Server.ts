@@ -19,12 +19,13 @@
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
 import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "#harmony/util";
-import ws from "ws";
-import { Connection, openConnections } from "./events/Connection";
+
+import { Connection, openConnections } from "./events/Connection.js";
 import http from "http";
-import { cleanupOnStartup } from "./util";
+import { cleanupOnStartup } from "./util/index.js";
 import { randomString } from "#harmony/api";
 import { setInterval } from "timers";
+import * as ws from "ws";
 
 export class Server {
     public ws: ws.Server;
@@ -158,7 +159,7 @@ export class Server {
             });
         });
 
-        this.ws = new ws.Server({
+        this.ws = new ws.WebSocketServer({
             maxPayload: 4096,
             noServer: true,
         });

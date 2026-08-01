@@ -3,7 +3,7 @@ import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook,
 import { Request, Response, Router } from "express";
 import { HTTPError } from "#lambert-server";
 import multer from "multer";
-import { executeWebhook } from "../../../../util/handlers/Webhook";
+import { executeWebhook } from "../../../../util/handlers/Webhook.js";
 import { WebhookUpdateSchema } from "#harmony/schemas";
 const router = Router({ mergeParams: true });
 

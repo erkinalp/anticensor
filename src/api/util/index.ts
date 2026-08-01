@@ -16,14 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./utility/Base64";
-export * from "./utility/ipAddress";
-export * from "./handlers/Message";
-export * from "./utility/passwordStrength";
-export * from "./utility/RandomInviteID";
-export * from "./handlers/route";
-export * from "./utility/String";
-export * from "./handlers/Voice";
-export * from "./utility/captcha";
-export * from "./utility/EmbedHandlers";
-export * from "./handlers/Poll";
+export * from "./utility/Base64.js";
+export * from "./utility/ipAddress.js";
+export * from "./handlers/Message.js";
+export * from "./utility/passwordStrength.js";
+export * from "./utility/RandomInviteID.js";
+export * from "./handlers/route.js";
+export * from "./utility/String.js";
+export * from "./handlers/Voice.js";
+export * from "./utility/captcha.js";
+export * from "./utility/EmbedHandlers.js";
+export * from "./handlers/Poll.js";

@@ -17,7 +17,7 @@
 */
 
 import amqp, { Channel, ChannelModel } from "amqplib";
-import { Config } from "./Config";
+import { Config } from "./Config.js";
 import EventEmitter from "events";
 
 export class RabbitMQ {

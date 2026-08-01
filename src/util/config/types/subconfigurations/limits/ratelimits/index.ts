@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Auth";
-export * from "./RateLimitOptions";
-export * from "./Route";
+export * from "./Auth.js";
+export * from "./RateLimitOptions.js";
+export * from "./Route.js";

@@ -18,7 +18,7 @@
 
 import { Config, getRights, listenEvent, RabbitMQ } from "#harmony/util";
 import { NextFunction, Request, Response, Router } from "express";
-import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
+import { API_PREFIX_TRAILING_SLASH } from "./Authentication.js";
 
 // Docs: https://discord.com/developers/docs/topics/rate-limits
 

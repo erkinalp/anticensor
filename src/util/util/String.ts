@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { SPECIAL_CHAR } from "./Regex";
+import { SPECIAL_CHAR } from "./Regex.js";
 
 export function trimSpecial(str?: string): string {
     if (!str) return "";

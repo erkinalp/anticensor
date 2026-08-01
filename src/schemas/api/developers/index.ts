@@ -15,7 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./Application";
-export * from "./ApplicationCreateSchema";
-export * from "./ApplicationModifySchema";
-export * from "./Team";
+export * from "./Application.js";
+export * from "./ApplicationCreateSchema.js";
+export * from "./ApplicationModifySchema.js";
+export * from "./Team.js";

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Connection";
-export * from "./ConnectionConfig";
-export * from "./ConnectionLoader";
-export * from "./ConnectionStore";
-export * from "./RefreshableConnection";
+export * from "./Connection.js";
+export * from "./ConnectionConfig.js";
+export * from "./ConnectionLoader.js";
+export * from "./ConnectionStore.js";
+export * from "./RefreshableConnection.js";

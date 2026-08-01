@@ -1,6 +1,6 @@
 import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "#harmony/gateway";
 import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession } from "#harmony/util";
-import { check } from "./instanceOf";
+import { check } from "./instanceOf.js";
 import { Not } from "typeorm";
 import { StreamWatchSchema } from "#harmony/schemas";
 

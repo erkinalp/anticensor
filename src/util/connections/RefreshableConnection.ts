@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount } from "../entities";
-import { Connection } from "./Connection";
+import { ConnectedAccount } from "../entities/index.js";
+import { Connection } from "./Connection.js";
 import { ConnectedAccountCommonOAuthTokenResponse } from "#harmony/schemas";
 
 /**

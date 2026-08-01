@@ -17,14 +17,14 @@
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import WS from "ws";
+import * as WS from "ws";
 import { genSessionId, WebSocket } from "#harmony/gateway";
-import { Send } from "../util/Send";
-import { CLOSECODES, OPCODES } from "../util/Constants";
-import { setHeartbeat } from "../util/Heartbeat";
+import { Send } from "../util/Send.js";
+import { CLOSECODES, OPCODES } from "../util/Constants.js";
+import { setHeartbeat } from "../util/Heartbeat.js";
 import { IncomingMessage } from "http";
-import { Close } from "./Close";
-import { Message } from "./Message";
+import { Close } from "./Close.js";
+import { Message } from "./Message.js";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "url";
 import { Config } from "#harmony/util";

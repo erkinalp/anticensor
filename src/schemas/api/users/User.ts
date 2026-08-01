@@ -17,8 +17,7 @@
 */
 
 import { ConnectedAccountSchema, Snowflake, UserSettingsSchema } from "#harmony/schemas";
-import { BitField } from "@harmony/util/util";
-import { Relationship, Session } from "@harmony/util/entities";
+import { BitField, Relationship, Session } from "#harmony/util";
 
 interface UserEntityPleaseRewriteThankYou {
     id: Snowflake;

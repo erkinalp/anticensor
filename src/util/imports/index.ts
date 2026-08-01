@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./OrmUtils";
-export * from "./Jimp";
-export * from "./Interactions";
+export * from "./OrmUtils.js";
+export * from "./Jimp.js";
+export * from "./Interactions.js";

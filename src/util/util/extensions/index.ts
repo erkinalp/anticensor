@@ -1,1 +1,1 @@
-export * from "./Array";
+export * from "./Array.js";

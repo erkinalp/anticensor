@@ -18,7 +18,7 @@
 */
 
 import { Config, ConnectedAccount, Connection, ConnectionLoader } from "#harmony/util";
-import { SteamSettings } from "./SteamSettings";
+import { SteamSettings } from "./SteamSettings.js";
 import { ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface SteamProfile {

@@ -17,11 +17,11 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { Channel } from "./Channel";
-import { Guild } from "./Guild";
-import { Member } from "./Member";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { Channel } from "./Channel.js";
+import { Guild } from "./Guild.js";
+import { Member } from "./Member.js";
+import { User } from "./User.js";
 import { PublicVoiceState, PublicVoiceStateProjection } from "#harmony/schemas";
 
 //https://gist.github.com/vassjozsef/e482c65df6ee1facaace8b3c9ff66145#file-voice_state-ex

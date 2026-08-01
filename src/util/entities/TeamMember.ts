@@ -17,10 +17,10 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { User } from "./User.js";
 import { TeamMemberRole, TeamMemberState } from "#harmony/schemas";
-import { Team } from "./Team";
+import { Team } from "./Team.js";
 
 @Entity({
     name: "team_members",

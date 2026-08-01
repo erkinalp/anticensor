@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./Activity";
-export * from "./ConnectedAccount";
-export * from "./Event";
-export * from "./GuildWelcomeScreen";
-export * from "./Interaction";
-export * from "./Presence";
-export * from "./Status";
+export * from "./Activity.js";
+export * from "./ConnectedAccount.js";
+export * from "./Event.js";
+export * from "./GuildWelcomeScreen.js";
+export * from "./Interaction.js";
+export * from "./Presence.js";
+export * from "./Status.js";

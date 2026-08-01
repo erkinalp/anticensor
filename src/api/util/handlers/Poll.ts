@@ -1,4 +1,4 @@
-import { handleMessage, sendMessage } from "./Message";
+import { handleMessage, sendMessage } from "./Message.js";
 import { Embed, EmbedType, MessageType, PollAnswer } from "#harmony/schemas";
 import { Message, RunningPolls } from "#harmony/util";
 import { LessThan } from "typeorm";

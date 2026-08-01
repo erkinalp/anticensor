@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Storage } from "./Storage";
+import { Storage } from "./Storage.js";
 import fs from "fs";
 import fsp from "fs/promises";
 import { join, dirname } from "path";
@@ -70,7 +70,7 @@ export class FileStorage implements Storage {
         const ret = Readable.from(value);
         const cleaned_file = fs.createWriteStream(path);
 
-        ret.pipe(new ExifTransformer()).pipe(cleaned_file);
+        ret.pipe(new ExifTransformer.default()).pipe(cleaned_file);
     }
 
     async delete(path: string) {

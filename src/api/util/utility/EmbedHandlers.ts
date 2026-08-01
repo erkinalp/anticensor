@@ -20,10 +20,11 @@ import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, 
 import { Embed, EmbedImage, EmbedType } from "#harmony/schemas";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
-import { yellow } from "picocolors";
+import pkg from "picocolors";
+const { yellow } = pkg;
 import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
-import { proxyFetch } from "../../../util/util/porxyFetch";
+import { proxyFetch } from "../../../util/util/porxyFetch.js";
 
 export function getDefaultFetchOptions() {
     return {

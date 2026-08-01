@@ -40,7 +40,7 @@ import {
     TemplateConfiguration,
     UserConfiguration,
     ProxyConfiguration,
-} from "./types";
+} from "./types/index.js";
 
 export class ConfigValue {
     admin: EndpointConfiguration = new EndpointConfiguration();

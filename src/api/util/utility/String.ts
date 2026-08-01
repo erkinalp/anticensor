@@ -17,7 +17,7 @@
 */
 
 import { Request } from "express";
-import { ntob } from "./Base64";
+import { ntob } from "./Base64.js";
 import { FieldErrors, Random } from "#harmony/util";
 
 export function checkLength(str: string, min: number, max: number, key: string, req: Request) {

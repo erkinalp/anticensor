@@ -1,5 +1,5 @@
 import { Config, DateBuilder } from "#harmony/util";
-import { IpDataIpLookupResponse } from "./IpDataSampleResponses";
+import { IpDataIpLookupResponse } from "./IpDataSampleResponses.js";
 
 export class IpDataClient {
     private static ipInfoCache: Map<

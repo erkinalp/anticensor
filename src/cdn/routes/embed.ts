@@ -21,7 +21,7 @@ import fs from "fs/promises";
 import { HTTPError } from "#lambert-server";
 import { join } from "path";
 import { fileTypeFromBuffer } from "file-type";
-import { cache } from "../util/cache";
+import { cache } from "../util/cache.js";
 
 const defaultAvatarHashMap = new Map([
     ["0", "4a8562cf00887030c416d3ec2d46385a"],

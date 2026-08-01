@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { MailGunConfiguration, MailJetConfiguration, SMTPConfiguration } from "./subconfigurations/email";
-import { SendGridConfiguration } from "./subconfigurations/email/SendGrid";
+import { MailGunConfiguration, MailJetConfiguration, SMTPConfiguration } from "./subconfigurations/email/index.js";
+import { SendGridConfiguration } from "./subconfigurations/email/SendGrid.js";
 
 export class EmailConfiguration {
     provider: string | null = null;

@@ -18,10 +18,10 @@
 
 import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
-import { ReportMenuType, ReportMenuTypeNames } from "../../../schemas/api/reports/ReportMenu";
+import { ReportMenuType, ReportMenuTypeNames } from "../../../schemas/api/reports/ReportMenu.js";
 import path from "path";
 import { HTTPError } from "#lambert-server";
-import { CreateReportSchema } from "../../../schemas/api/reports/CreateReport";
+import { CreateReportSchema } from "../../../schemas/api/reports/CreateReport.js";
 import { FieldErrors } from "#harmony/util";
 import fs from "fs";
 

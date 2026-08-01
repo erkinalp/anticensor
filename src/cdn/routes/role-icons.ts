@@ -22,8 +22,8 @@ import { storage } from "#harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "#lambert-server";
 import crypto from "crypto";
-import { multer } from "../util/multer";
-import { cache } from "../util/cache";
+import { multer } from "../util/multer.js";
+import { cache } from "../util/cache.js";
 
 //Role icons ---> avatars.ts modified
 

@@ -17,9 +17,9 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { BaseClass } from "./BaseClass";
-import { TeamMember } from "./TeamMember";
-import { User } from "./User";
+import { BaseClass } from "./BaseClass.js";
+import { TeamMember } from "./TeamMember.js";
+import { User } from "./User.js";
 
 @Entity({
     name: "teams",

@@ -20,7 +20,7 @@ import { Server, ServerOptions } from "#lambert-server";
 import { Attachment, Config, initDatabase, registerRoutes } from "#harmony/util";
 import { CORS, BodyParser } from "#harmony/api";
 import path from "path";
-import guildProfilesRoute from "./routes/guild-profiles";
+import guildProfilesRoute from "./routes/guild-profiles.js";
 import morgan from "morgan";
 import { Like } from "typeorm";
 

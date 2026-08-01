@@ -18,13 +18,13 @@
 
 import { Config, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import imageSize from "image-size";
+import { imageSize } from "image-size";
 import { HTTPError } from "#lambert-server";
-import { multer } from "../util/multer";
+import { multer } from "../util/multer.js";
 import { storage } from "#harmony/cdn";
 import { CloudAttachment } from "#harmony/util";
 import { fileTypeFromBuffer } from "file-type";
-import { cache } from "../util/cache";
+import { cache } from "../util/cache.js";
 import { detectBufferMime } from "mime-detect";
 
 const router = Router({ mergeParams: true });

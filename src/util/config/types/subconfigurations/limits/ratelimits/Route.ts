@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AuthRateLimit } from ".";
-import { RateLimitOptions } from "./RateLimitOptions";
+import { AuthRateLimit } from "./index.js";
+import { RateLimitOptions } from "./RateLimitOptions.js";
 
 export class RouteRateLimit {
     guild: RateLimitOptions = {
