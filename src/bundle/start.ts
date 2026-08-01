@@ -19,7 +19,6 @@
 import moduleAlias from "module-alias";
 moduleAlias(__dirname + "../../../package.json");
 
-import "reflect-metadata";
 import cluster, { Worker } from "cluster";
 import os from "os";
 import { red, bold, yellow, cyan, blueBright, redBright } from "picocolors";
