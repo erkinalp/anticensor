@@ -17,7 +17,7 @@
 */
 
 // TODO: remove dependency on entities
-import { User, Webhook } from "@harmony/util";
+import { User, Webhook } from "#harmony/util";
 
 export interface WebhookCreateResponse {
     user: User;

@@ -19,9 +19,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { Message } from "./Message";
-import { sendMessage } from "@harmony/api";
-import { Embed, EmbedType, MessageType, PollAnswer } from "@harmony/schemas";
-import { emitEvent } from "@harmony/util";
+import { sendMessage } from "#harmony/api";
+import { Embed, EmbedType, MessageType, PollAnswer } from "#harmony/schemas";
+import { emitEvent } from "#harmony/util";
 
 @Entity({
     name: "running_polls",

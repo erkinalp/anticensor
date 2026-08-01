@@ -1,4 +1,4 @@
-import { GifResponse, TrendingResponse } from "@harmony/schemas";
+import { GifResponse, TrendingResponse } from "#harmony/schemas";
 
 export abstract class GifProvider{
 	abstract search(opts:{ q:string, media_format:string, locale?:string,limit?:string }):Promise<GifResponse[]>;

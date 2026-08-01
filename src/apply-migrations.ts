@@ -1,5 +1,3 @@
-import moduleAlias from "module-alias";
-moduleAlias(__dirname + "../../package.json");
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
@@ -8,7 +6,7 @@ config({ quiet: true });
 
 process.env.DB_LOGGING = "true";
 
-import { closeDatabase, initDatabase } from "@harmony/util";
+import { closeDatabase, initDatabase } from "#harmony/util";
 
 async function main() {
     let success = false;

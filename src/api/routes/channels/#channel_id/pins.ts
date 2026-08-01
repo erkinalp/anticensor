@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { MessageType } from "@harmony/schemas";
-import { route, sendMessage } from "@harmony/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageUpdateEvent } from "@harmony/util";
+import { MessageType } from "#harmony/schemas";
+import { route, sendMessage } from "#harmony/api";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageUpdateEvent } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 

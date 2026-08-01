@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role, ValidateName } from "@harmony/util";
+import { route } from "#harmony/api";
+import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role, ValidateName } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { RoleModifySchema } from "@harmony/schemas";
+import { HTTPError } from "#lambert-server";
+import { RoleModifySchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

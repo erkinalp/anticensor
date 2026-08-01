@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message, Channel, emitEvent } from "@harmony/util";
-import { route } from "@harmony/api";
-import { PollPutSchema } from "@harmony/schemas";
+import { Message, Channel, emitEvent } from "#harmony/util";
+import { route } from "#harmony/api";
+import { PollPutSchema } from "#harmony/schemas";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 const router = Router({ mergeParams: true });
 
 router.put(

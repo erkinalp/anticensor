@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwriteType, ChannelType, TagCreateSchema } from "@harmony/schemas";
+import { ChannelPermissionOverwriteType, ChannelType, TagCreateSchema } from "#harmony/schemas";
 
 export interface ChannelModifySchema {
     name?: string;

@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Team } from "@harmony/util";
+import { Team } from "#harmony/util";
 
 export type TeamListResponse = Team[];

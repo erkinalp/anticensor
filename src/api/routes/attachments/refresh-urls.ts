@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { getUrlSignature, NewUrlSignatureData } from "@harmony/util";
+import { route } from "#harmony/api";
+import { getUrlSignature, NewUrlSignatureData } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { RefreshUrlsRequestSchema } from "@harmony/schemas";
+import { RefreshUrlsRequestSchema } from "#harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(

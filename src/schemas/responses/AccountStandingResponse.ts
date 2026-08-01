@@ -17,7 +17,7 @@
 */
 
 // TODO: remove dependency on entities...
-import { Attachment } from "@harmony/util";
+import { Attachment } from "#harmony/util";
 
 export enum AccountStandingState {
     ALL_GOOD = 100,

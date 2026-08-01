@@ -17,9 +17,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectedAccount, Connection, ConnectionLoader } from "@harmony/util";
+import { Config, ConnectedAccount, Connection, ConnectionLoader } from "#harmony/util";
 import { SteamSettings } from "./SteamSettings";
-import { ConnectionCallbackSchema } from "@harmony/schemas";
+import { ConnectionCallbackSchema } from "#harmony/schemas";
 
 interface SteamProfile {
     response: {

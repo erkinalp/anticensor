@@ -17,8 +17,8 @@
 */
 
 import { Router, Request, Response } from "express";
-import { DiscordApiErrors, Member, arrayPartition } from "@harmony/util";
-import { route } from "@harmony/api";
+import { DiscordApiErrors, Member, arrayPartition } from "#harmony/util";
+import { route } from "#harmony/api";
 
 const router = Router({ mergeParams: true });
 

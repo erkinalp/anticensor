@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Note, Snowflake, User, emitEvent } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Note, Snowflake, User, emitEvent } from "#harmony/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

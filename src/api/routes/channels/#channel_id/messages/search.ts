@@ -18,10 +18,10 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { route } from "@harmony/api";
-import { Channel, FieldErrors, Message, getPermission } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, FieldErrors, Message, getPermission } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { FindManyOptions, Like } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });

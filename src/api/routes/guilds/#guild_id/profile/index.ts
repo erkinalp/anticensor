@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions, ValidateName } from "@harmony/util";
+import { route } from "#harmony/api";
+import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions, ValidateName } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { MemberChangeProfileSchema } from "@harmony/schemas";
+import { MemberChangeProfileSchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

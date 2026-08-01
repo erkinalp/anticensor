@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Badge, Member, User } from "@harmony/util";
-import { PublicConnectedAccount, PublicMember, PublicUser } from "@harmony/schemas";
+import { Badge, Member, User } from "#harmony/util";
+import { PublicConnectedAccount, PublicMember, PublicUser } from "#harmony/schemas";
 
 export type MutualGuild = {
     id: string;

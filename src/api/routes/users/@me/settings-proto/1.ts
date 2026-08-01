@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
-import { emitEvent, OrmUtils, UserSettingsProtos } from "@harmony/util";
+import { emitEvent, OrmUtils, UserSettingsProtos } from "#harmony/util";
 import { PreloadedUserSettings } from "discord-protos";
 import { JsonValue } from "@protobuf-ts/runtime";
-import { SettingsProtoJsonResponse, SettingsProtoResponse, SettingsProtoUpdateJsonSchema, SettingsProtoUpdateSchema } from "@harmony/schemas";
+import { SettingsProtoJsonResponse, SettingsProtoResponse, SettingsProtoUpdateJsonSchema, SettingsProtoUpdateSchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

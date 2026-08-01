@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { checkUsername, Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@harmony/util";
+import { route } from "#harmony/api";
+import { checkUsername, Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "#harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@harmony/schemas";
+import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

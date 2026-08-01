@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch, Attachment } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch, Attachment } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import { In, LessThan, FindOptionsWhere } from "typeorm";
 

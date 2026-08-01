@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import {
     Channel,
     ChannelDeleteEvent,
@@ -32,9 +32,9 @@ import {
     User,
     UserDeleteEvent,
     UserSettingsProtos,
-} from "@harmony/util";
+} from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@harmony/schemas";
+import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "#harmony/schemas";
 import { Not } from "typeorm";
 
 const router = Router({ mergeParams: true });

@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BulkDeleteSchema } from "@harmony/schemas";
-import { route } from "@harmony/api";
-import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@harmony/util";
+import { BulkDeleteSchema } from "#harmony/schemas";
+import { route } from "#harmony/api";
+import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { In, Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });

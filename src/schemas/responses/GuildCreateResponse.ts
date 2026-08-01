@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { GuildWelcomeScreen } from "@harmony/util";
-import { GuildUpdateSchema } from "@harmony/schemas";
+import { GuildWelcomeScreen } from "#harmony/util";
+import { GuildUpdateSchema } from "#harmony/schemas";
 
 export interface GuildCreateResponse extends Omit<GuildUpdateSchema, "name"> {
     id: string;

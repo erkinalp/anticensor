@@ -26,7 +26,7 @@ import {
     Snowflake,
     ApplicationIntegrationType,
     InteractionContextType,
-} from "@harmony/schemas";
+} from "#harmony/schemas";
 
 @Entity({
     name: "application_commands",

@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, Permissions, Role } from "@harmony/util";
+import { Channel, ChannelUpdateEvent, emitEvent, Member, Permissions, Role } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 
-import { route } from "@harmony/api";
-import { ChannelPermissionOverwriteSchema, ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "@harmony/schemas";
+import { route } from "#harmony/api";
+import { ChannelPermissionOverwriteSchema, ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "#harmony/schemas";
 const router: Router = Router({ mergeParams: true });
 
 // TODO: Only permissions your bot has in the guild or channel can be allowed/denied (unless your bot has a MANAGE_ROLES overwrite in the channel)

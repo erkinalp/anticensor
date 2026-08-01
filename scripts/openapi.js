@@ -21,7 +21,6 @@ process.env.LOG_ROUTES = "false";
 const { Stopwatch } = require("../dist/util/util/Stopwatch");
 const totalSw = Stopwatch.startNew();
 
-require("module-alias/register");
 const getRouteDescriptions = require("./util/getRouteDescriptions");
 const path = require("path");
 const fs = require("fs");

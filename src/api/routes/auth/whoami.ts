@@ -15,7 +15,7 @@
         You should have received a copy of the GNU Affero General Public License
         along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

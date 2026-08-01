@@ -29,6 +29,7 @@
     },
     "main": "dist/bundle/index.js",
     "types": "src/bundle/index.ts",
+    "type":"module",
     "repository": {
         "type": "git",
         "url": "git+https://codeberg.org/MelodyChat/Harmony.git"
@@ -39,7 +40,13 @@
         "url": "https://codeberg.org/MelodyChat/Harmony/issues"
     },
     "imports": {
-        "#*": "./dist/*/index.js"
+        "#harmony/api": "dist/api",
+        "#harmony/cdn": "dist/cdn",
+        "#harmony/gateway": "dist/gateway",
+        "#harmony/util": "dist/util",
+        "#harmony/webrtc": "dist/webrtc",
+        "#harmony/schemas": "dist/schemas",
+        "#lambert-server": "dist/util/util/lambert-server"
     },
     "homepage": "https://redir.fermi.chat/home",
     "devDependencies": {
@@ -121,15 +128,6 @@
         "undici": "^8.6.0",
         "wretch": "^2.11.1",
         "ws": "^8.21.1"
-    },
-    "_moduleAliases": {
-        "@harmony/api": "dist/api",
-        "@harmony/cdn": "dist/cdn",
-        "@harmony/gateway": "dist/gateway",
-        "@harmony/util": "dist/util",
-        "@harmony/webrtc": "dist/webrtc",
-        "@harmony/schemas": "dist/schemas",
-        "lambert-server": "dist/util/util/lambert-server"
     },
     "optionalDependencies": {
         "@sendgrid/mail": "^8.1.6",

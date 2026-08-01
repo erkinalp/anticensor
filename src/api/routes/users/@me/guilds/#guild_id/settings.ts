@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, Member, OrmUtils } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, Member, OrmUtils } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { UserGuildSettingsSchema } from "@harmony/schemas";
+import { UserGuildSettingsSchema } from "#harmony/schemas";
 import { In } from "typeorm";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 
 const router = Router({ mergeParams: true });
 

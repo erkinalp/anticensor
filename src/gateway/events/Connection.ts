@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WS from "ws";
-import { genSessionId, WebSocket } from "@harmony/gateway";
+import { genSessionId, WebSocket } from "#harmony/gateway";
 import { Send } from "../util/Send";
 import { CLOSECODES, OPCODES } from "../util/Constants";
 import { setHeartbeat } from "../util/Heartbeat";
@@ -27,7 +27,7 @@ import { Close } from "./Close";
 import { Message } from "./Message";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "url";
-import { Config } from "@harmony/util";
+import { Config } from "#harmony/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
 
 // TODO: check rate limit

@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Snowflake } from "@harmony/util";
+import { Config, Snowflake } from "#harmony/util";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { multer } from "../util/multer";
-import { storage } from "@harmony/cdn";
+import { storage } from "#harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
 

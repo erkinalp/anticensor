@@ -17,8 +17,8 @@
 */
 
 import { Router, Response, Request } from "express";
-import { route } from "@harmony/api";
-import { getDatabase } from "@harmony/util";
+import { route } from "#harmony/api";
+import { getDatabase } from "#harmony/util";
 
 const router = Router({ mergeParams: true });
 

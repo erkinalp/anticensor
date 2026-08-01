@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString } from "@harmony/api";
-import { checkToken, Rights, Session, User, UserTokenData } from "@harmony/util";
+import { randomString } from "#harmony/api";
+import { checkToken, Rights, Session, User, UserTokenData } from "#harmony/util";
 import { NextFunction, Request, Response } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 
 export const NO_AUTHORIZATION_ROUTES = [
     // Authentication routes

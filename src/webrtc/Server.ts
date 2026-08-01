@@ -17,7 +17,7 @@
 */
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { closeDatabase, Config, initDatabase, initEvent } from "@harmony/util";
+import { closeDatabase, Config, initDatabase, initEvent } from "#harmony/util";
 import http from "http";
 import ws from "ws";
 import { Connection } from "./events/Connection";

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@harmony/gateway";
-import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
+import { WebSocket } from "#harmony/gateway";
+import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
 import { IsNull, Not } from "typeorm";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {

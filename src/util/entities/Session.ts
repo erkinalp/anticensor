@@ -21,7 +21,7 @@ import { User } from "./User";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
 import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces";
-import { randomUpperString } from "@harmony/api";
+import { randomUpperString } from "#harmony/api";
 import { DateBuilder, IpDataClient, TimeSpan } from "../util";
 
 @Entity({

@@ -1,8 +1,8 @@
-import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, getPermission, Webhook, WebhooksUpdateEvent, emitEvent, Channel, handleFile, ValidateName } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Config, DiscordApiErrors, getPermission, Webhook, WebhooksUpdateEvent, emitEvent, Channel, handleFile, ValidateName } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { WebhookUpdateSchema } from "@harmony/schemas";
+import { HTTPError } from "#lambert-server";
+import { WebhookUpdateSchema } from "#harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(

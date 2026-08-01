@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
-import { handleMessage, postHandleMessage, route } from "@harmony/api";
-import { ChannelType, MessageEditSchema } from "@harmony/schemas";
-import { Channel, DiscordApiErrors, Message, MessageDeleteEvent, MessageUpdateEvent, Webhook, emitEvent, getPermission, getRights } from "@harmony/util";
+import { handleMessage, postHandleMessage, route } from "#harmony/api";
+import { ChannelType, MessageEditSchema } from "#harmony/schemas";
+import { Channel, DiscordApiErrors, Message, MessageDeleteEvent, MessageUpdateEvent, Webhook, emitEvent, getPermission, getRights } from "#harmony/util";
 const router = Router({ mergeParams: true });
 console.log("file *was* ran");
 router.patch(

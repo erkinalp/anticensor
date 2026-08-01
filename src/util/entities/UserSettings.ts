@@ -18,7 +18,7 @@
 
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { BaseClassWithoutId } from "./BaseClass";
-import { CustomStatus, FriendSourceFlags, GuildFolder } from "@harmony/schemas";
+import { CustomStatus, FriendSourceFlags, GuildFolder } from "#harmony/schemas";
 
 @Entity({
     name: "user_settings",

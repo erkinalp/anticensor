@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandOption, Snowflake, StringStringDictionary } from "@harmony/schemas";
+import { ApplicationCommandOption, Snowflake, StringStringDictionary } from "#harmony/schemas";
 
 export interface ApplicationCommandSchema {
     id?: Snowflake;

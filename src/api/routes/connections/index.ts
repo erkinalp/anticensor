@@ -17,8 +17,8 @@
 */
 
 import { APIConnectionsConfiguration } from "#schemas";
-import { route } from "@harmony/api";
-import { ConnectionConfig, ConnectionStore } from "@harmony/util";
+import { route } from "#harmony/api";
+import { ConnectionConfig, ConnectionStore } from "#harmony/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 

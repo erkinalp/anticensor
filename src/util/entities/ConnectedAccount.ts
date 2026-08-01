@@ -19,7 +19,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass";
 import { User } from "./User";
-import { ConnectedAccountTokenData } from "@harmony/schemas";
+import { ConnectedAccountTokenData } from "#harmony/schemas";
 @Entity({
     name: "connected_accounts",
 })

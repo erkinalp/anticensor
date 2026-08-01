@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandType } from "@harmony/schemas";
-import { InteractionType, Snowflake } from "@harmony/util";
+import { ApplicationCommandType } from "#harmony/schemas";
+import { InteractionType, Snowflake } from "#harmony/util";
 
 interface PendingInteraction {
     timeout: NodeJS.Timeout;

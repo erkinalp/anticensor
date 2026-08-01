@@ -17,7 +17,7 @@
 */
 
 import { getGifProviders } from "#util";
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

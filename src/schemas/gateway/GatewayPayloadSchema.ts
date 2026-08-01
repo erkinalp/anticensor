@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Tuple } from "lambert-server";
+import { Tuple } from "#lambert-server";
 
 export const PayloadSchema = {
     op: Number,

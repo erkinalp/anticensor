@@ -17,10 +17,10 @@
 */
 
 import { Router, Response, Request } from "express";
-import { Config, Snowflake } from "@harmony/util";
-import { storage } from "@harmony/cdn";
+import { Config, Snowflake } from "#harmony/util";
+import { storage } from "#harmony/cdn";
 import { fileTypeFromBuffer } from "file-type";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import crypto from "crypto";
 import { multer } from "../util/multer";
 

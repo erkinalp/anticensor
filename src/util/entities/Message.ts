@@ -42,9 +42,9 @@ import {
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
-} from "@harmony/schemas";
-import { PartialUser } from "@harmony/schemas";
-import { Config, convertTimestamp, MessageFlags } from "@harmony/util";
+} from "#harmony/schemas";
+import { PartialUser } from "#harmony/schemas";
+import { Config, convertTimestamp, MessageFlags } from "#harmony/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({

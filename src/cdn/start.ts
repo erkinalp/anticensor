@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import moduleAlias from "module-alias";
-moduleAlias(__dirname + "../../../package.json");
 import { config } from "dotenv";
 config({ quiet: true });
 

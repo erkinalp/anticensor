@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Embed, AllowedMentions } from "@harmony/schemas";
+import { Embed, AllowedMentions } from "#harmony/schemas";
 
 export interface Interaction {
     id: string;

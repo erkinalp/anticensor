@@ -1,5 +1,5 @@
-import { FieldErrors, Snowflake } from "@harmony/util";
-import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmony/schemas";
+import { FieldErrors, Snowflake } from "#harmony/util";
+import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "#harmony/schemas";
 
 export function checkCommand(command: ApplicationCommandCreateSchema, appId: string) {
     if (!command.type) {

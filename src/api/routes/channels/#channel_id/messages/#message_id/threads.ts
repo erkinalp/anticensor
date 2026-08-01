@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, sendMessage } from "@harmony/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@harmony/util";
-import { MessageThreadCreationSchema, ChannelType, MessageType } from "@harmony/schemas";
+import { route, sendMessage } from "#harmony/api";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "#harmony/util";
+import { MessageThreadCreationSchema, ChannelType, MessageType } from "#harmony/schemas";
 
 import { Request, Response, Router } from "express";
 import { HTTPError } from "#util/util/lambert-server";

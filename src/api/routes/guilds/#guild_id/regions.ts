@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getVoiceRegions, route } from "@harmony/api";
-import { Guild } from "@harmony/util";
+import { getVoiceRegions, route } from "#harmony/api";
+import { Guild } from "#harmony/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });

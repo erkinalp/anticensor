@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Intents, ListenEventOpts, Permissions, Session } from "@harmony/util";
+import { Intents, ListenEventOpts, Permissions, Session } from "#harmony/util";
 import WS from "ws";
 import { Deflate, Inflate } from "fast-zlib";
 import { Capabilities } from "./Capabilities";

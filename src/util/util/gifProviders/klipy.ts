@@ -1,5 +1,5 @@
-import { Config } from "@harmony/util";
-import { GifResponse, TenorCategoriesResults, TenorCategory, TenorGif, TenorTrendingResults, TrendingResponse } from "@harmony/schemas";
+import { Config } from "#harmony/util";
+import { GifResponse, TenorCategoriesResults, TenorCategory, TenorGif, TenorTrendingResults, TrendingResponse } from "#harmony/schemas";
 import { GifProvider } from "./gifProvider";
 import { HTTPError } from "../lambert-server";
 interface KlipyGif {

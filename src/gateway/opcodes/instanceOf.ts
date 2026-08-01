@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { instanceOf } from "lambert-server";
-import { WebSocket } from "@harmony/gateway";
+import { instanceOf } from "#lambert-server";
+import { WebSocket } from "#harmony/gateway";
 import { CLOSECODES } from "../util/Constants";
 
 export function check(this: WebSocket, schema: unknown, data: unknown) {

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Connection } from "@harmony/util";
+import { Connection } from "#harmony/util";
 import fs from "fs";
 import path from "path";
 import { ConnectionConfig } from "./ConnectionConfig";

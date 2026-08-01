@@ -16,13 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { User, generateMfaBackupCodes, generateToken } from "@harmony/util";
+import { route } from "#harmony/api";
+import { User, generateMfaBackupCodes, generateToken } from "#harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { verifyToken } from "node-2fa";
-import { TotpEnableSchema } from "@harmony/schemas";
+import { TotpEnableSchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

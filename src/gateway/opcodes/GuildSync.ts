@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Member, Session, Presence, timePromise, Stopwatch, Config } from "@harmony/util";
-import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
-import { PublicMember } from "@harmony/schemas";
+import { Member, Session, Presence, timePromise, Stopwatch, Config } from "#harmony/util";
+import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession } from "#harmony/gateway";
+import { PublicMember } from "#harmony/schemas";
 import { In } from "typeorm";
 
 // TODO: only show roles/members that have access to this channel

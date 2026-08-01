@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 const router = Router({ mergeParams: true });
 
 //TODO: implement integrations list

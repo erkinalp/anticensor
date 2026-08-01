@@ -20,7 +20,6 @@
 	Calculates a discord.com-like rights value.
 */
 
-require("module-alias/register");
 const { Rights } = require("..");
 
 const allRights = new Rights(1).bitfield;

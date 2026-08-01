@@ -17,7 +17,7 @@
 */
 
 import { BaseEmailClient, IEmail } from "./IEmailClient";
-import { Config } from "@harmony/util";
+import { Config } from "#harmony/util";
 
 export class SMTPEmailClient extends BaseEmailClient {
     nodemailer?: unknown;

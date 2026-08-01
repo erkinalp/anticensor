@@ -1,4 +1,4 @@
-import { Config, DateBuilder } from "@harmony/util";
+import { Config, DateBuilder } from "#harmony/util";
 import { IpDataIpLookupResponse } from "./IpDataSampleResponses";
 
 export class IpDataClient {

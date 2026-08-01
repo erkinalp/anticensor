@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, Member, Message } from "@harmony/util";
-import { PostDataSchema, PublicMessage } from "@harmony/schemas";
+import { route } from "#harmony/api";
+import { Channel, Member, Message } from "#harmony/util";
+import { PostDataSchema, PublicMessage } from "#harmony/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";

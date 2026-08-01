@@ -1,6 +1,6 @@
 import { handleMessage, sendMessage } from "./Message";
-import { Embed, EmbedType, MessageType, PollAnswer } from "@harmony/schemas";
-import { Message, RunningPolls } from "@harmony/util";
+import { Embed, EmbedType, MessageType, PollAnswer } from "#harmony/schemas";
+import { Message, RunningPolls } from "#harmony/util";
 import { LessThan } from "typeorm";
 // Run once a minute
 // Checks for expired polls once a minute to expire them and send their results message

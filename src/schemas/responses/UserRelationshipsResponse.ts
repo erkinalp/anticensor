@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicUser, RelationshipType } from "@harmony/schemas";
+import { PublicUser, RelationshipType } from "#harmony/schemas";
 
 export interface UserRelationshipsResponse {
     id: string;

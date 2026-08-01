@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialEmoji, Snowflake } from "@harmony/schemas";
+import { PartialEmoji, Snowflake } from "#harmony/schemas";
 
 export interface Poll {
     question: PollMedia;

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Payload } from "@harmony/gateway";
+import { Payload } from "#harmony/gateway";
 
 export enum VoiceOPCodes {
     IDENTIFY = 0,

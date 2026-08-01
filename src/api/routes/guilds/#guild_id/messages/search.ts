@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });

@@ -19,7 +19,7 @@
 import { BitField } from "./BitField";
 import { BitFieldResolvable, BitFlag } from "./BitField";
 import { User } from "../entities";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 
 export type RightResolvable = bigint | number | Rights | RightResolvable[] | RightString;
 

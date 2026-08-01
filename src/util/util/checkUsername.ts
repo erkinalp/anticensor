@@ -1,4 +1,4 @@
-import { FieldErrors, ValidateName } from "@harmony/util";
+import { FieldErrors, ValidateName } from "#harmony/util";
 import type { Request } from "express";
 
 export function checkUsername(username: string, req: Request) {

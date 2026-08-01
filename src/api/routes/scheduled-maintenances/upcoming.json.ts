@@ -17,7 +17,7 @@
 */
 
 import { Router, Request, Response } from "express";
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 const router = Router({ mergeParams: true });
 //TODO stub not a bad idea, but this needs to be actually implemented/typed
 router.get(

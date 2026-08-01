@@ -16,13 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@harmony/util";
+import { Config, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { multer } from "../util/multer";
-import { storage } from "@harmony/cdn";
-import { CloudAttachment } from "@harmony/util";
+import { storage } from "#harmony/cdn";
+import { CloudAttachment } from "#harmony/util";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
 import { detectBufferMime } from "mime-detect";

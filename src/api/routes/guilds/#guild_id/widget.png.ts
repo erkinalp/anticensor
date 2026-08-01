@@ -18,13 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { route } from "@harmony/api";
-import { DiscordApiErrors, Guild } from "@harmony/util";
+import { route } from "#harmony/api";
+import { DiscordApiErrors, Guild } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import fs from "fs";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import path from "path";
-import { storage } from "@harmony/cdn";
+import { storage } from "#harmony/cdn";
 
 const router: Router = Router({ mergeParams: true });
 

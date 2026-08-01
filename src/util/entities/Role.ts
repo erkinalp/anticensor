@@ -20,7 +20,7 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
 
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
-import { RoleColors } from "@harmony/schemas";
+import { RoleColors } from "#harmony/schemas";
 
 @Entity({
     name: "roles",

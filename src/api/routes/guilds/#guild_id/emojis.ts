@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, Emoji, GuildEmojisUpdateEvent, Member, Snowflake, emitEvent, handleFile } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Config, DiscordApiErrors, Emoji, GuildEmojisUpdateEvent, Member, Snowflake, emitEvent, handleFile } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { EmojiCreateSchema, EmojiModifySchema } from "@harmony/schemas";
+import { EmojiCreateSchema, EmojiModifySchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

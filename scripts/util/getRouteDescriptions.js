@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { traverseDirectory } = require("lambert-server");
+const { traverseDirectory } = require("#lambert-server");
 const RouteUtility = require("../../dist/api/util/handlers/route.js");
 const { greenBright, yellowBright, blueBright, redBright, underline, bgYellow, black } = require("picocolors");
 

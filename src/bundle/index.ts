@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "@harmony/api";
-export * from "@harmony/util";
-export * from "@harmony/gateway";
-export * from "@harmony/cdn";
+export * from "#harmony/api";
+export * from "#harmony/util";
+export * from "#harmony/gateway";
+export * from "#harmony/cdn";

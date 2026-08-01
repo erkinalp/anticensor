@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@harmony/util";
+import { Config } from "#harmony/util";
 import { createHmac, timingSafeEqual } from "crypto";
 import ms, { StringValue } from "ms";
 import * as console from "node:console";

@@ -17,12 +17,12 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@harmony/api";
-import { Config, ConnectedAccount, ConnectedAccountDTO, Connection, emitEvent } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Config, ConnectedAccount, ConnectedAccountDTO, Connection, emitEvent } from "#harmony/util";
 import { HTTPError } from "#util/util/lambert-server";
 import { createHash } from "node:crypto";
 import dns from "node:dns/promises";
-import { ConnectedAccountSchema } from "@harmony/schemas";
+import { ConnectedAccountSchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 function domainToHash(domain: string, userId: string) {

@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@harmony/util";
+import { route, verifyCaptcha } from "#harmony/api";
+import { Config, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "#harmony/util";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
-import { LoginSchema } from "@harmony/schemas";
+import { LoginSchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 export default router;

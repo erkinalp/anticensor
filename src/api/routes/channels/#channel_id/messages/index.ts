@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "@harmony/api";
+import { handleMessage, postHandleMessage, route } from "#harmony/api";
 import {
     Attachment,
     Channel,
@@ -43,9 +43,9 @@ import {
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
     Permissions,
-} from "@harmony/util";
+} from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import multer from "multer";
 import { FindManyOptions, FindOperator, IsNull, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { URL } from "url";
@@ -62,7 +62,7 @@ import {
     Reaction,
     ReadStateType,
     RelationshipType,
-} from "@harmony/schemas";
+} from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

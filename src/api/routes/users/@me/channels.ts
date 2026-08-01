@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, DmChannelDTO, Recipient } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, DmChannelDTO, Recipient } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { DmChannelCreateSchema } from "@harmony/schemas";
+import { DmChannelCreateSchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

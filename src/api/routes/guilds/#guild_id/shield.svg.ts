@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { DiscordApiErrors, Guild, Member } from "@harmony/util";
+import { route } from "#harmony/api";
+import { DiscordApiErrors, Guild, Member } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import { makeBadge } from "badge-maker";
 import path from "path";

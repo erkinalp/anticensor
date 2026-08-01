@@ -1,8 +1,8 @@
-import { getProxyUrl, route } from "@harmony/api";
+import { getProxyUrl, route } from "#harmony/api";
 import { NextFunction, Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { executeWebhook } from "../../../../util/handlers/Webhook";
-import { EmbedType, WebhookExecuteSchema } from "@harmony/schemas";
+import { EmbedType, WebhookExecuteSchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

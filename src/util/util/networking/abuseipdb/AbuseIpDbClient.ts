@@ -1,4 +1,4 @@
-import { Config, DateBuilder } from "@harmony/util";
+import { Config, DateBuilder } from "#harmony/util";
 import { AbuseIpDbBlacklistResponse, AbuseIpDbCheckResponse } from "./AbuseIpDbSampleResponses";
 
 export class AbuseIpDbClient {

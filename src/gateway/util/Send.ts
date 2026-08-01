@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Payload, WebSocket } from "@harmony/gateway";
+import { Payload, WebSocket } from "#harmony/gateway";
 import fs from "fs/promises";
 import path from "path";
 
-import { JSONReplacer } from "@harmony/util";
+import { JSONReplacer } from "#harmony/util";
 import { pack } from "harmony-erlpack";
 
 // don't care

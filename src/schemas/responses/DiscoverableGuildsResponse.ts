@@ -17,7 +17,7 @@
 */
 
 // TODO: remove dependency on entities
-import { Guild } from "@harmony/util";
+import { Guild } from "#harmony/util";
 
 export interface DiscoverableGuildsResponse {
     total: number;

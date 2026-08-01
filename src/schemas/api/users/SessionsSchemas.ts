@@ -16,8 +16,8 @@
         along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ActivitySchema, Snowflake } from "@harmony/schemas";
-import { ClientStatus } from "@harmony/util";
+import { ActivitySchema, Snowflake } from "#harmony/schemas";
+import { ClientStatus } from "#harmony/util";
 
 export type SessionsLogoutSchema = { session_ids?: Snowflake[]; session_id_hashes?: string[] };
 export type GetSessionsResponse = { user_sessions: DeviceInfo[] };

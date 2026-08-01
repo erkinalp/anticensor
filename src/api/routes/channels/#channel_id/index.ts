@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import {
     Channel,
     ChannelDeleteEvent,
@@ -29,9 +29,9 @@ import {
     ErrorList,
     makeObjectErrorContent,
     Permissions,
-} from "@harmony/util";
+} from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { ChannelModifySchema, ChannelType } from "@harmony/schemas";
+import { ChannelModifySchema, ChannelType } from "#harmony/schemas";
 import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });

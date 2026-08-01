@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { ReadState } from "@harmony/util";
+import { route } from "#harmony/api";
+import { ReadState } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { AckBulkSchema } from "@harmony/schemas";
+import { AckBulkSchema } from "#harmony/schemas";
 import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 

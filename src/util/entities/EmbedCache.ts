@@ -18,7 +18,7 @@
 
 import { BaseClass } from "./BaseClass";
 import { Entity, Column } from "typeorm";
-import { Embed } from "@harmony/schemas";
+import { Embed } from "#harmony/schemas";
 
 @Entity({
     name: "embed_cache",

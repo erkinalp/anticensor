@@ -17,7 +17,7 @@
 */
 
 // TODO: remove dependency on entities
-import { BackupCode, UserSettings } from "@harmony/util";
+import { BackupCode, UserSettings } from "#harmony/util";
 
 export interface TokenResponse {
     token: string;

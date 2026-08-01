@@ -1,4 +1,4 @@
-import { Event, VoiceState } from "@harmony/util";
+import { Event, VoiceState } from "#harmony/util";
 import { WebSocket } from "./WebSocket";
 import { OPCODES } from "./Constants";
 import { Send } from "./Send";

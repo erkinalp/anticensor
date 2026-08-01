@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import moduleAlias from "module-alias";
-moduleAlias(__dirname + "../../../package.json");
+
 
 import cluster, { Worker } from "cluster";
 import os from "os";
@@ -26,7 +25,7 @@ import { initStats } from "./stats";
 import { config } from "dotenv";
 
 config({ quiet: true });
-import { centerString, getRevInfoOrFail, Logo } from "@harmony/util";
+import { centerString, getRevInfoOrFail, Logo } from "#harmony/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 

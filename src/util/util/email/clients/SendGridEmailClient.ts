@@ -17,7 +17,7 @@
 */
 
 import { BaseEmailClient, IEmail } from "./IEmailClient";
-import { Config } from "@harmony/util";
+import { Config } from "#harmony/util";
 
 export class SendGridEmailClient extends BaseEmailClient {
     sendGrid?: unknown;

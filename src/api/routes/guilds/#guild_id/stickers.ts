@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "@harmony/util";
+import { route } from "#harmony/api";
+import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import multer from "multer";
-import { ModifyGuildStickerSchema, StickerFormatType, StickerType } from "@harmony/schemas";
+import { ModifyGuildStickerSchema, StickerFormatType, StickerType } from "#harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(

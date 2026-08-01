@@ -22,8 +22,8 @@ import { BaseClass } from "./BaseClass";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";
-import { WebhookType } from "@harmony/schemas";
-import { Config } from "@harmony/util";
+import { WebhookType } from "#harmony/schemas";
+import { Config } from "#harmony/util";
 
 @Entity({
     name: "webhooks",

@@ -17,7 +17,7 @@
 */
 
 import { Router, Request, Response } from "express";
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 const router = Router({ mergeParams: true });
 
 router.get("/subscriptions", route({}), (req: Request, res: Response) => {

@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@harmony/api";
-import { Config, Email, User } from "@harmony/util";
+import { route, verifyCaptcha } from "#harmony/api";
+import { Config, Email, User } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { ForgotPasswordSchema } from "@harmony/schemas";
+import { ForgotPasswordSchema } from "#harmony/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(

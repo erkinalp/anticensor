@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket, Payload, OPCODES, Send } from "@harmony/gateway";
-import { Config } from "@harmony/util";
+import { WebSocket, Payload, OPCODES, Send } from "#harmony/gateway";
+import { Config } from "#harmony/util";
 
 export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both

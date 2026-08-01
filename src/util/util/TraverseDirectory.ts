@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Server, traverseDirectory } from "lambert-server";
+import { Server, traverseDirectory } from "#lambert-server";
 
 //if we're using ts-node, use ts files instead of js
 const extension = Symbol.for("ts-node.register.instance") in process ? "ts" : "js";

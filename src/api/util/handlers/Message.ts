@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@harmony/api";
+import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "#harmony/api";
 import {
     Application,
     Attachment,
@@ -51,8 +51,8 @@ import {
     FieldErrors,
     Snowflake,
     RunningPolls,
-} from "@harmony/util";
-import { HTTPError } from "lambert-server";
+} from "#harmony/util";
+import { HTTPError } from "#lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
 import {
     ActionRowComponent,
@@ -73,7 +73,7 @@ import {
     PartialUser,
     Poll,
     PollCreationSchema,
-} from "@harmony/schemas";
+} from "#harmony/schemas";
 import { proxyFetch } from "../../../util/util/porxyFetch";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers

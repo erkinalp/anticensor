@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwrite } from "@harmony/schemas";
+import { ChannelPermissionOverwrite } from "#harmony/schemas";
 
 export type ChannelPermissionOverwriteSchema = ChannelPermissionOverwrite;

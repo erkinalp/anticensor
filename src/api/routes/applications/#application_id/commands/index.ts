@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "@harmony/schemas";
-import { route } from "@harmony/api";
+import { ApplicationCommandCreateSchema, ApplicationCommandSchema } from "#harmony/schemas";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, checkCommand, DiscordApiErrors, FieldErrors, Snowflake } from "@harmony/util";
+import { Application, ApplicationCommand, checkCommand, DiscordApiErrors, FieldErrors, Snowflake } from "#harmony/util";
 import { In, IsNull } from "typeorm";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 
 const router = Router({ mergeParams: true });
 

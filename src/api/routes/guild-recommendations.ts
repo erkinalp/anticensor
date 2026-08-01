@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild } from "@harmony/util";
+import { Config, Guild } from "#harmony/util";
 
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
 import { Like } from "typeorm";
 

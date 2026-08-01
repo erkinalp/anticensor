@@ -1,5 +1,5 @@
-import { Channel, Guild, Invite, Message, ReadState, Recipient, Tag, ThreadMember, User, VoiceState, Webhook } from "@harmony/util";
-import { HTTPError } from "lambert-server";
+import { Channel, Guild, Invite, Message, ReadState, Recipient, Tag, ThreadMember, User, VoiceState, Webhook } from "#harmony/util";
+import { HTTPError } from "#lambert-server";
 import { Column, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { Snowflake } from "../../Identifiers";
 import { PartialUser, PublicMember } from "../users";

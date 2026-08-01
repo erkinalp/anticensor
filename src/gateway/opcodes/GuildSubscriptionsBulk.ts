@@ -1,6 +1,6 @@
-import { WebSocket, Payload } from "@harmony/gateway";
+import { WebSocket, Payload } from "#harmony/gateway";
 import { onLazyRequest } from "./LazyRequest";
-import { GuildSubscriptionsBulkSchema } from "@harmony/schemas";
+import { GuildSubscriptionsBulkSchema } from "#harmony/schemas";
 import { check } from "./instanceOf";
 
 export async function onGuildSubscriptionsBulk(this: WebSocket, payload: Payload) {

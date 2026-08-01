@@ -17,8 +17,8 @@
 */
 
 import { Router, Response, Request } from "express";
-import { storage } from "@harmony/cdn";
-import { HTTPError } from "lambert-server";
+import { storage } from "#harmony/cdn";
+import { HTTPError } from "#lambert-server";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
 

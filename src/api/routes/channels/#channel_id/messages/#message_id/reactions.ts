@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
+import { route } from "#harmony/api";
 import {
     Channel,
     emitEvent,
@@ -31,11 +31,11 @@ import {
     User,
     arrayRemove,
     ReactionType,
-} from "@harmony/util";
+} from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "#lambert-server";
 import { In } from "typeorm";
-import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@harmony/schemas";
+import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: check if emoji is really an unicode emoji or a properly encoded external emoji

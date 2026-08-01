@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, Config, Message } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, Config, Message } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@harmony/schemas";
+import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "#harmony/schemas";
 import { In } from "typeorm";
 const router = Router({ mergeParams: true });
 

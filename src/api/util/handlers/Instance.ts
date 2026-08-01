@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Session, TimeSpan } from "@harmony/util";
+import { Session, TimeSpan } from "#harmony/util";
 import { setInterval } from "timers";
 
 export async function initInstance() {

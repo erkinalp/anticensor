@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Config, DiscordApiErrors, Relationship, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Config, DiscordApiErrors, Relationship, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "#harmony/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { PublicUserProjection, RelationshipType, RelationshipPatchSchema } from "@harmony/schemas";
+import { HTTPError } from "#lambert-server";
+import { PublicUserProjection, RelationshipType, RelationshipPatchSchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

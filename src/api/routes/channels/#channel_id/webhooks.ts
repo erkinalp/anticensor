@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@harmony/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@harmony/util";
+import { route } from "#harmony/api";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "#harmony/util";
 import crypto from "crypto";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { isTextChannel, WebhookCreateSchema, WebhookType } from "@harmony/schemas";
+import { HTTPError } from "#lambert-server";
+import { isTextChannel, WebhookCreateSchema, WebhookType } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 

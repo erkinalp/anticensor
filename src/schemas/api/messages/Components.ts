@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialEmoji } from "@harmony/schemas";
+import { PartialEmoji } from "#harmony/schemas";
 
 export interface MessageComponent {
     type: MessageComponentType;

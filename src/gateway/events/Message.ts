@@ -16,14 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, Payload, WebSocket } from "@harmony/gateway";
+import { CLOSECODES, Payload, WebSocket } from "#harmony/gateway";
 import fs from "fs/promises";
 import BigIntJson from "json-bigint";
 import path from "path";
 import WS from "ws";
 import OPCodeHandlers from "../opcodes";
 import { check } from "../opcodes/instanceOf";
-import { PayloadSchema } from "@harmony/schemas";
+import { PayloadSchema } from "#harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
