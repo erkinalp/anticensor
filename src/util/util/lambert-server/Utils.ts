@@ -23,7 +23,6 @@ export async function traverseDirectory<T>(options: traverseDirectoryOptions, ac
             if (path.match(<RegExp>options.excludeDirs)) return;
 
             if (path.match(<RegExp>options.filter) && stat.isFile()) {
-                console.log(path);
                 return action(path);
             } else if (options.recursive && stat.isDirectory()) {
                 return traverseDirectory({ ...options, dirname: path + "/" }, action);

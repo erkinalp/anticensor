@@ -84,7 +84,6 @@ const excludedLambdas = [
         }
     },
     (n, s) => {
-        console.log(s);
         if (JSON.stringify(s).includes(process.cwd())) {
             console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it leaked $PWD.`);
             exclusionList.auto.push({ value: n, reason: "Leaked $PWD" });
@@ -154,7 +153,6 @@ function strip(obj) {
         } else if (typeof value === "string") {
             if (value.match(/import\(.*\)\./gm)) {
                 obj[key] = value.replace(/import\(.*\)\./gm, "");
-                console.log(key, value, obj[key]);
             }
         }
         if (key.match(/import\(.*\)/gm)) {
@@ -179,7 +177,6 @@ async function main() {
 
     process.stdout.write("Generating schema list... ");
     let schemas = generator.getUserSymbols().filter((x) => {
-        if (x.endsWith("Schema")) console.log(x, includesMatch(x, Included), includesMatch(x, ExcludeAndWarn, true), includesMatch(x, Excluded));
         return (
             (x.endsWith("Schema") || x.endsWith("Response") || x.startsWith("API")) &&
             // !ExcludeAndWarn.some((exc) => {

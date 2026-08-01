@@ -48,7 +48,6 @@ export class Server {
         path = path.replaceAll("#", ":").replaceAll("!", "?").replaceAll("\\", "/");
         if (path.endsWith("/index")) path = path.slice(0, -6); // delete index from path
         if (!path.length) path = "/"; // first root index.js file must have a / path
-        console.error(file);
         file = file.replaceAll("#", "%23");
 
         try {
