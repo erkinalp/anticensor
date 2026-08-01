@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Channel } from "./Channel.js";
 import { User } from "./User.js";
@@ -39,7 +39,7 @@ export class ReadState extends BaseClass {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column()
     @RelationId((read_state: ReadState) => read_state.user)
@@ -49,7 +49,7 @@ export class ReadState extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user: User;
+    user: Relation<User>;
 
     @Column({ nullable: true })
     last_message_id?: string;

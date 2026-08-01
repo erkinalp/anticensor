@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { User } from "./User.js";
 
@@ -32,7 +32,7 @@ export class SecurityKey extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user: User;
+    user: Relation<User>;
 
     @Column()
     key_id: string;

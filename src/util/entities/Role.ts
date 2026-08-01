@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
@@ -34,7 +34,7 @@ export class Role extends BaseClass {
     @ManyToOne(() => Guild, (guild) => guild.roles, {
         onDelete: "CASCADE",
     })
-    guild: Guild;
+    guild: Relation<Guild>;
 
     @Column()
     color: number;

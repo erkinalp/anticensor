@@ -114,6 +114,7 @@ router.get(
 
         const permissions = req.permission ?? (await getPermission(req.user_id, channel.guild_id, channel_id));
         if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json([]);
+        console.log("This ran.");
 
         const query: FindManyOptions<Message> & {
             where: { id?: FindOperator<string> | FindOperator<string>[] };
@@ -126,6 +127,7 @@ router.get(
         };
 
         let messages: Message[];
+        console.log("This ran.");
 
         if (around) {
             query.take = Math.floor(limit / 2);
@@ -165,18 +167,25 @@ router.get(
 
             messages = await Message.find(query);
         }
+        console.log("This ran. :P");
 
         await Message.fillReplies(messages);
+        console.log("This ran. :3");
+        console.log(messages);
 
         const ret = messages.map((msg) => msg.withSignedAttachments(req));
+        console.log("This ran. :{}");
 
         await Promise.all(
             ret
                 .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
                 .map(async (x) => {
+                    console.log("This ran. :}");
                     x.interaction_metadata!.user = x.interaction!.user = (await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } })).toPublicUser();
                 }),
         );
+        console.log("This ran. :{");
+        console.log(ret);
 
         return res.json(ret);
     },

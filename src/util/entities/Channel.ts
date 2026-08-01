@@ -17,7 +17,7 @@
 */
 
 import { HTTPError } from "#lambert-server";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Relation, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos/index.js";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces/index.js";
 import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util/index.js";
@@ -56,13 +56,13 @@ export class Channel extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    recipients?: Recipient[];
+    recipients?: Relation<Recipient>[];
 
     @OneToMany(() => ThreadMember, (member: ThreadMember) => member.channel, {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    thread_members?: ThreadMember[];
+    thread_members?: Relation<ThreadMember>[];
 
     @Column({ nullable: true })
     last_message_id?: string;
@@ -76,7 +76,7 @@ export class Channel extends BaseClass {
         onDelete: "CASCADE",
         nullable: true,
     })
-    guild?: Guild;
+    guild?: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((channel: Channel) => channel.parent)
@@ -84,7 +84,7 @@ export class Channel extends BaseClass {
 
     @JoinColumn({ name: "parent_id" })
     @ManyToOne(() => Channel)
-    parent?: Channel;
+    parent?: Relation<Channel>;
 
     // for group DMs and owned custom channel types
     @Column({ nullable: true })
@@ -93,7 +93,7 @@ export class Channel extends BaseClass {
 
     @JoinColumn({ name: "owner_id" })
     @ManyToOne(() => User)
-    owner: User;
+    owner: Relation<User>;
 
     @Column({ nullable: true, type: "timestamp with time zone" })
     last_pin_timestamp?: Date | null; // ISO8601
@@ -126,7 +126,7 @@ export class Channel extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    invites?: Invite[];
+    invites?: Relation<Invite>[];
 
     @Column({ nullable: true })
     retention_policy_id?: string;
@@ -135,25 +135,25 @@ export class Channel extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    messages?: Message[];
+    messages?: Relation<Message>[];
 
     @OneToMany(() => VoiceState, (voice_state: VoiceState) => voice_state.channel, {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    voice_states?: VoiceState[];
+    voice_states?: Relation<VoiceState>[];
 
     @OneToMany(() => ReadState, (read_state: ReadState) => read_state.channel, {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    read_states?: ReadState[];
+    read_states?: Relation<ReadState>[];
 
     @OneToMany(() => Webhook, (webhook: Webhook) => webhook.channel, {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    webhooks?: Webhook[];
+    webhooks?: Relation<Webhook>[];
 
     @Column()
     flags: number = 0;
@@ -178,7 +178,7 @@ export class Channel extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    available_tags?: Tag[];
+    available_tags?: Relation<Tag>[];
 
     @Column("text", { array: true, nullable: true })
     applied_tags?: string[];

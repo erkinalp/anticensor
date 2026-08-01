@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation, RelationId } from "typeorm";
 import { BaseClassWithoutId } from "./BaseClass.js";
 import { Channel } from "./Channel.js";
 import { Guild } from "./Guild.js";
@@ -58,7 +58,7 @@ export class Invite extends BaseClassWithoutId {
     @ManyToOne(() => Guild, (guild) => guild.invites, {
         onDelete: "CASCADE",
     })
-    guild: Guild;
+    guild: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((invite: Invite) => invite.channel)
@@ -68,7 +68,7 @@ export class Invite extends BaseClassWithoutId {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column({ nullable: true })
     @RelationId((invite: Invite) => invite.inviter)
@@ -78,7 +78,7 @@ export class Invite extends BaseClassWithoutId {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    inviter: User;
+    inviter: Relation<User>;
 
     @Column({ nullable: true })
     @RelationId((invite: Invite) => invite.target_user)

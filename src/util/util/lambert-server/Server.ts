@@ -41,16 +41,18 @@ export class Server {
         }
     }
 
-    registerRoute(root: string, file: string): Router | undefined {
+    async registerRoute(root: string, file: string): Promise<Router | undefined> {
         if (root.endsWith("/") || root.endsWith("\\")) root = root.slice(0, -1); // removes slash at the end of the root dir
         let path = file.replace(root, ""); // remove root from path and
         path = path.split(".").slice(0, -1).join("."); // trancate .js/.ts file extension of path
         path = path.replaceAll("#", ":").replaceAll("!", "?").replaceAll("\\", "/");
         if (path.endsWith("/index")) path = path.slice(0, -6); // delete index from path
         if (!path.length) path = "/"; // first root index.js file must have a / path
+        console.error(file);
+        file = file.replaceAll("#", "%23");
 
         try {
-            let router = require(file);
+            let router = await import(file);
             if (router.router) router = router.router;
             if (router.default) router = router.default;
             if (!router || router?.prototype?.constructor?.name !== "router") throw `File doesn't export any default router`;
@@ -61,7 +63,7 @@ export class Server {
 
             return router;
         } catch (error) {
-            console.error(new Error(`[Server] Failed to register route ${path}: ${error}`));
+            console.error(error, file, path);
         }
     }
 

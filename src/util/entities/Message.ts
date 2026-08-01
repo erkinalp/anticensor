@@ -22,7 +22,24 @@ import { Role } from "./Role.js";
 import { Channel } from "./Channel.js";
 import { InteractionType } from "../interfaces/index.js";
 import { Application } from "./Application.js";
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, FindOneOptions, Raw, Not, BaseEntity, In } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    RelationId,
+    FindOneOptions,
+    Raw,
+    Not,
+    BaseEntity,
+    In,
+    Relation,
+} from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
 import { Webhook } from "./Webhook.js";
@@ -61,7 +78,7 @@ export class Message extends BaseClass {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.thread)
@@ -71,7 +88,7 @@ export class Message extends BaseClass {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    thread?: Channel;
+    thread?: Relation<Channel>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.guild)
@@ -81,7 +98,7 @@ export class Message extends BaseClass {
     @ManyToOne(() => Guild, {
         onDelete: "CASCADE",
     })
-    guild?: Guild;
+    guild?: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.author)
@@ -92,7 +109,7 @@ export class Message extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    author?: User;
+    author?: Relation<User>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.member)
@@ -102,7 +119,7 @@ export class Message extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    member?: Member;
+    member?: Relation<Member>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.webhook)
@@ -110,7 +127,7 @@ export class Message extends BaseClass {
 
     @JoinColumn({ name: "webhook_id" })
     @ManyToOne(() => Webhook)
-    webhook?: Webhook;
+    webhook?: Relation<Webhook>;
 
     @Column({ nullable: true })
     @RelationId((message: Message) => message.application)
@@ -118,7 +135,7 @@ export class Message extends BaseClass {
 
     @JoinColumn({ name: "application_id" })
     @ManyToOne(() => Application)
-    application?: Application;
+    application?: Relation<Application>;
 
     @Column({ nullable: true })
     content?: string;
@@ -139,32 +156,32 @@ export class Message extends BaseClass {
 
     @JoinTable({ name: "message_user_mentions" })
     @ManyToMany(() => User)
-    mentions: User[];
+    mentions: Relation<User>[];
 
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
-    mention_roles: Role[];
+    mention_roles: Relation<Role>[];
 
     @JoinTable({ name: "message_channel_mentions" })
     @ManyToMany(() => Channel)
-    mention_channels: Channel[];
+    mention_channels: Relation<Channel>[];
 
     @JoinTable({ name: "message_stickers" })
     @ManyToMany(() => Sticker, { cascade: true, onDelete: "CASCADE" })
-    sticker_items?: Sticker[];
+    sticker_items?: Relation<Sticker>[];
 
     @OneToMany(() => Attachment, (attachment: Attachment) => attachment.message, {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    attachments?: Attachment[];
+    attachments?: Relation<Attachment>[];
 
     @Column({ type: "simple-json" })
-    embeds: Embed[];
+    embeds: Relation<Embed>[];
 
     @Column({ type: "simple-json" })
     @JsonRemoveEmpty
-    reactions: Reaction[];
+    reactions: Relation<Reaction>[];
 
     @Column({ type: "text", nullable: true })
     nonce?: string;
@@ -198,7 +215,7 @@ export class Message extends BaseClass {
 
     @JoinColumn({ name: "message_reference_id" })
     @ManyToOne(() => Message, { onDelete: "SET NULL" })
-    referenced_message?: Message | null;
+    referenced_message?: Relation<Message> | null;
 
     @Column({ type: "simple-json", nullable: true })
     interaction?: {
@@ -314,7 +331,7 @@ export class Message extends BaseClass {
                       results: this.poll.results && {
                           ...this.poll.results,
                           answer_counts: this.poll.results.answer_counts.map((_) => {
-                              return { id: _.id, count: _.count, me_voted: _.user_ids.includes(user_id as string) };
+                              return { id: _.id, count: _.count, me_voted: (_.user_ids || []).includes(user_id as string) };
                           }),
                       },
                   }

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
 import { User } from "./User.js";
@@ -48,7 +48,7 @@ export class Sticker extends BaseClass {
         onDelete: "CASCADE",
         nullable: true,
     })
-    pack: StickerPack;
+    pack: Relation<StickerPack>;
 
     @Column({ nullable: true })
     guild_id?: string;
@@ -57,7 +57,7 @@ export class Sticker extends BaseClass {
     @ManyToOne(() => Guild, (guild) => guild.stickers, {
         onDelete: "CASCADE",
     })
-    guild?: Guild;
+    guild?: Relation<Guild>;
 
     @Column({ nullable: true })
     user_id?: string;
@@ -66,7 +66,7 @@ export class Sticker extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user?: User;
+    user?: Relation<User>;
 
     @Column({ type: "int" })
     type: StickerType;

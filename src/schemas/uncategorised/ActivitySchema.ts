@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Activity, Status } from "#harmony/util";
-
-export const ActivitySchema = {
+export const ActivitySchemaVal = {
     $afk: Boolean,
     status: String,
     $activities: [
@@ -71,10 +69,3 @@ export const ActivitySchema = {
     ],
     $since: Number, // unix time (in milliseconds) of when the client went idle, or null if the client is not idle
 };
-
-export interface ActivitySchema {
-    afk?: boolean;
-    status: Status;
-    activities?: Activity[];
-    since?: number; // unix time (in milliseconds) of when the client went idle, or null if the client is not idle
-}

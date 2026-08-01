@@ -15,6 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+const __dirname = import.meta.dirname;
 
 import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "#harmony/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares/index.js";
@@ -91,7 +92,7 @@ export class SpacebarServer extends Server {
         await initRateLimits(api);
         await initTranslation(api);
 
-        this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))).filter((r) => !!r);
+        this.routes = (await Promise.all(await registerRoutes(this, path.join(__dirname, "routes", "/")))).filter((r) => !!r);
 
         // 404 is not an error in express, so this should not be an error middleware
         // this is a fine place to put the 404 handler because its after we register the routes

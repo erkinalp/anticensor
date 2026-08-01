@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { User } from "./User.js";
 import { RelationshipType } from "#harmony/schemas";
@@ -34,7 +34,7 @@ export class Relationship extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    from: User;
+    from: Relation<User>;
 
     @Column({})
     @RelationId((relationship: Relationship) => relationship.to)
@@ -44,7 +44,7 @@ export class Relationship extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    to: User;
+    to: Relation<User>;
 
     @Column({ nullable: true })
     nickname?: string;

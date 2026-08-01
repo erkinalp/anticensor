@@ -15,8 +15,8 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./AckBulkSchema.js";
 export * from "./ActivitySchema.js";
+export * from "./AckBulkSchema.js";
 export * from "./ApplicationAuthorizeSchema.js";
 export * from "./AutomodRuleSchema.js";
 export * from "./BackupCodesChallengeSchema.js";
@@ -98,3 +98,4 @@ export * from "./PostDataSchema.js";
 export * from "./TagCreateSchema.js";
 export * from "./ChannelCreateSchema.js";
 export * from "./PollPutSchema.js";
+export * from "./ActivtyInterface.js";

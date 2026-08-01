@@ -20,6 +20,7 @@ import os from "os";
 import { readFileSync } from "node:fs";
 import pkg from "picocolors";
 const { red } = pkg;
+const __dirname = import.meta.dirname;
 
 export function initStats() {
     console.log(`[Path] Running in ${process.cwd()}`);

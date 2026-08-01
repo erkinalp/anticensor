@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Relation, RelationId } from "typeorm";
 import { Config, GuildWelcomeScreen, Snowflake, handleFile } from "../index.js";
 import { Ban } from "./Ban.js";
 import { BaseClass } from "./BaseClass.js";
@@ -211,7 +211,7 @@ export class Guild extends BaseClass {
 
     @JoinColumn({ name: "owner_id", referencedColumnName: "id" })
     @ManyToOne(() => User)
-    owner?: User; // optional to allow for ownerless guilds
+    owner?: Relation<User>; // optional to allow for ownerless guilds
 
     @Column({ nullable: true })
     preferred_locale?: string;
@@ -273,7 +273,7 @@ export class Guild extends BaseClass {
 
     @JoinColumn({ name: "widget_channel_id" })
     @ManyToOne(() => Channel)
-    widget_channel?: Channel;
+    widget_channel?: Relation<Channel>;
 
     @Column()
     widget_enabled: boolean = true;

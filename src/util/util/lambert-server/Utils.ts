@@ -1,5 +1,5 @@
 import fs from "fs";
-
+import { join } from "path";
 export interface traverseDirectoryOptions {
     dirname: string;
     filter?: RegExp;
@@ -18,11 +18,12 @@ export async function traverseDirectory<T>(options: traverseDirectoryOptions, ac
     const promises = <Promise<T | T[] | undefined>[]>routes
         .sort((a, _) => (a.startsWith("#") ? 1 : -1)) // load #parameter routes last
         .map(async (file) => {
-            const path = options.dirname + file;
+            const path = join(options.dirname, file);
             const stat = fs.lstatSync(path);
             if (path.match(<RegExp>options.excludeDirs)) return;
 
             if (path.match(<RegExp>options.filter) && stat.isFile()) {
+                console.log(path);
                 return action(path);
             } else if (options.recursive && stat.isDirectory()) {
                 return traverseDirectory({ ...options, dirname: path + "/" }, action);

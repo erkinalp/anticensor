@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Relation, RelationId } from "typeorm";
 import { Sticker } from "./index.js";
 import { BaseClass } from "./BaseClass.js";
 
@@ -37,7 +37,7 @@ export class StickerPack extends BaseClass {
         cascade: true,
         orphanedRowAction: "delete",
     })
-    stickers: Sticker[];
+    stickers: Relation<Sticker>[];
 
     // sku_id: string
 
@@ -47,5 +47,5 @@ export class StickerPack extends BaseClass {
 
     @ManyToOne(() => Sticker, { nullable: true })
     @JoinColumn()
-    cover_sticker?: Sticker;
+    cover_sticker?: Relation<Sticker>;
 }

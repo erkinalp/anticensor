@@ -19,7 +19,7 @@
 import crypto from "crypto";
 import { User } from "./User.js";
 import { BaseClassWithoutId } from "./BaseClass.js";
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation, RelationId } from "typeorm";
 import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces/index.js";
 import { randomUpperString } from "#harmony/api";
 import { DateBuilder, IpDataClient, TimeSpan } from "../util/index.js";
@@ -40,10 +40,10 @@ export class Session extends BaseClassWithoutId {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user: User;
+    user: Relation<User>;
 
     @Column({ type: "simple-json", default: "[]" })
-    activities: Activity[];
+    activities: Relation<Activity>[];
 
     @Column({ type: "simple-json" })
     client_info: {

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { BeforeRemove, Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { deleteFile } from "../util/index.js";
 import { BaseClass } from "./BaseClass.js";
 import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing.js";
@@ -55,7 +55,7 @@ export class Attachment extends BaseClass {
     @ManyToOne(() => Message, (message: Message) => message.attachments, {
         onDelete: "CASCADE",
     })
-    message: Message;
+    message: Relation<Message>;
 
     @BeforeRemove()
     onDelete() {

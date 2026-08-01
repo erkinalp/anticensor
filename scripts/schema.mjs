@@ -19,6 +19,8 @@
 /*
 	Regenerates the `spacebarchat/server/assets/schemas.json` file, used for API/Gateway input validation.
 */
+const __dirname = import.meta.dirname;
+
 import { Stopwatch } from "#harmony/util";
 import fs from "fs";
 import fsp from "fs/promises";
@@ -49,6 +51,7 @@ const settings = {
     noExtraProps: true,
     defaultProps: false,
     useTypeOfKeyword: true, // should help catch functions?
+    esModuleInterop: true,
 };
 
 const baseClassProperties = [
@@ -75,12 +78,13 @@ const excludedLambdas = [
     (n, s) => {
         // attempt to import
         if (JSON.stringify(s).includes(`#/definitions/import(`)) {
-            console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it attempted to use import().`);
+            console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it attempted to use import().`, s);
             exclusionList.auto.push({ value: n, reason: "Uses import()" });
             return true;
         }
     },
     (n, s) => {
+        console.log(s);
         if (JSON.stringify(s).includes(process.cwd())) {
             console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it leaked $PWD.`);
             exclusionList.auto.push({ value: n, reason: "Leaked $PWD" });
@@ -140,7 +144,25 @@ function includesMatch(haystack, needles, log = false) {
     }
     return null;
 }
-
+const checked = new WeakSet();
+function strip(obj) {
+    if (checked.has(obj)) return;
+    checked.add(obj);
+    for (const [key, value] of Object.entries(obj)) {
+        if (value instanceof Object) {
+            strip(value);
+        } else if (typeof value === "string") {
+            if (value.match(/import\(.*\)\./gm)) {
+                obj[key] = value.replace(/import\(.*\)\./gm, "");
+                console.log(key, value, obj[key]);
+            }
+        }
+        if (key.match(/import\(.*\)/gm)) {
+            delete obj[key];
+            obj[key.replace(/import\(.*\)\./gm, "")] = value;
+        }
+    }
+}
 async function main() {
     const stepSw = Stopwatch.startNew();
 
@@ -157,6 +179,7 @@ async function main() {
 
     process.stdout.write("Generating schema list... ");
     let schemas = generator.getUserSymbols().filter((x) => {
+        if (x.endsWith("Schema")) console.log(x, includesMatch(x, Included), includesMatch(x, ExcludeAndWarn, true), includesMatch(x, Excluded));
         return (
             (x.endsWith("Schema") || x.endsWith("Response") || x.startsWith("API")) &&
             // !ExcludeAndWarn.some((exc) => {
@@ -202,6 +225,7 @@ async function main() {
         process.stdout.write(`Processing schema ${name}... `);
         let part = TJS.generateSchema(program, name, settings, [], generator);
         if (!part) continue;
+        strip(part);
 
         if (definitions[name]) {
             process.stdout.write(yellow(` [ERROR] Duplicate schema name detected: ${name}. Overwriting previous schema.`));

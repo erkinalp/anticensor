@@ -113,7 +113,15 @@ export function bigNumberToString(obj1: unknown) {
         }
     }
 }
+let func = undefined as undefined | ((opts: RouteOptions)=>void)
+export function routeHandle(func2:(opts: RouteOptions)=>void){
+    func=func2
+}
 export function route(opts: RouteOptions) {
+    if(func) {
+        func(opts);
+        return ()=>{};
+    }
     let validate: ValidateFunction | AsyncValidateFunction | undefined;
     if (opts.requestBody) {
         try {

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, RelationId } from "typeorm";
 import { ThreadMembersUpdateEvent } from "../interfaces/index.js";
 import { emitEvent } from "../util/index.js";
 import { BaseClassWithoutId } from "./BaseClass.js";
@@ -53,7 +53,7 @@ export class ThreadMember extends BaseClassWithoutId {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column()
     @RelationId((member: ThreadMember) => member.member)
@@ -63,7 +63,7 @@ export class ThreadMember extends BaseClassWithoutId {
     @ManyToOne(() => Member, {
         onDelete: "CASCADE",
     })
-    member: Member;
+    member: Relation<Member>;
 
     @Column()
     join_timestamp: Date;

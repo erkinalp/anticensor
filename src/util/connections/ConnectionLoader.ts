@@ -15,6 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+const __dirname = import.meta.dirname;
 
 import { Connection } from "#harmony/util";
 import fs from "fs";
@@ -41,7 +42,7 @@ export class ConnectionLoader {
         dirs.forEach(async (x) => {
             const modPath = path.resolve(path.join(root, x));
             const imp = await import(modPath + "/index.js");
-            const mod = new imp.default.default() as Connection;
+            const mod = new imp.default() as Connection;
             ConnectionStore.connections.set(mod.id, mod);
 
             mod.init();

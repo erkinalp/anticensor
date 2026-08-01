@@ -33,4 +33,4 @@ server
     })
     .catch((e) => console.error("[Server] Error starting: ", e));
 
-module.exports = server;
+export default server;

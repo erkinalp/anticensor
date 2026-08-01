@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Channel } from "./Channel.js";
 
@@ -31,7 +31,7 @@ export class Tag extends BaseClass {
     @ManyToOne(() => Channel, (channel) => channel.available_tags, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column()
     name: string;

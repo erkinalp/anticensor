@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { User } from "./User.js";
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
@@ -38,7 +38,7 @@ export class Emoji extends BaseClass {
     @ManyToOne(() => Guild, (guild) => guild.emojis, {
         onDelete: "CASCADE",
     })
-    guild: Guild;
+    guild: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((emoji: Emoji) => emoji.user)
@@ -46,7 +46,7 @@ export class Emoji extends BaseClass {
 
     @JoinColumn({ name: "user_id" })
     @ManyToOne(() => User)
-    user: User;
+    user: Relation<User>;
 
     @Column()
     managed: boolean;

@@ -17,7 +17,7 @@
 */
 
 import { HTTPError } from "#lambert-server";
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, Relation, RelationId } from "typeorm";
 import { Ban, Channel, PublicGuildRelations } from "./index.js";
 import { ReadyGuildDTO } from "../dtos/index.js";
 import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces/index.js";
@@ -68,7 +68,7 @@ export class Member extends BaseClassWithoutId {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user: User;
+    user: Relation<User>;
 
     @Column()
     @RelationId((member: Member) => member.guild)
@@ -78,7 +78,7 @@ export class Member extends BaseClassWithoutId {
     @ManyToOne(() => Guild, {
         onDelete: "CASCADE",
     })
-    guild: Guild;
+    guild: Relation<Guild>;
 
     @Column({ nullable: true })
     nick?: string;

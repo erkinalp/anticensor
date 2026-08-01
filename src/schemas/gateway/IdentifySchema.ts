@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
+import { ActivitySchemaVal, ActivitySchema } from "../uncategorised/index.js";
 
-import { ActivitySchema } from "#harmony/schemas";
+// TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
 
 export const IdentifySchema = {
     token: String,
@@ -50,7 +50,7 @@ export const IdentifySchema = {
     // 	$window_manager: String,
     // 	$distro: String,
     // },
-    $presence: ActivitySchema,
+    $presence: ActivitySchemaVal,
     $compress: Boolean,
     $large_threshold: Number,
     $shard: [Number, Number],

@@ -19,11 +19,11 @@
 import { WebSocket, Payload } from "#harmony/gateway";
 import { emitEvent, PresenceUpdateEvent, Session, User } from "#harmony/util";
 import { check } from "./instanceOf.js";
-import { ActivitySchema } from "#harmony/schemas";
+import { ActivitySchema, ActivitySchemaVal } from "#harmony/schemas";
 
 export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
-    check.call(this, ActivitySchema, d);
+    check.call(this, ActivitySchemaVal, d);
     const presence = d as ActivitySchema;
 
     await Session.update({ session_id: this.session_id }, { status: presence.status, activities: presence.activities });

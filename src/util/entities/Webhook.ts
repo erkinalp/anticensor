@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { Application } from "./Application.js";
 import { BaseClass } from "./BaseClass.js";
 import { Channel } from "./Channel.js";
@@ -49,7 +49,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => Guild, {
         onDelete: "CASCADE",
     })
-    guild?: Guild;
+    guild?: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((webhook: Webhook) => webhook.channel)
@@ -59,7 +59,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    channel: Channel;
+    channel: Relation<Channel>;
 
     @Column({ nullable: true })
     @RelationId((webhook: Webhook) => webhook.application)
@@ -69,7 +69,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => Application, {
         onDelete: "CASCADE",
     })
-    application: Application;
+    application: Relation<Application>;
 
     @Column({ nullable: true })
     @RelationId((webhook: Webhook) => webhook.user)
@@ -79,7 +79,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => User, {
         onDelete: "CASCADE",
     })
-    user: User;
+    user: Relation<User>;
 
     @Column({ nullable: true })
     @RelationId((webhook: Webhook) => webhook.guild)
@@ -89,7 +89,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => Guild, {
         onDelete: "CASCADE",
     })
-    source_guild?: Guild;
+    source_guild?: Relation<Guild>;
 
     @Column({ nullable: true })
     @RelationId((webhook: Webhook) => webhook.channel)
@@ -99,7 +99,7 @@ export class Webhook extends BaseClass {
     @ManyToOne(() => Channel, {
         onDelete: "CASCADE",
     })
-    source_channel: Channel;
+    source_channel: Relation<Channel>;
 
     toJSON() {
         return { ...this, url: Config.get().api.endpointPublic + "/api/webhooks/" + this.id + "/" + this.token };

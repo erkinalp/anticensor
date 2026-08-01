@@ -17,16 +17,17 @@
 */
 
 process.env.LOG_ROUTES = "false";
+const __dirname = import.meta.dirname;
 
-const { Stopwatch } = require("../dist/util/util/Stopwatch");
+import { Stopwatch } from "#harmony/util";
 const totalSw = Stopwatch.startNew();
 
-const getRouteDescriptions = require("./util/getRouteDescriptions");
-const path = require("path");
-const fs = require("fs");
-const { NO_AUTHORIZATION_ROUTES } = require("../dist/api/middlewares/Authentication");
-require("../dist/util/util/extensions");
-const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = require("picocolors");
+import getRouteDescriptions from "./util/getRouteDescriptions.js";
+import path from "path";
+import fs from "fs";
+import { NO_AUTHORIZATION_ROUTES } from "../dist/api/middlewares/Authentication.js";
+import pkg from "picocolors";
+const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = pkg;
 
 const openapiPath = path.join(__dirname, "..", "assets", "openapi.json");
 const SchemaPath = path.join(__dirname, "..", "assets", "schemas.json");
@@ -119,8 +120,8 @@ function getTag(key) {
     return key.match(/\/([\w-]+)/)[1];
 }
 
-function apiRoutes(missingRoutes) {
-    const routes = getRouteDescriptions();
+async function apiRoutes(missingRoutes) {
+    const routes = await getRouteDescriptions();
 
     // populate tags
     const tags = Array.from(routes.keys())
@@ -265,7 +266,7 @@ async function main() {
     let missingRoutes = undefined;
 
     combineSchemas(schemas);
-    apiRoutes(missingRoutes);
+    await apiRoutes(missingRoutes);
 
     fs.writeFileSync(openapiPath, JSON.stringify(specification, null, 4).replaceAll("#/definitions", "#/components/schemas").replaceAll("bigint", "number"));
     console.log("Wrote OpenAPI specification to", openapiPath);

@@ -1,8 +1,11 @@
-const express = require("express");
-const path = require("path");
-const { traverseDirectory } = require("#lambert-server");
-const RouteUtility = require("../../dist/api/util/handlers/route.js");
-const { greenBright, yellowBright, blueBright, redBright, underline, bgYellow, black } = require("picocolors");
+import express from "express";
+import path from "path";
+import { traverseDirectory } from "#lambert-server";
+import { routeHandle } from "../../dist/api/util/handlers/route.js";
+import pkg from "picocolors";
+const __dirname = import.meta.dirname;
+
+const { greenBright, yellowBright, blueBright, redBright, underline, bgYellow, black } = pkg;
 
 const methods = ["get", "post", "put", "delete", "patch"];
 const routes = new Map();
@@ -61,30 +64,32 @@ express.Router = () => {
     return Object.fromEntries(methods.map((method) => [method, proxy.bind(null, currentFile, method, currentPath)]));
 };
 
-RouteUtility.route = (opts) => {
+routeHandle((opts) => {
     const func = function () {
         return opts;
     };
     func.prototype.OPTS_MARKER = true;
     return func;
-};
+});
 
-module.exports = function getRouteDescriptions() {
+export default async function getRouteDescriptions() {
     const root = path.join(__dirname, "..", "..", "dist", "api", "routes", "/");
-    traverseDirectory({ dirname: root, recursive: true }, (file) => {
-        currentFile = file;
+    await Promise.all(
+        await traverseDirectory({ dirname: root, recursive: true }, async (file) => {
+            currentFile = file;
 
-        currentPath = file.replace(root.slice(0, -1), "");
-        currentPath = currentPath.split(".").slice(0, -1).join("."); // truncate .js/.ts file extension of path
-        currentPath = currentPath.replaceAll("#", ":").replaceAll("\\", "/"); // replace # with : for path parameters and windows paths with slashes
-        if (currentPath.endsWith("/index")) currentPath = currentPath.slice(0, "/index".length * -1); // delete index from path
+            currentPath = file.replace(root.slice(0, -1), "");
+            currentPath = currentPath.split(".").slice(0, -1).join("."); // truncate .js/.ts file extension of path
+            currentPath = currentPath.replaceAll("#", ":").replaceAll("\\", "/"); // replace # with : for path parameters and windows paths with slashes
+            if (currentPath.endsWith("/index")) currentPath = currentPath.slice(0, "/index".length * -1); // delete index from path
 
-        try {
-            require(file);
-        } catch (e) {
-            console.error(e);
-        }
-    });
+            try {
+                await import(file.replaceAll("#", "%23"));
+            } catch (e) {
+                console.error(e, file);
+            }
+        }),
+    );
 
     return routes;
-};
+}

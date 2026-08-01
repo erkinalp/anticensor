@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Relation, RelationId } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
 import { User } from "./User.js";
@@ -43,7 +43,7 @@ export class Template extends BaseClass {
 
     @JoinColumn({ name: "creator_id" })
     @ManyToOne(() => User)
-    creator: User;
+    creator: Relation<User>;
 
     @Column()
     created_at: Date;
@@ -57,8 +57,8 @@ export class Template extends BaseClass {
 
     @JoinColumn({ name: "source_guild_id" })
     @ManyToOne(() => Guild, { onDelete: "CASCADE" })
-    source_guild: Guild;
+    source_guild: Relation<Guild>;
 
     @Column({ type: "simple-json" })
-    serialized_source_guild: Guild;
+    serialized_source_guild: Relation<Guild>;
 }
