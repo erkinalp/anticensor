@@ -69,8 +69,8 @@ export class FileStorage implements Storage {
 
         const ret = Readable.from(value);
         const cleaned_file = fs.createWriteStream(path);
-
-        ret.pipe(new ExifTransformer.default()).pipe(cleaned_file);
+        //@ts-expect-error Really?
+        ret.pipe(new ExifTransformer()).pipe(cleaned_file);
     }
 
     async delete(path: string) {
