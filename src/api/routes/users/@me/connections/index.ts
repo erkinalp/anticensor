@@ -22,7 +22,7 @@ import { ConnectedAccount, ConnectedAccountDTO } from "@harmony/util";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const connections = await ConnectedAccount.find({
         where: {
             user_id: req.user_id,

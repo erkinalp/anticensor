@@ -37,6 +37,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const user = await User.findOneOrFail({
@@ -63,6 +64,7 @@ router.put(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         return await updateRelationship(
@@ -91,6 +93,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as RelationshipPatchSchema;
@@ -129,6 +132,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         return await updateRelationship(
@@ -159,6 +163,7 @@ router.delete(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { user_id } = req.params as { [key: string]: string };

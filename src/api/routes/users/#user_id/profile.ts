@@ -24,7 +24,7 @@ import { PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipTy
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), async (req: Request, res: Response) => {
+router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } }, permission: null }), async (req: Request, res: Response) => {
     if (req.params.user_id === "@me") req.params.user_id = req.user_id;
 
     const { guild_id, with_mutual_guilds, with_mutual_friends, with_mutual_friends_count } = req.query;
@@ -140,7 +140,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
     });
 });
 
-router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "UserProfileModifySchema", permission: null }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;
 
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);

@@ -49,6 +49,7 @@ router.get(
                 body: "APITemplateArray",
             },
         },
+        permission: "MANAGE_GUILD",
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };

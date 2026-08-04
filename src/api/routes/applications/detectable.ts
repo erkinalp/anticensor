@@ -35,6 +35,7 @@ router.get(
             },
         },
         spacebarOnly: false, // not part of public openapi
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // cache for 6 hours

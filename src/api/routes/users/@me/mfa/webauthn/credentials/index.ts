@@ -42,7 +42,7 @@ function toArrayBuffer(buf: Buffer) {
     return ab;
 }
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const securityKeys = await SecurityKey.find({
         where: {
             user_id: req.user_id,
@@ -69,6 +69,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (!WebAuthn.fido2) {
