@@ -27,6 +27,7 @@ router.post(
     "/findStream",
     route({
         requestBody: "WebRTCHasStreamSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { stream_id } = req.body as WebRTCHasStreamSchema;
@@ -40,6 +41,7 @@ router.post(
     "/",
     route({
         requestBody: "WebRTCSessionFindSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         let type: "guild-voice" | "dm-voice" | "stream" = "guild-voice";
@@ -91,6 +93,7 @@ router.delete(
     "/",
     route({
         requestBody: "WebRTCDeleteSessionSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { stream_id } = req.body as WebRTCDeleteSessionSchema;
