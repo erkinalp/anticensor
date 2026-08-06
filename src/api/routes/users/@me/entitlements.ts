@@ -21,7 +21,7 @@ import { route } from "@harmony/api";
 
 const router = Router({ mergeParams: true });
 
-router.get("/gifts", route({}), (req: Request, res: Response) => {
+router.get("/gifts", route({ permission: null }), (req: Request, res: Response) => {
     // TODO:
     res.json([]).status(200);
 });

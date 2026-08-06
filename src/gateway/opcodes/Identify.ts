@@ -89,7 +89,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         checkToken(identify.token, {
             // relations: {"relationships", "relationships.to", "settings"],
             // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: { ...Object.fromEntries(PrivateUserProjection.map((_) => [_, true] as const)), rights: true },
+            select: { ...PrivateUserProjection, rights: true },
         }),
     );
 
@@ -279,7 +279,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                             // at least one column.
                             id: true,
                             // We only want public user data for each dm channel
-                            user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                            user: PublicUserProjection,
                         },
                     },
                 },
@@ -322,7 +322,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     type: Not(In([ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD, ChannelType.GUILD_NEWS_THREAD])),
                 },
                 order: { guild_id: "ASC" },
-                relations: ["available_tags"],
+                relations: {
+                    available_tags: true,
+                },
             }),
         ),
         timePromise(() =>

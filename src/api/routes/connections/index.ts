@@ -51,6 +51,7 @@ router.get(
                 body: "APIConnectionsConfiguration",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         if (resp) {

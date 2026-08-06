@@ -34,6 +34,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { attachment_urls } = req.body as RefreshUrlsRequestSchema;
