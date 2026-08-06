@@ -38,6 +38,7 @@ router.get(
                 body: "TeamListResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const teams = await Team.find({
@@ -60,6 +61,7 @@ router.post(
                 body: "Team",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const user =

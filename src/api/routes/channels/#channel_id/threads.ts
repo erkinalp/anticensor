@@ -70,7 +70,9 @@ router.post(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: {
+                available_tags: true,
+            },
         });
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
@@ -173,7 +175,7 @@ router.post(
                 // have to fetch ourselves otherwise.
                 if (!message.member) {
                     message.member = await Member.findOneOrFail({
-                        where: { id: req.user_id, guild_id: message.guild_id?message.guild_id:IsNull() },
+                        where: { id: req.user_id, guild_id: message.guild_id ? message.guild_id : IsNull() },
                         relations: { roles: true },
                     });
                 }
@@ -217,6 +219,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         // noinspection JSUnusedLocalSymbols - ???

@@ -41,6 +41,7 @@ router.get(
             },
         },
         spacebarOnly: false, // maps to /users/@me/settings-proto/2
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const userSettings = await UserSettingsProtos.getOrDefault(req.user_id);
@@ -61,6 +62,7 @@ router.patch(
             },
         },
         spacebarOnly: false, // maps to /users/@me/settings-proto/2
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { settings, required_data_version } = req.body as SettingsProtoUpdateSchema;
@@ -87,6 +89,7 @@ router.get(
             },
         },
         spacebarOnly: true,
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const userSettings = await UserSettingsProtos.getOrDefault(req.user_id);
@@ -113,6 +116,7 @@ router.patch(
             },
         },
         spacebarOnly: true,
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { settings, required_data_version } = req.body as SettingsProtoUpdateJsonSchema;

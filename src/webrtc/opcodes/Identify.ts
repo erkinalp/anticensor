@@ -20,7 +20,7 @@ import { CLOSECODES } from "@harmony/gateway";
 import { StreamSession, VoiceState } from "@harmony/util";
 import { validateSchema, VoiceIdentifySchema } from "@harmony/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
+import { SSRCs } from "harmony-webrtc-types";
 import { subscribeToProducers } from "./Video";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
@@ -78,7 +78,7 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
 
     this.type = type;
 
-    const voiceRoomId = type === "stream" ? server_id : voiceState!.channel_id;
+    const voiceRoomId = type === "stream" ? server_id : voiceState!.channel_id!;
     this.webRtcClient = await mediaServer.join(voiceRoomId, this.user_id, this, type!);
 
     this.on("close", () => {

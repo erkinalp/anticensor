@@ -40,6 +40,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as VoiceStateUpdateSchema;
@@ -79,7 +80,7 @@ router.patch(
         voiceState.member = await Member.findOneOrFail({
             where: {
                 id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
+                guild_id,
             },
         });
 

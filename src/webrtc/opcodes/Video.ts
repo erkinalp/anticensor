@@ -17,7 +17,7 @@
 */
 import { Stream } from "@harmony/util";
 import { mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
+import type { WebRtcClient } from "harmony-webrtc-types";
 import { validateSchema, VoiceVideoSchema } from "@harmony/schemas";
 
 export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {

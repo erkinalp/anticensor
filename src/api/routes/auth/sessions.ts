@@ -30,6 +30,7 @@ router.get(
                 body: "GetSessionsResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { extended = false } = req.query;
@@ -48,6 +49,7 @@ router.post(
         responses: {
             204: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as SessionsLogoutSchema;

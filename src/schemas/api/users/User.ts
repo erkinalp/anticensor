@@ -151,8 +151,19 @@ export enum PrivateUserEnum {
 
 export type PrivateUserKeys = keyof typeof PrivateUserEnum | PublicUserKeys;
 
-export const PublicUserProjection = Object.values(PublicUserEnum).filter((x) => typeof x === "string") as PublicUserKeys[];
-export const PrivateUserProjection = [...PublicUserProjection, ...Object.values(PrivateUserEnum).filter((x) => typeof x === "string")] as PrivateUserKeys[];
+export const PublicUserProjection = Object.fromEntries(
+    Object.values(PublicUserEnum)
+        .filter((x) => typeof x === "string")
+        .map((_) => [_, true] as const),
+) as Record<PublicUserKeys, true>;
+export const PrivateUserProjection = {
+    ...PublicUserProjection,
+    ...Object.fromEntries(
+        Object.values(PrivateUserEnum)
+            .filter((x) => typeof x === "string")
+            .map((_) => [_, true] as const),
+    ),
+} as Record<PrivateUserKeys, true>;
 
 // Private user data that should never get sent to the client
 export type PublicUser = Pick<UserEntityPleaseRewriteThankYou, PublicUserKeys>;

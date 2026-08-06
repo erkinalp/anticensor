@@ -29,6 +29,7 @@ router.get(
                 body: "GuildDiscoveryRequirementsResponse",
             },
         },
+        permission: "MANAGE_GUILD",
     }),
     (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };

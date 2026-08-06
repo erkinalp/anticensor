@@ -43,6 +43,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { password, regenerate } = req.body as MfaCodesSchema;

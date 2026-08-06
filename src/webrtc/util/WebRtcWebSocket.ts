@@ -1,5 +1,5 @@
 import { WebSocket } from "@harmony/gateway";
-import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
+import type { WebRtcClient } from "harmony-webrtc-types";
 
 export interface WebRtcWebSocket extends WebSocket {
     type: "guild-voice" | "dm-voice" | "stream";
