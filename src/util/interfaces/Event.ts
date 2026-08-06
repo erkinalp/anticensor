@@ -53,7 +53,7 @@ import {
     UserPrivate,
 } from "@harmony/schemas";
 
-export interface Event {
+export type Event = {
     guild_id?: string;
     user_id?: string;
     session_id?: string;
@@ -64,7 +64,7 @@ export interface Event {
     data?: any;
     reconnect_delay?: number;
     origin?: string;
-}
+};
 
 // ! Custom Events that shouldn't get sent to the client but processed by the server
 
@@ -374,7 +374,9 @@ export interface PollChangeEvent extends Event {
 
 export interface MessageUpdateEvent extends Event {
     event: "MESSAGE_UPDATE";
-    data: PublicMessage;
+    data: PublicMessage & {
+        guild_id?: string;
+    };
 }
 
 export interface MessageDeleteEvent extends Event {

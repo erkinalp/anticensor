@@ -39,6 +39,7 @@ import {
     SecurityConfiguration,
     TemplateConfiguration,
     UserConfiguration,
+    WebRTCConfiguration,
     ProxyConfiguration,
 } from "./types";
 
@@ -66,5 +67,6 @@ export class ConfigValue {
     user: UserConfiguration = new UserConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    webrtc = new WebRTCConfiguration();
     proxy = new ProxyConfiguration();
 }

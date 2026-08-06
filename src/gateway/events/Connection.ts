@@ -127,6 +127,8 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
 
         socket.events = {};
         socket.member_events = {};
+        socket.threadMap = new Map();
+        socket.parrentThreadMap = new Map();
         socket.permissions = {};
         socket.sequence = 0;
 

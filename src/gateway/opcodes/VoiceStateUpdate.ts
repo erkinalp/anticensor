@@ -17,7 +17,7 @@
 */
 
 import { Payload, WebSocket } from "@harmony/gateway";
-import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
+import { Config, emitEvent, getPermission, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { genVoiceToken } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@harmony/schemas";
@@ -35,6 +35,10 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     let isChanged = false;
 
     let prevState;
+    if (!isNew) {
+        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.channel_id, body.guild_id));
+        perm.hasThrow("CONNECT");
+    }
 
     let voiceState: VoiceState;
     try {
