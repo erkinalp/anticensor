@@ -30,6 +30,7 @@ router.get(
                 body: "GatewayBotResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { endpointPublic } = Config.get().gateway;

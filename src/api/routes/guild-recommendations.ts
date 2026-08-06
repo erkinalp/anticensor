@@ -33,6 +33,7 @@ router.get(
             },
         },
         spacebarOnly: false, // Not part of public openapi schema
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // const { limit, personalization_disabled } = req.query;

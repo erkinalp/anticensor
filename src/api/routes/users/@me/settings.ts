@@ -34,6 +34,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const settings = await UserSettings.getOrDefault(req.user_id);
@@ -56,6 +57,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserSettingsUpdateSchema;

@@ -36,14 +36,14 @@ router.get(
                 body: "TrendingResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
-
-        const { media_format, locale,provider } = req.query as Record<string,string>;
+        const { media_format, locale, provider } = req.query as Record<string, string>;
 
         const p = getGifProvider(provider);
 
-        res.json(await p.trending({media_format:media_format??"gif",locale})).status(200);
+        res.json(await p.trending({ media_format: media_format ?? "gif", locale })).status(200);
     },
 );
 

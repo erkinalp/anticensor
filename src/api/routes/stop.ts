@@ -31,6 +31,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         console.log(`/stop was called by ${req.user_id} at ${new Date()}`);

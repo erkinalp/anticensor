@@ -44,7 +44,7 @@ export type RouteResponse = {
 };
 export type stripNulls = { [key: string]: true | stripNulls };
 export interface RouteOptions {
-    permission?: PermissionResolvable;
+    permission: PermissionResolvable | null;
     right?: RightResolvable;
     requestBody?: `${string}Schema`; // typescript interface name
     responses?: {

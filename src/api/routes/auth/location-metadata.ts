@@ -29,6 +29,7 @@ router.get(
                 body: "LocationMetadataResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         //TODO

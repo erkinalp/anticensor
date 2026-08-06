@@ -32,6 +32,7 @@ router.get(
                 body: "APIPrivateUser",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         res.json(
@@ -58,13 +59,14 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserModifySchema;
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
-            select: [...PrivateUserProjection, "data"],
+            select: { ...PrivateUserProjection, data: true },
         });
 
         // Populated on password change

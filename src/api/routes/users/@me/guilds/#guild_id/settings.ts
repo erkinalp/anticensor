@@ -33,6 +33,7 @@ router.get(
             200: {},
             404: {},
         },
+        permission: [],
     }),
     async (req: Request, res: Response) => {
         const user = await Member.findOneOrFail({
@@ -56,6 +57,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: [],
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserGuildSettingsSchema;

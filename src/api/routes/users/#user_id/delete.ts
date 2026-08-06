@@ -53,13 +53,14 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const sw = Stopwatch.startNew();
         const body = req.body as InstanceUserDeleteSchema | undefined;
         const user = await User.findOneOrFail({
             where: { id: req.params.user_id as string },
-            select: [...PrivateUserProjection, "data"],
+            select: { ...PrivateUserProjection, data: true },
         });
 
         if ((body?.persistInstanceBan ?? true) && !(await InstanceBan.findOne({ where: { user_id: user.id } })))
