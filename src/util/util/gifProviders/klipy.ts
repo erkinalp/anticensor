@@ -33,7 +33,7 @@ interface KlipyCategory {
     preview_url: string;
 }
 export class Klipy extends GifProvider {
-    name = "Klipy";
+    name = "KLIPY";
     api_name = "klipy";
     getGifApiKey() {
         const { enabled, apiKey } = Config.get().klipygif;

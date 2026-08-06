@@ -44,6 +44,7 @@ router.post(
                 body: "APIErrorOrCaptchaResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { captcha_key, token } = req.body;

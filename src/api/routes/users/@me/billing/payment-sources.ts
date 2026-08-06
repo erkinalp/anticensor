@@ -47,17 +47,17 @@ const example = {
     default: false,
 };
 
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: schema
     res.json([example]).status(200);
 });
 
-router.post("/", route({}), (req: Request, res: Response) => {
+router.post("/", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: schema
     res.json([example]).status(200);
 });
 
-router.get("/:payment_source_id", route({}), (req: Request, res: Response) => {
+router.get("/:payment_source_id", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: schema
     res.json({
         ...example,
@@ -65,7 +65,7 @@ router.get("/:payment_source_id", route({}), (req: Request, res: Response) => {
     }).status(200);
 });
 
-router.patch("/:payment_source_id", route({}), (req: Request, res: Response) => {
+router.patch("/:payment_source_id", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: schema
     res.json({
         ...example,
@@ -73,7 +73,7 @@ router.patch("/:payment_source_id", route({}), (req: Request, res: Response) => 
     }).status(200);
 });
 
-router.delete("/:payment_source_id", route({}), (req: Request, res: Response) => {
+router.delete("/:payment_source_id", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: schema
     res.status(204);
 });

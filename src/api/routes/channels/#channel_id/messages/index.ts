@@ -448,6 +448,7 @@ router.delete(
         responses: {
             204: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string }; // not really a channel id if read_state_type != CHANNEL
