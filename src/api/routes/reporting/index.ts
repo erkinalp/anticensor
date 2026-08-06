@@ -36,6 +36,7 @@ router.get(
                 body: "Array<ReportMenuTypeNames>",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         res.json(Object.values(ReportMenuTypeNames));
@@ -57,6 +58,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                 204: {},
             },
             spacebarOnly: false, // Maps to /reporting/menu/:id
+            permission: null,
         }),
         (req: Request, res: Response) => {
             // TODO: implement
@@ -78,6 +80,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                 204: {},
             },
             spacebarOnly: false, // Maps to /reporting/:id
+            permission: null,
         }),
         (req: Request, res: Response) => {
             // TODO: implement

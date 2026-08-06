@@ -32,6 +32,7 @@ router.get(
                 body: "APIPrivateUser",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         res.json(
@@ -58,6 +59,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserModifySchema;

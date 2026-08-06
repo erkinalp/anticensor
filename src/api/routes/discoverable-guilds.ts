@@ -33,6 +33,7 @@ router.get(
                 body: "DiscoverableGuildsResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { offset, limit, categories } = req.query;

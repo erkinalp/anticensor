@@ -34,6 +34,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: [],
     }),
     async (req: Request, res: Response) => {
         const guild_id = req.params.guild_id as string;

@@ -37,6 +37,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id, member_id } = req.params as { [key: string]: string };
@@ -83,6 +84,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -166,6 +168,7 @@ router.put(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // TODO: Lurker mode
@@ -218,6 +221,7 @@ router.delete(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id, member_id } = req.params as { [key: string]: string };

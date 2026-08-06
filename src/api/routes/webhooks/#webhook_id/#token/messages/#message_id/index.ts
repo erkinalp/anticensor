@@ -2,12 +2,14 @@ import { Request, Response, Router } from "express";
 import { handleMessage, postHandleMessage, route } from "@harmony/api";
 import { ChannelType, MessageEditSchema } from "@harmony/schemas";
 import { Channel, DiscordApiErrors, Message, MessageDeleteEvent, MessageUpdateEvent, Webhook, emitEvent, getPermission, getRights } from "@harmony/util";
+import { permission } from "process";
 const router = Router({ mergeParams: true });
 console.log("file *was* ran");
 router.patch(
     "/",
     route({
         requestBody: "MessageEditSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token, message_id } = req.params as { [key: string]: string };
@@ -102,6 +104,7 @@ router.delete(
             },
             404: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token, message_id } = req.params as { [key: string]: string };
