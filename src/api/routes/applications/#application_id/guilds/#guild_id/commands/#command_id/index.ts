@@ -23,7 +23,7 @@ import { Application, ApplicationCommand, checkCommand, FieldErrors, Guild, Memb
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {
@@ -59,6 +59,7 @@ router.patch(
     "/",
     route({
         requestBody: "ApplicationCommandCreateSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
@@ -101,7 +102,7 @@ router.patch(
     },
 );
 
-router.delete("/", route({}), async (req: Request, res: Response) => {
+router.delete("/", route({ permission: null }), async (req: Request, res: Response) => {
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {

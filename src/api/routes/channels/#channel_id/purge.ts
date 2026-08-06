@@ -42,6 +42,7 @@ router.post(
             404: {},
             403: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };

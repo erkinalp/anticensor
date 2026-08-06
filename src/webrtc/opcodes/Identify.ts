@@ -20,7 +20,7 @@ import { CLOSECODES } from "@harmony/gateway";
 import { Config, StreamSession, VoiceState } from "@harmony/util";
 import { validateSchema, VoiceIdentifySchema, WebRTCDeleteSessionSchema, WebRTCSessionFindSchema } from "@harmony/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
+import { SSRCs } from "harmony-webrtc-types";
 import { subscribeToProducers } from "./Video";
 import { getHeaders } from "../util/internalHeaders";
 

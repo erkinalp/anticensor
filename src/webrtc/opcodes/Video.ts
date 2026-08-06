@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import { mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
 import { validateSchema, VoiceVideoSchema, WebRTCHasStreamSchema } from "@harmony/schemas";
 import { Config } from "@harmony/util";
 import { getHeaders } from "../util/internalHeaders";
+import type { WebRtcClient } from "harmony-webrtc-types";
 
 export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {
     if (!this.webRtcClient) return;

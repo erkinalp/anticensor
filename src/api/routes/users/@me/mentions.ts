@@ -34,6 +34,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     // AFAICT this endpoint doesn't list DMs
     async (req: Request, res: Response) => {

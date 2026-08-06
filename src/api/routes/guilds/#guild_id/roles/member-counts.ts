@@ -22,7 +22,7 @@ import { route } from "@harmony/api";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const { guild_id } = req.params as { [key: string]: string };
     await Member.IsInGuildOrFail(req.user_id, guild_id);
 
