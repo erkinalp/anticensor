@@ -69,7 +69,7 @@ in
             CONFIG_READONLY = 1;
             PORT = toString cfg.webrtcEndpoint.localPort;
             APPLY_DB_MIGRATIONS = "false";
-            WRTC_LIBRARY = "@spacebarchat/pion-webrtc";
+            WRTC_LIBRARY = "harmony-pion-webrtc";
             WRTC_PUBLIC_IP = cfg.pion-sfu.publicIp;
             WRTC_PORT_MIN = toString cfg.pion-sfu.listenPort;
             WRTC_PORT_MAX = toString cfg.pion-sfu.listenPort;
