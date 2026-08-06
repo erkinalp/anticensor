@@ -22,7 +22,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
 import { storage } from "@harmony/cdn";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { cache } from "../util/cache";
 
 // TODO: check premium and animated pfp are allowed in the config
@@ -44,9 +44,9 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
-    const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    const mime = await detectBufferMime(buffer);
+    if (!ALLOWED_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
+    if (ANIMATED_MIME_TYPES.includes(mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `guilds/${guild_id}/users/${user_id}/avatars/${hash}`;
     const endpoint = Config.get().cdn.endpointPublic;
@@ -55,7 +55,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
 
     return res.json({
         id: hash,
-        content_type: type.mime,
+        content_type: mime,
         size,
         url: `${endpoint}${req.baseUrl}/${user_id}/${hash}`,
     });
@@ -69,9 +69,9 @@ router.get("/", cache, async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });
@@ -84,9 +84,9 @@ router.get("/:hash", cache, async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });
