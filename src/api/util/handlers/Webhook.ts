@@ -24,7 +24,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
     if (webhook.token !== token) {
         throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
     }
-    console.log("find me?");
 
     if (body.username) {
         ValidateName(body.username);
@@ -38,7 +37,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     const attachments: Attachment[] = [];
-    console.log("find me?");
 
     if (!webhook.channel.isWritable()) {
         if (wait) {
@@ -70,7 +68,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
                 return;
             }
     }
-    console.log("find me?");
 
     let sendChannel = webhook.channel;
     if (thread_id) {
@@ -93,7 +90,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
         }
     }
     console.log(attachments, files);
-    console.log("find me?");
 
     const embeds = body.embeds || [];
     const bodyMsg = {
