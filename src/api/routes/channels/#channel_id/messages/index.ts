@@ -119,7 +119,7 @@ router.get(
             where: { id?: FindOperator<string> | FindOperator<string>[] };
         } = {
             relationLoadStrategy: "query",
-            order: { timestamp: "DESC" },
+            order: { id: "DESC" },
             take: limit,
             where: { channel_id },
             relations: Message.stdRelations,
@@ -138,7 +138,7 @@ router.get(
                     Message.find({
                         ...query,
                         where: { channel_id, id: MoreThanOrEqual(around) },
-                        order: { timestamp: "ASC" },
+                        order: { id: "ASC" },
                     }),
                 ]);
                 left.push(...right);
