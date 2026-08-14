@@ -118,7 +118,6 @@ router.get(
         const query: FindManyOptions<Message> & {
             where: { id?: FindOperator<string> | FindOperator<string>[] };
         } = {
-            relationLoadStrategy: "query",
             order: { id: "DESC" },
             take: limit,
             where: { channel_id },
