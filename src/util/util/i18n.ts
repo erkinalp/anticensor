@@ -143,7 +143,7 @@ export class I18n {
                 if (lang.includes("-")) lang = lang.split("-")[0];
             }
             if (langs.has(lang) && !validLangs.find((_) => _.lang === lang)) {
-                validLangs.push({ lang, q: 1 });
+                validLangs.push({ lang, q: 1.1 });
             }
         }
         if (!validLangs.find((_) => _.lang === "en")) {
