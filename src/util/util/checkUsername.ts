@@ -7,7 +7,7 @@ export function checkUsername(username: string, req: Request) {
         throw FieldErrors({
             username: {
                 code: "BASE_TYPE_REQUIRED",
-                message: req?.t("common:field.BASE_TYPE_REQUIRED"),
+                message: req?.i18n.field.BASE_TYPE_REQUIRED(),
             },
         });
     }

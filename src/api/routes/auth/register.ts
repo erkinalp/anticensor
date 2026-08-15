@@ -64,7 +64,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "REGISTRATION_DISABLED",
-                    message: req.t("auth:register.REGISTRATION_DISABLED"),
+                    message: req.i18n.register.REGISTRATION_DISABLED(),
                 },
             });
         }
@@ -74,7 +74,7 @@ router.post(
             throw FieldErrors({
                 consent: {
                     code: "CONSENT_REQUIRED",
-                    message: req.t("auth:register.CONSENT_REQUIRED"),
+                    message: req.i18n.register.CONSENT_REQUIRED(),
                 },
             });
         }
@@ -119,7 +119,7 @@ router.post(
                 throw FieldErrors({
                     email: {
                         code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
+                        message: req.i18n.register.EMAIL_ALREADY_REGISTERED(),
                     },
                 });
             }
@@ -185,7 +185,7 @@ router.post(
             throw FieldErrors({
                 date_of_birth: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         } else if (register.dateOfBirth.required && register.dateOfBirth.minimum) {
@@ -202,7 +202,7 @@ router.post(
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_INVALID",
-                        message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
+                        message: req.i18n.register.DATE_OF_BIRTH_INVALID(),
                     },
                 });
             }
@@ -212,9 +212,7 @@ router.post(
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_UNDERAGE",
-                        message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
-                            years: register.dateOfBirth.minimum,
-                        }),
+                        message: req.i18n.register.DATE_OF_BIRTH_UNDERAGE(register.dateOfBirth.minimum + ""),
                     },
                 });
             }
@@ -227,7 +225,7 @@ router.post(
                 throw FieldErrors({
                     password: {
                         code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-                        message: req.t("auth:register.PASSWORD_REQUIREMENTS_MIN_LENGTH", { min: min }),
+                        message: req.i18n.register.PASSWORD_REQUIREMENTS_MIN_LENGTH(min + ""),
                     },
                 });
             }
@@ -237,7 +235,7 @@ router.post(
             throw FieldErrors({
                 password: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }
@@ -247,7 +245,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "INVITE_ONLY",
-                    message: req.t("auth:register.INVITE_ONLY"),
+                    message: req.i18n.register.INVITE_ONLY(),
                 },
             });
         }
@@ -265,7 +263,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "TOO_MANY_REGISTRATIONS",
-                    message: req.t("auth:register.TOO_MANY_REGISTRATIONS"),
+                    message: req.i18n.register.TOO_MANY_REGISTRATIONS(),
                 },
             });
         }
@@ -284,7 +282,7 @@ router.post(
                 throw FieldErrors({
                     email: {
                         code: "INVALID_EMAIL",
-                        message: req?.t("auth:register.INVALID_EMAIL"),
+                        message: req?.i18n.register.EMAIL_INVALID(),
                     },
                 });
             }
@@ -296,7 +294,7 @@ router.post(
                 throw FieldErrors({
                     email: {
                         code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
+                        message: req.i18n.register.EMAIL_ALREADY_REGISTERED(),
                     },
                 });
             }
@@ -304,7 +302,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }

@@ -84,7 +84,7 @@ router.post(
         } catch {
             throw FieldErrors({
                 token: {
-                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    message: req.i18n.password_reset.INVALID_TOKEN(),
                     code: "INVALID_TOKEN",
                 },
             });
