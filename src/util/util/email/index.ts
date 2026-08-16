@@ -27,6 +27,8 @@ import { SMTPEmailClient } from "./clients/SMTPEmailClient";
 import { MailGunEmailClient } from "./clients/MailGunEmailClient";
 import { MailJetEmailClient } from "./clients/MailJetEmailClient";
 import { replaceString } from "../replaceString";
+import { unsafeMakeToken } from "../unsafeMakeToken";
+import { tokenIntents } from "../tokenIntents";
 
 const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "..", "assets");
 
@@ -102,7 +104,7 @@ export class Email {
      * @param id user id
      */
     static async generateLink(type: Omit<MailTypes, "changePassword">, id: string, client?: string) {
-        const token = (await generateToken(id))!;
+        const token = (await unsafeMakeToken(id, "", tokenIntents.forgot))!;
         const config = Config.get();
         //TODO honestly, I don't know why the API is used here like this, it's just kinda weird, it doesn't serve a page or anything
         const clientUrl = client ?? config.general.trustedClients.at(0) ?? config.api.endpointPublic?.replace(/\/api$/, "");

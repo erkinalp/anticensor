@@ -43,6 +43,7 @@ export type UserTokenData = {
         ver?: number;
         // device id
         did?: string;
+        intents?: number;
     };
 };
 
@@ -191,7 +192,7 @@ export const checkTokenInt = (
     });
 };
 
-export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
+export async function generateToken(id: string, intents: number, isAdminSession: boolean = false): Promise<string | undefined> {
     let newSession: Session;
 
     do {
@@ -207,5 +208,5 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
 
     await newSession.save();
 
-    return unsafeMakeToken(id, newSession.session_id);
+    return unsafeMakeToken(id, newSession.session_id, intents);
 }

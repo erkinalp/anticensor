@@ -71,7 +71,7 @@ router.post(
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
         return res.json({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
             settings: { ...user.settings, index: undefined },
         });
     },
