@@ -42,6 +42,7 @@ router.post(
             400: { body: "APIErrorResponse" },
         },
         spacebarOnly: false, // not part of public openapi
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (!WebAuthn.fido2) {

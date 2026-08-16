@@ -17,7 +17,7 @@
 */
 
 import { randomString } from "@harmony/api";
-import { checkToken, Rights, Session, User, UserTokenData } from "@harmony/util";
+import { checkTokenInt, Rights, Session, User, UserTokenData } from "@harmony/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -76,6 +76,7 @@ declare global {
             session?: Session;
             rights: Rights;
             fingerprint?: string;
+            internal?: boolean;
         }
     }
 }
@@ -121,13 +122,22 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
     if (!req.headers.authorization) return next(new HTTPError("Missing Authorization Header", 401));
 
     try {
-        const { decoded, user, session } = (req.tokenData = await checkToken(req.headers.authorization, {
+        const { decoded, user, session, internal } = (req.tokenData = await checkTokenInt(req.headers.authorization, {
             ipAddress: req.ip,
             fingerprint: req.fingerprint,
         }));
-
         req.token = decoded;
         req.user_id = decoded.id;
+        req.internal = internal;
+        if (url.startsWith("/internal")) {
+            if (!user && internal) {
+                return next();
+            } else {
+                throw new Error("Internal API only");
+            }
+        } else if (!user) {
+            throw new Error("Internal token only");
+        }
         req.user_bot = user.bot;
         req.user = user;
         req.session = session;

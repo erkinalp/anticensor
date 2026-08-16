@@ -35,6 +35,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const user = await User.findOneOrFail({

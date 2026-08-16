@@ -17,7 +17,7 @@
 */
 
 import { Payload, WebSocket } from "@harmony/gateway";
-import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
+import { Config, emitEvent, getPermission, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { genVoiceToken } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@harmony/schemas";
@@ -35,6 +35,10 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     let isChanged = false;
 
     let prevState;
+    if (!isNew) {
+        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.channel_id, body.guild_id));
+        perm.hasThrow("CONNECT");
+    }
 
     let voiceState: VoiceState;
     try {
@@ -82,8 +86,8 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
                 channel_id: null,
                 guild_id: null,
             },
-            guild_id: prevState?.guild_id,
-            channel_id: prevState?.channel_id,
+            guild_id: prevState?.guild_id ?? undefined,
+            channel_id: prevState?.channel_id ?? undefined,
         });
     }
 
@@ -92,7 +96,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     //TODO this may fail
     if (body.guild_id) {
         const member = await Member.findOne({
-            where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
+            where: { id: voiceState.user_id, guild_id: body.guild_id },
             relations: { user: true, roles: true },
         });
 
@@ -115,17 +119,19 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
                 ...voiceState.toPublicVoiceState(),
                 member: member?.toPublicMember(),
             },
-            guild_id: voiceState.guild_id,
-            channel_id: voiceState.channel_id,
+            guild_id: voiceState.guild_id ?? undefined,
+            channel_id: voiceState.channel_id ?? undefined,
             user_id: voiceState.user_id,
         } satisfies VoiceStateUpdateEvent),
     ]);
 
     //If it's null it means that we are leaving the channel and this event is not needed
     if ((isNew || isChanged) && voiceState.channel_id !== null) {
-        const guild = await Guild.findOne({
-            where: { id: voiceState.guild_id },
-        });
+        const guild = voiceState.guild_id
+            ? await Guild.findOne({
+                  where: { id: voiceState.guild_id },
+              })
+            : undefined;
         const regions = Config.get().regions;
         let guildRegion: Region | undefined;
 

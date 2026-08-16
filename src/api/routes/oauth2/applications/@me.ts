@@ -31,13 +31,14 @@ router.get(
                 body: "Application",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const app = await Application.findOneOrFail({
             where: { id: req.user_id as string },
             relations: { bot: true, owner: true },
             select: {
-                owner: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                owner: PublicUserProjection,
             },
         });
 

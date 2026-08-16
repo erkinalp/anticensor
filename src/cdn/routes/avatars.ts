@@ -19,7 +19,7 @@
 import { Router, Response, Request } from "express";
 import { Config, Snowflake } from "@harmony/util";
 import { storage } from "@harmony/cdn";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { HTTPError } from "lambert-server";
 import crypto from "crypto";
 import { multer } from "../util/multer";
@@ -44,9 +44,9 @@ router.post("/:user_id", multer.single("file"), async (req: Request, res: Respon
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
-    const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    const mime = await detectBufferMime(buffer);
+    if (!ALLOWED_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
+    if (ANIMATED_MIME_TYPES.includes(mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `avatars/${user_id}/${hash}`;
     const endpoint = Config.get().cdn.endpointPublic;
@@ -55,7 +55,7 @@ router.post("/:user_id", multer.single("file"), async (req: Request, res: Respon
 
     return res.json({
         id: hash,
-        content_type: type.mime,
+        content_type: mime,
         size,
         url: `${endpoint}${req.baseUrl}/${user_id}/${hash}`,
     });
@@ -68,9 +68,9 @@ router.get("/:user_id", cache, async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });
@@ -83,9 +83,9 @@ export const getAvatar = async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 };

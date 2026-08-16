@@ -49,15 +49,15 @@ import { arrayRemove } from "@harmony/util";
 // 		"Gacha"
 // 	],
 
-export const PublicGuildRelations = [
-    "channels",
-    "emojis",
-    "roles",
-    "stickers",
-    "voice_states",
+export const PublicGuildRelations = {
+    channels: true,
+    emojis: true,
+    roles: true,
+    stickers: true,
+    voice_states: true,
     // "members",		// TODO: These are public, but all members should not be fetched.
     // "members.user",
-];
+};
 
 @Entity({
     name: "guilds",
@@ -432,6 +432,7 @@ export class Guild extends BaseClass {
                 ids.set(x.id, Snowflake.generate());
             }
         });
+        guild.channel_ordering ??= [];
 
         for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
             const id = ids.get(channel.id) || Snowflake.generate();

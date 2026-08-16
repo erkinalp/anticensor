@@ -24,7 +24,7 @@ import { In } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {
@@ -53,6 +53,7 @@ router.post(
     "/",
     route({
         requestBody: "ApplicationCommandCreateSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
@@ -98,6 +99,7 @@ router.put(
     "/",
     route({
         requestBody: "BulkApplicationCommandCreateSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });

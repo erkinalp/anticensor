@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@harmony/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, ValidateName } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -34,6 +34,7 @@ router.post(
             200: { body: "TokenOnlyResponse" },
             400: { body: "APIErrorOrCaptchaResponse" },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as RegisterSchema;
@@ -178,38 +179,7 @@ router.post(
 
         // TODO: gift_code_sku_id?
         // TODO: check password strength
-
-        const email = body.email;
-        if (email) {
-            // replace all dots and chars after +, if its a gmail.com email
-            if (!email) {
-                throw FieldErrors({
-                    email: {
-                        code: "INVALID_EMAIL",
-                        message: req?.t("auth:register.INVALID_EMAIL"),
-                    },
-                });
-            }
-
-            // check if there is already an account with this email
-            const exists = await User.findOne({ where: { email: email } });
-
-            if (exists) {
-                throw FieldErrors({
-                    email: {
-                        code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
-                    },
-                });
-            }
-        } else if (register.email.required) {
-            throw FieldErrors({
-                email: {
-                    code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
-                },
-            });
-        }
+        ValidateName(body.username);
 
         if (register.dateOfBirth.required && !body.date_of_birth) {
             throw FieldErrors({
@@ -300,20 +270,43 @@ router.post(
             });
         }
 
-        const { maxUsername } = Config.get().limits.user;
-        if (body.username.length > maxUsername) {
-            throw FieldErrors({
-                username: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 2 and ${maxUsername} in length.`,
-                },
-            });
-        }
         let invite: Invite | undefined;
 
         if (body.invite) {
             invite = await Invite.findOneOrFail({ where: { code: body.invite } });
             if (invite.isExpired()) throw new Error("Invite is expired");
+        }
+
+        const email = body.email;
+        if (email) {
+            // replace all dots and chars after +, if its a gmail.com email
+            if (!email) {
+                throw FieldErrors({
+                    email: {
+                        code: "INVALID_EMAIL",
+                        message: req?.t("auth:register.INVALID_EMAIL"),
+                    },
+                });
+            }
+
+            // check if there is already an account with this email
+            const exists = await User.findOne({ where: { email: email } });
+
+            if (exists) {
+                throw FieldErrors({
+                    email: {
+                        code: "EMAIL_ALREADY_REGISTERED",
+                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
+                    },
+                });
+            }
+        } else if (register.email.required) {
+            throw FieldErrors({
+                email: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                },
+            });
         }
 
         const user = await User.register({ ...body, req });

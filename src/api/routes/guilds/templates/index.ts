@@ -38,6 +38,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { template_code } = req.params as { [key: string]: string };
@@ -48,7 +49,7 @@ router.get(
     },
 );
 
-router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema" }), async (req: Request, res: Response) => {
+router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema", permission: null }), async (req: Request, res: Response) => {
     const { template_code } = req.params as { [key: string]: string };
     const body = req.body as GuildTemplateCreateSchema;
 

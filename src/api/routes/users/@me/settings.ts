@@ -34,6 +34,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const settings = await UserSettings.getOrDefault(req.user_id);
@@ -56,6 +57,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as UserSettingsUpdateSchema;
@@ -75,9 +77,11 @@ router.patch(
         await user.settings.save();
         await user.save();
         if (body.status) {
-            const [session] = (await Session.find({
-                where: { user_id: user.id },
-            })) as [Session | undefined];
+            const session =
+                req.session ??
+                (await Session.findOne({
+                    where: { user_id: user.id },
+                }));
             if (session) {
                 session.status = body.status;
 

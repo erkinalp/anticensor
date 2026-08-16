@@ -8,17 +8,18 @@ export async function onGuildSubscriptionsBulk(this: WebSocket, payload: Payload
     check.call(this, GuildSubscriptionsBulkSchema, payload.d);
     const body = payload.d as GuildSubscriptionsBulkSchema;
 
-    let guildId: keyof GuildSubscriptionsBulkSchema["subscriptions"];
+    await Promise.all(
+        Object.entries(body).map(async ([guildId, sub]) => {
+            await onLazyRequest.call(this, {
+                ...payload,
+                d: {
+                    guild_id: guildId,
+                    ...body.subscriptions[guildId],
+                },
+            });
+        }),
+    );
 
-    for (guildId in body.subscriptions) {
-        await onLazyRequest.call(this, {
-            ...payload,
-            d: {
-                guild_id: guildId,
-                ...body.subscriptions[guildId],
-            },
-        });
-    }
     console.log(
         `[Gateway/${this.user_id}] GuildSubscriptionsBulk processed ${Object.keys(body.subscriptions).length} subscriptions for user ${this.user_id} in ${Date.now() - startTime}ms`,
     );

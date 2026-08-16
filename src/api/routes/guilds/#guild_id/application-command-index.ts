@@ -24,7 +24,7 @@ import { ApplicationCommandSchema, ApplicationCommandType } from "@harmony/schem
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: [] }), async (req: Request, res: Response) => {
     const members = await Member.find({ where: { guild_id: req.params.guild_id as string, user: { bot: true } } });
     const applications: Application[] = [];
 

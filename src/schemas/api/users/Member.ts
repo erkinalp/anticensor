@@ -72,24 +72,24 @@ export type PublicMemberKeys =
     | "communication_disabled_until"
     | "flags";
 
-export const PublicMemberProjection: PublicMemberKeys[] = [
-    "id",
-    "guild_id",
-    "nick",
-    "roles",
-    "joined_at",
-    "pending",
-    "deaf",
-    "mute",
-    "premium_since",
-    "avatar",
-    "banner",
-    "bio",
-    "theme_colors",
-    "pronouns",
-    "communication_disabled_until",
-    "flags",
-];
+export const PublicMemberProjection: Record<PublicMemberKeys, true> = {
+    id: true,
+    guild_id: true,
+    nick: true,
+    roles: true,
+    joined_at: true,
+    pending: true,
+    deaf: true,
+    mute: true,
+    premium_since: true,
+    avatar: true,
+    banner: true,
+    bio: true,
+    theme_colors: true,
+    pronouns: true,
+    communication_disabled_until: true,
+    flags: true,
+};
 
 // TODO: make a proper schema rather than inheriting entity
 export type PublicMember = Omit<Pick<Member, PublicMemberKeys>, "roles"> & {

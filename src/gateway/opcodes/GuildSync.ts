@@ -17,7 +17,7 @@
 */
 
 import { Member, Session, Presence, timePromise, Stopwatch, Config } from "@harmony/util";
-import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession, handleOffloadedGatewayRequest } from "@harmony/gateway";
+import { WebSocket, Payload, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
 import { PublicMember } from "@harmony/schemas";
 import { In } from "typeorm";
 
@@ -55,7 +55,7 @@ interface GuildSyncResult {
     presences: Presence[];
     members: PublicMember[];
 }
-
+//TODO this seems like an awful mess
 async function handleGuildSync(ws: WebSocket, guild_id: string) {
     const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
 
@@ -77,9 +77,9 @@ async function handleGuildSync(ws: WebSocket, guild_id: string) {
         const presence: Presence = {
             user: member.user.toPublicUser(),
             guild_id: guild_id,
-            status: mostRelevantSession.getPublicStatus(),
-            activities: mostRelevantSession.activities,
-            client_status: mostRelevantSession.client_status,
+            status: mostRelevantSession?.getPublicStatus() ?? "offline",
+            activities: mostRelevantSession?.activities ?? [],
+            client_status: mostRelevantSession?.client_status ?? {},
         };
         res.presences.push(presence);
     }
