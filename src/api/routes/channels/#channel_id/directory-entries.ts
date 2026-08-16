@@ -32,6 +32,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         res.json([] as HubDirectoryEntriesResponse);

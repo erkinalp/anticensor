@@ -33,7 +33,7 @@ function domainToHash(domain: string, userId: string) {
     return hash;
 }
 
-router.post("/:domain", route({}), async (req: Request, res: Response) => {
+router.post("/:domain", route({ permission: null }), async (req: Request, res: Response) => {
     const { domain } = req.params as { [key: string]: string };
     const conf = Config.get();
     const hash = domainToHash(domain, req.user_id);

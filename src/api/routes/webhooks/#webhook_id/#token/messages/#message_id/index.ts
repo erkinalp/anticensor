@@ -8,6 +8,7 @@ router.patch(
     "/",
     route({
         requestBody: "MessageEditSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token, message_id } = req.params as { [key: string]: string };
@@ -102,6 +103,7 @@ router.delete(
             },
             404: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token, message_id } = req.params as { [key: string]: string };

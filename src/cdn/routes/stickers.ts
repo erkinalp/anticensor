@@ -17,10 +17,12 @@
 */
 
 import { Router, Response, Request } from "express";
+
 import { Config, Snowflake } from "#harmony/util";
 import { storage } from "#harmony/cdn";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { HTTPError } from "#lambert-server";
+
 import crypto from "crypto";
 import { multer } from "../util/multer.js";
 import { cache, cacheNotFound } from "../util/cache.js";
@@ -45,9 +47,9 @@ router.post("/:sticker_id", multer.single("file"), async (req: Request, res: Res
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
-    const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    const mime = await detectBufferMime(buffer);
+    if (!ALLOWED_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
+    if (ANIMATED_MIME_TYPES.includes(mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `${pathPrefix}/${sticker_id}`;
     const endpoint = Config.get().cdn.endpointPublic;
@@ -56,7 +58,7 @@ router.post("/:sticker_id", multer.single("file"), async (req: Request, res: Res
 
     return res.json({
         id: hash,
-        content_type: type.mime,
+        content_type: mime,
         size,
         url: `${endpoint}${req.baseUrl}/${sticker_id}`,
     });
@@ -69,9 +71,9 @@ router.get("/:sticker_id", cache, async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) return cacheNotFound(req, res);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });

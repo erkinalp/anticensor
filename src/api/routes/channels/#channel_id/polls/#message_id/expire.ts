@@ -22,7 +22,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "#lambert-server";
 const router = Router({ mergeParams: true });
 
-router.post("/", route({}), async (req: Request, res: Response) => {
+router.post("/", route({ permission: [] }), async (req: Request, res: Response) => {
     const { message_id, channel_id } = req.params as { [key: string]: string };
     const poll = await RunningPolls.findOneOrFail({
         where: {

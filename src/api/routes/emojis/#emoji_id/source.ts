@@ -34,6 +34,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { emoji_id } = req.params as { [key: string]: string };

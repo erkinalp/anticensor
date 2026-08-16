@@ -38,6 +38,7 @@ router.patch(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };

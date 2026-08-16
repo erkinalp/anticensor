@@ -45,6 +45,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -82,7 +83,7 @@ async function getWidgetJsonData(guild_id: string) {
 
     // Fetch existing widget invite for widget channel
     let invite = await Invite.findOne({
-        where: { channel_id: guild.widget_channel_id, guild_id:guild.id },
+        where: { channel_id: guild.widget_channel_id, guild_id: guild.id },
     });
 
     if (guild.widget_channel_id && !invite) {

@@ -59,3 +59,4 @@ export * from "./checkUsername.js";
 export * from "./checkCommand.js";
 export * from "./gifProviders/index.js";
 export * from "./timestamp.js";
+export { CurrentTokenFormatVersion } from "./unsafeMakeToken.js";

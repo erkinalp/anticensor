@@ -25,6 +25,7 @@ router.post(
     route({
         responses: { 200: { body: "CreateFingerprintResponse" } },
         spacebarOnly: false, // not part of public openapi
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const snowflake = Snowflake.generate();

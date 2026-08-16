@@ -31,6 +31,7 @@ router.get(
                 body: "APIApplicationArray",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const results = await Application.find({
@@ -50,6 +51,7 @@ router.post(
                 body: "Application",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         //TODO respect team_id

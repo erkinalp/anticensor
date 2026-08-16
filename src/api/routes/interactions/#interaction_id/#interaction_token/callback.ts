@@ -29,6 +29,7 @@ router.post(
     route({
         stripNulls: true,
         requestBody: "InteractionCallbacksSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as InteractionCallbacksSchema;

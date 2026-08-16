@@ -17,6 +17,7 @@ router.get(
             },
             404: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token } = req.params as { [key: string]: string };
@@ -79,6 +80,7 @@ router.post(
                 description: "Send a message to the specified thread within a webhook's channel.",
             },
         },
+        permission: null,
         responses: {
             204: {},
             400: {
@@ -100,6 +102,7 @@ router.delete(
             },
             404: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token } = req.params as { [key: string]: string };
@@ -148,6 +151,7 @@ router.patch(
             403: {},
             404: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { webhook_id, token } = req.params as { [key: string]: string };

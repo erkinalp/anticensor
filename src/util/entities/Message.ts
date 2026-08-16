@@ -331,7 +331,7 @@ export class Message extends BaseClass {
                       results: this.poll.results && {
                           ...this.poll.results,
                           answer_counts: this.poll.results.answer_counts.map((_) => {
-                              return { id: _.id, count: _.count, me_voted: (_.user_ids || []).includes(user_id as string) };
+                              return { id: _.id, count: _.count, me_voted: (_.user_ids ?? []).includes(user_id as string) };
                           }),
                       },
                   }

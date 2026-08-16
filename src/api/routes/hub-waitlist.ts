@@ -33,6 +33,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { email, school } = req.body as HubWaitlistSignupSchema;

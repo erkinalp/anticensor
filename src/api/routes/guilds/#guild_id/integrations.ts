@@ -21,7 +21,7 @@ import { route } from "#harmony/api";
 const router = Router({ mergeParams: true });
 
 //TODO: implement integrations list
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), (req: Request, res: Response) => {
     res.json([]);
 });
 export default router;

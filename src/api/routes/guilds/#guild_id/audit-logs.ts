@@ -21,7 +21,7 @@ import { route } from "#harmony/api";
 const router = Router({ mergeParams: true });
 
 //TODO: implement audit logs
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: "VIEW_AUDIT_LOG" }), (req: Request, res: Response) => {
     res.json({
         audit_log_entries: [],
         users: [],

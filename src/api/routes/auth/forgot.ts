@@ -32,6 +32,7 @@ router.post(
                 body: "APIErrorOrCaptchaResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { login, captcha_key } = req.body as ForgotPasswordSchema;

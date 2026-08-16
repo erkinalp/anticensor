@@ -37,6 +37,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { email } = req.body as EmailDomainLookupSchema;
@@ -73,6 +74,7 @@ router.post(
             },
             501: {},
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { email } = req.body as EmailDomainLookupVerifyCodeSchema;

@@ -99,3 +99,4 @@ export * from "./TagCreateSchema.js";
 export * from "./ChannelCreateSchema.js";
 export * from "./PollPutSchema.js";
 export * from "./ActivtyInterface.js";
+export * from "./WebRTCInternalSchemas.js";

@@ -27,6 +27,7 @@ router.delete(
         responses: {
             204: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { key_id } = req.params as { [key: string]: string };

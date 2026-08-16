@@ -21,7 +21,7 @@ import { route } from "#harmony/api";
 
 const router = Router({ mergeParams: true });
 
-router.post("/", route({}), (req: Request, res: Response) => {
+router.post("/", route({ permission: null }), (req: Request, res: Response) => {
     // TODO:
     res.sendStatus(204);
 });

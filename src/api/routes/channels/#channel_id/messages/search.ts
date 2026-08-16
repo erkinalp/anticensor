@@ -40,11 +40,12 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const channel = await Channel.findOneOrFail({
-            where: { id: channel_id }
+            where: { id: channel_id },
         });
         const {
             content,
@@ -79,7 +80,7 @@ router.get(
             },
             take: parsedLimit || 0,
             where: {
-                channel_id
+                channel_id,
             },
             relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
             skip: offset ? Number(offset) : 0,

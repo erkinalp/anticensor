@@ -28,6 +28,7 @@ router.get(
             },
         },
         spacebarOnly: true,
+        permission: null,
     }),
     /*
             interface Request {

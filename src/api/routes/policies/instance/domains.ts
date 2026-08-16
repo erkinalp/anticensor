@@ -30,6 +30,7 @@ router.get(
             },
         },
         spacebarOnly: true,
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { cdn, gateway, api } = Config.get();

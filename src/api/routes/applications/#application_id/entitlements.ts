@@ -29,6 +29,7 @@ router.get(
                 body: "ApplicationEntitlementsResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         // TODO:

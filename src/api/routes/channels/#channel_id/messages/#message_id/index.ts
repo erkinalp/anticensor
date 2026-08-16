@@ -269,6 +269,7 @@ router.delete(
             },
             404: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { message_id, channel_id } = req.params as { [key: string]: string };

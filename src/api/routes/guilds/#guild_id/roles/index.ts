@@ -24,7 +24,7 @@ import { RoleModifySchema, RolePositionUpdateSchema } from "#harmony/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const guild_id = req.params.guild_id as string;
 
     await Member.IsInGuildOrFail(req.user_id, guild_id);

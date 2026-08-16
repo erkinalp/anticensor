@@ -27,6 +27,7 @@ router.put(
     "/",
     route({
         requestBody: "PollPutSchema",
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const body = req.body as PollPutSchema;

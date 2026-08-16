@@ -33,6 +33,7 @@ router.get(
             },
         },
         spacebarOnly: true,
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (!Config.get().security.statsWorldReadable) {

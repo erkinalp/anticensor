@@ -35,6 +35,7 @@ router.get(
                 body: "ApplicationDetectableResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // cache for 6 hours

@@ -29,11 +29,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
         ValidateName(body.username);
     }
 
-    // ensure one of content, embeds, components, or file is present
-    if (!body.content && !body.embeds && !body.components && !body.file && !body.attachments) {
-        throw DiscordApiErrors.CANNOT_SEND_EMPTY_MESSAGE;
-    }
-
     const wait = req.query.wait === "true";
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
 
@@ -94,6 +89,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
             return;
         }
     }
+    console.log(attachments, files);
 
     const embeds = body.embeds || [];
     const bodyMsg = {

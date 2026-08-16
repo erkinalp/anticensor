@@ -71,7 +71,7 @@ router.post(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
             relations: {
-                available_tags: true
+                available_tags: true,
             },
         });
         if (!body.applied_tags?.length) {
@@ -219,6 +219,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         // noinspection JSUnusedLocalSymbols - ???

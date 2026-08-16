@@ -31,6 +31,7 @@ router.get(
             },
             204: {},
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         res.send({

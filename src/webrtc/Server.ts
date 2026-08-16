@@ -60,9 +60,7 @@ export class Server {
     }
 
     async start(): Promise<void> {
-        await initDatabase();
-        await Config.init();
-        await initEvent();
+        await Config.init(undefined, true);
 
         // try to load webrtc library, if failed just don't start webrtc endpoint
         try {
@@ -80,7 +78,6 @@ export class Server {
     }
 
     async stop() {
-        await closeDatabase();
         this.server.close();
         mediaServer?.stop();
     }

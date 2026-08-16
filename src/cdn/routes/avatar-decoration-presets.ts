@@ -19,7 +19,7 @@
 import { Router, Response, Request } from "express";
 import { storage } from "#harmony/cdn";
 import { HTTPError } from "#lambert-server";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { cache } from "../util/cache.js";
 
 const router = Router({ mergeParams: true });
@@ -30,9 +30,9 @@ router.get("/:avatar_decoration_data_asset", cache, async (req: Request, res: Re
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });

@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { SignalingDelegate } from "@spacebarchat/spacebar-webrtc-types";
 import pkg from "picocolors";
 const { green, red } = pkg;
+import type { SignalingDelegate } from "harmony-webrtc-types";
 
 export let mediaServer: SignalingDelegate;
 
@@ -29,15 +29,10 @@ export const WRTC_PORT_MAX = process.env.WRTC_PORT_MAX ? parseInt(process.env.WR
 const selectedWrtcLibrary = process.env.WRTC_LIBRARY;
 
 // could not find a way to hide stack trace from base Error object
-class NoConfiguredLibraryError implements Error {
-    name: string;
-    message: string;
-    stack?: string | undefined;
-    cause?: unknown;
-
+class NoConfiguredLibraryError extends Error {
     constructor(message: string) {
+        super(message);
         this.name = "NoConfiguredLibraryError";
-        this.message = message;
     }
 }
 

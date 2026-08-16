@@ -15,27 +15,34 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { Stream } from "#harmony/util";
 import { mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "#harmony/webrtc";
-import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
-import { validateSchema, VoiceVideoSchema } from "#harmony/schemas";
+import { validateSchema, VoiceVideoSchema, WebRTCHasStreamSchema } from "#harmony/schemas";
+import { Config } from "#harmony/util";
+import { getHeaders } from "../util/internalHeaders.js";
+import type { WebRtcClient } from "harmony-webrtc-types";
 
 export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {
     if (!this.webRtcClient) return;
+    const config = Config.get();
+    const headers = getHeaders();
 
     const { voiceRoomId } = this.webRtcClient;
 
     const d = validateSchema("VoiceVideoSchema", payload.d) as VoiceVideoSchema;
 
     if (this.type === "stream") {
-        const stream = await Stream.findOne({
-            where: { id: voiceRoomId },
-        });
+        const resp = (await (
+            await fetch(config.api.endpointPrivate + "/api/internal/webrtc/session/findStream", {
+                body: JSON.stringify({ stream_id: voiceRoomId } satisfies WebRTCHasStreamSchema),
+                method: "POST",
+                headers: headers,
+            })
+        ).json()) as { stream_exists: boolean; owner_id?: string };
 
-        if (!stream) return;
+        if (!resp.stream_exists) return;
 
         // only the stream owner can publish to a go live stream
-        if (stream?.owner_id != this.user_id) {
+        if (resp.owner_id !== this.user_id) {
             return;
         }
     }

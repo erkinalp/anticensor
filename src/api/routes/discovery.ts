@@ -30,6 +30,7 @@ router.get(
                 body: "APIDiscoveryCategoryArray",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // TODO:

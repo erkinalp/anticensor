@@ -33,6 +33,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const user = await User.findOneOrFail({ where: { id: req.params.user_id as string } });

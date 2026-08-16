@@ -22,7 +22,7 @@ import { IpDataClient } from "#harmony/util";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const country_code = (await IpDataClient.getIpInfo(req.ip!))?.country_code;
     res.json({ country_code: country_code }).status(200);
 });

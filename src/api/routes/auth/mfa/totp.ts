@@ -36,6 +36,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
         spacebarOnly: false, // not part of public openapi
     }),
     async (req: Request, res: Response) => {

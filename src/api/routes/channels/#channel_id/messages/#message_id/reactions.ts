@@ -227,7 +227,7 @@ router.put(
         const member = channel.guild_id
             ? (
                   await Member.findOneOrFail({
-                      where: { id: req.user_id, guild_id:channel.guild_id },
+                      where: { id: req.user_id, guild_id: channel.guild_id },
                       relations: { roles: true, user: true },
                       select: {
                           index: true,
@@ -270,6 +270,7 @@ router.delete(
             404: {},
             403: {},
         },
+        permission: "ADD_REACTIONS",
     }),
     async (req: Request, res: Response) => {
         let { user_id } = req.params as { [key: string]: string };
@@ -328,6 +329,7 @@ router.delete(
             404: {},
             403: {},
         },
+        permission: "ADD_REACTIONS",
     }),
     async (req: Request, res: Response) => {
         let { user_id } = req.params as { [key: string]: string };

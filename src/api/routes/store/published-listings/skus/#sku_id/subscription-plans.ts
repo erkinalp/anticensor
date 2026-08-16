@@ -316,7 +316,7 @@ const skus = new Map([
     ],
 ]);
 //TODO stub ultra
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), (req: Request, res: Response) => {
     // TODO: add the ability to add custom
     const { sku_id } = req.params as { [key: string]: string };
 

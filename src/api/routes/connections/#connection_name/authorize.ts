@@ -22,7 +22,7 @@ import { ConnectionStore, FieldErrors } from "#harmony/util";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const { connection_name } = req.params as { [key: string]: string };
     const connection = ConnectionStore.connections.get(connection_name);
     if (!connection)

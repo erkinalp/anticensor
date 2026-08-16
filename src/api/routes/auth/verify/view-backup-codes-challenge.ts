@@ -31,6 +31,7 @@ router.post(
             200: { body: "BackupCodesChallengeResponse" },
             400: { body: "APIErrorResponse" },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { password } = req.body as BackupCodesChallengeSchema;

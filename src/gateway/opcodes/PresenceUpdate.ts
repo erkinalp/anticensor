@@ -32,7 +32,7 @@ export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
         select: { client_status: true },
         where: { session_id: this.session_id },
     });
-
+    //TODO this is slightly wrong, but not breaking typically
     await emitEvent({
         event: "PRESENCE_UPDATE",
         user_id: this.user_id,

@@ -55,7 +55,7 @@ interface GuildSyncResult {
     presences: Presence[];
     members: PublicMember[];
 }
-
+//TODO this seems like an awful mess
 async function handleGuildSync(ws: WebSocket, guild_id: string) {
     const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
 

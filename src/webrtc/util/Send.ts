@@ -13,7 +13,6 @@ export function Send(socket: WebRtcWebSocket, data: VoicePayload) {
 
     return new Promise((res, rej) => {
         if (socket.readyState !== 1) {
-            // return rej("socket not open");
             socket.close();
             return;
         }

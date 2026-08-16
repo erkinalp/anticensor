@@ -189,8 +189,8 @@ export class SpacebarServer extends Server {
             return res.sendStatus(200);
         }
 
-        app.get("/readyz", route({ description: "Get the ready state of the server" }), isReady);
-        app.get("/healthz", route({ description: "Get the ready state of the server" }), isReady);
+        app.get("/readyz", route({ description: "Get the ready state of the server", permission: null }), isReady);
+        app.get("/healthz", route({ description: "Get the ready state of the server", permission: null }), isReady);
 
         this.app.use(ErrorHandler);
 

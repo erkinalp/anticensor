@@ -30,6 +30,7 @@ router.get(
                 body: "StickersResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const sticker_packs = await StickerPack.find({

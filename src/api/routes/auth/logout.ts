@@ -29,6 +29,7 @@ router.post(
         responses: {
             204: {},
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (req.body.provider != null || req.body.voip_provider != null) {

@@ -30,6 +30,7 @@ router.get(
                 body: "APIPublicUser",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { user_id } = req.params as { [key: string]: string };

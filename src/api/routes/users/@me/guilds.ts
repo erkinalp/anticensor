@@ -31,6 +31,7 @@ router.get(
                 body: "APIGuildArray",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const members = await Member.find({
@@ -61,6 +62,7 @@ router.delete(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { autoJoin } = Config.get().guild;

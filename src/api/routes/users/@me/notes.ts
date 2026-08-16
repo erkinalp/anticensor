@@ -33,6 +33,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { user_id } = req.params as { [key: string]: string };
@@ -62,6 +63,7 @@ router.put(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { user_id } = req.params as { [key: string]: string };

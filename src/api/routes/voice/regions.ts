@@ -29,6 +29,7 @@ router.get(
                 body: "APIGuildVoiceRegion",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         res.json(await getVoiceRegions(req.ip!, true)); //vip true?

@@ -30,6 +30,7 @@ router.get(
                 body: "GatewayResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         const { endpointPublic } = Config.get().gateway;

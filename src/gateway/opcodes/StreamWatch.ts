@@ -25,6 +25,9 @@ export async function onStreamWatch(this: WebSocket, data: Payload) {
     }
 
     const { type, channelId, guildId, userId } = parsedKey;
+    if (type !== "call") {
+        this.permissions[channelId]?.hasThrow("CONNECT");
+    }
 
     const stream = await Stream.findOne({
         where: { channel_id: channelId, owner_id: userId },
@@ -34,6 +37,7 @@ export async function onStreamWatch(this: WebSocket, data: Payload) {
     if (!stream) return this.close(4000, "Invalid stream key");
 
     if (type === "guild" && stream.channel.guild_id != guildId) return this.close(4000, "Invalid stream key");
+    if (type === "call" && stream.channel.guild_id) return this.close(4000, "Invalid stream key");
 
     const regions = Config.get().regions;
     const guildRegion = regions.available.find((r) => r.endpoint === stream.endpoint);

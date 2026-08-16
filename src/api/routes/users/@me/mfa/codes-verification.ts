@@ -38,6 +38,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // const { key, nonce, regenerate } = req.body as CodesVerificationSchema;

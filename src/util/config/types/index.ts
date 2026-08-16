@@ -37,4 +37,5 @@ export * from "./TemplateConfiguration.js";
 export * from "./UsersConfiguration.js";
 export * from "./ComponentConfiguration.js";
 export * from "./EmbedConfiguration.js";
+export * from "./WebRTCConfiguration.js";
 export * from "./ProxyConfiguration.js";

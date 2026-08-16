@@ -35,6 +35,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -130,6 +131,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id, sticker_id } = req.params as { [key: string]: string };

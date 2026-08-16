@@ -1,5 +1,18 @@
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "#harmony/gateway";
-import { Channel, Config, emitEvent, Member, Snowflake, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
+import {
+    Channel,
+    Config,
+    emitEvent,
+    getPermission,
+    Member,
+    Snowflake,
+    Stream,
+    StreamCreateEvent,
+    StreamServerUpdateEvent,
+    StreamSession,
+    VoiceState,
+    VoiceStateUpdateEvent,
+} from "#harmony/util";
 import { check } from "./instanceOf.js";
 import { StreamCreateSchema } from "#harmony/schemas";
 
@@ -24,13 +37,14 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
         });
     }
 
-    // TODO: permissions check - if it's a guild, check if user is allowed to create stream in this guild
-
     const channel = await Channel.findOne({
         where: { id: body.channel_id },
     });
 
     if (!channel || (body.type === "guild" && channel.guild_id != body.guild_id)) return this.close(4000, "invalid channel");
+
+    const perm = this.permissions[channel.id] ?? (await getPermission(this.user_id, channel.id, channel.guild_id));
+    perm.hasThrow("STREAM");
 
     // TODO: actually apply preferred_region from the event payload
     const regions = Config.get().regions;

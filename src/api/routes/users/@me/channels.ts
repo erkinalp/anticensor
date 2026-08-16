@@ -31,6 +31,7 @@ router.get(
                 body: "APIDMChannelArray",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const recipients = await Recipient.find({
@@ -50,6 +51,7 @@ router.post(
                 body: "DmChannelDTO",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as DmChannelCreateSchema;

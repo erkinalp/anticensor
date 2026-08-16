@@ -22,8 +22,10 @@ import { Channel } from "./Channel.js";
 import { Guild } from "./Guild.js";
 import { Member } from "./Member.js";
 import { User } from "./User.js";
-import { PublicVoiceState, PublicVoiceStateProjection } from "#harmony/schemas";
-
+import { PublicMember, PublicVoiceState, PublicVoiceStateProjection } from "#harmony/schemas";
+type statewithmember = PublicVoiceState & {
+    member: PublicMember;
+};
 //https://gist.github.com/vassjozsef/e482c65df6ee1facaace8b3c9ff66145#file-voice_state-ex
 @Entity({
     name: "voice_states",
@@ -96,12 +98,13 @@ export class VoiceState extends BaseClass {
     @Column({ nullable: true, default: null })
     request_to_speak_timestamp?: Date;
 
-    toPublicVoiceState() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const voiceState: any = {};
+    toPublicVoiceState(): statewithmember {
+        const voiceState: Partial<statewithmember> = {};
         PublicVoiceStateProjection.forEach((x) => {
+            //@ts-expect-error this is fine, really
             voiceState[x] = this[x];
         });
-        return voiceState as PublicVoiceState;
+        if (this.member) voiceState.member = this.member.toPublicMember();
+        return voiceState as statewithmember;
     }
 }

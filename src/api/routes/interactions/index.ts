@@ -38,7 +38,7 @@ import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
 
-router.post("/", route({}), async (req: Request, res: Response) => {
+router.post("/", route({ permission: null }), async (req: Request, res: Response) => {
     const body = req.body as InteractionSchema;
 
     if (body.type === InteractionType.MessageComponent) {

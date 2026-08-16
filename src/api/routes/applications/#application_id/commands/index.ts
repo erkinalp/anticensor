@@ -25,7 +25,7 @@ import { HTTPError } from "#lambert-server";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const applicationExists = await Application.exists({ where: { id: req.params.application_id as string } });
 
     if (!applicationExists) {
@@ -41,6 +41,7 @@ router.post(
     "/",
     route({
         requestBody: "ApplicationCommandCreateSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);
@@ -71,6 +72,7 @@ router.put(
     "/",
     route({
         requestBody: "BulkApplicationCommandCreateSchema",
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (req.user_id !== req.params.application_id) throw new HTTPError("Applications are the only ones able to modify this", 401);

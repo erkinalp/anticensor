@@ -420,6 +420,7 @@ router.post(
             },
             404: {},
         },
+        permission: null,
     }),
     executeWebhook,
 );

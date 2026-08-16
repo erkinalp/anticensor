@@ -21,7 +21,7 @@ import { Request, Response, Router } from "express";
 import fs from "fs/promises";
 import { HTTPError } from "#lambert-server";
 import { join } from "path";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { cache } from "../util/cache.js";
 
 const defaultAvatarHashMap = new Map([
@@ -69,9 +69,9 @@ router.get("/avatars/:id", cache, async (req: Request, res: Response) => {
 
     const file = await getFile(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });
@@ -85,9 +85,9 @@ router.get("/group-avatars/:id", cache, async (req: Request, res: Response) => {
 
     const file = await getFile(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });

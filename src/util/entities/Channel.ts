@@ -713,8 +713,8 @@ export class Channel extends BaseClass {
             owner: undefined, // TODO: fix me - this is thread owner
 
             // these fields are not returned depending on the type of channel
-            bitrate: this.bitrate || undefined,
-            user_limit: this.user_limit || undefined,
+            bitrate: this.bitrate || 0,
+            user_limit: this.user_limit || 0,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
             ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),

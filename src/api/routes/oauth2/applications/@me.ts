@@ -31,6 +31,7 @@ router.get(
                 body: "Application",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const app = await Application.findOneOrFail({

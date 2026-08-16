@@ -29,6 +29,7 @@ router.get(
                 body: "ApplicationSkusResponse",
             },
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         res.json([]).status(200);
