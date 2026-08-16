@@ -1,0 +1,32 @@
+{
+	"login": {
+		"INVALID_LOGIN": "E-post eller telefon hittades inte",
+		"INVALID_PASSWORD": "Ogiltigt lösenord",
+		"ACCOUNT_DISABLED": "Detta konto är inaktiverat"
+	},
+	"register": {
+		"REGISTRATION_DISABLED": "Registrering av nya användare är inaktiverat",
+		"INVITE_ONLY": "Du måste vara inbjuden för att registrera dig",
+		"EMAIL_INVALID": "Ogiltig e-post",
+		"EMAIL_ALREADY_REGISTERED": "E-postadressen är redan registrerad",
+		"DATE_OF_BIRTH_UNDERAGE": "Du måste vara $1 år eller äldre",
+		"CONSENT_REQUIRED": "Du måste godkänna användarvillkoren och sekretesspolicyn.",
+		"USERNAME_TOO_MANY_USERS": "För många användare har detta användarnamn, försök med ett annat"
+	},
+	"field": {
+		"BASE_TYPE_REQUIRED": "Detta fältet krävs",
+		"BASE_TYPE_STRING": "Detta fält måste vara en sträng",
+		"BASE_TYPE_NUMBER": "Detta fält måste vara ett nummer",
+		"BASE_TYPE_BIGINT": "Detta fält måste vara av typen bigint",
+		"BASE_TYPE_BOOLEAN": "Detta fält måste vara booleskt",
+		"BASE_TYPE_CHOICES": "Detta fält måste vara av typen av ett av följande ($1)",
+		"BASE_TYPE_CLASS": "Det här fältet måste vara en instans av $1",
+		"BASE_TYPE_OBJECT": "Detta fält måste vara ett objekt",
+		"BASE_TYPE_ARRAY": "Detta fält måste vara en array",
+		"UNKOWN_FIELD": "Okänd nyckel: $1",
+		"BASE_TYPE_CONSTANT": "Det här fältet måste vara $1",
+		"EMAIL_TYPE_INVALID_EMAIL": "E-postadressen har inte korrekt format",
+		"DATE_TYPE_PARSE": "Kunde inte tolka $1. Bör vara ISO8601",
+		"BASE_TYPE_BAD_LENGTH": "Måste vara mellan $1 i längd"
+	}
+}

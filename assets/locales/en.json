@@ -32,10 +32,10 @@
 		"BASE_TYPE_CLASS": "This field must be an instance of $1",
 		"BASE_TYPE_OBJECT": "This field must be an object",
 		"BASE_TYPE_ARRAY": "This field must be an array",
-		"UNKOWN_FIELD": "Unknown key: {{key}}",
-		"BASE_TYPE_CONSTANT": "This field must be {{value}}",
+		"UNKOWN_FIELD": "Unknown key: $1",
+		"BASE_TYPE_CONSTANT": "This field must be $1",
 		"EMAIL_TYPE_INVALID_EMAIL": "Not a well-formed email address",
-		"DATE_TYPE_PARSE": "Could not parse {{date}}. Should be ISO8601",
+		"DATE_TYPE_PARSE": "Could not parse $1. Should be ISO8601",
 		"BASE_TYPE_BAD_LENGTH": "Must be between $1 in length"
 	},
 	"body": {
