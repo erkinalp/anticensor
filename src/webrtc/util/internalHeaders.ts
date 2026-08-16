@@ -1,4 +1,4 @@
-import { Config } from "@harmony/util";
+import { Config } from "#harmony/util";
 
 export const getHeaders = () => {
     const config = Config.get();

@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Stream, StreamSession, VoiceState } from "@harmony/util";
-import { route } from "@harmony/api";
+import { Stream, StreamSession, VoiceState } from "#harmony/util";
+import { route } from "#harmony/api";
 import { Request, Response, Router } from "express";
-import { WebRTCDeleteSessionSchema, WebRTCHasStreamSchema, WebRTCSessionFindSchema } from "@harmony/schemas";
+import { WebRTCDeleteSessionSchema, WebRTCHasStreamSchema, WebRTCSessionFindSchema } from "#harmony/schemas";
 
 const router = Router({ mergeParams: true });
 

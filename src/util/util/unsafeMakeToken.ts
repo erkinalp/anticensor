@@ -1,7 +1,7 @@
 import path from "path";
 export const CurrentTokenFormatVersion: number = 3;
 
-import type { UserTokenData } from "./Token";
+import type { UserTokenData } from "./Token.js";
 import jwt from "jsonwebtoken";
 import { existsSync } from "fs";
 import fs from "fs/promises";
