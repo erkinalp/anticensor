@@ -15,13 +15,13 @@ export class KittyLogo {
     public static async initialise() {
         this.isSupported = await this.checkSupport();
         if (this.isSupported)
-            this.iconCache = readFileSync(__dirname + "/../../../assets/icon.png", {
+            this.iconCache = readFileSync(import.meta.dirname + "/../../../assets/icon.png", {
                 encoding: "base64",
             });
     }
 
     public static printLogo(): void {
-        const data = readFileSync(__dirname + "/../../../assets/logo.png", {
+        const data = readFileSync(import.meta.dirname + "/../../../assets/logo.png", {
             encoding: "base64",
         });
         KittyLogo.writeImage({

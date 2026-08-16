@@ -15,7 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-const __dirname = import.meta.dirname;
 
 import { Request, Response, Router } from "express";
 import fs from "fs/promises";
@@ -65,7 +64,7 @@ router.get("/avatars/:id", cache, async (req: Request, res: Response) => {
     id = id.split(".")[0]; // remove .file extension
     const hash = defaultAvatarHashMap.get(id);
     if (!hash) throw new HTTPError("not found", 404);
-    const path = join(__dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
+    const path = join(import.meta.dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
 
     const file = await getFile(path);
     if (!file) throw new HTTPError("not found", 404);
@@ -81,7 +80,7 @@ router.get("/group-avatars/:id", cache, async (req: Request, res: Response) => {
     id = id.split(".")[0]; // remove .file extension
     const hash = defaultGroupDMAvatarHashMap.get(id);
     if (!hash) throw new HTTPError("not found", 404);
-    const path = join(__dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
+    const path = join(import.meta.dirname, "..", "..", "..", "assets", "public", `${hash}.png`);
 
     const file = await getFile(path);
     if (!file) throw new HTTPError("not found", 404);

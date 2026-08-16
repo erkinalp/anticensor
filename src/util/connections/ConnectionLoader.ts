@@ -15,7 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-const __dirname = import.meta.dirname;
 
 import { Connection } from "#harmony/util";
 import fs from "fs";
@@ -23,7 +22,7 @@ import path from "path";
 import { ConnectionConfig } from "./ConnectionConfig.js";
 import { ConnectionStore } from "./ConnectionStore.js";
 
-const root = path.join(__dirname, "..", "..", "connections");
+const root = path.join(import.meta.dirname, "..", "..", "connections");
 const connectionsLoaded = false;
 
 export class ConnectionLoader {

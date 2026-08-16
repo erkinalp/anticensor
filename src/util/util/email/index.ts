@@ -15,7 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-const __dirname = import.meta.dirname;
 
 import fs from "fs/promises";
 import path from "node:path";
@@ -28,7 +27,7 @@ import { SMTPEmailClient } from "./clients/SMTPEmailClient.js";
 import { MailGunEmailClient } from "./clients/MailGunEmailClient.js";
 import { MailJetEmailClient } from "./clients/MailJetEmailClient.js";
 
-const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "..", "assets");
+const ASSET_FOLDER_PATH = path.join(import.meta.dirname, "..", "..", "..", "..", "assets");
 
 export enum MailTypes {
     verifyEmail = "verifyEmail",

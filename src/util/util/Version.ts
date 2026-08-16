@@ -21,10 +21,9 @@ import fs from "fs";
 import { execSync } from "child_process";
 import pkg from "picocolors";
 const { red } = pkg;
-const __dirname = import.meta.dirname;
 
 export function getRevInfoOrFail(): { rev: string | null; lastModified: number } {
-    const rootDir = path.join(__dirname, "../../../");
+    const rootDir = path.join(import.meta.dirname, "../../../");
     // sanity check
     if (!fs.existsSync(path.join(rootDir, "package.json"))) {
         console.log(red("Error: Cannot find package.json in root directory. Are you running from the correct location?"));

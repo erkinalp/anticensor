@@ -15,7 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-const __dirname = import.meta.dirname;
 
 import { config } from "dotenv";
 import path from "path";
@@ -61,12 +60,12 @@ export const DataSourceOptions = isHeadlessProcess
 
           charset: "utf8mb4",
           url: process.env.DATABASE,
-          entities: [path.join(__dirname, "..", "entities", "./index.js")],
+          entities: [path.join(import.meta.dirname, "..", "entities", "./index.js")],
           synchronize: !!process.env.DB_SYNC,
           logging: !!process.env.DB_LOGGING,
           bigNumberStrings: false,
           supportBigNumbers: true,
-          migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
+          migrations: applyMigrations ? [path.join(import.meta.dirname, "..", "migration", DatabaseType, "*.js")] : [],
           invalidWhereValuesBehavior: {
               null: "ignore",
               undefined: "ignore",
@@ -116,7 +115,7 @@ export async function initDatabase(): Promise<DataSource> {
         if (!(await dbExists())) {
             console.log("[Database] This appears to be a fresh database. Running initial DDL.");
             const qr = dbConnection.createQueryRunner();
-            const initialPath = path.join(__dirname, "..", "migration", DatabaseType + "-initial.js");
+            const initialPath = path.join(import.meta.dirname, "..", "migration", DatabaseType + "-initial.js");
             if (fs.existsSync(initialPath)) {
                 console.log("[Database] Found initial migration file, running it.");
                 await new (require(`../migration/${DatabaseType}-initial`).initial0)().up(qr);

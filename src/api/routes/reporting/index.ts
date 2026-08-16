@@ -63,7 +63,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
         (req: Request, res: Response) => {
             // TODO: implement
             // res.send([] as ReportingMenuResponseSchema);
-            res.sendFile(path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
+            res.sendFile(path.join(import.meta.dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
@@ -93,7 +93,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                     },
                 });
 
-            const menuPath = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
+            const menuPath = path.join(import.meta.dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
             const menuData = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
             if (body.version !== menuData.version) {
                 throw FieldErrors({

@@ -68,7 +68,7 @@ router.get(
         const { imageSizeFromFile } = await import("image-size/fromFile");
 
         // TODO: Widget style templates need Spacebar branding
-        const source = path.join(__dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
+        const source = path.join(import.meta.dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
         if (!fs.existsSync(source)) {
             throw new HTTPError("Widget template does not exist.", 400);
         }

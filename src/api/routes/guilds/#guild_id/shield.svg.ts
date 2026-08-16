@@ -36,7 +36,7 @@ const router: Router = Router({ mergeParams: true });
 const expiryTime = 1000 * 60 * 5; // 5 minutes
 const jsonDataCache = new Map<string, { data: Promise<string>; expiry: Date }>();
 
-const assetsPath = path.join(__dirname, "..", "..", "..", "..", "..", "assets");
+const assetsPath = path.join(import.meta.dirname, "..", "..", "..", "..", "..", "assets");
 const whiteLogo = "data:image/png;base64," + Buffer.from(fs.readFileSync(path.join(assetsPath, "icon_white.png"))).toString("base64");
 const blueLogo = "data:image/png;base64," + Buffer.from(fs.readFileSync(path.join(assetsPath, "icon.png"))).toString("base64");
 

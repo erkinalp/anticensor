@@ -21,5 +21,5 @@ export class RegistrationEmailConfiguration {
     allowlist: boolean = false;
     blocklist: boolean = true;
     domains: string[] = []; // TODO: efficiently save domain blocklist in database
-    // domains: fs.readFileSync(__dirname + "/blockedEmailDomains.txt", { encoding: "utf8" }).split("\n"),
+    // domains: fs.readFileSync(import.meta.dirname + "/blockedEmailDomains.txt", { encoding: "utf8" }).split("\n"),
 }

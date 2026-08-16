@@ -20,11 +20,10 @@ import os from "os";
 import { readFileSync } from "node:fs";
 import pkg from "picocolors";
 const { red } = pkg;
-const __dirname = import.meta.dirname;
 
 export function initStats() {
     console.log(`[Path] Running in ${process.cwd()}`);
-    console.log(`[Path] Running from ${__dirname}`);
+    console.log(`[Path] Running from ${import.meta.dirname}`);
     try {
         console.log(`[CPU] ${os.cpus()[0].model} (x${os.cpus().length})`);
     } catch {

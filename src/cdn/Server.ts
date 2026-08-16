@@ -15,7 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-const __dirname = import.meta.dirname;
 
 import { Server, ServerOptions } from "#lambert-server";
 import { Attachment, Config, initDatabase, registerRoutes } from "#harmony/util";
@@ -60,7 +59,7 @@ export class CDNServer extends Server {
         this.app.use(CORS);
         this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
 
-        await registerRoutes(this, path.join(__dirname, "routes/"));
+        await registerRoutes(this, path.join(import.meta.dirname, "routes/"));
 
         this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/avatars registered");

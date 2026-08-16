@@ -20,9 +20,8 @@ import { Ajv } from "ajv";
 import addFormats from "ajv-formats";
 import fs from "fs";
 import path from "path";
-const __dirname = import.meta.dirname;
 
-const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
+const SchemaPath = path.join(import.meta.dirname, "..", "..", "assets", "schemas.json");
 const schemas = fs.existsSync(SchemaPath) ? JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", "")) : null;
 
 // const schemas2 = {...schemas, definitions: {...schemas, }};
