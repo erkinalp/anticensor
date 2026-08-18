@@ -146,7 +146,6 @@ async function getMembers(guild_id: string, range: [number, number]) {
         members: items.map((x) => ("member" in x ? { ...x.member, settings: undefined } : undefined)).filter((x) => !!x),
     };
 }
-const crypto = new SubtleCrypto();
 const encoder = new TextEncoder();
 async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
     if (this.events[user_id]) return false; // already subscribed as friend
@@ -243,7 +242,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         });
 
         if (perms.length > 0) {
-            const buffer = await crypto.digest("SHA-256", encoder.encode(perms.sort().join(",").toString()));
+            const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(perms.sort().join(",").toString()));
             list_id = [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0")).join("");
         }
     }
