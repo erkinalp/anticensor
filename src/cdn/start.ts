@@ -18,8 +18,8 @@
 
 import moduleAlias from "module-alias";
 moduleAlias(__dirname + "../../../package.json");
-import { config } from "dotenv";
-config({ quiet: true });
+import { loadEnv } from "harmony.env";
+loadEnv();
 
 import { CDNServer } from "./Server";
 import fs from "fs";

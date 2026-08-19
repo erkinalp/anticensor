@@ -20,11 +20,11 @@ moduleAlias(__dirname + "../../../package.json");
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
-import { config } from "dotenv";
+import { loadEnv } from "harmony.env";
+loadEnv();
 import { Server } from "./Server";
 import fs from "fs";
 import cluster from "cluster";
-config({ quiet: true });
 
 const port = Number(process.env.PORT) || 3004;
 
