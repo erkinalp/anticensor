@@ -98,7 +98,7 @@
         "form-data": "^4.0.5",
         "harmony-erlpack": "^0.0.1",
         "harmony-pion-webrtc": "^1.0.2",
-        "harmony.env": "^0.0.1",
+        "harmony.env": "^0.0.2",
         "i18next": "^25.10.10",
         "i18next-fs-backend": "^2.6.1",
         "i18next-http-middleware": "^3.9.2",
