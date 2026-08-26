@@ -31,50 +31,45 @@ const IMG_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 interface RouteSettings {
     getonly?: boolean;
     noHash?: boolean;
+    ids?: number;
+    customPath?: (id: string, hash?: string, id2?: string) => string;
 }
-export function registerRoute(name: string, settings?: RouteSettings) {
+export function registerRoute(name: string, settings: RouteSettings = {}) {
     const router = Router({ mergeParams: true });
     const endpoint = Config.get().cdn.endpointPublic;
-    if (settings?.noHash)
-        router.get("/:id", cache, async (req: Request, res: Response) => {
-            let { id } = req.params as { [key: string]: string };
-            id = id.split(".")[0]; // remove .file extension
-            const path = `${name}/${id}`;
 
-            const file = await storage.get(path);
-            if (!file) return cacheNotFound(req, res);
-            const mime = await detectBufferMime(file);
+    settings.ids ??= 1;
 
-            res.set("Content-Type", mime);
+    const ids = settings.ids ? "/:id" : "/:id/:id2";
+    const idsWithhash = settings.noHash ? ids : ids + "/:hash";
 
-            return res.send(file);
-        });
-    else
-        router.get("/:id/:hash", cache, async (req: Request, res: Response) => {
-            const { id } = req.params as { [key: string]: string };
-            let { hash } = req.params as { [key: string]: string };
-            hash = hash.split(".")[0]; // remove .file extension
-            const path = `${name}/${toPath(id, hash)}`;
+    router.get(idsWithhash, cache, async (req: Request, res: Response) => {
+        const { id, id2 } = req.params as { [key: string]: string };
+        let { hash } = req.params as { [key: string]: string };
+        hash = hash.split(".")[0]; // remove .file extension
+        const path = `${name}/${toPath(id, hash, id2)}`;
+        console.log(path);
 
-            const file = await storage.get(path);
-            if (!file) return cacheNotFound(req, res);
-            const mime = await detectBufferMime(file);
+        const file = await storage.get(path);
+        if (!file) return cacheNotFound(req, res);
+        const mime = await detectBufferMime(file);
 
-            res.set("Content-Type", mime);
+        res.set("Content-Type", mime);
 
-            return res.send(file);
-        });
+        return res.send(file);
+    });
 
     if (settings?.getonly) return router;
-    function toPath(id: string, hash?: string) {
-        return settings?.noHash ? `${id}` : `${id}/${hash}`;
-    }
+    const toPath = (id: string, hash?: string, id2?: string) => {
+        const build = id2 ? `${id}/${id2}` : `${id}`;
+        return !hash || settings?.noHash ? `${build}` : `${build}/${hash}`;
+    };
 
-    router.post("/:id", multer.single("file"), async (req: Request, res: Response) => {
+    router.post(idsWithhash, multer.single("file"), async (req: Request, res: Response) => {
         if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
         if (!req.file) throw new HTTPError("Missing file");
         const { buffer, size } = req.file;
-        const { id } = req.params as { [key: string]: string };
+        const { id, id2 } = req.params as { [key: string]: string };
 
         let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
@@ -82,7 +77,7 @@ export function registerRoute(name: string, settings?: RouteSettings) {
         if (!IMG_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
         if (ANIMATED_MIME_TYPES.includes(mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
-        const path = `${name}/${toPath(id, hash)}`;
+        const path = `${name}/${toPath(id, hash, id2)}`;
 
         await storage.set(path, buffer);
 
@@ -93,25 +88,16 @@ export function registerRoute(name: string, settings?: RouteSettings) {
             url: `${endpoint}${req.baseUrl}/${toPath(id, hash)}`,
         });
     });
-    if (settings?.noHash)
-        router.delete("/:id/:hash", async (req: Request, res: Response) => {
-            if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-            const { id, hash } = req.params as { [key: string]: string };
-            const path = `${name}/${toPath(id, hash)}`;
 
-            await storage.delete(path);
+    router.delete(idsWithhash, async (req: Request, res: Response) => {
+        if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
+        const { id, id2, hash } = req.params as { [key: string]: string };
+        const path = `${name}/${toPath(id, hash, id2)}`;
 
-            return res.send({ success: true });
-        });
-    else
-        router.delete("/:id", async (req: Request, res: Response) => {
-            if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-            const { id } = req.params as { [key: string]: string };
-            const path = `${name}/${id}`;
+        await storage.delete(path);
 
-            await storage.delete(path);
+        return res.send({ success: true });
+    });
 
-            return res.send({ success: true });
-        });
     return router;
 }
