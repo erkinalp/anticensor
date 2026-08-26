@@ -16,7 +16,7 @@
         "build:tsgo": "npm run build:src:tsgo && npm run generate:schema && npm run generate:openapi",
         "build:src:tsgo": "rm -rf dist/* tsconfig.tsbuildinfo && tsgo -b -v",
         "watch": "tsc -w -b .",
-        "test": "node -r ts-node/register/transpile-only --test",
+        "test": "node --no-strip-types --test \"dist/**/*.test.js\"",
         "lint": "eslint . --ignore-pattern 'cruft/**' --ignore-pattern 'node_temp/**' --cache",
         "setup": "npm run build && npm run generate:schema",
         "sync:db": "npm run build && node -r dotenv/config -r module-alias/register --enable-source-maps scripts/syncronise.js",
@@ -73,7 +73,6 @@
         "patch-package": "^8.0.1",
         "prettier": "^3.8.1",
         "pretty-quick": "^4.2.2",
-        "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
         "typescript-json-schema": "^0.65.1"
     },

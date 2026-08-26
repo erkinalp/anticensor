@@ -174,7 +174,7 @@ const validateConfig = async () => {
     console.log("[Config] Total config load time:", new Date().getTime() - totalStartTime.getTime(), "ms");
 
     if (hasErrored) {
-        console.error("[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration");
+        console.error("[Config] Your config has invalid values. Fix them first https://docs.melodychat.org/setup/server/configuration");
         process.exit(1);
     }
 
@@ -205,7 +205,7 @@ function validateFinalConfig(config: ConfigValue) {
     assertConfig(
         "general_serverName",
         (v) => v != null,
-        'A valid domain hosting your .well-known (defaulting to https at port 443), eg. "spacebar.chat" or "http://localhost:3001"',
+        'A valid domain hosting your .well-known (defaulting to https at port 443), eg. "melodychat.org" or "http://localhost:3001"',
     );
     assertConfig("api_endpointPublic", (v) => v != null, 'A valid public API endpoint URL, eg. "http://localhost:3001/api/v9"');
     assertConfig("cdn_endpointPublic", (v) => v != null, 'A valid public CDN endpoint URL, eg. "http://localhost:3003/"');
@@ -213,7 +213,7 @@ function validateFinalConfig(config: ConfigValue) {
     assertConfig("gateway_endpointPublic", (v) => v != null, 'A valid public gateway endpoint URL, eg. "ws://localhost:3002/"');
 
     if (hasErrors) {
-        console.error("[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration");
+        console.error("[Config] Your config has invalid values. Fix them first https://docs.melodychat.org/setup/server/configuration");
         console.error("[Config] Hint: if you're just testing with bundle (`npm run start`), you can set all endpoint URLs to [proto]://localhost:3001");
         process.exit(1);
     } else console.log("[Config] Configuration validated successfully.");
