@@ -28,9 +28,26 @@ import { cache, cacheNotFound } from "./cache";
 const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
 const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
 const IMG_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
-
-export function registerRoute(name: string) {
+interface RouteSettings {
+    getonly: boolean;
+}
+export function registerRoute(name: string, settings?: RouteSettings) {
     const router = Router({ mergeParams: true });
+    router.get("/:id", cache, async (req: Request, res: Response) => {
+        let { id } = req.params as { [key: string]: string };
+        id = id.split(".")[0]; // remove .file extension
+        const path = `${name}/${id}`;
+
+        const file = await storage.get(path);
+        if (!file) return cacheNotFound(req, res);
+        const mime = await detectBufferMime(file);
+
+        res.set("Content-Type", mime);
+
+        return res.send(file);
+    });
+    if (settings?.getonly) return router;
+
     router.post("/:id", multer.single("file"), async (req: Request, res: Response) => {
         if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
         if (!req.file) throw new HTTPError("Missing file");
@@ -54,20 +71,6 @@ export function registerRoute(name: string) {
             size,
             url: `${endpoint}${req.baseUrl}/${id}/${hash}`,
         });
-    });
-
-    router.get("/:id", cache, async (req: Request, res: Response) => {
-        let { id } = req.params as { [key: string]: string };
-        id = id.split(".")[0]; // remove .file extension
-        const path = `${name}/${id}`;
-
-        const file = await storage.get(path);
-        if (!file) return cacheNotFound(req, res);
-        const mime = await detectBufferMime(file);
-
-        res.set("Content-Type", mime);
-
-        return res.send(file);
     });
 
     router.get("/:id/:hash", cache, async (req: Request, res: Response) => {

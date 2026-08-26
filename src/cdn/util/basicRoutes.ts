@@ -11,4 +11,6 @@ export function registerBasicRoutes(app: Application) {
     app.use("icons", registerRoute("icons"));
     app.use("splashes", registerRoute("splashes"));
     app.use("team-icons", registerRoute("team-icons"));
+    app.use("badge-icons", registerRoute("badge-icons", { getonly: true }));
+    app.use("avatar-decoration-presets", registerRoute("avatar-decoration-presets", { getonly: true }));
 }
