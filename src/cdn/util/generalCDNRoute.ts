@@ -32,14 +32,20 @@ interface RouteSettings {
     getonly?: boolean;
     noHash?: boolean;
     ids?: number;
-    customPath?: (id: string, hash?: string, id2?: string) => string;
+    customPath?: (id: string, hash?: string, id2?: string, nameLess?: boolean) => string;
     customIds?: string;
+    allowAnimated?: boolean;
+    addToEndPath?: string;
 }
 export function registerRoute(name: string, settings: RouteSettings = {}) {
     const router = Router({ mergeParams: true });
     const endpoint = Config.get().cdn.endpointPublic;
 
     settings.ids ??= 1;
+    settings.addToEndPath ??= "";
+
+    settings.allowAnimated ??= true;
+    const ALLOWED_MIMES = settings.allowAnimated ? IMG_MIME_TYPES : STATIC_MIME_TYPES;
 
     let ids = settings.customIds ?? (settings.ids ? "/:id" : "/:id/:id2");
     const idsWithhash = settings.noHash ? ids : ids + "/:hash";
@@ -47,9 +53,11 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
 
     router.get(idsWithhash, cache, async (req: Request, res: Response) => {
         const { id, id2 } = req.params as { [key: string]: string };
+
         const { hash } = req.params as { [key: string]: string };
 
-        let path = `${name}/${toPath(id, hash, id2)}`;
+        let path = `${toPath(id, hash, id2)}`;
+        console.log(id, id2, hash);
         path = path.split(".")[0]; // remove .file extension
 
         const file = await storage.get(path);
@@ -62,10 +70,14 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
     });
 
     if (settings?.getonly) return router;
-    const toPath = (id: string, hash?: string, id2?: string) => {
-        const build = id2 ? `${id}/${id2}` : `${id}`;
-        return !hash || settings?.noHash ? `${build}` : `${build}/${hash}`;
-    };
+
+    const toPath =
+        settings.customPath ??
+        ((id: string, hash?: string, id2?: string, nameLess: boolean = false) => {
+            const build = id2 ? `${id}/${id2}` : `${id}`;
+            const build2 = !hash || settings?.noHash ? `${build}` : `${build}/${hash}`;
+            return nameLess ? build2 : `${name}/${build2}` + settings.addToEndPath;
+        });
 
     router.post(ids, multer.single("file"), async (req: Request, res: Response) => {
         if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
@@ -76,10 +88,11 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
         let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
         const mime = await detectBufferMime(buffer);
-        if (!IMG_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
+
+        if (!ALLOWED_MIMES.includes(mime)) throw new HTTPError("Invalid file type");
         if (ANIMATED_MIME_TYPES.includes(mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
-        const path = `${name}/${toPath(id, hash, id2)}`;
+        const path = `${toPath(id, hash, id2)}`;
 
         await storage.set(path, buffer);
 
@@ -87,14 +100,16 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
             id: hash,
             content_type: mime,
             size,
-            url: `${endpoint}${req.baseUrl}/${toPath(id, hash)}`,
+
+            url: `${endpoint}${req.baseUrl}/${toPath(id, hash, id2, true)}`,
         });
     });
 
     router.delete(idsWithhash, async (req: Request, res: Response) => {
         if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
         const { id, id2, hash } = req.params as { [key: string]: string };
-        const path = `${name}/${toPath(id, hash, id2)}`;
+
+        const path = `${toPath(id, hash, id2)}`;
 
         await storage.delete(path);
 

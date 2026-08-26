@@ -18,9 +18,19 @@ export function registerBasicRoutes(app: Application) {
     app.use("/stickers", registerRoute("stickers", { noHash: true }));
     const gp = registerRoute("guild-profiles", {
         ids: 2,
-        customPath: (id, hash, id2) => (hash ? `guilds/${id}/users/${id2}/avatars` : `guilds/${id}/users/${id2}/avatars/${hash}`),
+
+        customPath: (id, hash, id2) => (hash ? `guilds/${id}/users/${id2}/avatars/${hash}` : `guilds/${id}/users/${id2}/avatars`),
         customIds: "",
     });
     app.use("/guilds/:id/users/:id2/avatars", gp);
     app.use("/guilds/:id/users/:id2/banners", gp);
+
+    app.use(
+        "/role-icons",
+        registerRoute("role-icons", {
+            allowAnimated: false,
+            //TODO why was spacebar like this?
+            addToEndPath: ".png",
+        }),
+    );
 }
