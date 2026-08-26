@@ -6,6 +6,7 @@ export function registerBasicRoutes(app: Application) {
     app.use("/avatars", registerRoute("avatars"));
     app.use("/banners", registerRoute("banners"));
     app.use("/channel-icons", registerRoute("channel-icons"));
+    //TODO I think this is not a route
     app.use("/discover-splashes", registerRoute("discover-splashes"));
     app.use("/discovery-splashes", registerRoute("discovery-splashes"));
     app.use("/icons", registerRoute("icons"));
@@ -15,11 +16,11 @@ export function registerBasicRoutes(app: Application) {
     app.use("/avatar-decoration-presets", registerRoute("avatar-decoration-presets", { getonly: true, noHash: true }));
     app.use("/emojis", registerRoute("emojis", { noHash: true }));
     app.use("/stickers", registerRoute("stickers", { noHash: true }));
-    app.use(
-        "/guild-profiles",
-        registerRoute("guild-profiles", {
-            ids: 2,
-            customPath: (id, hash, id2) => (hash ? `guilds/${id}/users/${id2}/avatars` : `guilds/${id}/users/${id2}/avatars/${hash}`),
-        }),
-    );
+    const gp = registerRoute("guild-profiles", {
+        ids: 2,
+        customPath: (id, hash, id2) => (hash ? `guilds/${id}/users/${id2}/avatars` : `guilds/${id}/users/${id2}/avatars/${hash}`),
+        customIds: "",
+    });
+    app.use("/guilds/:id/users/:id2/avatars", gp);
+    app.use("/guilds/:id/users/:id2/banners", gp);
 }

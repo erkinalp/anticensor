@@ -33,6 +33,7 @@ interface RouteSettings {
     noHash?: boolean;
     ids?: number;
     customPath?: (id: string, hash?: string, id2?: string) => string;
+    customIds?: string;
 }
 export function registerRoute(name: string, settings: RouteSettings = {}) {
     const router = Router({ mergeParams: true });
@@ -40,15 +41,16 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
 
     settings.ids ??= 1;
 
-    const ids = settings.ids ? "/:id" : "/:id/:id2";
+    let ids = settings.customIds ?? (settings.ids ? "/:id" : "/:id/:id2");
     const idsWithhash = settings.noHash ? ids : ids + "/:hash";
+    if (ids === "") ids = "/";
 
     router.get(idsWithhash, cache, async (req: Request, res: Response) => {
         const { id, id2 } = req.params as { [key: string]: string };
-        let { hash } = req.params as { [key: string]: string };
-        hash = hash.split(".")[0]; // remove .file extension
-        const path = `${name}/${toPath(id, hash, id2)}`;
-        console.log(path);
+        const { hash } = req.params as { [key: string]: string };
+
+        let path = `${name}/${toPath(id, hash, id2)}`;
+        path = path.split(".")[0]; // remove .file extension
 
         const file = await storage.get(path);
         if (!file) return cacheNotFound(req, res);
