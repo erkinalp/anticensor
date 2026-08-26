@@ -25,6 +25,7 @@ import { randomUpperString } from "@harmony/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import { unsafeMakeToken, loadOrGenerateKeypair } from "./unsafeMakeToken";
+import { PublicUserProjection } from "@harmony/schemas";
 
 /// Change history:
 /// 1 - Initial version with HS256
@@ -104,7 +105,7 @@ export const checkTokenInt = (
             const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
-                    select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
+                    select: { ...(opts?.select || PublicUserProjection), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
                     relations: opts?.relations,
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
