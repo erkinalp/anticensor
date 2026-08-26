@@ -59,7 +59,7 @@ export async function ImageProxy(req: Request, res: Response) {
 
     const request = await fetch("https://" + path.slice(2).join("/"), {
         headers: {
-            "User-Agent": "SpacebarImageProxy/1.0.0 (https://spacebar.chat)",
+            "User-Agent": "HarmonyImageProxy/1.0.0 (https://melodychat.org/)",
         },
         signal: abort.signal,
     }).catch((e) => {

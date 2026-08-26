@@ -95,7 +95,7 @@ router.post(
         await securityKey.save();
 
         return res.json({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
             user_settings: user.settings,
         });
     },
