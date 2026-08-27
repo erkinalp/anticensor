@@ -124,6 +124,7 @@ router.delete("/:channel_id/:id/:filename", async (req: Request, res: Response) 
     return res.send({ success: true });
 });
 
+//TODO expire old URLs based on age using ID
 // "cloud attachments"
 router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
     const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
