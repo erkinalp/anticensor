@@ -456,11 +456,12 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "WEBHOOKS_UPDATE":
             if (!channelPerm.has("MANAGE_WEBHOOKS")) return;
             break;
+        case "PRESENCE_UPDATE": // exception if user is friend
+            if (opts.data.user.id === this.user_id) return;
+            break;
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
         case "GUILD_MEMBER_UPDATE": // only send them, if the user subscribed for this part of the member list, or is a bot
-        case "PRESENCE_UPDATE": // exception if user is friend
-            if (opts.data.user.id === this.user_id) return;
             break;
         case "GUILD_BAN_ADD":
         case "GUILD_BAN_REMOVE":
