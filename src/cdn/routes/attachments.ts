@@ -136,7 +136,7 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Reques
         },
     });
 
-    const maxLength = att.size ?? Config.get().cdn.maxAttachmentSize;
+    const maxLength = Math.max(att.size ?? Config.get().cdn.maxAttachmentSize, Config.get().cdn.maxAttachmentSize);
 
     const chunks: Buffer[] = [];
     let length = 0;
