@@ -125,7 +125,7 @@ router.delete("/:channel_id/:id/:filename", async (req: Request, res: Response) 
 });
 
 // "cloud attachments"
-router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("file"), async (req: Request, res: Response) => {
+router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
     const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
     const att = await CloudAttachment.findOneOrFail({
         where: {
