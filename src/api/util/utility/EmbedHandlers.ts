@@ -66,7 +66,7 @@ export const getProxyUrl = (url: URL, width: number, height: number): string => 
 
     if (!hasWarnedAboutImagor) {
         hasWarnedAboutImagor = true;
-        console.log("[Embeds]", yellow("Imagor has not been set up correctly. https://docs.spacebar.chat/setup/server/configuration/imagor/"));
+        console.log("[Embeds]", yellow("Imagor has not been set up correctly. https://docs.melodychat.org/setup/server/configuration/imageProxy/"));
     }
 
     return url.toString();

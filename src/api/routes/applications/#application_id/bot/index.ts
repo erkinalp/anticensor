@@ -49,7 +49,7 @@ router.post(
         const user = await createAppBotUser(app, req);
 
         res.send({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
         });
     },
 );
@@ -83,7 +83,7 @@ router.post(
 
         await bot.save();
 
-        const token = await generateToken(bot.id);
+        const token = await generateToken(bot.id, 0);
 
         res.json({ token }).status(200);
     },
