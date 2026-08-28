@@ -23,7 +23,8 @@ export class CdnConfiguration extends EndpointConfiguration {
     resizeWidthMax: number = 1000;
     imagorServerUrl: string | null = null;
     proxyCacheHeaderSeconds: number = 60 * 60 * 24;
-    maxAttachmentSize: number = 25 * 1024 * 1024; // 25 MB
+    maxAttachmentSize: number = 100 * 1024 * 1024; // 100 MB
+    maxNonAttachmentSize: number = 25 * 1024 * 1024; // 25MB
 
     // limits: CdnLimitsConfiguration = new CdnLimitsConfiguration();
 }

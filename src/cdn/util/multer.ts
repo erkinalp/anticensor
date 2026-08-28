@@ -23,6 +23,6 @@ export const multer = multerConfig({
     limits: {
         fields: 10,
         files: 10,
-        fileSize: Config.get().cdn.maxAttachmentSize,
+        fileSize: Config.get().cdn.maxNonAttachmentSize,
     },
 });
