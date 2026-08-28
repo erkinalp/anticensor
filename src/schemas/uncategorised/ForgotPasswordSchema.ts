@@ -19,4 +19,5 @@
 export interface ForgotPasswordSchema {
     login: string;
     captcha_key?: string;
+    client?: string;
 }

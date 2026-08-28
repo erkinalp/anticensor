@@ -19,9 +19,9 @@
 import { Snowflake } from "@harmony/util";
 
 export class GeneralConfiguration {
-    instanceName: string = "Spacebar Instance";
+    instanceName: string = "Harmony Instance";
     serverName: string | null = null;
-    instanceDescription: string | null = "This is a Spacebar instance made in the pre-release days";
+    instanceDescription: string | null = "This is a Harmony instance made in the pre-release days";
     frontPage: string | null = null;
     tosPage: string | null = null;
     correspondenceEmail: string | null = null;
@@ -29,4 +29,5 @@ export class GeneralConfiguration {
     image: string | null = null;
     instanceId: string = Snowflake.generate();
     autoCreateBotUsers: boolean = false;
+    trustedClients: string[] = ["https://fermi.chat"];
 }
