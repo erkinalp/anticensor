@@ -58,6 +58,7 @@ export * from "./checkUsername";
 export * from "./checkCommand";
 export * from "./gifProviders";
 export * from "./timestamp";
+export * from "./i18n.js";
 export * from "./replaceString";
 export { CurrentTokenFormatVersion } from "./unsafeMakeToken";
 export * from "./tokenIntents";

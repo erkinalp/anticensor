@@ -81,7 +81,7 @@ router.patch(
                 if (!same_password) {
                     throw FieldErrors({
                         password: {
-                            message: req.t("auth:login.INVALID_PASSWORD"),
+                            message: req.i18n.login.INVALID_PASSWORD(),
                             code: "INVALID_PASSWORD",
                         },
                     });
@@ -95,14 +95,14 @@ router.patch(
             if (!body.email && Config.get().register.email.required)
                 throw FieldErrors({
                     email: {
-                        message: req.t("auth:register.EMAIL_INVALID"),
+                        message: req.i18n.register.EMAIL_INVALID(),
                         code: "EMAIL_INVALID",
                     },
                 });
             if (!body.password)
                 throw FieldErrors({
                     password: {
-                        message: req.t("auth:login.INVALID_PASSWORD"),
+                        message: req.i18n.login.INVALID_PASSWORD(),
                         code: "INVALID_PASSWORD",
                     },
                 });
@@ -113,7 +113,7 @@ router.patch(
                 throw FieldErrors({
                     password: {
                         code: "BASE_TYPE_REQUIRED",
-                        message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                        message: req.i18n.field.BASE_TYPE_REQUIRED(),
                     },
                 });
             }
@@ -127,7 +127,7 @@ router.patch(
             if (!body.password) {
                 throw FieldErrors({
                     password: {
-                        message: req.t("auth:login.INVALID_PASSWORD"),
+                        message: req.i18n.login.INVALID_PASSWORD(),
                         code: "INVALID_PASSWORD",
                     },
                 });

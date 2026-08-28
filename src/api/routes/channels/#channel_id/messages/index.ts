@@ -330,7 +330,7 @@ router.post(
                     throw FieldErrors({
                         channel_id: {
                             code: "TOO_MANY_MESSAGES",
-                            message: req.t("common:toomany.MESSAGE"),
+                            message: req.i18n.toomany.MESSAGE(),
                         },
                     });
             }

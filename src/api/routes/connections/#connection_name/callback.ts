@@ -30,9 +30,7 @@ router.post("/", route({ requestBody: "ConnectionCallbackSchema", permission: nu
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: Array.from(ConnectionStore.connections.keys()).join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(Array.from(ConnectionStore.connections.keys()).join(", ")),
             },
         });
 
@@ -64,9 +62,7 @@ router.get("/", route({ permission: null }), async (req: Request, res: Response)
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: Array.from(ConnectionStore.connections.keys()).join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(Array.from(ConnectionStore.connections.keys()).join(", ")),
             },
         });
 

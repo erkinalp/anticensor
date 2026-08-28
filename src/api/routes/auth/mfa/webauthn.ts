@@ -61,7 +61,7 @@ router.post(
         });
 
         const ret = await verifyWebAuthnToken(ticket);
-        if (!ret) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (!ret) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
 
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
