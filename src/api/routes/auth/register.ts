@@ -311,7 +311,7 @@ router.post(
 
         if (invite) await Invite.joinGuild(user.id, invite, false);
 
-        return res.json({ token: await generateToken(user.id) });
+        return res.json({ token: await generateToken(user.id, 0) });
     },
 );
 
