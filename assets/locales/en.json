@@ -1,19 +1,42 @@
 {
+	"login": {
+		"INVALID_LOGIN": "Invalid login or password.",
+		"INVALID_PASSWORD": "Invalid Password",
+		"ACCOUNT_DISABLED": "This account is disabled",
+		"INVALID_TOTP_CODE": "Invalid two-factor code.",
+		"INVALID_TOTP_SECRET": "Invalid two-factor secret."
+	},
+	"register": {
+		"REGISTRATION_DISABLED": "New user registration is disabled",
+		"INVITE_ONLY": "You must be invited to register",
+		"EMAIL_INVALID": "Invalid Email",
+		"EMAIL_ALREADY_REGISTERED": "Email is already registered",
+		"DATE_OF_BIRTH_UNDERAGE": "You need to be $1 years or older",
+		"PASSWORD_REQUIREMENTS_MIN_LENGTH": "The password must be at least $1 characters long.",
+		"CONSENT_REQUIRED": "You must agree to the Terms of Service and Privacy Policy.",
+		"USERNAME_TOO_MANY_USERS": "Too many users have this username, please try another",
+		"TOO_MANY_REGISTRATIONS": "Too many registrations, please try again later",
+		"DATE_OF_BIRTH_INVALID":"Invalid date of birth"
+	},
+	"password_reset": {
+		"EMAIL_DOES_NOT_EXIST": "Email does not exist.",
+		"INVALID_TOKEN": "Invalid token."
+	},
 	"field": {
 		"BASE_TYPE_REQUIRED": "This field is required",
 		"BASE_TYPE_STRING": "This field must be a string",
 		"BASE_TYPE_NUMBER": "This field must be a number",
 		"BASE_TYPE_BIGINT": "This field must be a bigint",
 		"BASE_TYPE_BOOLEAN": "This field must be a boolean",
-		"BASE_TYPE_CHOICES": "This field must be one of ({{types}})",
-		"BASE_TYPE_CLASS": "This field must be an instance of {{type}}",
+		"BASE_TYPE_CHOICES": "This field must be one of ($1)",
+		"BASE_TYPE_CLASS": "This field must be an instance of $1",
 		"BASE_TYPE_OBJECT": "This field must be an object",
 		"BASE_TYPE_ARRAY": "This field must be an array",
-		"UNKOWN_FIELD": "Unknown key: {{key}}",
-		"BASE_TYPE_CONSTANT": "This field must be {{value}}",
+		"UNKOWN_FIELD": "Unknown key: $1",
+		"BASE_TYPE_CONSTANT": "This field must be $1",
 		"EMAIL_TYPE_INVALID_EMAIL": "Not a well-formed email address",
-		"DATE_TYPE_PARSE": "Could not parse {{date}}. Should be ISO8601",
-		"BASE_TYPE_BAD_LENGTH": "Must be between {{length}} in length"
+		"DATE_TYPE_PARSE": "Could not parse $1. Should be ISO8601",
+		"BASE_TYPE_BAD_LENGTH": "Must be between $1 in length"
 	},
 	"body": {
 		"INVALID_BODY": "Invalid Body",

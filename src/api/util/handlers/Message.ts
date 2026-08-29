@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { EmbedHandlers, randomString, fillMessageUrlEmbeds } from "@harmony/api";
+import { randomString, fillMessageUrlEmbeds } from "@harmony/api";
 import {
     Application,
     Attachment,
@@ -813,6 +813,13 @@ export async function postHandleMessage(message: Message) {
             message,
             closes: new Date(message.poll.expiry),
         }).insert();
+
+    if (message.flags & Number(MessageFlags.FLAGS.SUPPRESS_EMBEDS)) {
+        message.embeds.forEach((_) => (_.type ??= EmbedType.rich));
+        message.embeds = message.embeds.filter((_) => _.type !== EmbedType.rich);
+        await message.save();
+        return;
+    }
 
     if (message.webhook || (await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS))
         await fillMessageUrlEmbeds(message);

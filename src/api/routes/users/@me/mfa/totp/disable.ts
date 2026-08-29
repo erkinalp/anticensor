@@ -50,7 +50,7 @@ router.post(
         const backup = await BackupCode.findOne({ where: { code: body.code } });
         if (!backup) {
             const ret = verifyToken(user.totp_secret || "", body.code);
-            if (!ret || ret.delta != 0) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+            if (!ret || ret.delta != 0) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
         }
 
         await User.update(
@@ -69,7 +69,7 @@ router.post(
         );
 
         return res.json({
-            token: await generateToken(req.user_id),
+            token: await generateToken(req.user_id, 0),
         });
     },
 );

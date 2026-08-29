@@ -79,7 +79,7 @@ router.get(
             return Permissions.finalPermission({
                 user: { id: member.id, roles: member.roles.map((r) => r.id), communication_disabled_until: member.communication_disabled_until, flags: 0 },
                 guild: { id: member.guild.id, owner_id: member.guild.owner_id!, roles: member.roles },
-                channel: c,
+                channel: { ...c, overwrites: c.permission_overwrites },
             }).has("VIEW_CHANNEL");
         });
 
