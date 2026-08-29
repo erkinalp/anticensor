@@ -141,6 +141,21 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: User[];
 
+    dedupeMentions() {
+        const seen = new Set<string>();
+        this.mentions = this.mentions.filter((_) => {
+            if (seen.has(_.id)) return false;
+            seen.add(_.id);
+            return true;
+        });
+        seen.clear();
+        this.mention_roles = this.mention_roles.filter((_) => {
+            if (seen.has(_.id)) return false;
+            seen.add(_.id);
+            return true;
+        });
+    }
+
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Role[];

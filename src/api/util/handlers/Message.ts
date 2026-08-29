@@ -794,7 +794,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     });
 
     // TODO: check and put it all in the body
-
+    message.dedupeMentions();
     return message;
 }
 
