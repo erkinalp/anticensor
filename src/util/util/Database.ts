@@ -88,7 +88,7 @@ export async function initDatabase(): Promise<DataSource> {
                 "[Database]" +
                     red(
                         ` We don't have migrations for DB type '${DatabaseType}'` +
-                            ` To ignore, set DB_SYNC=true in your env. https://docs.spacebar.chat/setup/server/configuration/env/`,
+                            ` To ignore, set DB_SYNC=true in your env. https://docs.melodychat.org/setup/server/configuration/env/`,
                     ),
             );
             process.exit(1);

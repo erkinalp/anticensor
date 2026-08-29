@@ -1,0 +1,32 @@
+{
+	"login": {
+		"INVALID_LOGIN": "מייל או מספר טלפון לא נמצאים במאגר",
+		"INVALID_PASSWORD": "סיסמא שגויה",
+		"ACCOUNT_DISABLED": "משתמש זה חסום / מבוטל"
+	},
+	"register": {
+		"REGISTRATION_DISABLED": "לא ניתן לאפשר רישום משתמשים חדשים",
+		"INVITE_ONLY": "עליך להיות מוזמן בכדי להרשם",
+		"EMAIL_INVALID": "מייל שגוי",
+		"EMAIL_ALREADY_REGISTERED": "מייל זה כבר רשום",
+		"DATE_OF_BIRTH_UNDERAGE": "$1 עלייך להיות מעל גיל",
+		"CONSENT_REQUIRED": ".עליך להסכים לתנאי השירות ולמדיניות הפרטיות",
+		"USERNAME_TOO_MANY_USERS": "ליותר מדי משתמשים יש שם משתמש זהה, אנא נסה אחר"
+	},
+	"field": {
+		"BASE_TYPE_REQUIRED": "שדה זה חובה",
+		"BASE_TYPE_STRING": "שדה זה חייב להיות כטקסט",
+		"BASE_TYPE_NUMBER": "שדה זה חייב להיות מספר",
+		"BASE_TYPE_BIGINT": "השדה הזה חייב להיות ביגינט",
+		"BASE_TYPE_BOOLEAN": "השדה הזה חייב להיות בוליאני",
+		"BASE_TYPE_CHOICES": "($1) שדה זה חייב להיות אחד מ",
+		"BASE_TYPE_CLASS": "$1 מסוג instance שדה זה חייב להיות",
+		"BASE_TYPE_OBJECT": "שדה זה חייב להיות אובייקט",
+		"BASE_TYPE_ARRAY": "שדה זה חייב להיות מערך",
+		"UNKOWN_FIELD": "$1 :מפתח לא ידוע",
+		"BASE_TYPE_CONSTANT": "$1 שדה זה חייב להיות",
+		"EMAIL_TYPE_INVALID_EMAIL": "כתובת דואר אלקטרוני לא חוקית",
+		"DATE_TYPE_PARSE": "ISO8601 אמור להיות $1 לא ניתן לאתר",
+		"BASE_TYPE_BAD_LENGTH": "$1 האורך חייב להיות בין"
+	}
+}

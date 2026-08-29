@@ -33,8 +33,8 @@ const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 if (cluster.isPrimary) {
     const revInfo = getRevInfoOrFail();
     Logo.printLogo().then(() => {
-        const unformatted = `spacebar-server | !! Pre-release build !!`;
-        const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
+        const unformatted = `harmony-server | !! Pre-release build !!`;
+        const formatted = `${blueBright("harmony-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
         console.log(bold(centerString(unformatted, 86).replace(unformatted, formatted)));
 
         const shortRev = revInfo.rev ? revInfo.rev.slice(0, 7) : "unknown";
