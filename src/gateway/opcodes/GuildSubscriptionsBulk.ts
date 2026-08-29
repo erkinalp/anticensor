@@ -1,11 +1,13 @@
 import { WebSocket, Payload } from "@harmony/gateway";
 import { onLazyRequest } from "./LazyRequest";
-import { GuildSubscriptionsBulkSchema } from "@harmony/schemas";
-import { check } from "./instanceOf";
+import { ajv, GuildSubscriptionsBulkSchema } from "@harmony/schemas";
 
 export async function onGuildSubscriptionsBulk(this: WebSocket, payload: Payload) {
     const startTime = Date.now();
-    check.call(this, GuildSubscriptionsBulkSchema, payload.d);
+
+    const s = ajv.getSchema("GuildSubscriptionsBulkSchema");
+    if (!s?.(payload.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const body = payload.d as GuildSubscriptionsBulkSchema;
 
     await Promise.all(

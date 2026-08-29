@@ -4,10 +4,3 @@ export interface StreamCreateSchema {
     guild_id?: string;
     preferred_region?: string;
 }
-
-export const StreamCreateSchema = {
-    type: String,
-    channel_id: String,
-    $guild_id: String,
-    $preferred_region: String,
-};

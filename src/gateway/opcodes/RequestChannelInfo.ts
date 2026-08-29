@@ -18,8 +18,7 @@
 
 import { WebSocket, Payload, OPCODES, Send } from "@harmony/gateway";
 import { ChannelType } from "@harmony/schemas";
-import { Channel, Config, Member } from "@harmony/util";
-import { In } from "typeorm";
+import { Channel, Member } from "@harmony/util";
 
 export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both
