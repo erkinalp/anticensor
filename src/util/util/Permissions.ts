@@ -270,6 +270,7 @@ export class Permissions extends BitField {
             Permissions.FLAGS.USE_EXTERNAL_EMOJIS |
             Permissions.FLAGS.CONNECT |
             Permissions.FLAGS.SPEAK |
+            Permissions.FLAGS.SEND_POLLS |
             Permissions.FLAGS.MANAGE_CHANNELS,
     );
     static ALL: Permissions = new Permissions(Object.values(Permissions.FLAGS).reduce((total, val) => total | val, BigInt(0)));
