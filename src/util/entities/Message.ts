@@ -142,18 +142,8 @@ export class Message extends BaseClass {
     mentions: User[];
 
     dedupeMentions() {
-        const seen = new Set<string>();
-        this.mentions = this.mentions.filter((_) => {
-            if (seen.has(_.id)) return false;
-            seen.add(_.id);
-            return true;
-        });
-        seen.clear();
-        this.mention_roles = this.mention_roles.filter((_) => {
-            if (seen.has(_.id)) return false;
-            seen.add(_.id);
-            return true;
-        });
+        if (this.mentions) this.mentions = [...new Set(this.mentions)];
+        if (this.mention_roles) this.mention_roles = [...new Set(this.mention_roles)];
     }
 
     @JoinTable({ name: "message_role_mentions" })
