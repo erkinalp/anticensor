@@ -1,0 +1,32 @@
+{
+	"field": {
+		"BASE_TYPE_REQUIRED": "To pole jest wymagane",
+		"BASE_TYPE_STRING": "To pole musi być ciągiem znaków",
+		"BASE_TYPE_NUMBER": "To pole musi być liczbą",
+		"BASE_TYPE_BIGINT": "To pole musi być bigint",
+		"BASE_TYPE_BOOLEAN": "To pole musi być wartością logiczną",
+		"BASE_TYPE_CHOICES": "To pole musi być jednym z ($1)",
+		"BASE_TYPE_CLASS": "To pole musi być instancją $1",
+		"BASE_TYPE_OBJECT": "To pole musi być obiektem",
+		"BASE_TYPE_ARRAY": "To pole musi być tablicą",
+		"UNKOWN_FIELD": "Nieznany klucz: $1",
+		"BASE_TYPE_CONSTANT": "To pole musi wynosić $1",
+		"EMAIL_TYPE_INVALID_EMAIL": "Źle sformułowany adres e-mail",
+		"DATE_TYPE_PARSE": "Nie można przetworzyć $1. Powinno być ISO8601",
+		"BASE_TYPE_BAD_LENGTH": "Długość musi wynosić pomiędzy $1"
+	},
+	"login": {
+		"INVALID_LOGIN": "E-mail lub numer telefonu nie został znaleziony",
+		"INVALID_PASSWORD": "Nieprawidłowe hasło",
+		"ACCOUNT_DISABLED": "To konto jest nieaktywne"
+	},
+	"register": {
+		"REGISTRATION_DISABLED": "Rejestracja nowych użytkowników jest wyłączona",
+		"INVITE_ONLY": "Aby się zarejestrować, musisz zostać zaproszony",
+		"EMAIL_INVALID": "Nieprawidłowy E-mail",
+		"EMAIL_ALREADY_REGISTERED": "E-mail jest już zarejestrowany",
+		"DATE_OF_BIRTH_UNDERAGE": "Musisz mieć $1 lat lub więcej",
+		"CONSENT_REQUIRED": "Musisz zaakceptować Regulamin i Politykę Prywatności.",
+		"USERNAME_TOO_MANY_USERS": "Zbyt wielu użytkowników ma tę nazwę, spróbuj inną"
+	}
+}

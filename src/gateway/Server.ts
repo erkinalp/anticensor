@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import dotenv from "dotenv";
-dotenv.config({ quiet: true });
+import { loadEnv } from "harmony.env";
+loadEnv();
 import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "@harmony/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";

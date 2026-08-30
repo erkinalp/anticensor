@@ -61,7 +61,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
                 throw FieldErrors({
                     channel_id: {
                         code: "TOO_MANY_MESSAGES",
-                        message: req.t("common:toomany.MESSAGE"),
+                        message: req.i18n.toomany.MESSAGE(),
                     },
                 });
             } else {

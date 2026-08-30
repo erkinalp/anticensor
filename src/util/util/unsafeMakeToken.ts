@@ -62,11 +62,11 @@ export async function loadOrGenerateKeypair() {
     return (cachedKeypair = { privateKey, publicKey, fingerprint });
 }
 
-export async function unsafeMakeToken(id: string, session_id: string): Promise<string | undefined> {
+export async function unsafeMakeToken(id: string, session_id: string, intents = 0): Promise<string | undefined> {
     const keyPair = await loadOrGenerateKeypair();
     const iat = Math.floor(Date.now() / 1000);
     return new Promise((res, rej) => {
-        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: session_id } as UserTokenData["decoded"];
+        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: session_id, intents } as UserTokenData["decoded"];
         jwt.sign(
             payload,
             keyPair.privateKey,

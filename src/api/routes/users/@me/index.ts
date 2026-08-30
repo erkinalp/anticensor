@@ -81,7 +81,7 @@ router.patch(
                 if (!same_password) {
                     throw FieldErrors({
                         password: {
-                            message: req.t("auth:login.INVALID_PASSWORD"),
+                            message: req.i18n.login.INVALID_PASSWORD(),
                             code: "INVALID_PASSWORD",
                         },
                     });
@@ -95,14 +95,14 @@ router.patch(
             if (!body.email && Config.get().register.email.required)
                 throw FieldErrors({
                     email: {
-                        message: req.t("auth:register.EMAIL_INVALID"),
+                        message: req.i18n.register.EMAIL_INVALID(),
                         code: "EMAIL_INVALID",
                     },
                 });
             if (!body.password)
                 throw FieldErrors({
                     password: {
-                        message: req.t("auth:login.INVALID_PASSWORD"),
+                        message: req.i18n.login.INVALID_PASSWORD(),
                         code: "INVALID_PASSWORD",
                     },
                 });
@@ -113,13 +113,13 @@ router.patch(
                 throw FieldErrors({
                     password: {
                         code: "BASE_TYPE_REQUIRED",
-                        message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                        message: req.i18n.field.BASE_TYPE_REQUIRED(),
                     },
                 });
             }
             user.data.hash = await bcrypt.hash(body.new_password, 12);
             user.data.valid_tokens_since = new Date();
-            newToken = (await generateToken(user.id)) as string;
+            newToken = (await generateToken(user.id, 0)) as string;
         }
 
         if (body.username) {
@@ -127,7 +127,7 @@ router.patch(
             if (!body.password) {
                 throw FieldErrors({
                     password: {
-                        message: req.t("auth:login.INVALID_PASSWORD"),
+                        message: req.i18n.login.INVALID_PASSWORD(),
                         code: "INVALID_PASSWORD",
                     },
                 });

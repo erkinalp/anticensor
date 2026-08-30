@@ -22,9 +22,9 @@ process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
 import { Server } from "./Server";
-import { config } from "dotenv";
 import cluster from "cluster";
-config({ quiet: true });
+import { loadEnv } from "harmony.env";
+loadEnv();
 
 let port = Number(process.env.PORT);
 if (isNaN(port)) port = 3002;

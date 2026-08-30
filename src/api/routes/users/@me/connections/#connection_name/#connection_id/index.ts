@@ -53,9 +53,7 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema", permission: nul
 
     await ConnectedAccount.update(
         {
-            user_id: req.user_id,
-            external_id: connection_id,
-            type: connection_name,
+            id: connection.id,
         },
         connection,
     );

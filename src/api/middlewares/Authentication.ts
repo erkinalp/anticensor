@@ -17,7 +17,7 @@
 */
 
 import { randomString } from "@harmony/api";
-import { checkTokenInt, Rights, Session, User, UserTokenData } from "@harmony/util";
+import { checkTokenInt, Rights, Session, tokenIntents, User, UserTokenData } from "@harmony/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -126,6 +126,9 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
             ipAddress: req.ip,
             fingerprint: req.fingerprint,
         }));
+        if (decoded.intents && decoded.intents & tokenIntents.forgot) {
+            throw new HTTPError("Can't use forgot token for regular API");
+        }
         req.token = decoded;
         req.user_id = decoded.id;
         req.internal = internal;
