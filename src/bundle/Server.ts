@@ -25,7 +25,6 @@ import http from "http";
 import * as Api from "@harmony/api";
 import * as Gateway from "@harmony/gateway";
 import * as Webrtc from "@harmony/webrtc";
-import { CDNServer } from "@harmony/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
 import { Config, initDatabase } from "@harmony/util";
@@ -39,30 +38,30 @@ const wrtcWsPort = Number(process.env.WRTC_WS_PORT) || 3004;
 const production = process.env.NODE_ENV == "development" ? false : true;
 server.on("request", app);
 
-const api = new Api.SpacebarServer({ server, port, production, app });
-const cdn = new CDNServer({ server, port, production, app });
-const gateway = new Gateway.Server({ server, port, production });
-const disableWebRTC = process.env.NO_WEBRTC === "true";
-const webrtc = disableWebRTC
-    ? null
-    : new Webrtc.Server({
-          server: undefined,
-          port: wrtcWsPort,
-          production,
-      });
-
-process.on("SIGTERM", async () => {
-    console.log("Shutting down due to SIGTERM");
-    await gateway.stop();
-    await cdn.stop();
-    await api.stop();
-    await webrtc?.stop();
-    server.close();
-});
-
 async function main() {
     await initDatabase();
     await Config.init();
+    const api = new Api.SpacebarServer({ server, port, production, app });
+    const CDN = await import("#cdn");
+    const cdn = new CDN.CDNServer({ server, port, production, app });
+    const gateway = new Gateway.Server({ server, port, production });
+    const disableWebRTC = process.env.NO_WEBRTC === "true";
+    const webrtc = disableWebRTC
+        ? null
+        : new Webrtc.Server({
+              server: undefined,
+              port: wrtcWsPort,
+              production,
+          });
+
+    process.on("SIGTERM", async () => {
+        console.log("Shutting down due to SIGTERM");
+        await gateway.stop();
+        await cdn.stop();
+        await api.stop();
+        await webrtc?.stop();
+        server.close();
+    });
 
     const logRequests = process.env["LOG_REQUESTS"] != undefined;
     if (logRequests) {

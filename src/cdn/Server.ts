@@ -20,9 +20,9 @@ import { Server, ServerOptions } from "lambert-server";
 import { Attachment, Config, initDatabase, registerRoutes } from "@harmony/util";
 import { CORS, BodyParser } from "@harmony/api";
 import path from "path";
-import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
 import { Like } from "typeorm";
+import { registerBasicRoutes } from "./util/basicRoutes";
 
 export type CDNServerOptions = ServerOptions;
 
@@ -60,11 +60,10 @@ export class CDNServer extends Server {
         this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
 
         await registerRoutes(this, path.join(__dirname, "routes/"));
+        registerBasicRoutes(this.app);
 
-        this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/avatars registered");
 
-        this.app.use("/guilds/:guild_id/users/:user_id/banners", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/banners registered");
 
         return super.start();
