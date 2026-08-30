@@ -18,7 +18,6 @@
 
 import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "@harmony/util";
 import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
-import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@harmony/schemas";
 import { In } from "typeorm";
@@ -147,7 +146,7 @@ async function getMembers(guild_id: string, range: [number, number]) {
         members: items.map((x) => ("member" in x ? { ...x.member, settings: undefined } : undefined)).filter((x) => !!x),
     };
 }
-
+const encoder = new TextEncoder();
 async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
     if (this.events[user_id]) return false; // already subscribed as friend
     if (this.member_events[user_id]) return false; // already subscribed in member list
@@ -243,7 +242,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         });
 
         if (perms.length > 0) {
-            list_id = murmur(perms.sort().join(",")).toString();
+            const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(perms.sort().join(",").toString()));
+            list_id = [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0")).join("");
         }
     }
 
