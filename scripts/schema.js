@@ -19,6 +19,7 @@
 /*
 	Regenerates the `spacebarchat/server/assets/schemas.json` file, used for API/Gateway input validation.
 */
+require("harmony.env").loadEnv();
 const { Stopwatch } = require("../dist/util/util/Stopwatch");
 const totalSw = Stopwatch.startNew();
 

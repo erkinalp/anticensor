@@ -19,7 +19,7 @@
 /*
 	Calculates a discord.com-like rights value.
 */
-
+require("harmony.env").loadEnv();
 require("module-alias/register");
 const { Rights } = require("..");
 
