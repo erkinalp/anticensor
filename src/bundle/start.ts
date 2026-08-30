@@ -24,9 +24,8 @@ import cluster, { Worker } from "cluster";
 import os from "os";
 import { red, bold, yellow, cyan, blueBright, redBright } from "picocolors";
 import { initStats } from "./stats";
-import { config } from "dotenv";
-
-config({ quiet: true });
+import { loadEnv } from "harmony.env";
+loadEnv();
 import { centerString, getRevInfoOrFail, Logo } from "@harmony/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;

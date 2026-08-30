@@ -15,8 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import { config } from "dotenv";
+import { loadEnv } from "harmony.env";
 import path from "path";
 import { green, red, yellow } from "picocolors";
 import { DataSource } from "typeorm";
@@ -33,7 +32,7 @@ let isHeadlessProcess = false;
 // For typeorm cli
 if (!process.env) {
     isHeadlessProcess = true;
-    config({ quiet: true });
+    loadEnv();
 }
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
