@@ -1,0 +1,22 @@
+name: Connection Suggestion
+about: Suggest a new connection
+title: '[Connection]: '
+ref: 'main'
+labels:
+  - Connection
+body:
+  - type: input
+    id: connection-name
+    attributes:
+      label: Connection Name
+      description: What connection are you wanting to see?
+      placeholder: eg. Codeberg, Steam
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason
+      description: Why do you wish to see this connection be added to Harmony?
+    validations:
+      required: true
