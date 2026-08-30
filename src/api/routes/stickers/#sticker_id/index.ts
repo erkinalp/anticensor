@@ -29,6 +29,7 @@ router.get(
                 body: "Sticker",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { sticker_id } = req.params as { [key: string]: string };
@@ -44,6 +45,7 @@ router.get(
                 body: "Sticker",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { sticker_id } = req.params as { [key: string]: string };

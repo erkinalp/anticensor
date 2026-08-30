@@ -21,7 +21,7 @@ import { route } from "@harmony/api";
 
 const router: Router = Router({ mergeParams: true });
 //TODO stub
-router.get("/:sku_id", route({}), (req: Request, res: Response) => {
+router.get("/:sku_id", route({ permission: null }), (req: Request, res: Response) => {
     //TODO
     // const id = req.params.id;
     res.json({

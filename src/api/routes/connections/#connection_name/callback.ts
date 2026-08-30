@@ -23,16 +23,14 @@ import { ConnectionCallbackSchema } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
 
-router.post("/", route({ requestBody: "ConnectionCallbackSchema" }), async (req: Request, res: Response) => {
+router.post("/", route({ requestBody: "ConnectionCallbackSchema", permission: null }), async (req: Request, res: Response) => {
     const { connection_name } = req.params as { [key: string]: string };
     const connection = ConnectionStore.connections.get(connection_name);
     if (!connection)
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: Array.from(ConnectionStore.connections.keys()).join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(Array.from(ConnectionStore.connections.keys()).join(", ")),
             },
         });
 
@@ -57,16 +55,14 @@ router.post("/", route({ requestBody: "ConnectionCallbackSchema" }), async (req:
 
     res.send(204);
 });
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const { connection_name } = req.params as { [key: string]: string };
     const connection = ConnectionStore.connections.get(connection_name);
     if (!connection)
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: Array.from(ConnectionStore.connections.keys()).join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(Array.from(ConnectionStore.connections.keys()).join(", ")),
             },
         });
 

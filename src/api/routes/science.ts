@@ -27,6 +27,7 @@ router.post(
         responses: {
             204: {},
         },
+        permission: null,
     }),
     (req: Request, res: Response) => {
         // TODO:

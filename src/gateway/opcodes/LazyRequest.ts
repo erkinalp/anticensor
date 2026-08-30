@@ -18,9 +18,9 @@
 
 import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "@harmony/util";
 import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
-import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@harmony/schemas";
+import { In } from "typeorm";
 
 // TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
@@ -146,7 +146,7 @@ async function getMembers(guild_id: string, range: [number, number]) {
         members: items.map((x) => ("member" in x ? { ...x.member, settings: undefined } : undefined)).filter((x) => !!x),
     };
 }
-
+const encoder = new TextEncoder();
 async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
     if (this.events[user_id]) return false; // already subscribed as friend
     if (this.member_events[user_id]) return false; // already subscribed in member list
@@ -164,22 +164,39 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     if (members) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
-        await Promise.all([
-            members.map(async (x) => {
-                if (!x) return;
-                const didSubscribe = await subscribeToMemberEvents.call(this, x);
-                if (!didSubscribe) return;
+        const needToSub = (
+            await Promise.all(
+                members.map(async (x) => {
+                    if (!x) return null;
+                    const didSubscribe = await subscribeToMemberEvents.call(this, x);
+                    if (!didSubscribe) return null;
+                    return x;
+                }),
+            )
+        ).filter((_) => _ !== null);
+        const sessions = await Session.find({ where: { user_id: In(needToSub) } });
+        const uSessions = new Map<string, Set<Session>>();
+        sessions.forEach((_) => {
+            let se = uSessions.get(_.user_id);
+            if (!se) {
+                se = new Set();
+                uSessions.set(_.user_id, se);
+            }
+            se.add(_);
+        });
+        const session = [...uSessions].map(([user_id, sessions]) => {
+            const session = getMostRelevantSession([...sessions]);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (session?.status == "unknown") session.status = "online";
+            return [user_id, session] as const;
+        });
 
-                // if we didn't subscribe just now, this is a new subscription
-                // and we should send a PRESENCE_UPDATE immediately
-
-                const sessions = await Session.find({ where: { user_id: x } });
-                const session = getMostRelevantSession(sessions);
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                if (session?.status == "unknown") session.status = "online";
-                const user = await User.getPublicUser(x);
-
+        const users = new Map((await User.find({ where: { id: In(session.map((_) => _[0])) } })).map((_) => [_.id, _] as const));
+        await Promise.all(
+            session.map(([user_id, session]) => {
+                const user = users.get(user_id);
+                if (!user) return;
                 return Send(this, {
                     op: OPCODES.Dispatch,
                     s: this.sequence++,
@@ -192,9 +209,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
                     } as Presence,
                 });
             }),
-        ]);
-
-        if (!channels) return;
+        );
     }
 
     if (!channels) return;
@@ -227,7 +242,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         });
 
         if (perms.length > 0) {
-            list_id = murmur(perms.sort().join(",")).toString();
+            const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(perms.sort().join(",").toString()));
+            list_id = [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0")).join("");
         }
     }
 

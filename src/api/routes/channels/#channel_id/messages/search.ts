@@ -40,11 +40,12 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const channel = await Channel.findOneOrFail({
-            where: { id: channel_id }
+            where: { id: channel_id },
         });
         const {
             content,
@@ -79,7 +80,7 @@ router.get(
             },
             take: parsedLimit || 0,
             where: {
-                channel_id
+                channel_id,
             },
             relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
             skip: offset ? Number(offset) : 0,
@@ -97,35 +98,37 @@ router.get(
         delete query.take;
         const total_results = await Message.count(query);
 
-        const messagesDto = messages.map((x) => [
-            {
-                id: x.id,
-                type: x.type,
-                content: x.content,
-                channel_id: x.channel_id,
-                author: {
-                    id: x.author?.id,
-                    username: x.author?.username,
-                    avatar: x.author?.avatar,
-                    avatar_decoration: null,
-                    discriminator: x.author?.discriminator,
-                    public_flags: x.author?.public_flags,
+        const messagesDto = messages
+            .map((x) => x.toJSON(undefined, req.user_id))
+            .map((x) => [
+                {
+                    id: x.id,
+                    type: x.type,
+                    content: x.content,
+                    channel_id: x.channel_id,
+                    author: {
+                        id: x.author?.id,
+                        username: x.author?.username,
+                        avatar: x.author?.avatar,
+                        avatar_decoration: null,
+                        discriminator: x.author?.discriminator,
+                        public_flags: x.author?.public_flags,
+                    },
+                    attachments: x.attachments,
+                    embeds: x.embeds,
+                    mentions: x.mentions,
+                    mention_roles: x.mention_roles,
+                    pinned: x.pinned,
+                    mention_everyone: x.mention_everyone,
+                    tts: x.tts,
+                    timestamp: x.timestamp,
+                    edited_timestamp: x.edited_timestamp,
+                    flags: x.flags,
+                    components: x.components,
+                    poll: x.poll,
+                    hit: true,
                 },
-                attachments: x.attachments,
-                embeds: x.embeds,
-                mentions: x.mentions,
-                mention_roles: x.mention_roles,
-                pinned: x.pinned,
-                mention_everyone: x.mention_everyone,
-                tts: x.tts,
-                timestamp: x.timestamp,
-                edited_timestamp: x.edited_timestamp,
-                flags: x.flags,
-                components: x.components,
-                poll: x.poll,
-                hit: true,
-            },
-        ]);
+            ]);
 
         return res.json({
             messages: messagesDto,

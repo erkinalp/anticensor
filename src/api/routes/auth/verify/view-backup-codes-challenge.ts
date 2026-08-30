@@ -31,6 +31,7 @@ router.post(
             200: { body: "BackupCodesChallengeResponse" },
             400: { body: "APIErrorResponse" },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { password } = req.body as BackupCodesChallengeSchema;
@@ -43,7 +44,7 @@ router.post(
         if (!(await bcrypt.compare(password, user.data.hash || ""))) {
             throw FieldErrors({
                 password: {
-                    message: req.t("auth:login.INVALID_PASSWORD"),
+                    message: req.i18n.login.INVALID_PASSWORD(),
                     code: "INVALID_PASSWORD",
                 },
             });

@@ -42,22 +42,23 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         // const { client_id, scope, response_type, redirect_url } = req.query;
         const { client_id } = req.query;
-        if (!(typeof client_id  === "string")) {
+        if (!(typeof client_id === "string")) {
             throw FieldErrors({
                 client_id: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }
 
         const app = await Application.findOne({
             where: {
-                id: client_id
+                id: client_id,
             },
             relations: { bot: true },
         });
@@ -176,6 +177,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as ApplicationAuthorizeSchema;
@@ -186,7 +188,7 @@ router.post(
             throw FieldErrors({
                 client_id: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }

@@ -331,7 +331,7 @@ router.post(
                     throw FieldErrors({
                         channel_id: {
                             code: "TOO_MANY_MESSAGES",
-                            message: req.t("common:toomany.MESSAGE"),
+                            message: req.i18n.toomany.MESSAGE(),
                         },
                     });
             }
@@ -417,7 +417,6 @@ router.post(
         read_state.last_message_id = message.id;
         //It's a little more complicated than this but this'll do
         read_state.mention_count = 0;
-
         await Promise.all([
             read_state.save(),
             message.save(),
@@ -449,6 +448,7 @@ router.delete(
         responses: {
             204: {},
         },
+        permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string }; // not really a channel id if read_state_type != CHANNEL

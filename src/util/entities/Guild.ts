@@ -436,6 +436,7 @@ export class Guild extends BaseClass {
                 ids.set(x.id, Snowflake.generate());
             }
         });
+        guild.channel_ordering ??= [];
 
         for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
             const id = ids.get(channel.id) || Snowflake.generate();

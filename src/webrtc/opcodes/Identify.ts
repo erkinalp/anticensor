@@ -17,57 +17,39 @@
 */
 
 import { CLOSECODES } from "@harmony/gateway";
-import { StreamSession, VoiceState } from "@harmony/util";
-import { validateSchema, VoiceIdentifySchema } from "@harmony/schemas";
+import { Config, StreamSession, VoiceState } from "@harmony/util";
+import { validateSchema, VoiceIdentifySchema, WebRTCDeleteSessionSchema, WebRTCSessionFindSchema } from "@harmony/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@harmony/webrtc";
-import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
+import { SSRCs } from "harmony-webrtc-types";
 import { subscribeToProducers } from "./Video";
+import { getHeaders } from "../util/internalHeaders";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     clearTimeout(this.readyTimeout);
+    const config = Config.get();
+    const headers = getHeaders();
     // noinspection JSUnusedLocalSymbols - TODO: use video?
     const { server_id, user_id, session_id, token, streams, video } = validateSchema("VoiceIdentifySchema", data.d) as VoiceIdentifySchema;
 
     // server_id can be one of the following: a unique id for a GO Live stream, a channel id for a DM voice call, or a guild id for a guild voice channel
     // not sure if there's a way to determine whether a snowflake is a channel id or a guild id without checking if it exists in db
     // luckily we will only have to determine this once
-    let type: "guild-voice" | "dm-voice" | "stream" = "guild-voice";
-    let authenticated = false;
-
-    // first check if its a guild voice connection or DM voice call
-    const voiceState = await VoiceState.findOne({
-        where: [
-            { guild_id: server_id, user_id, token, session_id },
-            { channel_id: server_id, user_id, token, session_id },
-        ],
-    });
-
-    if (voiceState) {
-        type = voiceState.guild_id === server_id ? "guild-voice" : "dm-voice";
-        authenticated = true;
-    } else {
-        // if its not a guild/dm voice connection, check if it is a go live stream
-        const streamSession = await StreamSession.findOne({
-            where: {
-                stream_id: server_id,
-                user_id,
-                token,
-                session_id,
-                used: false,
-            },
-            relations: { stream: true },
-        });
-
-        if (streamSession) {
-            type = "stream";
-            authenticated = true;
-            streamSession.used = true;
-            await streamSession.save();
-
-            this.once("close", async () => {
-                await streamSession.remove();
+    const resp = (await (
+        await fetch(config.api.endpointPrivate + "/api/internal/webrtc/session", {
+            body: JSON.stringify({ server_id, user_id, token, session_id } satisfies WebRTCSessionFindSchema),
+            method: "POST",
+            headers: headers,
+        })
+    ).json()) as { type: "guild-voice" | "dm-voice" | "stream"; authenticated: boolean; stream_id?: string; channel_id?: string };
+    const { type, authenticated, stream_id, channel_id } = resp;
+    if (stream_id) {
+        this.once("close", async () => {
+            await fetch(config.api.endpointPrivate + "/api/internal/webrtc/session", {
+                method: "DELETE",
+                body: JSON.stringify({ stream_id } satisfies WebRTCDeleteSessionSchema),
+                headers: headers,
             });
-        }
+        });
     }
 
     // if it doesnt match any then not valid token
@@ -78,7 +60,8 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
 
     this.type = type;
 
-    const voiceRoomId = type === "stream" ? server_id : voiceState!.channel_id!;
+    const voiceRoomId = type === "stream" ? server_id : channel_id!;
+
     this.webRtcClient = await mediaServer.join(voiceRoomId, this.user_id, this, type!);
 
     this.on("close", () => {

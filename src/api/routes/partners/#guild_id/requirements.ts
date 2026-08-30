@@ -21,7 +21,7 @@ import { route } from "@harmony/api";
 
 const router = Router({ mergeParams: true });
 //TODO stub
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), (req: Request, res: Response) => {
     const { guild_id } = req.params as { [key: string]: string };
     // TODO:
     // Load from database

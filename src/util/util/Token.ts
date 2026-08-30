@@ -19,25 +19,23 @@
 import jwt from "jsonwebtoken";
 import { Config } from "./Config";
 import { InstanceBan, Session, User } from "../entities";
-import crypto from "node:crypto";
-import fs from "fs/promises";
-import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
 import { randomUpperString } from "@harmony/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
-import path from "path";
+import { unsafeMakeToken, loadOrGenerateKeypair } from "./unsafeMakeToken";
+import { PublicUserProjection } from "@harmony/schemas";
 
 /// Change history:
 /// 1 - Initial version with HS256
 /// 2 - Switched to ES512
 /// 3 - Add version, device id to token payload
-export const CurrentTokenFormatVersion: number = 3;
 
 export type UserTokenData = {
-    user: User;
+    user?: User;
     session?: Session;
+    internal?: boolean;
     tokenVersion: number;
     decoded: {
         id: string;
@@ -46,6 +44,7 @@ export type UserTokenData = {
         ver?: number;
         // device id
         did?: string;
+        intents?: number;
     };
 };
 
@@ -58,8 +57,21 @@ function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: numb
     console.error(reason);
     rejectFunction(new HTTPError(reason, httpCode ?? 400));
 }
-
-export const checkToken = (
+type userFull = Omit<UserTokenData, "user" | "internal"> & { user: User };
+export const checkToken = async (
+    token: string,
+    opts?: {
+        select?: FindOptionsSelect<User>;
+        relations?: FindOptionsRelations<User>;
+        ipAddress?: string;
+        fingerprint?: string;
+    },
+): Promise<userFull> => {
+    const ret = await checkTokenInt(token, opts);
+    if (!ret.user) throw new HTTPError("Internal token not allowed");
+    return ret as userFull;
+};
+export const checkTokenInt = (
     token: string,
     opts?: {
         select?: FindOptionsSelect<User>;
@@ -73,9 +85,18 @@ export const checkToken = (
         token = token.replace("Bearer ", ""); // allow bearer tokens
 
         let legacyVersion: number | undefined = undefined;
+        const dec = jwt.decode(token, { complete: true });
 
         const validateUser: jwt.VerifyCallback = async (err, out) => {
             const decoded = out as UserTokenData["decoded"];
+            if (decoded.id.startsWith("Internal")) {
+                resolve({
+                    decoded,
+                    tokenVersion: decoded.ver ?? legacyVersion ?? 2,
+                    internal: true,
+                });
+                return;
+            }
             if (err || !decoded) {
                 logAuth("validateUser rejected: " + err);
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
@@ -84,7 +105,7 @@ export const checkToken = (
             const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
-                    select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
+                    select: { ...(opts?.select || PublicUserProjection), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
                     relations: opts?.relations,
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
@@ -158,7 +179,6 @@ export const checkToken = (
             return resolve(result);
         };
 
-        const dec = jwt.decode(token, { complete: true });
         if (!dec) return rejectAndLog(reject, 500, "Failed to decode token");
         logAuth("Decoded token: " + JSON.stringify(dec));
 
@@ -173,11 +193,9 @@ export const checkToken = (
     });
 };
 
-export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
-    const iat = Math.floor(Date.now() / 1000);
-    const keyPair = await loadOrGenerateKeypair();
+export async function generateToken(id: string, intents: number, isAdminSession: boolean = false): Promise<string | undefined> {
+    let newSession: Session;
 
-    let newSession;
     do {
         newSession = Session.create({
             session_id: randomUpperString(10), // readable at a glance
@@ -191,74 +209,5 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
 
     await newSession.save();
 
-    return new Promise((res, rej) => {
-        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
-        jwt.sign(
-            payload,
-            keyPair.privateKey,
-            {
-                algorithm: "ES512",
-            },
-            (err, token) => {
-                if (err) return rej(err);
-                return res(token);
-            },
-        );
-    });
-}
-
-let lastFsCheck: number;
-let cachedKeypair: {
-    privateKey: crypto.KeyObject;
-    publicKey: crypto.KeyObject;
-    fingerprint: string;
-};
-
-// Get ECDSA keypair from file or generate it
-export async function loadOrGenerateKeypair() {
-    if (cachedKeypair) {
-        // check for file deletion every minute
-        if (Date.now() - lastFsCheck > 60000) {
-            if (!existsSync("jwt.key") || !existsSync("jwt.key.pub")) {
-                console.log("[JWT] Keypair files disappeared... Saving them again.");
-                await Promise.all([
-                    fs.writeFile("jwt.key", cachedKeypair.privateKey.export({ format: "pem", type: "sec1" })),
-                    fs.writeFile("jwt.key.pub", cachedKeypair.publicKey.export({ format: "pem", type: "spki" })),
-                ]);
-            }
-            lastFsCheck = Date.now();
-        }
-
-        return cachedKeypair;
-    }
-
-    let privateKey: crypto.KeyObject;
-    let publicKey: crypto.KeyObject;
-
-    if (existsSync("jwt.key") && existsSync("jwt.key.pub")) {
-        const [loadedPrivateKey, loadedPublicKey] = await Promise.all([fs.readFile("jwt.key"), fs.readFile("jwt.key.pub")]);
-
-        privateKey = crypto.createPrivateKey(loadedPrivateKey);
-        publicKey = crypto.createPublicKey(loadedPublicKey);
-    } else {
-        console.log("[JWT] Generating new keypair:", path.resolve("jwt.key"), "- PWD:", process.cwd());
-        const res = crypto.generateKeyPairSync("ec", {
-            namedCurve: "secp521r1",
-        });
-        privateKey = res.privateKey;
-        publicKey = res.publicKey;
-
-        await Promise.all([
-            fs.writeFile("jwt.key", privateKey.export({ format: "pem", type: "sec1" })),
-            fs.writeFile("jwt.key.pub", publicKey.export({ format: "pem", type: "spki" })),
-        ]);
-    }
-
-    const fingerprint = crypto
-        .createHash("sha256")
-        .update(publicKey.export({ format: "pem", type: "spki" }))
-        .digest("hex");
-
-    lastFsCheck = Date.now();
-    return (cachedKeypair = { privateKey, publicKey, fingerprint });
+    return unsafeMakeToken(id, newSession.session_id, intents);
 }

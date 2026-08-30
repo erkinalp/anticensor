@@ -41,6 +41,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as TotpEnableSchema;
@@ -54,22 +55,22 @@ router.post(
         // TODO: Are guests allowed to enable 2fa?
         if (user.data.hash) {
             if (!(await bcrypt.compare(body.password, user.data.hash))) {
-                throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+                throw new HTTPError(req.i18n.login.INVALID_PASSWORD());
             }
         }
 
-        if (!body.secret) throw new HTTPError(req.t("auth:login.INVALID_TOTP_SECRET"), 60005);
+        if (!body.secret) throw new HTTPError(req.i18n.login.INVALID_TOTP_SECRET(), 60005);
 
-        if (!body.code) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (!body.code) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
 
-        if (verifyToken(body.secret, body.code)?.delta != 0) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (verifyToken(body.secret, body.code)?.delta != 0) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
 
         const backup_codes = generateMfaBackupCodes(req.user_id);
         await Promise.all(backup_codes.map((x) => x.save()));
         await User.update({ id: req.user_id }, { mfa_enabled: true, totp_secret: body.secret });
 
         res.send({
-            token: await generateToken(req.user_id),
+            token: await generateToken(req.user_id, 0),
             backup_codes: backup_codes.map((x) => ({
                 ...x,
                 expired: undefined,
