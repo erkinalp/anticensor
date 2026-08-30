@@ -71,6 +71,7 @@ export const checkToken = async (
     if (!ret.user) throw new HTTPError("Internal token not allowed");
     return ret as userFull;
 };
+const verifiedTokens = new Map<string, true | jwt.VerifyErrors>();
 export const checkTokenInt = (
     token: string,
     opts?: {
@@ -85,9 +86,15 @@ export const checkTokenInt = (
         token = token.replace("Bearer ", ""); // allow bearer tokens
 
         let legacyVersion: number | undefined = undefined;
+
         const dec = jwt.decode(token, { complete: true });
 
         const validateUser: jwt.VerifyCallback = async (err, out) => {
+            if (err) {
+                verifiedTokens.set(token, err);
+            } else {
+                verifiedTokens.set(token, true);
+            }
             const decoded = out as UserTokenData["decoded"];
             if (decoded.id.startsWith("Internal")) {
                 resolve({
@@ -178,6 +185,11 @@ export const checkTokenInt = (
             logAuth("validateUser success: " + JSON.stringify(result));
             return resolve(result);
         };
+        const v = verifiedTokens.get(token);
+        if (v !== undefined) {
+            if (v === true) return validateUser(null, dec?.payload);
+            else return validateUser(v);
+        }
 
         if (!dec) return rejectAndLog(reject, 500, "Failed to decode token");
         logAuth("Decoded token: " + JSON.stringify(dec));

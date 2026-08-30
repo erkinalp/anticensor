@@ -22,8 +22,7 @@ import BigIntJson from "json-bigint";
 import path from "path";
 import WS from "ws";
 import OPCodeHandlers from "../opcodes";
-import { check } from "../opcodes/instanceOf";
-import { PayloadSchema } from "@harmony/schemas";
+import { ajv } from "@harmony/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
@@ -64,6 +63,9 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         return this.close(CLOSECODES.Decode_error);
     }
 
+    const s = ajv.getSchema("PayloadSchema");
+    if (!s?.(data)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     if (process.env.WS_VERBOSE) console.log(`[Websocket] Incomming message: ${JSON.stringify(data)}`);
 
     if (process.env.WS_DUMP) {
@@ -74,8 +76,6 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
 
         if (!this.session_id) console.log(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown session id, dumping to unknown folder`);
     }
-
-    check.call(this, PayloadSchema, data);
 
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {

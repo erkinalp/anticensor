@@ -16,11 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, DateBuilder, getDatabase, getPermission, Guild, GuildMembersChunkEvent, Member, Permissions, Presence, Session } from "@harmony/util";
+import { DateBuilder, getDatabase, Guild, GuildMembersChunkEvent, Member, Permissions, Presence, Session } from "@harmony/util";
 import { WebSocket, Payload, OPCODES, Send } from "@harmony/gateway";
-import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
-import { RequestGuildMembersSchema } from "@harmony/schemas";
+import { ajv, RequestGuildMembersSchema } from "@harmony/schemas";
 
 export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
@@ -30,7 +29,8 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
 
     if (d.user_ids && !Array.isArray(d.user_ids)) d.user_ids = [d.user_ids];
 
-    check.call(this, RequestGuildMembersSchema, d);
+    const s = ajv.getSchema("RequestGuildMembersSchema");
+    if (!s?.(d)) throw new Error("bad schema " + JSON.stringify(ajv.errors));
 
     const { presences, nonce, query: requestQuery } = d as RequestGuildMembersSchema;
     let { limit, user_ids, guild_id } = d as RequestGuildMembersSchema;

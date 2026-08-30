@@ -18,8 +18,7 @@
 
 import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition } from "@harmony/util";
 import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, getMostRelevantSession } from "@harmony/gateway";
-import { check } from "./instanceOf";
-import { LazyRequestSchema } from "@harmony/schemas";
+import { ajv, LazyRequestSchema } from "@harmony/schemas";
 import { In } from "typeorm";
 
 // TODO: only show roles/members that have access to this channel
@@ -156,8 +155,10 @@ async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
 
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
-    // TODO: check data
-    check.call(this, LazyRequestSchema, d);
+
+    const s = ajv.getSchema("LazyRequestSchema");
+    if (!s?.(d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
 

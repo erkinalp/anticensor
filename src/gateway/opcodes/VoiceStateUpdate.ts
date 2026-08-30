@@ -19,8 +19,7 @@
 import { Payload, WebSocket } from "@harmony/gateway";
 import { Config, emitEvent, getPermission, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@harmony/util";
 import { genVoiceToken } from "@harmony/gateway";
-import { check } from "./instanceOf";
-import { Region, VoiceStateUpdateSchema } from "@harmony/schemas";
+import { ajv, Region, VoiceStateUpdateSchema } from "@harmony/schemas";
 // TODO: check if a voice server is setup
 
 // Notice: Bot users respect the voice channel's user limit, if set.
@@ -28,15 +27,17 @@ import { Region, VoiceStateUpdateSchema } from "@harmony/schemas";
 // Having MANAGE_CHANNELS permission bypasses this limit and allows you to join regardless of the channel being full or not.
 
 export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
+    console.log(data);
     const startTime = Date.now();
-    check.call(this, VoiceStateUpdateSchema, data.d);
+    const s = ajv.getSchema("VoiceStateUpdateSchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
     const body = data.d as VoiceStateUpdateSchema;
     const isNew = body.channel_id === null && body.guild_id === null;
     let isChanged = false;
 
     let prevState;
     if (!isNew) {
-        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.channel_id, body.guild_id));
+        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.channel_id ?? undefined, body.guild_id ?? undefined));
         perm.hasThrow("CONNECT");
     }
 

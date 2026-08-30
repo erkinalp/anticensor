@@ -124,8 +124,9 @@ router.delete("/:channel_id/:id/:filename", async (req: Request, res: Response) 
     return res.send({ success: true });
 });
 
+//TODO expire old URLs based on age using ID
 // "cloud attachments"
-router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("file"), async (req: Request, res: Response) => {
+router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
     const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
     const att = await CloudAttachment.findOneOrFail({
         where: {
@@ -136,15 +137,12 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("fil
         },
     });
 
-    const maxLength = Config.get().cdn.maxAttachmentSize;
-
-    console.log("[Cloud Upload] Uploading attachment", att.id, att.userFilename, `Max size: ${maxLength} bytes`);
+    const maxLength = Math.max(att.size ?? Config.get().cdn.maxAttachmentSize, Config.get().cdn.maxAttachmentSize);
 
     const chunks: Buffer[] = [];
     let length = 0;
 
     req.on("data", (chunk) => {
-        console.log(`[Cloud Upload] Received chunk of size ${chunk.length} bytes`);
         chunks.push(chunk);
         length += chunk.length;
         if (length > maxLength) {
@@ -153,7 +151,6 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("fil
         }
     });
     req.on("end", async () => {
-        console.log(`[Cloud Upload] Finished receiving file, total size ${length} bytes`);
         const buffer = Buffer.concat(chunks);
         const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
 
@@ -212,7 +209,7 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
+    const newPath = `attachments/${channel_id}/${message_id}/${attachment_id}/${filename}`;
 
     const att = await CloudAttachment.findOne({
         where: {

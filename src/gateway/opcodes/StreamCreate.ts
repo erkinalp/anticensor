@@ -13,12 +13,13 @@ import {
     VoiceState,
     VoiceStateUpdateEvent,
 } from "@harmony/util";
-import { check } from "./instanceOf";
-import { StreamCreateSchema } from "@harmony/schemas";
+import { ajv, StreamCreateSchema } from "@harmony/schemas";
 
 export async function onStreamCreate(this: WebSocket, data: Payload) {
     const startTime = Date.now();
-    check.call(this, StreamCreateSchema, data.d);
+    const s = ajv.getSchema("StreamCreateSchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const body = data.d as StreamCreateSchema;
 
     if (body.channel_id.trim().length === 0) return;

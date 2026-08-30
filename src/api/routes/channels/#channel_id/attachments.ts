@@ -51,12 +51,16 @@ router.post(
 
         // validate IDs
         const seenIds: (string | undefined)[] = [];
+        const max = Config.get().cdn.maxAttachmentSize;
         for (const file of payload.files) {
             if (seenIds.includes(file.id)) {
                 return res.status(400).json({
                     code: 400,
                     message: `Duplicate attachment ID: ${file.id}`,
                 });
+            }
+            if (file.file_size > max) {
+                throw new Error("File too large");
             }
             seenIds.push(file.id);
         }
