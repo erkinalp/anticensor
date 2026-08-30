@@ -22,6 +22,7 @@ import { AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageC
 export type MessageCreateAttachment = {
     id: string;
     filename: string;
+    description?: string;
 };
 
 export type MessageCreateCloudAttachment = {
@@ -29,6 +30,7 @@ export type MessageCreateCloudAttachment = {
     filename: string;
     uploaded_filename: string;
     original_content_type?: string;
+    description?: string;
 };
 
 export interface MessageCreateSchema {
