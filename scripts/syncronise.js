@@ -24,9 +24,8 @@
 	however!
 	it doesn't break the below, thus we're left with this :sob:
 */
-
+require("harmony.env").loadEnv();
 require("module-alias/register");
-require("dotenv").config({ quiet: true });
 const { initDatabase } = require("..");
 
 (async () => {

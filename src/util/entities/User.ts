@@ -122,7 +122,7 @@ export class User extends BaseClass {
     @Column()
     deleted: boolean = false; // if the user was deleted
 
-    @Column({ nullable: true, select: false })
+    @Column({ nullable: true, select: false, unique: true })
     email?: string; // email of the user
 
     @Column({ type: "bigint" })
@@ -214,9 +214,10 @@ export class User extends BaseClass {
 
     toPublicUser() {
         this.clean_data();
+
         const clean = this.toJSON();
         const user: Partial<PublicUser> = {};
-        PublicUserProjection.forEach((x) => {
+        Object.keys(PublicUserProjection).forEach((x) => {
             //@ts-expect-error for now this is expected, we will find some fixes
             user[x] = clean[x];
         });
@@ -227,7 +228,7 @@ export class User extends BaseClass {
         this.clean_data();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const user: any = {};
-        [...PrivateUserProjection, ...extraFields].forEach((x) => {
+        [...(Object.keys(PrivateUserProjection) as (keyof User)[]), ...extraFields].forEach((x) => {
             user[x] = this[x];
         });
         return user as UserPrivate;
@@ -307,7 +308,7 @@ export class User extends BaseClass {
             throw FieldErrors({
                 username: {
                     code: "USERNAME_TOO_MANY_USERS",
-                    message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
+                    message: req?.i18n.register.USERNAME_TOO_MANY_USERS() || "",
                 },
             });
         }

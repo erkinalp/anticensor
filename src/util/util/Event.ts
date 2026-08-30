@@ -19,7 +19,7 @@
 import { Channel } from "amqplib";
 import { RabbitMQ } from "./RabbitMQ";
 import EventEmitter from "events";
-import { EVENT, Event } from "../interfaces";
+import { CUSTOMEVENTS, EVENT, Event, EventData } from "../interfaces";
 import { randomUUID } from "crypto";
 import path from "path";
 import { Socket } from "node:net";
@@ -112,12 +112,15 @@ export async function initEvent() {
         await setupHarmonyListener();
     });
 }
-
-export interface EventOpts extends Event {
+export type customEventImp = Event & {
+    event: CUSTOMEVENTS;
+};
+export type customEvent = EventData | customEventImp;
+export type EventOpts = customEvent & {
     acknowledge?: () => unknown;
     channel?: Channel;
     cancel: (id?: string) => unknown;
-}
+};
 
 export interface ListenEventOpts {
     channel?: Channel;
@@ -126,7 +129,7 @@ export interface ListenEventOpts {
 
 export interface ProcessEvent {
     type: "event";
-    event: Event;
+    event: EventOpts;
     id: string;
 }
 
@@ -217,7 +220,7 @@ async function rabbitListen(channel: Channel, id: string, callback: (event: Even
                 },
                 channel,
                 cancel,
-            });
+            } as EventOpts);
             // rabbitCh.ack(opts);
         },
         {
@@ -301,7 +304,7 @@ class UnixSocketListener {
     }
 
     async listen(event: string, callback: (event: EventOpts) => unknown): Promise<() => Promise<void>> {
-        const listener = (data: Event) => {
+        const listener = (data: EventOpts) => {
             callback({
                 ...data,
                 cancel,

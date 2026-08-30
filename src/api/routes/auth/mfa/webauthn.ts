@@ -42,6 +42,7 @@ router.post(
             400: { body: "APIErrorResponse" },
         },
         spacebarOnly: false, // not part of public openapi
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         if (!WebAuthn.fido2) {
@@ -60,7 +61,7 @@ router.post(
         });
 
         const ret = await verifyWebAuthnToken(ticket);
-        if (!ret) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (!ret) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
 
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
@@ -94,7 +95,7 @@ router.post(
         await securityKey.save();
 
         return res.json({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
             user_settings: user.settings,
         });
     },

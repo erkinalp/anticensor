@@ -38,6 +38,7 @@ router.post(
                 body: "APIErrorOrCaptchaResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { login, password, captcha_key, undelete } = req.body as LoginSchema;
@@ -72,11 +73,11 @@ router.post(
         }).catch(() => {
             throw FieldErrors({
                 login: {
-                    message: req.t("auth:login.INVALID_LOGIN"),
+                    message: req.i18n.login.INVALID_LOGIN(),
                     code: "INVALID_LOGIN",
                 },
                 password: {
-                    message: req.t("auth:login.INVALID_LOGIN"),
+                    message: req.i18n.login.INVALID_LOGIN(),
                     code: "INVALID_LOGIN",
                 },
             });
@@ -87,11 +88,11 @@ router.post(
         if (!same_password) {
             throw FieldErrors({
                 login: {
-                    message: req.t("auth:login.INVALID_LOGIN"),
+                    message: req.i18n.login.INVALID_LOGIN(),
                     code: "INVALID_LOGIN",
                 },
                 password: {
-                    message: req.t("auth:login.INVALID_LOGIN"),
+                    message: req.i18n.login.INVALID_LOGIN(),
                     code: "INVALID_LOGIN",
                 },
             });
@@ -165,12 +166,12 @@ router.post(
                 });
             if (user.disabled)
                 return res.status(400).json({
-                    message: req.t("auth:login.ACCOUNT_DISABLED"),
+                    message: req.i18n.login.ACCOUNT_DISABLED(),
                     code: 20013,
                 });
         }
 
-        const token = await generateToken(user.id);
+        const token = await generateToken(user.id, 0);
 
         // Notice this will have a different token structure, than discord
         // Discord header is just the user id as string, which is not possible with npm-jsonwebtoken package

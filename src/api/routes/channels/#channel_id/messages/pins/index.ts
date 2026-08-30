@@ -41,7 +41,7 @@ router.put(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: { author: true },
+            relations: { author: true, attachments: true },
         });
 
         // * in dm channels anyone can pin messages -> only check for guilds
@@ -128,7 +128,7 @@ router.delete(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: { author: true },
+            relations: { author: true, attachments: true },
         });
 
         if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");

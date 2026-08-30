@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@harmony/util";
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@harmony/gateway";
+import { Config, DateBuilder, getDatabase, getPermission, Guild, GuildMembersChunkEvent, Member, Permissions, Presence, Session } from "@harmony/util";
+import { WebSocket, Payload, OPCODES, Send } from "@harmony/gateway";
 import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
 import { RequestGuildMembersSchema } from "@harmony/schemas";
@@ -54,22 +54,18 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
     // TODO: Configurable limit?
     if ((query || (user_ids && user_ids.length > 0)) && (!limit || limit > 100)) limit = 100;
 
-    const permissions = await getPermission(this.user_id, guild_id);
-    permissions.hasThrow("VIEW_CHANNEL");
+    const permissions = (this.permissions[guild_id] as Permissions | undefined) ?? (await Member.exists({ where: { id: this.user_id, guild_id } }));
+    if (!permissions) throw new Error("Not in guild");
 
-    const memberCount = await Member.count({
-        where: {
-            guild_id,
-        },
-    });
+    const memberCount = (await Guild.findOneOrFail({ where: { id: guild_id }, select: { member_count: true } })).member_count ?? 0;
 
-    const memberFind: FindManyOptions = {
+    const memberFind = {
         where: {
             guild_id,
         },
         relations: { user: true, roles: true },
-    };
-    if (limit) memberFind.take = Math.abs(Number(limit || 100));
+        take: Math.abs(Number(limit || 100)),
+    } satisfies FindManyOptions;
 
     let members: Member[] = [];
 

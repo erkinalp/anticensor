@@ -23,7 +23,7 @@ import { ConnectionUpdateSchema } from "@harmony/schemas";
 const router = Router({ mergeParams: true });
 
 // TODO: connection update schema
-router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "ConnectionUpdateSchema", permission: null }), async (req: Request, res: Response) => {
     const { connection_name, connection_id } = req.params as { [key: string]: string };
     const body = req.body as ConnectionUpdateSchema;
 
@@ -53,16 +53,14 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
 
     await ConnectedAccount.update(
         {
-            user_id: req.user_id,
-            external_id: connection_id,
-            type: connection_name,
+            id: connection.id,
         },
         connection,
     );
     res.json(connection.toJSON());
 });
 
-router.delete("/", route({}), async (req: Request, res: Response) => {
+router.delete("/", route({ permission: null }), async (req: Request, res: Response) => {
     const { connection_name, connection_id } = req.params as { [key: string]: string };
 
     const account = await ConnectedAccount.findOneOrFail({

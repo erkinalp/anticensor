@@ -45,7 +45,9 @@ router.post(
         const body = req.body as MessageThreadCreationSchema;
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: ["guild"],
+            relations: {
+                guild: true
+            },
         });
         if (message.flags && 1 << 5) throw new HTTPError("Message already has a thread");
         const channel = await Channel.findOneOrFail({

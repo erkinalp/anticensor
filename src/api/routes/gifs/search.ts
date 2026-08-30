@@ -47,14 +47,14 @@ router.get(
                 body: "GifsResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
-
-        const { q, media_format, locale,limit,provider } = req.query as Record<string,string>;
+        const { q, media_format, locale, limit, provider } = req.query as Record<string, string>;
 
         const p = getGifProvider(provider);
 
-        res.json(await p.search({q,media_format:media_format??"gif",locale,limit})).status(200);
+        res.json(await p.search({ q, media_format: media_format ?? "gif", locale, limit })).status(200);
     },
 );
 

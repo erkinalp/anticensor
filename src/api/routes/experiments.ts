@@ -22,7 +22,7 @@ import { route } from "@harmony/api";
 const router = Router({ mergeParams: true });
 
 //TODO stub
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), (req: Request, res: Response) => {
     // TODO:
     res.send({ fingerprint: "", assignments: [], guild_experiments: [] });
 });

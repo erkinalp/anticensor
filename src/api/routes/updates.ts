@@ -36,6 +36,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const platform = req.query.platform;
@@ -44,7 +45,7 @@ router.get(
             throw FieldErrors({
                 platform: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
 

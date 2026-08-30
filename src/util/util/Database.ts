@@ -15,13 +15,12 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import { config } from "dotenv";
+import { loadEnv } from "harmony.env";
 import path from "path";
 import { green, red, yellow } from "picocolors";
 import { DataSource } from "typeorm";
 // noinspection ES6PreferShortImport
-import { ConfigEntity } from "../entities/Config";
+
 import fs from "fs";
 
 // UUID extension option is only supported with postgres
@@ -33,7 +32,7 @@ let isHeadlessProcess = false;
 // For typeorm cli
 if (!process.env) {
     isHeadlessProcess = true;
-    config({ quiet: true });
+    loadEnv();
 }
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
@@ -56,6 +55,7 @@ export const DataSourceOptions = isHeadlessProcess
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
           type: DatabaseType,
+
           charset: "utf8mb4",
           url: process.env.DATABASE,
           entities: [path.join(__dirname, "..", "entities", "*.js")],
@@ -63,8 +63,11 @@ export const DataSourceOptions = isHeadlessProcess
           logging: !!process.env.DB_LOGGING,
           bigNumberStrings: false,
           supportBigNumbers: true,
-          name: "default",
           migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
+          invalidWhereValuesBehavior: {
+              null: "ignore",
+              undefined: "ignore",
+          },
       });
 
 // Gets the existing database connection
@@ -85,7 +88,7 @@ export async function initDatabase(): Promise<DataSource> {
                 "[Database]" +
                     red(
                         ` We don't have migrations for DB type '${DatabaseType}'` +
-                            ` To ignore, set DB_SYNC=true in your env. https://docs.spacebar.chat/setup/server/configuration/env/`,
+                            ` To ignore, set DB_SYNC=true in your env. https://docs.melodychat.org/setup/server/configuration/env/`,
                     ),
             );
             process.exit(1);
@@ -99,6 +102,7 @@ export async function initDatabase(): Promise<DataSource> {
     // Crude way of detecting if the migrations table exists.
     const dbExists = async () => {
         try {
+            const ConfigEntity = (await import("../entities/Config.js")).ConfigEntity;
             await ConfigEntity.count();
             return true;
         } catch (e) {

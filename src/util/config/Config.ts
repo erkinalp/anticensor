@@ -24,7 +24,6 @@ import {
     EmailConfiguration,
     EmbedConfiguration,
     EndpointConfiguration,
-    ExternalTokensConfiguration,
     GeneralConfiguration,
     GifConfiguration,
     GiphyGifConfiguration,
@@ -39,6 +38,7 @@ import {
     SecurityConfiguration,
     TemplateConfiguration,
     UserConfiguration,
+    WebRTCConfiguration,
     ProxyConfiguration,
 } from "./types";
 
@@ -60,11 +60,11 @@ export class ConfigValue {
     rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
     templates: TemplateConfiguration = new TemplateConfiguration();
     defaults: DefaultsConfiguration = new DefaultsConfiguration();
-    external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
     email: EmailConfiguration = new EmailConfiguration();
     passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
     user: UserConfiguration = new UserConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    webrtc = new WebRTCConfiguration();
     proxy = new ProxyConfiguration();
 }

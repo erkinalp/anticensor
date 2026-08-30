@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@harmony/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient } from "@harmony/util";
+import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, ValidateName } from "@harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -34,6 +34,7 @@ router.post(
             200: { body: "TokenOnlyResponse" },
             400: { body: "APIErrorOrCaptchaResponse" },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const body = req.body as RegisterSchema;
@@ -63,7 +64,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "REGISTRATION_DISABLED",
-                    message: req.t("auth:register.REGISTRATION_DISABLED"),
+                    message: req.i18n.register.REGISTRATION_DISABLED(),
                 },
             });
         }
@@ -73,7 +74,7 @@ router.post(
             throw FieldErrors({
                 consent: {
                     code: "CONSENT_REQUIRED",
-                    message: req.t("auth:register.CONSENT_REQUIRED"),
+                    message: req.i18n.register.CONSENT_REQUIRED(),
                 },
             });
         }
@@ -118,7 +119,7 @@ router.post(
                 throw FieldErrors({
                     email: {
                         code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
+                        message: req.i18n.register.EMAIL_ALREADY_REGISTERED(),
                     },
                 });
             }
@@ -178,44 +179,13 @@ router.post(
 
         // TODO: gift_code_sku_id?
         // TODO: check password strength
-
-        const email = body.email;
-        if (email) {
-            // replace all dots and chars after +, if its a gmail.com email
-            if (!email) {
-                throw FieldErrors({
-                    email: {
-                        code: "INVALID_EMAIL",
-                        message: req?.t("auth:register.INVALID_EMAIL"),
-                    },
-                });
-            }
-
-            // check if there is already an account with this email
-            const exists = await User.findOne({ where: { email: email } });
-
-            if (exists) {
-                throw FieldErrors({
-                    email: {
-                        code: "EMAIL_ALREADY_REGISTERED",
-                        message: req.t("auth:register.EMAIL_ALREADY_REGISTERED"),
-                    },
-                });
-            }
-        } else if (register.email.required) {
-            throw FieldErrors({
-                email: {
-                    code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
-                },
-            });
-        }
+        ValidateName(body.username);
 
         if (register.dateOfBirth.required && !body.date_of_birth) {
             throw FieldErrors({
                 date_of_birth: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         } else if (register.dateOfBirth.required && register.dateOfBirth.minimum) {
@@ -232,7 +202,7 @@ router.post(
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_INVALID",
-                        message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
+                        message: req.i18n.register.DATE_OF_BIRTH_INVALID(),
                     },
                 });
             }
@@ -242,9 +212,7 @@ router.post(
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_UNDERAGE",
-                        message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
-                            years: register.dateOfBirth.minimum,
-                        }),
+                        message: req.i18n.register.DATE_OF_BIRTH_UNDERAGE(register.dateOfBirth.minimum + ""),
                     },
                 });
             }
@@ -257,7 +225,7 @@ router.post(
                 throw FieldErrors({
                     password: {
                         code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-                        message: req.t("auth:register.PASSWORD_REQUIREMENTS_MIN_LENGTH", { min: min }),
+                        message: req.i18n.register.PASSWORD_REQUIREMENTS_MIN_LENGTH(min + ""),
                     },
                 });
             }
@@ -267,7 +235,7 @@ router.post(
             throw FieldErrors({
                 password: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }
@@ -277,7 +245,7 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "INVITE_ONLY",
-                    message: req.t("auth:register.INVITE_ONLY"),
+                    message: req.i18n.register.INVITE_ONLY(),
                 },
             });
         }
@@ -295,20 +263,11 @@ router.post(
             throw FieldErrors({
                 email: {
                     code: "TOO_MANY_REGISTRATIONS",
-                    message: req.t("auth:register.TOO_MANY_REGISTRATIONS"),
+                    message: req.i18n.register.TOO_MANY_REGISTRATIONS(),
                 },
             });
         }
 
-        const { maxUsername } = Config.get().limits.user;
-        if (body.username.length > maxUsername) {
-            throw FieldErrors({
-                username: {
-                    code: "BASE_TYPE_BAD_LENGTH",
-                    message: `Must be between 2 and ${maxUsername} in length.`,
-                },
-            });
-        }
         let invite: Invite | undefined;
 
         if (body.invite) {
@@ -316,11 +275,43 @@ router.post(
             if (invite.isExpired()) throw new Error("Invite is expired");
         }
 
+        const email = body.email;
+        if (email) {
+            // replace all dots and chars after +, if its a gmail.com email
+            if (!email) {
+                throw FieldErrors({
+                    email: {
+                        code: "INVALID_EMAIL",
+                        message: req?.i18n.register.EMAIL_INVALID(),
+                    },
+                });
+            }
+
+            // check if there is already an account with this email
+            const exists = await User.findOne({ where: { email: email } });
+
+            if (exists) {
+                throw FieldErrors({
+                    email: {
+                        code: "EMAIL_ALREADY_REGISTERED",
+                        message: req.i18n.register.EMAIL_ALREADY_REGISTERED(),
+                    },
+                });
+            }
+        } else if (register.email.required) {
+            throw FieldErrors({
+                email: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
+                },
+            });
+        }
+
         const user = await User.register({ ...body, req });
 
         if (invite) await Invite.joinGuild(user.id, invite, false);
 
-        return res.json({ token: await generateToken(user.id) });
+        return res.json({ token: await generateToken(user.id, 0) });
     },
 );
 

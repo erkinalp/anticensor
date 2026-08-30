@@ -47,25 +47,22 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
 
     const voiceState = await VoiceState.findOne({
         where: { user_id: this.user_id },
-        relations: { member: true },
     });
 
     if (voiceState) {
         voiceState.self_stream = false;
         await voiceState.save();
-        voiceState.member = await Member.findOneOrFail({
-            where: {
-                id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
-            },
-        });
+        if (guildId !== "@me")
+            voiceState.member = await Member.findOneOrFail({
+                where: {
+                    id: voiceState.user_id,
+                    guild_id: guildId,
+                },
+            });
 
         await emitEvent({
             event: "VOICE_STATE_UPDATE",
-            data: {
-                ...voiceState.toPublicVoiceState(),
-                member: voiceState.member.toPublicMember(),
-            },
+            data: voiceState.toPublicVoiceState(),
             guild_id: guildId,
             channel_id: channelId,
         } satisfies VoiceStateUpdateEvent);

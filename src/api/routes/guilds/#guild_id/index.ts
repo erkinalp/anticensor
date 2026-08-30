@@ -38,15 +38,16 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
 
-        const [guild, member] = await Promise.all([Guild.findOneOrFail({ where: { id: guild_id } }), Member.findOne({ where: { guild_id: guild_id, id: req.user_id } })]);
+        const member = await Member.findOne({ where: { guild_id, id: req.user_id }, relations: { guild: true } });
         if (!member) throw new HTTPError("You are not a member of the guild you are trying to access", 401);
 
         return res.send({
-            ...guild,
+            ...member.guild,
             joined_at: member?.joined_at,
         });
     },

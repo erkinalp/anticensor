@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-require("dotenv").config({ quiet: true });
+require("harmony.env").loadEnv();
 const count = Number(process.env.COUNT) || 50;
 const endpoint = process.env.API || "http://localhost:3001";
 

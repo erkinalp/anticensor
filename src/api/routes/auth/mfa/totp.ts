@@ -36,6 +36,7 @@ router.post(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
         spacebarOnly: false, // not part of public openapi
     }),
     async (req: Request, res: Response) => {
@@ -61,7 +62,7 @@ router.post(
 
         if (!backup) {
             const ret = verifyToken(user.totp_secret || "", code);
-            if (!ret || ret.delta != 0) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+            if (!ret || ret.delta != 0) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
         } else {
             backup.consumed = true;
             await backup.save();
@@ -70,7 +71,7 @@ router.post(
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
         return res.json({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
             settings: { ...user.settings, index: undefined },
         });
     },

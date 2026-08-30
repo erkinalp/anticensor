@@ -29,7 +29,7 @@ export interface WebSocket extends WS {
     session_id: string;
     accessToken: string;
     encoding: "etf" | "json";
-    compress?: "zlib-stream" | "zstd-stream";
+    compress?: "zlib-stream" | "zstd-stream" | "";
     ipAddress?: string;
     userAgent?: string; // for cdn request signing
     fingerprint?: string;
@@ -44,6 +44,8 @@ export interface WebSocket extends WS {
     intents: Intents;
     sequence: number;
     permissions: Record<string, Permissions>;
+    threadMap: Map<string, Set<string>>;
+    parrentThreadMap: Map<string, string>;
     events: Record<string, undefined | (() => Promise<unknown>)>;
     member_events: Record<string, () => Promise<unknown>>;
     listen_options: ListenEventOpts;

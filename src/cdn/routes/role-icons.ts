@@ -19,7 +19,7 @@
 import { Router, Response, Request } from "express";
 import { Config, Snowflake } from "@harmony/util";
 import { storage } from "@harmony/cdn";
-import { fileTypeFromBuffer } from "file-type";
+import { detectBufferMime } from "mime-detect";
 import { HTTPError } from "lambert-server";
 import crypto from "crypto";
 import { multer } from "../util/multer";
@@ -44,8 +44,8 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
 
     const hash = crypto.createHash("md5").update(Snowflake.generate()).digest("hex");
 
-    const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
+    const mime = await detectBufferMime(buffer);
+    if (!ALLOWED_MIME_TYPES.includes(mime)) throw new HTTPError("Invalid file type");
 
     const path = `role-icons/${role_id}/${hash}.png`;
     const endpoint = Config.get().cdn.endpointPublic;
@@ -54,7 +54,7 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
 
     return res.json({
         id: hash,
-        content_type: type.mime,
+        content_type: mime,
         size,
         url: `${endpoint}${req.baseUrl}/${role_id}/${hash}`,
     });
@@ -67,9 +67,9 @@ router.get("/:role_id", cache, async (req: Request, res: Response) => {
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });
@@ -89,9 +89,9 @@ router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
     }
 
     if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
+    const mime = await detectBufferMime(file);
 
-    res.set("Content-Type", type?.mime);
+    res.set("Content-Type", mime);
 
     return res.send(file);
 });

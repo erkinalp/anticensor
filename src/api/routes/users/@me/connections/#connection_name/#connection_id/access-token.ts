@@ -27,7 +27,7 @@ const router = Router({ mergeParams: true });
 const ALLOWED_CONNECTIONS = ["twitch", "youtube"];
 
 // NOTE: this route has not been extensively tested, as the required connections are not implemented as of writing
-router.get("/", route({}), async (req: Request, res: Response) => {
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
     const { connection_name, connection_id } = req.params as { [key: string]: string };
 
     const connection = ConnectionStore.connections.get(connection_name);
@@ -36,9 +36,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: ALLOWED_CONNECTIONS.join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(ALLOWED_CONNECTIONS.join(", ")),
             },
         });
 

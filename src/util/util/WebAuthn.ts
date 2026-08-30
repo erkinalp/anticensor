@@ -18,7 +18,7 @@
 
 import { Fido2Lib } from "fido2-lib";
 import jwt from "jsonwebtoken";
-import { loadOrGenerateKeypair } from "./Token";
+import { loadOrGenerateKeypair } from "./unsafeMakeToken";
 
 const jwtSignOptions: jwt.SignOptions = {
     algorithm: "ES512",

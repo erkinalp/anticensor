@@ -38,6 +38,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        permission: null,
     }),
     async (req: Request, res: Response) => {
         const {
@@ -129,7 +130,12 @@ router.get(
         mentions = mentions instanceof Array ? mentions : mentions ? [mentions] : [];
         let roleids = [] as string[];
         if (mentions) {
-            const ms = await Member.find({ where: { id: In(mentions), guild_id: req.params.guild_id as string }, relations: ["roles"] });
+            const ms = await Member.find({
+                where: { id: In(mentions), guild_id: req.params.guild_id as string },
+                relations: {
+                    roles: true,
+                },
+            });
             const rSet = new Set<string>();
             ms.forEach((memb) => {
                 memb.roles.forEach(({ id }) => rSet.add(id));
@@ -165,35 +171,37 @@ router.get(
         delete query.take;
         const total_results = await Message.count(query);
 
-        const messagesDto = messages.map((x) => [
-            {
-                id: x.id,
-                type: x.type,
-                content: x.content,
-                channel_id: x.channel_id,
-                author: {
-                    id: x.author?.id,
-                    username: x.author?.username,
-                    avatar: x.author?.avatar,
-                    avatar_decoration: null,
-                    discriminator: x.author?.discriminator,
-                    public_flags: x.author?.public_flags,
+        const messagesDto = messages
+            .map((x) => x.toJSON(undefined, req.user_id))
+            .map((x) => [
+                {
+                    id: x.id,
+                    type: x.type,
+                    content: x.content,
+                    channel_id: x.channel_id,
+                    author: {
+                        id: x.author?.id,
+                        username: x.author?.username,
+                        avatar: x.author?.avatar,
+                        avatar_decoration: null,
+                        discriminator: x.author?.discriminator,
+                        public_flags: x.author?.public_flags,
+                    },
+                    attachments: x.attachments,
+                    embeds: x.embeds,
+                    mentions: x.mentions,
+                    mention_roles: x.mention_roles,
+                    pinned: x.pinned,
+                    mention_everyone: x.mention_everyone,
+                    tts: x.tts,
+                    timestamp: x.timestamp,
+                    edited_timestamp: x.edited_timestamp,
+                    flags: x.flags,
+                    components: x.components,
+                    poll: x.poll,
+                    hit: true,
                 },
-                attachments: x.attachments,
-                embeds: x.embeds,
-                mentions: x.mentions,
-                mention_roles: x.mention_roles,
-                pinned: x.pinned,
-                mention_everyone: x.mention_everyone,
-                tts: x.tts,
-                timestamp: x.timestamp,
-                edited_timestamp: x.edited_timestamp,
-                flags: x.flags,
-                components: x.components,
-                poll: x.poll,
-                hit: true,
-            },
-        ]);
+            ]);
 
         return res.json({
             messages: messagesDto,
