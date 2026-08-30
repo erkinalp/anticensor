@@ -209,7 +209,7 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
+    const newPath = `attachments/${channel_id}/${message_id}/${attachment_id}/${filename}`;
 
     const att = await CloudAttachment.findOne({
         where: {
