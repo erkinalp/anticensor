@@ -36,9 +36,7 @@ router.get("/", route({ permission: null }), async (req: Request, res: Response)
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
-                message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: ALLOWED_CONNECTIONS.join(", "),
-                }),
+                message: req.i18n.field.BASE_TYPE_CHOICES(ALLOWED_CONNECTIONS.join(", ")),
             },
         });
 
