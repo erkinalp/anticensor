@@ -95,7 +95,7 @@
         "form-data": "^4.0.5",
         "harmony-erlpack": "^0.0.3",
         "harmony-pion-webrtc": "^1.1.1",
-        "harmony.env": "^0.0.2",
+        "harmony.env": "^0.0.3",
         "image-size": "^2.0.2",
         "json-bigint": "^1.0.0",
         "jsonwebtoken": "^9.0.3",
