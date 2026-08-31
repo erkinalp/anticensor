@@ -27,7 +27,6 @@ import { ajv, Region, VoiceStateUpdateSchema } from "@harmony/schemas";
 // Having MANAGE_CHANNELS permission bypasses this limit and allows you to join regardless of the channel being full or not.
 
 export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
-    console.log(data);
     const startTime = Date.now();
     const s = ajv.getSchema("VoiceStateUpdateSchema");
     if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
