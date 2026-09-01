@@ -64,7 +64,7 @@ export class Server {
         // try to load webrtc library, if failed just don't start webrtc endpoint
         try {
             await loadWebRtcLibrary();
-            await mediaServer.start(WRTC_PUBLIC_IP, WRTC_PORT_MIN, WRTC_PORT_MAX);
+            mediaServer.start(WRTC_PUBLIC_IP, WRTC_PORT_MIN, WRTC_PORT_MAX);
         } catch (e) {
             console.log(`[WebRTC] ${yellow("WEBRTC disabled")}`);
             return;
