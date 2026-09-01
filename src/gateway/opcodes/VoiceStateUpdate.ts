@@ -36,7 +36,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
 
     let prevState;
     if (!isNew) {
-        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.channel_id ?? undefined, body.guild_id ?? undefined));
+        const perm = this.permissions[body.channel_id ?? ""] ?? (await getPermission(this.user_id, body.guild_id ?? undefined, body.channel_id ?? undefined));
         perm.hasThrow("CONNECT");
     }
 

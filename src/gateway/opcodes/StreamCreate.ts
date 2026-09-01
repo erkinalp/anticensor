@@ -44,7 +44,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
 
     if (!channel || (body.type === "guild" && channel.guild_id != body.guild_id)) return this.close(4000, "invalid channel");
 
-    const perm = this.permissions[channel.id] ?? (await getPermission(this.user_id, channel.id, channel.guild_id));
+    const perm = this.permissions[channel.id] ?? (await getPermission(this.user_id, channel.guild_id, channel.id));
     perm.hasThrow("STREAM");
 
     // TODO: actually apply preferred_region from the event payload
