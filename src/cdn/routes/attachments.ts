@@ -70,12 +70,11 @@ router.post("/:channel_id", multer.single("file"), async (req: Request, res: Res
 
     return res.json(file);
 });
-
-router.get("/:channel_id/:id/:filename", cache, async (req: Request, res: Response) => {
-    const { channel_id, id, filename } = req.params as { [key: string]: string };
+const getFile = async (req: Request, res: Response) => {
+    const { channel_id, id, filename, attid } = req.params as { [key: string]: string };
     // const { format } = req.query;
 
-    const path = `attachments/${channel_id}/${id}/${filename}`;
+    const path = attid ? `attachments/${channel_id}/${id}/${attid}/${filename}` : `attachments/${channel_id}/${id}/${filename}`;
 
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
 
@@ -111,7 +110,9 @@ router.get("/:channel_id/:id/:filename", cache, async (req: Request, res: Respon
     res.set("Content-Type", content_type);
 
     return res.send(file);
-});
+};
+router.get("/:channel_id/:id/:filename", cache, getFile);
+router.get("/:channel_id/:id/:attid/:filename", cache, getFile);
 
 router.delete("/:channel_id/:id/:filename", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
