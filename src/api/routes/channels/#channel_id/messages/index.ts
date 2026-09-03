@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "@harmony/api";
+import { handleMessage, postHandleMessage, route, uploadFiles } from "@harmony/api";
 import {
     Attachment,
     Channel,
@@ -232,7 +232,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
-        const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
         if (body.poll) req.permission!.hasThrow("SEND_POLLS");
 
         const channel = await Channel.findOneOrFail({
@@ -336,15 +336,8 @@ router.post(
             }
         }
 
-        const files = (req.files as Express.Multer.File[]) ?? [];
-        for (const currFile of files) {
-            try {
-                const file = await uploadFile(`/attachments/${channel.id}`, currFile);
-                attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
-            } catch (error) {
-                return res.status(400).json({ message: error?.toString() });
-            }
-        }
+        const uploads = await uploadFiles(req.user, channel, (req.files as Express.Multer.File[]) ?? []);
+        attachments.push(...uploads);
 
         const embeds = body.embeds || [];
         if (body.embed) embeds.push(body.embed);

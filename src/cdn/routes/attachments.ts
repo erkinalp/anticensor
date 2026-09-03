@@ -30,46 +30,6 @@ const router = Router({ mergeParams: true });
 
 const SANITIZED_CONTENT_TYPE = ["text/html", "text/mhtml", "multipart/related", "application/xhtml+xml"];
 
-router.post("/:channel_id", multer.single("file"), async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-
-    if (!req.file) throw new HTTPError("file missing");
-    let { mimetype } = req.file;
-    const { buffer, size, originalname } = req.file;
-    const { channel_id } = req.params as { [key: string]: string };
-    const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-    const id = Snowflake.generate();
-    const path = `attachments/${channel_id}/${id}/${filename}`;
-
-    const endpoint = Config.get()?.cdn.endpointPublic;
-
-    await storage.set(path, buffer);
-    let width;
-    let height;
-    mimetype = (await detectBufferMime(buffer)) || mimetype;
-    if (mimetype.includes("image")) {
-        const dimensions = imageSize(buffer);
-        if (dimensions) {
-            width = dimensions.width;
-            height = dimensions.height;
-        }
-    }
-
-    const finalUrl = `${endpoint}/${path}`;
-
-    const file = {
-        id,
-        content_type: mimetype,
-        filename: filename,
-        size,
-        url: finalUrl,
-        path,
-        width,
-        height,
-    };
-
-    return res.json(file);
-});
 const getFile = async (req: Request, res: Response) => {
     const { channel_id, id, filename, attid } = req.params as { [key: string]: string };
     // const { format } = req.query;
@@ -113,17 +73,6 @@ const getFile = async (req: Request, res: Response) => {
 };
 router.get("/:channel_id/:id/:filename", cache, getFile);
 router.get("/:channel_id/:id/:attid/:filename", cache, getFile);
-
-router.delete("/:channel_id/:id/:filename", async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-
-    const { channel_id, id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${id}/${filename}`;
-
-    await storage.delete(path);
-
-    return res.send({ success: true });
-});
 
 //TODO expire old URLs based on age using ID
 // "cloud attachments"
@@ -206,7 +155,6 @@ router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Req
 
 router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    console.log("[Cloud Clone] Cloning attachment to message", req.params);
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
