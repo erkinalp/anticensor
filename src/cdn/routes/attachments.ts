@@ -112,13 +112,16 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Reques
             const ft = await detectBufferMime(buffer);
             mimeType = att.contentType = ft || "application/octet-stream";
         }
-
-        if (mimeType?.includes("image")) {
-            const dimensions = imageSize(buffer);
-            if (dimensions) {
-                att.width = dimensions.width;
-                att.height = dimensions.height;
+        try {
+            if (mimeType?.includes("image")) {
+                const dimensions = imageSize(buffer);
+                if (dimensions) {
+                    att.width = dimensions.width;
+                    att.height = dimensions.height;
+                }
             }
+        } catch {
+            //Do nothing if this fails
         }
 
         att.size = buffer.length;
