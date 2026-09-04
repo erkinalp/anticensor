@@ -3,6 +3,7 @@ import { makeUploadURLs } from "@harmony/api";
 import { Channel, User } from "@harmony/util";
 
 export async function uploadFiles(user: User, channel: Channel, files: Express.Multer.File[]) {
+    if (files.length === 0) return [];
     const urls = await makeUploadURLs(
         user,
         channel,
