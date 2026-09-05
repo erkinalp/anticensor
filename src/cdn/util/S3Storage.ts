@@ -125,4 +125,50 @@ export class S3Storage extends Storage {
         await this.clone(path, newPath);
         await this.delete(path);
     }
+    static init() {
+        try {
+            require("@aws-sdk/client-s3");
+        } catch (e) {
+            console.error(`[CDN] AWS S3 SDK not installed. Please run 'npm install --no-save @aws-sdk/client-s3' to use the S3 storage provider.`);
+            process.exit(1);
+        }
+
+        const region = process.env.STORAGE_REGION,
+            bucket = process.env.STORAGE_BUCKET;
+
+        if (!region) {
+            console.error(`[CDN] You must provide a region when using the S3 storage provider.`);
+            process.exit(1);
+        }
+
+        let endpoint = process.env.STORAGE_ENDPOINT;
+
+        if (!endpoint) {
+            endpoint = `https://s3.${region}.amazonaws.com`;
+        }
+
+        if (!bucket) {
+            console.error(`[CDN] You must provide a bucket when using the S3 storage provider.`);
+            process.exit(1);
+        }
+
+        // in the S3 provider, this should be the root path in the bucket
+        let location = process.env.STORAGE_LOCATION;
+
+        if (!location) {
+            console.warn(`[CDN] STORAGE_LOCATION unconfigured for S3 provider, defaulting to the bucket root...`);
+            location = undefined;
+        }
+
+        // if false, the bucket name is used as a subdomain
+        const forcePathStyle = process.env.STORAGE_FORCE_PATH_STYLE === "true";
+
+        if (process.env.STORAGE_FORCE_PATH_STYLE === undefined) {
+            console.warn(
+                `[CDN] STORAGE_FORCE_PATH_STYLE is not set for S3 provider; defaulting to virtual-hosted style. Set STORAGE_FORCE_PATH_STYLE=true to enable path-style addressing.`,
+            );
+        }
+
+        return new S3Storage(region, bucket, endpoint, forcePathStyle, location);
+    }
 }

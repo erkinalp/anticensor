@@ -19,7 +19,7 @@
 import { Storage } from "./Storage";
 import fs from "fs";
 import fsp from "fs/promises";
-import { join, dirname } from "path";
+import path, { join, dirname } from "path";
 import { Readable } from "stream";
 import ExifTransformer from "exif-be-gone";
 
@@ -89,5 +89,18 @@ export class FileStorage extends Storage {
         if (!fs.existsSync(dirname(newPath))) fs.mkdirSync(dirname(newPath), { recursive: true });
 
         fs.renameSync(path, newPath);
+    }
+    static init() {
+        let location = process.env.STORAGE_LOCATION;
+        if (location) {
+            location = path.resolve(location);
+        } else {
+            location = path.join(process.cwd(), "files");
+        }
+        // TODO: move this to some start func, so it doesn't run when server is imported
+        //console.log(`[CDN] storage location: ${bgCyan(`${black(location)}`)}`);
+        if (!fs.existsSync(location)) fs.mkdirSync(location);
+        process.env.STORAGE_LOCATION = location;
+        return new FileStorage();
     }
 }
