@@ -17,25 +17,19 @@
 */
 
 import { FileStorage } from "./FileStorage";
-import { S3Storage } from "./S3Storage";
-process.cwd();
-
-export abstract class Storage {
-    abstract set(path: string, data: Buffer): Promise<void>;
-    abstract clone(path: string, newPath: string): Promise<void>;
-    abstract get(path: string): Promise<Buffer | null>;
-    abstract delete(path: string): Promise<void>;
-    abstract exists(path: string): Promise<boolean>;
-    abstract isFile(path: string): Promise<boolean>;
-    abstract move(path: string, newPath: string): Promise<void>;
-}
+import Storage from "harmony-storage";
 
 let storage: Storage;
-
 if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
     storage = FileStorage.init();
 } else if (process.env.STORAGE_PROVIDER === "s3") {
-    storage = S3Storage.init();
+    try {
+        const s3 = require("harmony-s3").default as typeof Storage;
+        storage = s3.init();
+    } catch (e) {
+        console.error("For S3 storage you need to install the harmony-S3 package\nnpm i --no-save harmony-S3");
+        throw e;
+    }
 }
 
 export { storage };

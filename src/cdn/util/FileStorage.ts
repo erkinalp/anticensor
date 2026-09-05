@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Storage } from "./Storage";
+import Storage from "harmony-storage";
 import fs from "fs";
 import fsp from "fs/promises";
 import path, { join, dirname } from "path";

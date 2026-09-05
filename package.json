@@ -95,6 +95,7 @@
         "form-data": "^4.0.5",
         "harmony-erlpack": "^0.0.3",
         "harmony-pion-webrtc": "^1.1.1",
+        "harmony-storage": "^1.0.0",
         "harmony.env": "^0.0.3",
         "image-size": "^2.0.2",
         "json-bigint": "^1.0.0",
@@ -128,6 +129,7 @@
     "optionalDependencies": {
         "@sendgrid/mail": "^8.1.6",
         "canvas": "^3.2.3",
+        "harmony-s3": "^1.0.0",
         "jimp": "^1.6.0",
         "mailgun.js": "^12.7.1",
         "node-mailjet": "^6.0.11",
