@@ -20,15 +20,12 @@ import { Config, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignR
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
-import { multer } from "../util/multer";
 import { storage } from "@harmony/cdn";
 import { CloudAttachment } from "@harmony/util";
 import { cache } from "../util/cache";
 import { detectBufferMime } from "mime-detect";
 
 const router = Router({ mergeParams: true });
-
-const SANITIZED_CONTENT_TYPE = ["text/html", "text/mhtml", "multipart/related", "application/xhtml+xml"];
 
 const getFile = async (req: Request, res: Response) => {
     const { channel_id, id, filename, attid } = req.params as { [key: string]: string };
@@ -61,10 +58,10 @@ const getFile = async (req: Request, res: Response) => {
     const file = await storage.get(path);
     if (!file) throw new HTTPError("File not found");
     const mime = await detectBufferMime(file);
-    let content_type = mime || "application/octet-stream";
+    const content_type = mime || "application/octet-stream";
 
-    if (SANITIZED_CONTENT_TYPE.includes(content_type)) {
-        content_type = "application/octet-stream";
+    if (content_type.includes("html") || content_type === "multipart/related") {
+        res.set("Content-Disposition", "attachment");
     }
 
     res.set("Content-Type", content_type);
