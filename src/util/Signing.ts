@@ -113,14 +113,20 @@ export class UrlSignResult {
         });
     }
 }
-
 export const getUrlSignature = (data: NewUrlSignatureData): UrlSignResult => {
     const { cdnSignatureDuration } = Config.get().security;
 
     // calculate the expiration time
     const now = Date.now();
     const issuedAt = now.toString(16);
-    const expiresAt = (now + ms(cdnSignatureDuration as StringValue)).toString(16);
+    let expiresAt: string;
+    if (typeof cdnSignatureDuration == "number") {
+        expiresAt = (now + cdnSignatureDuration).toString(16);
+    } else {
+        const t = ms(cdnSignatureDuration as StringValue);
+        console.warn("String config for cdnSignatureDuration is deprecated, please change it to ", t);
+        expiresAt = (now + t).toString(16);
+    }
 
     // hash the url with the cdnSignatureKey
     return calculateHash(
