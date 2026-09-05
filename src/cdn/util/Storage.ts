@@ -23,14 +23,14 @@ import { red } from "picocolors";
 import { S3Storage } from "./S3Storage";
 process.cwd();
 
-export interface Storage {
-    set(path: string, data: Buffer): Promise<void>;
-    clone(path: string, newPath: string): Promise<void>;
-    get(path: string): Promise<Buffer | null>;
-    delete(path: string): Promise<void>;
-    exists(path: string): Promise<boolean>;
-    isFile(path: string): Promise<boolean>;
-    move(path: string, newPath: string): Promise<void>;
+export abstract class Storage {
+    abstract set(path: string, data: Buffer): Promise<void>;
+    abstract clone(path: string, newPath: string): Promise<void>;
+    abstract get(path: string): Promise<Buffer | null>;
+    abstract delete(path: string): Promise<void>;
+    abstract exists(path: string): Promise<boolean>;
+    abstract isFile(path: string): Promise<boolean>;
+    abstract move(path: string, newPath: string): Promise<void>;
 }
 
 let storage: Storage;

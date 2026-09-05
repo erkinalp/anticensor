@@ -27,7 +27,7 @@ const readableToBuffer = (readable: Readable): Promise<Buffer> =>
         readable.on("end", () => resolve(Buffer.concat(chunks)));
     });
 
-export class S3Storage implements Storage {
+export class S3Storage extends Storage {
     private client: unknown;
     public constructor(
         private region: string,
@@ -37,6 +37,7 @@ export class S3Storage implements Storage {
         private basePath?: string,
     ) {
         const { S3 } = require("@aws-sdk/client-s3");
+        super();
         this.client = new S3({ region: region, endpoint: endpoint, forcePathStyle: forcePathStyle });
     }
     isFile(path: string): Promise<boolean> {
