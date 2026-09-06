@@ -16,10 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
-import wretch from "wretch";
+import { ConnectedAccount, Connection, ConnectionLoader } from "@harmony/util";
 import { GitHubSettings } from "./GitHubSettings";
-import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
+import { ConnectedAccountCommonOAuthTokenResponse } from "@harmony/schemas";
 
 interface UserResponse {
     login: string;
@@ -65,35 +64,33 @@ export default class GitHubConnection extends Connection {
         this.validateState(state);
 
         const url = this.getTokenUrl(code);
-
-        return wretch(url.toString())
-            .headers({
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
                 Accept: "application/json",
-            })
+            },
+        });
+        if (!res.ok) throw new Error("bad response");
 
-            .post()
-            .json<ConnectedAccountCommonOAuthTokenResponse>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
+        return (await res.json()) as ConnectedAccountCommonOAuthTokenResponse;
     }
 
     async getUser(token: string): Promise<UserResponse> {
         const url = new URL(this.userInfoUrl);
-        return wretch(url.toString())
-            .headers({
+        const res = await fetch(url, {
+            headers: {
                 Authorization: `Bearer ${token}`,
-            })
-            .get()
-            .json<UserResponse>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
+            },
+        });
+        if (!res.ok) throw new Error("Github API error");
+        return (await res.json()) as UserResponse;
     }
 
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+    async handleCallback() {
+        return null;
+    }
+
+    async handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
         const { state, code } = params;
         if (!code) throw new Error("No code provided");
 
@@ -108,7 +105,7 @@ export default class GitHubConnection extends Connection {
         return await this.createConnection({
             user_id: userId,
             external_id: userInfo.id.toString(),
-            friend_sync: params.friend_sync,
+            friend_sync: false,
             name: userInfo.login,
             type: this.id,
         });
