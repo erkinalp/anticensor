@@ -392,7 +392,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     }
 
     if (cloudAttachments && cloudAttachments.length > 0) {
-        console.log("[Message] Processing attachments for message", message.id, ":", message.attachments);
         handle?.(message.id, message.author as User, message.channel);
         const uploadedAttachments = await Promise.all(
             cloudAttachments.map(async (att) => {
@@ -430,7 +429,6 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 return { attachment: realAtt, index: att.index };
             }),
         );
-        console.log("[Message] Processed attachments for message", message.id, ":", message.attachments);
 
         for (const att of uploadedAttachments) {
             message.attachments![att.index] = att.attachment;
@@ -855,7 +853,7 @@ type MessageOptions = Omit<MessageCreateSchema, "poll"> & {
     embeds?: Embed[] | null;
     reactions?: Reaction[];
     channel_id?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[]; // why are we masking this?
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
