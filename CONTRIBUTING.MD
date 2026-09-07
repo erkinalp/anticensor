@@ -1,4 +1,4 @@
-Welcome to Spacebar, if you've made it here, I'm guessing you're looking to contribute.
+Welcome to Harmony, if you've made it here, I'm guessing you're looking to contribute.
 
 A good place to start would be over at the issues tab, though https://docs.melodychat.org/contributing/server/missingroute/
 may also be a good indicator for things that are remaining.
