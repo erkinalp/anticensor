@@ -39,6 +39,11 @@ export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
 
         return await OPCodeHandler.call(this, data);
     } catch (error) {
+        if (error instanceof Error) {
+            this.close(1011, error.message);
+        } else {
+            this.close();
+        }
         console.error("[WebRTC] error", error);
         // if (!this.CLOSED && this.CLOSING) return this.close(CloseCodes.Unknown_error);
     }
