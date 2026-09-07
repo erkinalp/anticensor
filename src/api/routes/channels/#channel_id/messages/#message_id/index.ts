@@ -35,7 +35,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@harmony/api";
+import { handleMessage, postHandleMessage, route, uploadFiles } from "@harmony/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@harmony/schemas";
 
 const router = Router({ mergeParams: true });
@@ -169,18 +169,13 @@ router.put(
             throw SpacebarApiErrors.CANNOT_REPLACE_BY_BACKFILL;
         }
 
-        if (req.file) {
-            try {
-                const file = await uploadFile(`/attachments/${req.params.channel_id}`, req.file);
-                attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
-            } catch (error) {
-                return res.status(400).json(error);
-            }
-        }
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
             relations: { recipients: { user: true } },
         });
+
+        const uploads = await uploadFiles(req.user, channel, (req.files as Express.Multer.File[]) ?? []);
+        attachments.push(...uploads);
 
         const embeds = body.embeds || [];
         if (body.embed) embeds.push(body.embed);
