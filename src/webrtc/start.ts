@@ -26,7 +26,7 @@ import { Server } from "./Server";
 import fs from "fs";
 import cluster from "cluster";
 
-const port = Number(process.env.PORT) || 3004;
+const port = Number(process.env.WRTC_WS_PORT || process.env.PORT || 3004);
 
 const server = new Server({
     port,

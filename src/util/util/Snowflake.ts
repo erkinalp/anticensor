@@ -60,7 +60,7 @@ export class Snowflake {
         const worker = Snowflake.workerId << 17n;
         const process = Snowflake.processId << 12n;
         const increment = Snowflake.INCREMENT++;
-        return BigInt(time | worker | process | increment);
+        return BigInt(time | worker | process | (increment & 0xfff));
     }
 
     static generate() {

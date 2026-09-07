@@ -57,8 +57,6 @@ export const NO_AUTHORIZATION_ROUTES = [
     /^(GET|HEAD) \/guilds\/\d+\/shield\.svg/,
     // Connections
     /^(POST|HEAD|GET) \/connections\/\w+\/callback/,
-    // Image proxy
-    /^(GET|HEAD) \/imageproxy\/[A-Za-z0-9+/]\/\d+x\d+\/.+/,
 ];
 
 export const API_PREFIX = /^\/api(\/v\d+)?/;

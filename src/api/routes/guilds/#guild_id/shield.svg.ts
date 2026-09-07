@@ -91,7 +91,7 @@ async function getWidgetJsonData(guild_id: string, useWhiteLogo: boolean = true)
     const onlineMembers = members.filter((m) => m.user.sessions.filter((s) => (s.last_seen?.getTime() ?? 0) > minLastSeen).length > 0);
 
     return makeBadge({
-        label: "Spacebar",
+        label: "Harmony",
         message: `${onlineMembers.length} online`,
         color: "#0185ff",
         logoBase64: useWhiteLogo ? whiteLogo : blueLogo,
