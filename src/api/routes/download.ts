@@ -40,7 +40,7 @@ router.get(
             throw FieldErrors({
                 platform: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
 

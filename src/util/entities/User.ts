@@ -308,7 +308,7 @@ export class User extends BaseClass {
             throw FieldErrors({
                 username: {
                     code: "USERNAME_TOO_MANY_USERS",
-                    message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
+                    message: req?.i18n.register.USERNAME_TOO_MANY_USERS() || "",
                 },
             });
         }

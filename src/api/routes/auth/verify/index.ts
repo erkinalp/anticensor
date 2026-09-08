@@ -22,7 +22,7 @@ import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
 async function getToken(user: User) {
-    const token = await generateToken(user.id);
+    const token = await generateToken(user.id, 0);
 
     // Notice this will have a different token structure, than discord
     // Discord header is just the user id as string, which is not possible with npm-jsonwebtoken package
@@ -84,7 +84,7 @@ router.post(
         } catch {
             throw FieldErrors({
                 token: {
-                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    message: req.i18n.password_reset.INVALID_TOKEN(),
                     code: "INVALID_TOKEN",
                 },
             });

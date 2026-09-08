@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "#harmony/api";
+import { handleMessage, postHandleMessage, route, uploadFiles } from "#harmony/api";
 import {
     Attachment,
     Channel,
@@ -118,8 +118,7 @@ router.get(
         const query: FindManyOptions<Message> & {
             where: { id?: FindOperator<string> | FindOperator<string>[] };
         } = {
-            relationLoadStrategy: "query",
-            order: { timestamp: "DESC" },
+            order: { id: "DESC" },
             take: limit,
             where: { channel_id },
             relations: Message.stdRelations,
@@ -138,7 +137,7 @@ router.get(
                     Message.find({
                         ...query,
                         where: { channel_id, id: MoreThanOrEqual(around) },
-                        order: { timestamp: "ASC" },
+                        order: { id: "ASC" },
                     }),
                 ]);
                 left.push(...right);
@@ -156,7 +155,7 @@ router.get(
                 if (BigInt(after) > BigInt(Snowflake.generate())) throw new HTTPError("after parameter must not be greater than current time", 422);
 
                 query.where.id = MoreThan(after);
-                query.order = { timestamp: "ASC" };
+                query.order = { id: "ASC" };
             } else if (before) {
                 if (BigInt(before) > BigInt(Snowflake.generate())) throw new HTTPError("before parameter must not be greater than current time", 422);
 
@@ -233,7 +232,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
-        const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
         if (body.poll) req.permission!.hasThrow("SEND_POLLS");
 
         const channel = await Channel.findOneOrFail({
@@ -331,21 +330,14 @@ router.post(
                     throw FieldErrors({
                         channel_id: {
                             code: "TOO_MANY_MESSAGES",
-                            message: req.t("common:toomany.MESSAGE"),
+                            message: req.i18n.toomany.MESSAGE(),
                         },
                     });
             }
         }
 
-        const files = (req.files as Express.Multer.File[]) ?? [];
-        for (const currFile of files) {
-            try {
-                const file = await uploadFile(`/attachments/${channel.id}`, currFile);
-                attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
-            } catch (error) {
-                return res.status(400).json({ message: error?.toString() });
-            }
-        }
+        const uploads = await uploadFiles(req.user, channel, (req.files as Express.Multer.File[]) ?? []);
+        attachments.push(...uploads);
 
         const embeds = body.embeds || [];
         if (body.embed) embeds.push(body.embed);

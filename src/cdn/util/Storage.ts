@@ -17,83 +17,19 @@
 */
 
 import { FileStorage } from "./FileStorage.js";
-import path from "path";
-import fs from "fs";
-import pkg from "picocolors";
-const { red } = pkg;
-import { S3Storage } from "./S3Storage.js";
-process.cwd();
+import Storage from "harmony-storage";
 
-export interface Storage {
-    set(path: string, data: Buffer): Promise<void>;
-    clone(path: string, newPath: string): Promise<void>;
-    get(path: string): Promise<Buffer | null>;
-    delete(path: string): Promise<void>;
-    exists(path: string): Promise<boolean>;
-    isFile(path: string): Promise<boolean>;
-    move(path: string, newPath: string): Promise<void>;
-}
-
-let storage: Storage;
-
+let storage: Storage.default;
 if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
-    let location = process.env.STORAGE_LOCATION;
-    if (location) {
-        location = path.resolve(location);
-    } else {
-        location = path.join(process.cwd(), "files");
-    }
-    // TODO: move this to some start func, so it doesn't run when server is imported
-    //console.log(`[CDN] storage location: ${bgCyan(`${black(location)}`)}`);
-    if (!fs.existsSync(location)) fs.mkdirSync(location);
-    process.env.STORAGE_LOCATION = location;
-
-    storage = new FileStorage();
+    storage = FileStorage.init();
 } else if (process.env.STORAGE_PROVIDER === "s3") {
     try {
-        require("@aws-sdk/client-s3");
+        const s3 = (await import("harmony-s3")).default.default;
+        storage = s3.init();
     } catch (e) {
-        console.error(red(`[CDN] AWS S3 SDK not installed. Please run 'npm install --no-save @aws-sdk/client-s3' to use the S3 storage provider.`));
-        process.exit(1);
+        console.error("For S3 storage you need to install the harmony-S3 package\nnpm i --no-save harmony-S3");
+        throw e;
     }
-
-    const region = process.env.STORAGE_REGION,
-        bucket = process.env.STORAGE_BUCKET;
-
-    if (!region) {
-        console.error(`[CDN] You must provide a region when using the S3 storage provider.`);
-        process.exit(1);
-    }
-
-    let endpoint = process.env.STORAGE_ENDPOINT;
-
-    if (!endpoint) {
-        endpoint = `https://s3.${region}.amazonaws.com`;
-    }
-
-    if (!bucket) {
-        console.error(`[CDN] You must provide a bucket when using the S3 storage provider.`);
-        process.exit(1);
-    }
-
-    // in the S3 provider, this should be the root path in the bucket
-    let location = process.env.STORAGE_LOCATION;
-
-    if (!location) {
-        console.warn(`[CDN] STORAGE_LOCATION unconfigured for S3 provider, defaulting to the bucket root...`);
-        location = undefined;
-    }
-
-    // if false, the bucket name is used as a subdomain
-    const forcePathStyle = process.env.STORAGE_FORCE_PATH_STYLE === "true";
-
-    if (process.env.STORAGE_FORCE_PATH_STYLE === undefined) {
-        console.warn(
-            `[CDN] STORAGE_FORCE_PATH_STYLE is not set for S3 provider; defaulting to virtual-hosted style. Set STORAGE_FORCE_PATH_STYLE=true to enable path-style addressing.`,
-        );
-    }
-
-    storage = new S3Storage(region, bucket, endpoint, forcePathStyle, location);
 }
 
 export { storage };

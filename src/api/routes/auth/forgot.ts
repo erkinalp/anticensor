@@ -36,8 +36,14 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { login, captcha_key } = req.body as ForgotPasswordSchema;
-
+        let { client } = req.body as ForgotPasswordSchema;
         const config = Config.get();
+        if (client !== undefined) {
+            if (!config.general.trustedClients.includes(client)) {
+                //Silently ignore, the client does not need to know if it's on this list from this API
+                client = undefined;
+            }
+        }
 
         if (config.passwordReset.requireCaptcha && config.security.captcha.enabled) {
             const { sitekey, service } = config.security.captcha;
@@ -68,7 +74,7 @@ router.post(
         }).catch(() => {});
 
         if (user && user.email) {
-            Email.sendResetPassword(user, user.email).catch((e) => {
+            Email.sendResetPassword(user, user.email, client).catch((e) => {
                 console.error(`Failed to send password reset email to ${user.tag} (${user.id}): ${e}`);
             });
         }

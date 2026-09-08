@@ -33,7 +33,18 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema", permission: nul
             external_id: connection_id,
             type: connection_name,
         },
-        select: { external_id: true, type: true, name: true, verified: true, visibility: true, show_activity: true, revoked: true, friend_sync: true, integrations: true },
+        select: {
+            id: true,
+            external_id: true,
+            type: true,
+            name: true,
+            verified: true,
+            visibility: true,
+            show_activity: true,
+            revoked: true,
+            friend_sync: true,
+            integrations: true,
+        },
     });
 
     if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
@@ -53,9 +64,7 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema", permission: nul
 
     await ConnectedAccount.update(
         {
-            user_id: req.user_id,
-            external_id: connection_id,
-            type: connection_name,
+            id: connection.id,
         },
         connection,
     );

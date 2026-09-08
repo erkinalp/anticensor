@@ -27,6 +27,8 @@ import fsp from "fs/promises";
 import path from "path";
 import TJS from "typescript-json-schema";
 import walk from "./util/walk.js";
+require("harmony.env").loadEnv();
+
 const totalSw = Stopwatch.startNew();
 
 const conWarn = console.warn;

@@ -18,12 +18,14 @@
 
 import { WebSocket, Payload } from "#harmony/gateway";
 import { emitEvent, PresenceUpdateEvent, Session, User } from "#harmony/util";
-import { check } from "./instanceOf.js";
-import { ActivitySchema, ActivitySchemaVal } from "#harmony/schemas";
+import { ActivitySchema, ajv } from "#harmony/schemas";
 
 export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
-    check.call(this, ActivitySchemaVal, d);
+
+    const s = ajv.getSchema("ActivitySchema");
+    if (!s?.(d)) throw new Error("bad schema " + JSON.stringify(ajv.errors));
+
     const presence = d as ActivitySchema;
 
     await Session.update({ session_id: this.session_id }, { status: presence.status, activities: presence.activities });

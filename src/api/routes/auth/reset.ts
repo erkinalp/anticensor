@@ -17,7 +17,7 @@
 */
 
 import { route } from "#harmony/api";
-import { checkToken, Email, FieldErrors, generateToken, User } from "#harmony/util";
+import { checkToken, Email, FieldErrors, generateToken, tokenIntents, User } from "#harmony/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { PasswordResetSchema } from "#harmony/schemas";
@@ -50,10 +50,13 @@ router.post(
                 ipAddress: req.ip,
             });
             user = userTokenData.user;
+            if (!(userTokenData.decoded.intents && userTokenData.decoded.intents & tokenIntents.forgot)) {
+                throw new Error("");
+            }
         } catch {
             throw FieldErrors({
                 password: {
-                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    message: req.i18n.password_reset.INVALID_TOKEN(),
                     code: "INVALID_TOKEN",
                 },
             });
@@ -73,7 +76,7 @@ router.post(
         // come on, the user has to have an email to reset their password in the first place
         await Email.sendPasswordChanged(user, user.email!);
 
-        res.json({ token: await generateToken(user.id) });
+        res.json({ token: await generateToken(user.id, 0) });
     },
 );
 

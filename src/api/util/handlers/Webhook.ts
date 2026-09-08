@@ -1,9 +1,10 @@
-import { handleMessage, postHandleMessage } from "#harmony/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, uploadFile, ValidateName, Webhook } from "#harmony/util";
+import { handleMessage, postHandleMessage, uploadFiles } from "#harmony/api";
+import { Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, ValidateName, Webhook } from "#harmony/util";
 import { Request, Response } from "express";
 import { HTTPError } from "#lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema } from "#harmony/schemas";
+
+import { MessageCreateAttachment, MessageCreateCloudAttachment, WebhookExecuteSchema } from "#harmony/schemas";
 
 export const executeWebhook = async (req: Request, res: Response) => {
     const body = req.body as WebhookExecuteSchema;
@@ -36,7 +37,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         res.status(204).send();
     }
 
-    const attachments: Attachment[] = [];
+    const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = [];
 
     if (!webhook.channel.isWritable()) {
         if (wait) {
@@ -61,7 +62,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
                 throw FieldErrors({
                     channel_id: {
                         code: "TOO_MANY_MESSAGES",
-                        message: req.t("common:toomany.MESSAGE"),
+                        message: req.i18n.toomany.MESSAGE(),
                     },
                 });
             } else {
@@ -79,17 +80,8 @@ export const executeWebhook = async (req: Request, res: Response) => {
         });
     }
 
-    const files = (req.files as Express.Multer.File[]) ?? [];
-    for (const currFile of files) {
-        try {
-            const file = await uploadFile(`/attachments/${sendChannel.id}`, currFile);
-            attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
-        } catch (error) {
-            if (wait) res.status(400).json({ message: error?.toString() });
-            return;
-        }
-    }
-    console.log(attachments, files);
+    const uploads = await uploadFiles(req.user, webhook.channel, (req.files as Express.Multer.File[]) ?? []);
+    attachments.push(...uploads);
 
     const embeds = body.embeds || [];
     const bodyMsg = {

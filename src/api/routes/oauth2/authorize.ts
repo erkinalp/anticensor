@@ -51,7 +51,7 @@ router.get(
             throw FieldErrors({
                 client_id: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }
@@ -188,7 +188,7 @@ router.post(
             throw FieldErrors({
                 client_id: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }

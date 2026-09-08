@@ -1,11 +1,13 @@
 import { parseStreamKey, Payload, WebSocket } from "#harmony/gateway";
 import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "#harmony/util";
-import { check } from "./instanceOf.js";
-import { StreamDeleteSchema } from "#harmony/schemas";
+import { ajv, StreamDeleteSchema } from "#harmony/schemas";
 
 export async function onStreamDelete(this: WebSocket, data: Payload) {
     const startTime = Date.now();
-    check.call(this, StreamDeleteSchema, data.d);
+
+    const s = ajv.getSchema("StreamDeleteSchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const body = data.d as StreamDeleteSchema;
 
     let parsedKey: {

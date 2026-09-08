@@ -33,8 +33,10 @@ function makeRes() {
     const connections = new Map([...ConnectionStore.connections.values()].map((_) => [_.id, _] as const));
     Object.entries(config as APIConnectionsConfiguration).forEach(([key, value]) => {
         const con = connections.get(key);
-        console.log(key, con);
-        if (!con) return;
+        if (!con) {
+            delete config[key];
+            return;
+        }
 
         value.icon_url = con.icon_url;
     });

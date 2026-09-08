@@ -57,14 +57,12 @@ import {
     UserSettingsProtos,
     VoiceState,
 } from "#harmony/util";
-import { check } from "./instanceOf.js";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "#harmony/schemas";
+import { ajv, ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection } from "#harmony/schemas";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
-
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
     const taskSw = Stopwatch.startNew();
@@ -77,8 +75,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     clearTimeout(this.readyTimeout);
 
-    // Check payload matches schema
-    check.call(this, IdentifySchema, data.d);
+    const s = ajv.getSchema("IdentifySchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const identify: IdentifySchema = data.d;
 
     this.capabilities = new Capabilities(identify.capabilities || 0);
@@ -162,7 +161,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     this.session_id = session.session_id;
     this.session = session;
-    this.session.status = identify.presence?.status || "online";
+    this.session.status = identify.presence?.status === "unknown" ? "online" : identify.presence?.status || "online";
     this.session.last_seen = new Date();
     this.session.client_info ??= {};
     this.session.client_info.platform = identify.properties?.$device ?? identify.properties?.$device;
@@ -697,7 +696,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     });
 
     if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && tokenData.tokenVersion != CurrentTokenFormatVersion) {
-        d.auth_token = this.accessToken = (await generateToken(this.user_id))!;
+        d.auth_token = this.accessToken = (await generateToken(this.user_id, 0))!;
     }
     // const buildReadyEventDataTime = taskSw.getElapsedAndReset();
 

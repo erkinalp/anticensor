@@ -26,6 +26,7 @@ import { randomUpperString } from "#harmony/api";
 import { TimeSpan } from "./Timespan.js";
 import { HTTPError } from "#lambert-server";
 import { loadOrGenerateKeypair, unsafeMakeToken } from "./unsafeMakeToken.js";
+import { PublicUserProjection } from "#harmony/schemas";
 
 /// Change history:
 /// 1 - Initial version with HS256
@@ -44,6 +45,7 @@ export type UserTokenData = {
         ver?: number;
         // device id
         did?: string;
+        intents?: number;
     };
 };
 
@@ -70,6 +72,7 @@ export const checkToken = async (
     if (!ret.user) throw new HTTPError("Internal token not allowed");
     return ret as userFull;
 };
+const verifiedTokens = new Map<string, true | jwt.VerifyErrors>();
 export const checkTokenInt = (
     token: string,
     opts?: {
@@ -84,9 +87,15 @@ export const checkTokenInt = (
         token = token.replace("Bearer ", ""); // allow bearer tokens
 
         let legacyVersion: number | undefined = undefined;
+
         const dec = jwt.decode(token, { complete: true });
 
         const validateUser: jwt.VerifyCallback = async (err, out) => {
+            if (err) {
+                verifiedTokens.set(token, err);
+            } else {
+                verifiedTokens.set(token, true);
+            }
             const decoded = out as UserTokenData["decoded"];
             if (decoded.id.startsWith("Internal")) {
                 resolve({
@@ -104,7 +113,7 @@ export const checkTokenInt = (
             const arr = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
-                    select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
+                    select: { ...(opts?.select || PublicUserProjection), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
                     relations: opts?.relations,
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
@@ -177,6 +186,11 @@ export const checkTokenInt = (
             logAuth("validateUser success: " + JSON.stringify(result));
             return resolve(result);
         };
+        const v = verifiedTokens.get(token);
+        if (v !== undefined) {
+            if (v === true) return validateUser(null, dec?.payload);
+            else return validateUser(v);
+        }
 
         if (!dec) return rejectAndLog(reject, 500, "Failed to decode token");
         logAuth("Decoded token: " + JSON.stringify(dec));
@@ -192,7 +206,7 @@ export const checkTokenInt = (
     });
 };
 
-export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
+export async function generateToken(id: string, intents: number, isAdminSession: boolean = false): Promise<string | undefined> {
     let newSession: Session;
 
     do {
@@ -208,5 +222,5 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
 
     await newSession.save();
 
-    return unsafeMakeToken(id, newSession.session_id);
+    return unsafeMakeToken(id, newSession.session_id, intents);
 }

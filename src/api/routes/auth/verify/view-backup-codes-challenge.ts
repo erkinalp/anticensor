@@ -44,7 +44,7 @@ router.post(
         if (!(await bcrypt.compare(password, user.data.hash || ""))) {
             throw FieldErrors({
                 password: {
-                    message: req.t("auth:login.INVALID_PASSWORD"),
+                    message: req.i18n.login.INVALID_PASSWORD(),
                     code: "INVALID_PASSWORD",
                 },
             });

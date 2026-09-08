@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "#harmony/api";
+import { handleMessage, postHandleMessage, route, sendMessage, uploadFiles } from "#harmony/api";
 import {
     Channel,
     emitEvent,
@@ -138,16 +138,11 @@ router.post(
                 author_id: user.id,
             });
         if (body.message) {
-            const files = (req.files as Express.Multer.File[]) ?? [];
-            const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
-            for (const currFile of files) {
-                try {
-                    const file = await uploadFile(`/attachments/${channel.id}`, currFile);
-                    attachments.push(Attachment.create({ ...file, proxy_url: file.url }));
-                } catch (error) {
-                    return res.status(400).json({ message: error?.toString() });
-                }
-            }
+            const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
+
+            const uploads = await uploadFiles(req.user, channel, (req.files as Express.Multer.File[]) ?? []);
+            attachments.push(...uploads);
+
             const embeds = body.message.embeds || [];
             const bodyMsg = {
                 ...body.message,

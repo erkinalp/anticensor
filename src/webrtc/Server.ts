@@ -15,9 +15,9 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import dotenv from "dotenv";
-dotenv.config({ quiet: true });
-import { closeDatabase, Config, initDatabase, initEvent } from "#harmony/util";
+import { Config } from "#harmony/util";
+import { loadEnv } from "harmony.env";
+loadEnv();
 import http from "http";
 import * as ws from "ws";
 import { Connection } from "./events/Connection.js";

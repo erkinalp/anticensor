@@ -16,15 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Storage } from "./Storage.js";
+import Storage from "harmony-storage";
+
 import fs from "fs";
 import fsp from "fs/promises";
-import { join, dirname } from "path";
+import path, { join, dirname } from "path";
 import { Readable } from "stream";
 import ExifTransformer from "exif-be-gone";
 
 // TODO: split stored files into separate folders named after cloned route
-export class FileStorage implements Storage {
+export class FileStorage extends Storage.default {
     getFsPath(path: string): string {
         // STORAGE_LOCATION has a default value in start.ts
         const root = process.env.STORAGE_LOCATION || "../";
@@ -89,5 +90,18 @@ export class FileStorage implements Storage {
         if (!fs.existsSync(dirname(newPath))) fs.mkdirSync(dirname(newPath), { recursive: true });
 
         fs.renameSync(path, newPath);
+    }
+    static init() {
+        let location = process.env.STORAGE_LOCATION;
+        if (location) {
+            location = path.resolve(location);
+        } else {
+            location = path.join(process.cwd(), "files");
+        }
+        // TODO: move this to some start func, so it doesn't run when server is imported
+        //console.log(`[CDN] storage location: ${bgCyan(`${black(location)}`)}`);
+        if (!fs.existsSync(location)) fs.mkdirSync(location);
+        process.env.STORAGE_LOCATION = location;
+        return new FileStorage();
     }
 }

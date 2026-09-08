@@ -15,13 +15,17 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+console.log("hi?");
+import { loadEnv } from "harmony.env";
+loadEnv();
 
 import cluster, { Worker } from "cluster";
 import os from "os";
+
 import pkg from "picocolors";
 const { red, bold, yellow, cyan, blueBright, redBright } = pkg;
 import { initStats } from "./stats.js";
-import 'dotenv/config'
+
 import { centerString, getRevInfoOrFail, Logo } from "#harmony/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
@@ -29,8 +33,8 @@ const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 if (cluster.isPrimary) {
     const revInfo = getRevInfoOrFail();
     Logo.printLogo().then(() => {
-        const unformatted = `spacebar-server | !! Pre-release build !!`;
-        const formatted = `${blueBright("spacebar-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
+        const unformatted = `harmony-server | !! Pre-release build !!`;
+        const formatted = `${blueBright("harmony-server")} | ${redBright("⚠️ Pre-release build ⚠️")}`;
         console.log(bold(centerString(unformatted, 86).replace(unformatted, formatted)));
 
         const shortRev = revInfo.rev ? revInfo.rev.slice(0, 7) : "unknown";

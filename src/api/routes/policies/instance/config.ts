@@ -43,6 +43,7 @@ router.get(
             outputtedConfig = {
                 limits_user_maxGuilds: general.limits.user.maxGuilds,
                 limits_user_maxBio: general.limits.user.maxBio,
+                limits_user_maxPronouns: general.limits.user.maxPronouns,
                 limits_guild_maxEmojis: general.limits.guild.maxEmojis,
                 limits_guild_maxRoles: general.limits.guild.maxRoles,
                 limits_message_maxCharacters: general.limits.message.maxCharacters,

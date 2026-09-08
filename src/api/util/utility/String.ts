@@ -25,9 +25,7 @@ export function checkLength(str: string, min: number, max: number, key: string, 
         throw FieldErrors({
             [key]: {
                 code: "BASE_TYPE_BAD_LENGTH",
-                message: req.t("common:field.BASE_TYPE_BAD_LENGTH", {
-                    length: `${min} - ${max}`,
-                }),
+                message: req.i18n.field.BASE_TYPE_BAD_LENGTH(`${min} - ${max}`),
             },
         });
     }

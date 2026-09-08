@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "#harmony/api";
+import { makeUploadURLs, route } from "#harmony/api";
 import { Channel, Config, Permissions } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import { CloudAttachment } from "#harmony/util";
@@ -46,50 +46,7 @@ router.post(
         const user = req.user;
         const channel = await Channel.findOneOrFail({ where: { id: channel_id } });
 
-        const cdnUrl = Config.get().cdn.endpointPublic;
-        const batchId = `CLOUD_${user.id}_${randomString(128)}`;
-
-        // validate IDs
-        const seenIds: (string | undefined)[] = [];
-        for (const file of payload.files) {
-            if (seenIds.includes(file.id)) {
-                return res.status(400).json({
-                    code: 400,
-                    message: `Duplicate attachment ID: ${file.id}`,
-                });
-            }
-            seenIds.push(file.id);
-        }
-
-        const attachments = await Promise.all(
-            payload.files.map(async (attachment) => {
-                attachment.filename = attachment.filename.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-                const uploadFilename = `${channel_id}/${batchId}/${attachment.id ?? "0"}/${attachment.filename}`;
-                const newAttachment = CloudAttachment.create({
-                    user: user,
-                    channel: channel,
-                    uploadFilename: uploadFilename,
-                    userAttachmentId: attachment.id ?? "0",
-                    userFilename: attachment.filename,
-                    userFileSize: attachment.file_size,
-                    userIsClip: attachment.is_clip,
-                    userOriginalContentType: attachment.original_content_type,
-                });
-                await newAttachment.save();
-                return newAttachment;
-            }),
-        );
-
-        res.send({
-            attachments: attachments.map((a) => {
-                return {
-                    id: a.userAttachmentId,
-                    upload_filename: a.uploadFilename,
-                    upload_url: `${cdnUrl}/attachments/${a.uploadFilename}`,
-                    original_content_type: a.userOriginalContentType,
-                };
-            }),
-        } satisfies UploadAttachmentResponseSchema);
+        res.send(await makeUploadURLs(user, channel, payload.files));
     },
 );
 

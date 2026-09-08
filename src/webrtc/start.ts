@@ -19,13 +19,14 @@
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
-import { config } from "dotenv";
 import { Server } from "./Server.js";
+import { loadEnv } from "harmony.env";
+loadEnv();
+
 import fs from "fs";
 import cluster from "cluster";
-config({ quiet: true });
 
-const port = Number(process.env.PORT) || 3004;
+const port = Number(process.env.WRTC_WS_PORT || process.env.PORT || 3004);
 
 const server = new Server({
     port,

@@ -1,8 +1,8 @@
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
-import { config } from "dotenv";
-config({ quiet: true });
+import { loadEnv } from "harmony.env";
+loadEnv();
 
 process.env.DB_LOGGING = "true";
 

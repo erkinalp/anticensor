@@ -25,8 +25,9 @@
 	it doesn't break the below, thus we're left with this :sob:
 */
 
-require("dotenv").config({ quiet: true });
-const { initDatabase } = require("..");
+(await import("harmony.env")).loadEnv();
+
+const { initDatabase } = await import("..");
 
 (async () => {
     const db = await initDatabase();

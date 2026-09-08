@@ -15,8 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import { config } from "dotenv";
+import { loadEnv } from "harmony.env";
 import path from "path";
 import pkg from "picocolors";
 const { green, red, yellow } = pkg;
@@ -34,7 +33,7 @@ let isHeadlessProcess = false;
 // For typeorm cli
 if (!process.env) {
     isHeadlessProcess = true;
-    config({ quiet: true });
+    loadEnv();
 }
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
@@ -90,7 +89,7 @@ export async function initDatabase(): Promise<DataSource> {
                 "[Database]" +
                     red(
                         ` We don't have migrations for DB type '${DatabaseType}'` +
-                            ` To ignore, set DB_SYNC=true in your env. https://docs.spacebar.chat/setup/server/configuration/env/`,
+                            ` To ignore, set DB_SYNC=true in your env. https://docs.melodychat.org/setup/server/configuration/env/`,
                     ),
             );
             process.exit(1);

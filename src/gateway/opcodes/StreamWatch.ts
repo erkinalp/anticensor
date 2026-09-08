@@ -1,12 +1,14 @@
 import { genVoiceToken, parseStreamKey, Payload, WebSocket } from "#harmony/gateway";
 import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession } from "#harmony/util";
-import { check } from "./instanceOf.js";
 import { Not } from "typeorm";
-import { StreamWatchSchema } from "#harmony/schemas";
+import { ajv, StreamWatchSchema } from "#harmony/schemas";
 
 export async function onStreamWatch(this: WebSocket, data: Payload) {
     const startTime = Date.now();
-    check.call(this, StreamWatchSchema, data.d);
+
+    const s = ajv.getSchema("StreamWatchSchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const body = data.d as StreamWatchSchema;
 
     // TODO: apply perms: check if user is allowed to watch

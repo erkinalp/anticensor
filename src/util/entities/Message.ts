@@ -158,6 +158,11 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: Relation<User>[];
 
+    dedupeMentions() {
+        if (this.mentions) this.mentions = [...new Set(this.mentions)];
+        if (this.mention_roles) this.mention_roles = [...new Set(this.mention_roles)];
+    }
+
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Relation<Role>[];

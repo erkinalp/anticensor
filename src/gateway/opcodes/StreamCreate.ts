@@ -13,12 +13,13 @@ import {
     VoiceState,
     VoiceStateUpdateEvent,
 } from "#harmony/util";
-import { check } from "./instanceOf.js";
-import { StreamCreateSchema } from "#harmony/schemas";
+import { ajv, StreamCreateSchema } from "#harmony/schemas";
 
 export async function onStreamCreate(this: WebSocket, data: Payload) {
     const startTime = Date.now();
-    check.call(this, StreamCreateSchema, data.d);
+    const s = ajv.getSchema("StreamCreateSchema");
+    if (!s?.(data.d)) throw new Error("bad schema " + JSON.stringify(s?.errors));
+
     const body = data.d as StreamCreateSchema;
 
     if (body.channel_id.trim().length === 0) return;
@@ -43,7 +44,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
 
     if (!channel || (body.type === "guild" && channel.guild_id != body.guild_id)) return this.close(4000, "invalid channel");
 
-    const perm = this.permissions[channel.id] ?? (await getPermission(this.user_id, channel.id, channel.guild_id));
+    const perm = this.permissions[channel.id] ?? (await getPermission(this.user_id, channel.guild_id, channel.id));
     perm.hasThrow("STREAM");
 
     // TODO: actually apply preferred_region from the event payload

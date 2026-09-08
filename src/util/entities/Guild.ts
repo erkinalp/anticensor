@@ -31,6 +31,8 @@ import { User } from "./User.js";
 import { VoiceState } from "./VoiceState.js";
 import { Webhook } from "./Webhook.js";
 import { arrayRemove } from "#harmony/util";
+import { ChannelType } from "#schemas/api";
+
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -421,12 +423,15 @@ export class Guild extends BaseClass {
             );
         }
 
+        const has_default_channels = !body.channels || !body.channels.length;
         if (!body.channels || !body.channels.length) {
-            body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
+            body.channels = [
+                { id: "01", type: ChannelType.GUILD_TEXT, name: "general", nsfw: false },
+                { id: "02", type: ChannelType.GUILD_VOICE, name: "voice", nsfw: false },
+            ];
         }
 
         const ids = new Map();
-
         body.channels.forEach((x) => {
             if (x.id) {
                 ids.set(x.id, Snowflake.generate());
@@ -446,9 +451,12 @@ export class Guild extends BaseClass {
                 skipEventEmit: true,
             });
 
+            if (has_default_channels && !guild.system_channel_id) {
+                guild.system_channel_id = saved.id;
+            }
+
             await Guild.insertChannelInOrder(guild.id, saved.id, parent_id ?? channel.position ?? 0, guild);
         }
-
         return guild;
     }
 

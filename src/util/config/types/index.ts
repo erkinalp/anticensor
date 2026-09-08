@@ -21,7 +21,6 @@ export * from "./CdnConfiguration.js";
 export * from "./DefaultsConfiguration.js";
 export * from "./EmailConfiguration.js";
 export * from "./EndpointConfiguration.js";
-export * from "./ExternalTokensConfiguration.js";
 export * from "./GeneralConfiguration.js";
 export * from "./GifConfiguration.js";
 export * from "./GuildConfiguration.js";

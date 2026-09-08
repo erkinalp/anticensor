@@ -20,7 +20,8 @@
 	Calculates a discord.com-like rights value.
 */
 
-const { Rights } = require("..");
+(await import("harmony.env")).loadEnv();
+const { Rights } = await import("..");
 
 const allRights = new Rights(1).bitfield;
 console.log(`All rights:`, allRights);

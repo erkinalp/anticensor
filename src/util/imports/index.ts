@@ -17,5 +17,4 @@
 */
 
 export * from "./OrmUtils.js";
-export * from "./Jimp.js";
 export * from "./Interactions.js";

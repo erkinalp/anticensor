@@ -49,7 +49,7 @@ router.post(
             // guest accounts can delete accounts without password
             correctpass = await bcrypt.compare(req.body.password, user.data.hash);
             if (!correctpass) {
-                throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+                throw new HTTPError(req.i18n.login.INVALID_PASSWORD());
             }
         }
 

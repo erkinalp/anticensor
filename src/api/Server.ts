@@ -17,7 +17,7 @@
 */
 
 import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "#harmony/util";
-import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares/index.js";
+import { Authentication, CORS, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares/index.js";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "#lambert-server";
 import morgan from "morgan";
@@ -116,8 +116,6 @@ export class SpacebarServer extends Server {
         app.use("/api/v9", api);
         app.use("/api/v10", api); // https://discord.com/developers/docs/change-log#api-v10
         app.use("/api", api); // allow unversioned requests
-
-        app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
         app.get("/", (req, res) => {
             res.set("Cache-Control", "public, max-age=21600");

@@ -20,6 +20,5 @@ export * from "./Authentication.js";
 export * from "./BodyParser.js";
 export * from "./CORS.js";
 export * from "./ErrorHandler.js";
-export * from "./ImageProxy.js";
 export * from "./RateLimit.js";
 export * from "./Translation.js";

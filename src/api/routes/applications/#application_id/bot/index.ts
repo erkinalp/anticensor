@@ -49,7 +49,7 @@ router.post(
         const user = await createAppBotUser(app, req);
 
         res.send({
-            token: await generateToken(user.id),
+            token: await generateToken(user.id, 0),
         });
     },
 );
@@ -77,13 +77,13 @@ router.post(
 
         if (owner.id != req.user_id || !bot) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        if (owner.totp_secret && (!req.body.code || !verifyToken(owner.totp_secret, req.body.code))) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        if (owner.totp_secret && (!req.body.code || !verifyToken(owner.totp_secret, req.body.code))) throw new HTTPError(req.i18n.login.INVALID_TOTP_CODE(), 60008);
 
         bot.data = { hash: undefined, valid_tokens_since: new Date() };
 
         await bot.save();
 
-        const token = await generateToken(bot.id);
+        const token = await generateToken(bot.id, 0);
 
         res.json({ token }).status(200);
     },
@@ -111,7 +111,7 @@ router.patch(
             throw FieldErrors({
                 username: {
                     code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                    message: req.i18n.field.BASE_TYPE_REQUIRED(),
                 },
             });
         }
