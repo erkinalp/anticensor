@@ -19,8 +19,8 @@
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
-import { loadEnv } from "harmony.env";
-loadEnv();
+import "../util/initEnv.js";
+
 import { SpacebarServer } from "./Server.js";
 import cluster from "cluster";
 import os from "os";

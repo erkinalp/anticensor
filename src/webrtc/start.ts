@@ -20,8 +20,7 @@ process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 
 import { Server } from "./Server.js";
-import { loadEnv } from "harmony.env";
-loadEnv();
+import "../util/initEnv.js";
 
 import fs from "fs";
 import cluster from "cluster";

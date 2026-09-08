@@ -25,7 +25,7 @@
 	it doesn't break the below, thus we're left with this :sob:
 */
 
-(await import("harmony.env")).loadEnv();
+import "../dist/util/initEnv.js";
 
 const { initDatabase } = await import("..");
 

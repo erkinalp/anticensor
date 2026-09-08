@@ -19,6 +19,8 @@
 /*
 	Regenerates the `spacebarchat/server/assets/schemas.json` file, used for API/Gateway input validation.
 */
+import "../dist/util/initEnv.js";
+
 const __dirname = import.meta.dirname;
 
 import { Stopwatch } from "#harmony/util";
@@ -27,8 +29,6 @@ import fsp from "fs/promises";
 import path from "path";
 import TJS from "typescript-json-schema";
 import walk from "./util/walk.js";
-require("harmony.env").loadEnv();
-
 const totalSw = Stopwatch.startNew();
 
 const conWarn = console.warn;

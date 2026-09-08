@@ -4,7 +4,7 @@
 	Does not replace if change in util/licensePreamble.txt was made.
 	Does not prepend is file contains @fc-license-skip
 */
-require("harmony.env").loadEnv();
+import "../dist/util/initEnv.js";
 const Path = require("path");
 const fs = require("fs");
 const walk = require("./util/walk");

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { loadEnv } from "harmony.env";
-loadEnv();
+import "../util/initEnv.js";
+
 import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "#harmony/util";
 import { Connection, openConnections } from "./events/Connection.js";
 import http from "http";

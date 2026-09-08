@@ -1,6 +1,6 @@
 /* eslint-env node */
 
-require("harmony.env").loadEnv();
+import "../../dist/util/initEnv.js";
 const { OPCODES } = require("../../dist/gateway/util/Constants.js");
 const WebSocket = require("ws");
 const ENDPOINT = `ws://localhost:3001?v=9&encoding=json`;

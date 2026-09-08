@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { loadEnv } from "harmony.env";
-loadEnv();
+import "../util/initEnv.js";
 
 import fs from "fs";
 import cluster from "cluster";

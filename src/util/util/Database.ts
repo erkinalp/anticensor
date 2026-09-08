@@ -15,7 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { loadEnv } from "harmony.env";
+import "../initEnv.js";
 import path from "path";
 import pkg from "picocolors";
 const { green, red, yellow } = pkg;
@@ -30,11 +30,7 @@ import fs from "fs";
 export let dbConnection: DataSource | undefined;
 
 let isHeadlessProcess = false;
-// For typeorm cli
-if (!process.env) {
-    isHeadlessProcess = true;
-    loadEnv();
-}
+
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
 if (!process.env.DATABASE && !isHeadlessProcess) {
