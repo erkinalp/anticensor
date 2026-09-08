@@ -5,7 +5,7 @@ import path from "path";
 import { Request } from "express";
 const langs = new Set<string>(
     sfs
-        .readdirSync(path.join(__dirname, "./../../../assets/locales"))
+        .readdirSync(path.join(import.meta.dirname, "./../../../assets/locales"))
         .filter((_) => _.endsWith(".json"))
         .map((_) => _.replace(/\.json$/, "")),
 );
@@ -54,7 +54,7 @@ export class I18n {
         }
     }
     private static async getTranslationFile(lang: string) {
-        return JSON.parse(await fs.readFile(path.join(__dirname, "./../../../assets/locales", lang + ".json"), "utf8")) as translation;
+        return JSON.parse(await fs.readFile(path.join(import.meta.dirname, "./../../../assets/locales", lang + ".json"), "utf8")) as translation;
     }
     private static readonly globCache = new Map<string, globtype>();
     static async createLangGlob(langs: { q: number; lang: string }[]) {

@@ -15,9 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-console.log("hi?");
-import { loadEnv } from "harmony.env";
-loadEnv();
+import "../util/initEnv.js";
 
 import cluster, { Worker } from "cluster";
 import os from "os";
