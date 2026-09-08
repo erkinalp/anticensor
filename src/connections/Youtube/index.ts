@@ -17,7 +17,6 @@
 */
 
 import { ConnectedAccount, Connection, ConnectionLoader, DiscordApiErrors } from "@harmony/util";
-import wretch from "wretch";
 import { YoutubeSettings } from "./YoutubeSettings";
 import { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@harmony/schemas";
 
@@ -77,45 +76,46 @@ export default class YoutubeConnection extends Connection {
     async exchangeCode(state: string, code: string): Promise<ConnectedAccountCommonOAuthTokenResponse> {
         this.validateState(state);
 
-        const url = this.getTokenUrl();
-
-        return wretch(url.toString())
-            .headers({
+        const url = new URL(this.getTokenUrl());
+        url.searchParams.append("grant_type", "authorization_code");
+        url.searchParams.append("code", code);
+        url.searchParams.append("client_id", this.settings.clientId as string);
+        url.searchParams.append("client_secret", this.settings.clientSecret as string);
+        url.searchParams.append("redirect_uri", this.getRedirectUri());
+        console.log(url.toString());
+        const res = await fetch(url, {
+            headers: {
                 Accept: "application/json",
                 "Content-Type": "application/x-www-form-urlencoded",
-            })
-            .body(
-                new URLSearchParams({
-                    grant_type: "authorization_code",
-                    code: code,
-                    client_id: this.settings.clientId as string,
-                    client_secret: this.settings.clientSecret as string,
-                    redirect_uri: this.getRedirectUri(),
-                }),
-            )
-            .post()
-            .json<ConnectedAccountCommonOAuthTokenResponse>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
+            },
+            method: "POST",
+        });
+
+        if (!res.ok) {
+            throw DiscordApiErrors.GENERAL_ERROR;
+        }
+
+        return res.json() as Promise<ConnectedAccountCommonOAuthTokenResponse>;
     }
 
     async getUser(token: string): Promise<YouTubeConnectionChannelListResult> {
         const url = new URL(this.userInfoUrl);
-        return wretch(url.toString())
-            .headers({
+        const res = await fetch(url, {
+            headers: {
                 Authorization: `Bearer ${token}`,
-            })
-            .get()
-            .json<YouTubeConnectionChannelListResult>()
-            .catch((e) => {
-                console.error(e);
-                throw DiscordApiErrors.GENERAL_ERROR;
-            });
+            },
+            method: "GET",
+        });
+        if (!res.ok) {
+            throw DiscordApiErrors.GENERAL_ERROR;
+        }
+        return res.json() as Promise<YouTubeConnectionChannelListResult>;
     }
 
-    async handleCallback(params: ConnectionCallbackSchema): Promise<ConnectedAccount | null> {
+    async handleCallback(): Promise<null> {
+        throw new Error("bad");
+    }
+    async handleCallbackGet(params: Record<string, string>): Promise<ConnectedAccount | null> {
         const { state, code } = params;
         if (!code) throw new Error("No code provided");
 
@@ -131,7 +131,7 @@ export default class YoutubeConnection extends Connection {
             token_data: { ...tokenData, fetched_at: Date.now() },
             user_id: userId,
             external_id: userInfo.items[0].id,
-            friend_sync: params.friend_sync,
+            friend_sync: false,
             name: userInfo.items[0].snippet.title,
             type: this.id,
         });
