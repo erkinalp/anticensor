@@ -49,8 +49,8 @@ if (cluster.isPrimary && process.env.NODE_ENV == "production") {
 } else {
     const port = Number(process.env.PORT) || 3001;
 
-    if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-api-${cluster.worker ? cluster.worker.id : port}`);
-    process.title = `sb-api-${cluster.worker ? cluster.worker.id : port}`;
+    if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `harmony-api-${cluster.worker ? cluster.worker.id : port}`);
+    process.title = `hm-api-${cluster.worker ? cluster.worker.id : port}`;
 
     const server = new SpacebarServer({ port });
     server.start().catch(console.error);
