@@ -251,7 +251,7 @@ export class Message extends BaseClass {
                 where: {
                     id: In([...neededIds]),
                 },
-                relations: { author: true, mentions: true, mention_roles: true, mention_channels: true },
+                relations: { author: true, mentions: true, mention_roles: true, mention_channels: true, attachments: true },
             });
             newMessages.forEach((msg) => curMs.set(msg.id, msg));
         }
