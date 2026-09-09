@@ -29,7 +29,7 @@ export function getDefaultFetchOptions() {
     return {
         redirect: "follow",
         headers: {
-            "user-agent": Config.get().embeds.defaultUserAgent ?? "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)",
+            "user-agent": Config.get().embeds.defaultUserAgent ?? "Mozilla/5.0 (compatible; Harmony/1.0; +https://codeberg.org/MelodyChat/Harmony)",
             "accept-language": "en-US,en;q=0.9",
         },
         // size: 1024 * 1024 * 5, 	// grabbed from config later
