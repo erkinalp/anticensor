@@ -31,7 +31,7 @@ const server = new Server({
     port,
 });
 
-if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-wrtc-${cluster.worker ? cluster.worker.id : port}`);
-process.title = `sb-wrtc-${cluster.worker ? cluster.worker.id : port}`;
+if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `harmony-wrtc-${cluster.worker ? cluster.worker.id : port}`);
+process.title = `hm-wrtc-${cluster.worker ? cluster.worker.id : port}`;
 
 server.start().catch((e) => console.error("Failed to start WebRTC server:", e));

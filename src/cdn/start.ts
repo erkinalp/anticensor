@@ -27,8 +27,8 @@ Config.init().then(async () => {
     server
         .start()
         .then(() => {
-            if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-cdn-${cluster.worker ? cluster.worker.id : server.options.port}`);
-            process.title = `sb-cdn-${cluster.worker ? cluster.worker.id : server.options.port}`;
+            if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `harmony-cdn-${cluster.worker ? cluster.worker.id : server.options.port}`);
+            process.title = `hm-cdn-${cluster.worker ? cluster.worker.id : server.options.port}`;
 
             console.log("[Server] started on :" + server.options.port);
         })
