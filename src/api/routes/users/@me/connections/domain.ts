@@ -23,6 +23,7 @@ import { HTTPError } from "#util/util/lambert-server";
 import { createHash } from "node:crypto";
 import dns from "node:dns/promises";
 import { ConnectedAccountSchema } from "#harmony/schemas";
+import { proxyFetch } from "../../../../../util/util/porxyFetch.js";
 
 const router: Router = Router({ mergeParams: true });
 function domainToHash(domain: string, userId: string) {
@@ -47,26 +48,42 @@ router.post("/:domain", route({ permission: null }), async (req: Request, res: R
         })
     )
         throw new HTTPError("Domain is already linked");
+
+    function createConnection() {
+        const con = ConnectedAccount.create({
+            user_id: req.user_id,
+            verified: true,
+            type: "domain",
+            name: domain,
+            external_id: domain,
+        } satisfies ConnectedAccountSchema);
+        await con.save();
+
+        await emitEvent({
+            event: "USER_CONNECTIONS_UPDATE",
+            data: { ...con, token_data: undefined },
+            user_id: req.user_id,
+        });
+        res.json(con.toJSON());
+        return;
+    }
     const proof = `hm${conf.general.instanceId}=${hash}`;
     try {
         const records = (await dns.resolveTxt("_harmony." + domain)).flat().flatMap((_) => _.split("\n"));
         for (const r of records) {
             if (r === proof) {
-                const con = ConnectedAccount.create({
-                    user_id: req.user_id,
-                    verified: true,
-                    type: "domain",
-                    name: domain,
-                    external_id: domain,
-                } satisfies ConnectedAccountSchema);
-                await con.save();
-
-                await emitEvent({
-                    event: "USER_CONNECTIONS_UPDATE",
-                    data: { ...con, token_data: undefined },
-                    user_id: req.user_id,
-                });
-                res.json(con.toJSON());
+                await createConnection();
+                return;
+            }
+        }
+    } catch (e) {
+        //console.error(e);
+    }
+    try {
+        const f = await (await proxyFetch("https://" + domain + "/.well-known/harmony_connection")).text();
+        for (const line of f.split("\n")) {
+            if (line.trim() === proof) {
+                await createConnection();
                 return;
             }
         }
