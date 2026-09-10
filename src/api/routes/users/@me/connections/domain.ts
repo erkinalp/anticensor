@@ -24,6 +24,7 @@ import { createHash } from "node:crypto";
 import dns from "node:dns/promises";
 import { ConnectedAccountSchema } from "#harmony/schemas";
 import { proxyFetch } from "../../../../../util/util/porxyFetch.js";
+import { Http2ServerRequest } from "node:http2";
 
 const router: Router = Router({ mergeParams: true });
 function domainToHash(domain: string, userId: string) {
@@ -36,6 +37,7 @@ function domainToHash(domain: string, userId: string) {
 
 router.post("/:domain", route({ permission: null }), async (req: Request, res: Response) => {
     const { domain } = req.params as { [key: string]: string };
+    if (!domain.match(/^[a-zA-Z0-9\-_]*(\.[a-zA-Z0-9\-_]*)+$/)) throw new HTTPError("not a valid domain");
     const conf = Config.get();
     const hash = domainToHash(domain, req.user_id);
     if (
