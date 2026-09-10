@@ -49,7 +49,7 @@ router.post("/:domain", route({ permission: null }), async (req: Request, res: R
     )
         throw new HTTPError("Domain is already linked");
 
-    function createConnection() {
+    async function createConnection() {
         const con = ConnectedAccount.create({
             user_id: req.user_id,
             verified: true,
