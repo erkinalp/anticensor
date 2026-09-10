@@ -48,6 +48,7 @@ export interface IdentifySchema {
         client_app_state?: string;
         is_fast_connect?: boolean;
         gateway_connect_reasons?: string;
+        qos_token?: string;
     };
     intents?: number; // this is a number, we can make it a bigint later
     presence?: SendActivitySchema;
