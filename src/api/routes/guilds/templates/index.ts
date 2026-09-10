@@ -17,7 +17,7 @@
 */
 
 import { route } from "#harmony/api";
-import { Config, DiscordApiErrors, Guild, Member, Tag, Template } from "#harmony/util";
+import { Config, DiscordApiErrors, Guild, Member, Snowflake, Tag, Template } from "#harmony/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "#lambert-server";
 import { ChannelType, GuildTemplateCreateSchema } from "#harmony/schemas";
@@ -58,7 +58,7 @@ router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema",
     const guild_count = await Member.count({ where: { id: req.user_id } });
     if (guild_count >= maxGuilds) throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
 
-    const template = (await getTemplate(template_code)) as Template;
+    const template = await getTemplate(template_code);
 
     const guild = await Guild.createGuild({
         ...template.serialized_source_guild,
@@ -73,7 +73,7 @@ router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema",
     res.status(201).json({ id: guild.id });
 });
 
-async function getTemplate(code: string) {
+async function getTemplate(code: string): Promise<Template> {
     const { allowDiscordTemplates, allowRaws, enabled } = Config.get().templates;
 
     if (!enabled) throw new HTTPError("Template creation & usage is disabled on this instance.", 403);
@@ -92,7 +92,7 @@ async function getTemplate(code: string) {
 
         // Role ID is position in new Discord template schema. Do a little converting.
         templateData.serialized_source_guild.roles.forEach((role) => {
-            role.position = role.id as unknown as number;
+            role.position = +role.id;
         });
 
         templateData.serialized_source_guild.channels.forEach((channel) => {
@@ -111,12 +111,12 @@ async function getTemplate(code: string) {
 
         return templateData;
     }
-
-    if (code.startsWith("external:")) {
-        if (!allowRaws) throw new HTTPError("Importing raws is disabled on this instance.", 403);
-
-        return code.split("external:", 2)[1];
-    }
+    //TODO this is not at all safe! we need a safer type checked thing for this instead, also this neglected to return the JSON
+    // if (code.startsWith("external:")) {
+    //     if (!allowRaws) throw new HTTPError("Importing raws is disabled on this instance.", 403);
+    //
+    //     return code.split("external:", 2)[1];
+    // }
 
     return await Template.findOneOrFail({
         where: { code: code },

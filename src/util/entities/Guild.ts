@@ -386,42 +386,40 @@ export class Guild extends BaseClass {
             region: Config.get().regions.default,
         }).save();
 
-        // we have to create the role _after_ the guild because else we would get a foreign key error
-        // TODO: make the @everyone a pseudorole that is dynamically generated at runtime so we can save storage
-        await Role.create({
-            id: guild_id,
-            guild_id: guild_id,
-            color: 0,
-            colors: { primary_color: 0 },
-            hoist: false,
-            managed: false,
-            mentionable: false,
-            name: "@everyone",
-            permissions: "2251804225",
-            position: 0,
-            icon: undefined,
-            unicode_emoji: undefined,
-            flags: 0, // TODO?
-        }).save();
+        const roleMap = new Map<string, Role>();
 
         // create custom roles if provided
         if (body.roles && body.roles.length) {
             await Promise.all(
-                body.roles?.map((role) => {
-                    new Promise((resolve) => {
-                        Role.create({
-                            ...role,
-                            guild_id,
-                            id:
-                                // role.id === body.template_guild_id indicates that this is the @everyone role
-                                role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
-                        })
-                            .save()
-                            .then(resolve);
-                    });
+                body.roles.map(async (role) => {
+                    const r = await Role.create({
+                        ...role,
+                        guild_id,
+                        id:
+                            // role.id === body.template_guild_id indicates that this is the @everyone role
+                            role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
+                    }).save();
+                    if (role.id !== undefined) roleMap.set(role.id, r);
                 }),
             );
         }
+
+        if (!roleMap.has(body.source_guild_id as string))
+            await Role.create({
+                id: guild_id,
+                guild_id: guild_id,
+                color: 0,
+                colors: { primary_color: 0 },
+                hoist: false,
+                managed: false,
+                mentionable: false,
+                name: "@everyone",
+                permissions: "2251804225",
+                position: 0,
+                icon: undefined,
+                unicode_emoji: undefined,
+                flags: 0, // TODO?
+            }).save();
 
         const has_default_channels = !body.channels || !body.channels.length;
         if (!body.channels || !body.channels.length) {
@@ -431,7 +429,7 @@ export class Guild extends BaseClass {
             ];
         }
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
         body.channels.forEach((x) => {
             if (x.id) {
                 ids.set(x.id, Snowflake.generate());
@@ -440,9 +438,18 @@ export class Guild extends BaseClass {
         guild.channel_ordering ??= [];
 
         for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+            const id = ids.get(channel.id as string) || Snowflake.generate();
 
-            const parent_id = ids.get(channel.parent_id);
+            const parent_id = ids.get(channel.parent_id as string);
+            if (channel.permission_overwrites)
+                channel.permission_overwrites = channel.permission_overwrites?.filter((o) => {
+                    const r = roleMap.get(o.id);
+                    if (r) {
+                        o.id = r.id;
+                        return true;
+                        //Permissions for members are not preserved
+                    } else return false;
+                });
 
             const saved = await Channel.createChannel({ ...channel, guild_id, id, parent_id }, body.owner_id, {
                 keepId: true,
