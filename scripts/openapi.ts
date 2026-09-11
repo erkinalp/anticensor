@@ -40,9 +40,9 @@ let missingRequestSchemaCount = 0;
 let specification = {
     openapi: "3.1.0",
     info: {
-        title: "Spacebar Server",
+        title: "Harmony Server",
         description:
-            "Spacebar is a Discord.com server implementation and extension, with the goal of complete feature parity with Discord.com, all while adding some additional goodies, security, privacy, and configuration options.",
+            "Harmony is a Discord.com server implementation and extension, with the goal of complete feature parity with Discord.com, all while adding some additional goodies, security, privacy, and configuration options.",
         license: {
             name: "AGPLV3",
             url: "https://www.gnu.org/licenses/agpl-3.0.en.html",
@@ -50,13 +50,13 @@ let specification = {
         version: "1.0.0",
     },
     externalDocs: {
-        description: "Spacebar Docs",
-        url: "https://docs.spacebar.chat",
+        description: "Harmony Docs",
+        url: "https://docs.melodychat.org/",
     },
     servers: [
         {
-            url: "https://old.server.spacebar.chat/api/",
-            description: "Official Spacebar Instance",
+            url: "https://api.harmony.melodychat.org/",
+            description: "Official Harmony Instance",
         },
     ],
     components: {
