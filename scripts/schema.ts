@@ -42,7 +42,8 @@ console.warn = (...args) => {
 import pkg from "picocolors";
 const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright, blueBright, blue, cyan, bgRed, gray } = pkg;
 const schemaPath = path.join(__dirname, "..", "assets", "schemas.json");
-const exclusionList = JSON.parse(fs.readFileSync(path.join(__dirname, "schemaExclusions.json"), { encoding: "utf8" }));
+import type exclusionListType from "./schemaExclusions.json";
+const exclusionList = JSON.parse(fs.readFileSync(path.join(__dirname, "schemaExclusions.json"), { encoding: "utf8" })) as typeof exclusionListType;
 
 // @type {TJS.PartialArgs}
 const settings = {
@@ -76,7 +77,7 @@ const ExcludeAndWarn = [...exclusionList.manualWarn, ...exclusionList.manualWarn
 const Excluded = [...exclusionList.manual, ...exclusionList.manualRe.map((r) => new RegExp(r)), ...exclusionList.auto.map((r) => r.value)];
 const Included = [...exclusionList.include, ...exclusionList.includeRe.map((r) => new RegExp(r))];
 
-const excludedLambdas = [
+const excludedLambdas: ((n: string, s: any) => boolean | void)[] = [
     (n, s) => {
         // attempt to import
         if (JSON.stringify(s).includes(`#/definitions/import(`)) {
@@ -93,7 +94,7 @@ const excludedLambdas = [
         }
     },
     (n, s) => {
-        if (JSON.stringify(s).includes(process.env.HOME)) {
+        if (JSON.stringify(s).includes(process.env.HOME as string)) {
             console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it leaked a $HOME path.`);
             exclusionList.auto.push({ value: n, reason: "Leaked $HOME" });
             return true;
@@ -135,7 +136,7 @@ const excludedLambdas = [
     // }
 ];
 
-function includesMatch(haystack, needles, log = false) {
+function includesMatch(haystack: any, needles: any, log = false) {
     for (const needle of needles) {
         const match = needle instanceof RegExp ? needle.test(haystack) : haystack === needle;
         if (match) {
@@ -146,7 +147,7 @@ function includesMatch(haystack, needles, log = false) {
     return null;
 }
 const checked = new WeakSet();
-function strip(obj) {
+function strip(obj: any) {
     if (checked.has(obj)) return;
     checked.add(obj);
     for (const [key, value] of Object.entries(obj)) {
@@ -168,7 +169,7 @@ async function main() {
 
     process.stdout.write("Loading program... ");
     const program = TJS.programFromConfig(path.join(__dirname, "..", "tsconfig.json"), walk(path.join(__dirname, "..", "src", "schemas")));
-    const generator = TJS.buildGenerator(program, settings);
+    const generator = TJS.buildGenerator(program, settings as any);
     if (!generator || !program) {
         console.log(redBright("Failed to create schema generator."));
         return;
@@ -204,9 +205,9 @@ async function main() {
     process.stdout.write("Done in " + yellowBright(elapsedList.totalMilliseconds + "." + elapsedList.microseconds) + " ms\n");
     console.log("Found", yellowBright(schemas.length), "schemas to process.");
 
-    let definitions = {};
-    let nestedDefinitions = {};
-    let writePromises = [];
+    let definitions = {} as any;
+    let nestedDefinitions = {} as any;
+    let writePromises = [] as any[];
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         fs.rmSync("schemas_orig", { recursive: true, force: true });
@@ -222,11 +223,11 @@ async function main() {
     const schemaSw = Stopwatch.startNew();
     for (const name of schemas) {
         process.stdout.write(`Processing schema ${name}... `);
-        let part = TJS.generateSchema(program, name, settings, [], generator);
+        let part = TJS.generateSchema(program, name, settings as any, [], generator);
         if (!part) continue;
         strip(part);
 
-        if (definitions[name]) {
+        if (definitions[name as keyof typeof definitions]) {
             process.stdout.write(yellow(` [ERROR] Duplicate schema name detected: ${name}. Overwriting previous schema.`));
         }
 
@@ -236,14 +237,14 @@ async function main() {
 
         // part = removeKeysMatchingRecursive(part, /^__@annotationsKey.*/, 128);
         // part = removeArrayValuesMatchingRecursive(part, /^__@annotationsKey.*/, 128);
-        const _matchesRegex = (r) => (k, v, _) => (typeof k === "string" && k.match(r)) || (typeof v === "string" && v.match(r));
+        const _matchesRegex = (r: RegExp) => (k: string, v: string) => (typeof k === "string" && k.match(r)) || (typeof v === "string" && v.match(r));
         part = await removeAllMatchingRecursive(part, _matchesRegex(/__@annotationsKey/));
         part = await removeAllMatchingRecursive(part, _matchesRegex(/ToGuildSource/));
 
         if (process.env.WRITE_SCHEMA_DIR === "true") writePromises.push(async () => await fsp.writeFile(path.join("schemas_orig", `${name}.json`), JSON.stringify(part, null, 4)));
 
         // testing:
-        function mergeDefs(schemaName, schema) {
+        function mergeDefs(schemaName: string, schema: any) {
             if (schema.definitions) {
                 // schema["x-sb-defs"] = Object.keys(schema.definitions);
                 process.stdout.write(cyanBright("Processing nested... "));
@@ -353,7 +354,7 @@ async function main() {
     console.log("\nSuccessfully wrote", Object.keys(definitions).length, "schemas to", schemaPath, "in", elapsedMs, "ms,", fs.statSync(schemaPath).size, "bytes.");
 }
 
-function deleteOneOfKindUndefinedRecursive(obj, path) {
+function deleteOneOfKindUndefinedRecursive(obj: any, path: string) {
     if (obj?.type === "object" && obj?.properties?.oneofKind?.type === "undefined") return true;
 
     for (const key in obj) {
@@ -366,7 +367,7 @@ function deleteOneOfKindUndefinedRecursive(obj, path) {
     return false;
 }
 
-function filterSchema(schema) {
+function filterSchema(schema: any) {
     // this is a hack. we may want to check if its a @column instead
     if (schema.properties) {
         for (let key in schema.properties) {
@@ -376,7 +377,7 @@ function filterSchema(schema) {
         }
     }
 
-    if (schema.required) schema.required = schema.required.filter((x) => !baseClassProperties.includes(x));
+    if (schema.required) schema.required = schema.required.filter((x: string) => !baseClassProperties.includes(x));
 
     // recurse into own definitions
     if (schema.definitions) {
@@ -387,7 +388,7 @@ function filterSchema(schema) {
     }
 }
 
-function deepEqual(a, b) {
+function deepEqual(a: any, b: any) {
     if (a === b) return true;
 
     if (typeof a !== "object" || typeof b !== "object" || a == null || b == null) {
@@ -408,8 +409,8 @@ function deepEqual(a, b) {
     return true;
 }
 
-function columnizedObjectDiff(a, b, trackEqual = false) {
-    const diffs = { left: {}, right: {}, ...(trackEqual ? { equal: {} } : {}) };
+function columnizedObjectDiff(a: any, b: any, trackEqual = false) {
+    const diffs = { left: {}, right: {}, ...(trackEqual ? { equal: {} } : {}) } as any;
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
     for (const key of keys) {
         if (!deepEqual(a[key], b[key])) {
@@ -421,7 +422,7 @@ function columnizedObjectDiff(a, b, trackEqual = false) {
 }
 
 const showScanDepth = process.env.SCHEMAS_SHOW_SCAN_DEPTH === "true";
-async function removeAllMatchingRecursive(o, selector, maxDepth = 32, path = "$") {
+async function removeAllMatchingRecursive(o: any, selector: any, maxDepth = 32, path = "$") {
     // process.stdout.write("S");
     // console.log("scan @", path, "with depth", maxDepth, typeof o, o);
     // await printEnd(path, path.length);
@@ -443,7 +444,7 @@ async function removeAllMatchingRecursive(o, selector, maxDepth = 32, path = "$"
 main().then(() => {});
 
 // this is broken, figure this out someday - would be really neat to have
-async function printEnd(str, len) {
+async function printEnd(str: string, len: number) {
     const width = process.stdout.columns || 80;
     const height = process.stdout.rows || 25;
 
@@ -453,9 +454,9 @@ async function printEnd(str, len) {
     const eraseLine = "\x1b[2K";
     const down1 = "\x1b[1E";
     const up1 = "\x1b[1F";
-    const setCol = (col) => `\x1b[${col}G`;
-    const setTopPos = (col) => `\x1b[1;${col}H`;
-    const setBottomPos = (col) => `\x1b[${height};${col}H`;
+    const setCol = (col: any) => `\x1b[${col}G`;
+    const setTopPos = (col: any) => `\x1b[1;${col}H`;
+    const setBottomPos = (col: any) => `\x1b[${height};${col}H`;
 
     const startColumn = Math.max(1, width - len + 1);
 
@@ -465,6 +466,6 @@ async function printEnd(str, len) {
     await sleep(12);
 }
 
-async function sleep(delay) {
+async function sleep(delay: number) {
     return new Promise((res, rej) => setTimeout(res, delay));
 }
