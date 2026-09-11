@@ -20,8 +20,8 @@ import fs from "fs";
 import path from "path";
 
 let content = `/*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) ${new Date().getFullYear()} Spacebar and Spacebar Contributors
+	Harmony: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) ${new Date().getFullYear()} Harmony and Harmony Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published

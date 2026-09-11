@@ -7,11 +7,11 @@ const ENDPOINT = `ws://localhost:3001?v=9&encoding=json`;
 const TOKEN = process.env.TOKEN;
 const TOTAL_ITERATIONS = process.env.ITER ? parseInt(process.env.ITER) : 500;
 
-const doTimedIdentify = () =>
+const doTimedIdentify = (): Promise<number> =>
     new Promise((resolve) => {
-        let start;
+        let start: number;
         const ws = new WebSocket(ENDPOINT);
-        ws.on("message", (data) => {
+        ws.on("message", (data: string) => {
             const parsed = JSON.parse(data);
 
             switch (parsed.op) {
@@ -40,13 +40,13 @@ const doTimedIdentify = () =>
     });
 
 (async () => {
-    const perfs = [];
+    const perfs = [] as number[];
     while (perfs.length < TOTAL_ITERATIONS) {
         const ret = await doTimedIdentify();
         perfs.push(ret);
         // console.log(`${perfs.length}/${TOTAL_ITERATIONS} - this: ${Math.floor(ret)}ms`)
     }
 
-    const avg = perfs.reduce((prev, curr) => prev + curr) / (perfs.length - 1);
+    const avg = perfs.reduce((prev: number, curr: number) => prev + curr) / (perfs.length - 1);
     console.log(`Average identify time: ${Math.floor(avg * 100) / 100}ms`);
 })();
