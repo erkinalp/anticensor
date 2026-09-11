@@ -39,6 +39,7 @@ export interface IdentifySchema {
         referring_domain_current?: string;
         release_channel?: string;
         client_build_number?: number;
+        native_build_number?: number;
         client_event_source?: string;
         client_version?: string;
         system_locale?: string;
