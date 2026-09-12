@@ -31,6 +31,7 @@ import { onStreamWatch } from "./StreamWatch.js";
 import { onGuildSync } from "./GuildSync.js";
 import { onRequestChannelStatuses } from "./RequestChannelStatuses.js";
 import { onRequestChannelInfo } from "./RequestChannelInfo.js";
+import { onRequestSoundboardSounds } from "./RequestSoundboardSounds.js";
 
 export type OPCodeHandler = (this: WebSocket, data: Payload) => unknown;
 
@@ -51,6 +52,7 @@ export default {
     18: onStreamCreate,
     19: onStreamDelete,
     20: onStreamWatch,
+    31: onRequestSoundboardSounds,
     36: onRequestChannelStatuses,
     37: onGuildSubscriptionsBulk,
     40: onHeartbeat, // same as 1, except with extra data

@@ -65,3 +65,4 @@ export * from "./VoiceState.js";
 export * from "./Webhook.js";
 export * from "./Tag.js";
 export * from "./RunningPolls.js";
+export * from "./SoundboardSound.js";
