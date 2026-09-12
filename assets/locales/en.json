@@ -1,4 +1,7 @@
 {
+    "missing_permissions": {
+        "SOUNDBOARD": "You are missing MANAGE_EXPRESSIONS and aren't the owner of the sound while having CREATE_EXPRESSIONS"
+    },
     "login": {
         "INVALID_LOGIN": "Invalid login or password.",
         "INVALID_PASSWORD": "Invalid Password",

@@ -28,14 +28,6 @@ router.get(
     "/",
     route({
         permission: [],
-        responses: {
-            200: {
-                body: "GuildBansResponse",
-            },
-            403: {
-                body: "APIErrorResponse",
-            },
-        },
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -51,19 +43,11 @@ router.get(
         return res.json(sounds.map((_) => _.toJSON(perms)));
     },
 );
-//https://cdn.discordapp.com/soundboard-sounds/2
+
 router.post(
     "/",
     route({
         permission: "CREATE_GUILD_EXPRESSIONS",
-        responses: {
-            200: {
-                body: "GuildBansResponse",
-            },
-            403: {
-                body: "APIErrorResponse",
-            },
-        },
         requestBody: "CreateSoundboardSoundSchema",
     }),
     async (req: Request, res: Response) => {
