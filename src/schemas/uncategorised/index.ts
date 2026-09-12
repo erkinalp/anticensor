@@ -101,3 +101,4 @@ export * from "./ChannelCreateSchema.js";
 export * from "./WebRTCInternalSchemas.js";
 export * from "./PollPutSchema.js";
 export * from "./LazyRequestSchema.js";
+export * from "./SoundSchema.js";

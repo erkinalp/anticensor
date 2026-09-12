@@ -16,6 +16,7 @@ export function registerBasicRoutes(app: Application) {
     app.use("/avatar-decoration-presets", registerRoute("avatar-decoration-presets", { getonly: true, noHash: true }));
     app.use("/emojis", registerRoute("emojis", { noHash: true }));
     app.use("/stickers", registerRoute("stickers", { noHash: true }));
+    app.use("/soundboard-sounds", registerRoute("soundboard-sounds", { noHash: true, sound: true }));
     const gp = registerRoute("guild-profiles", {
         ids: 2,
 

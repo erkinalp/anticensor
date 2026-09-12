@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { emitEvent, SoundboardSound } from "#harmony/util";
+import { emitEvent, Permissions, SoundboardSound } from "#harmony/util";
 import { WebSocket, Payload } from "#harmony/gateway";
 import { ajv, RequestSoundboardSoundsSchema } from "#harmony/schemas";
 import { In } from "typeorm";
@@ -31,16 +31,21 @@ export async function onRequestSoundboardSounds(this: WebSocket, { d }: Payload)
         where: {
             guild_id: In(body.guild_ids),
         },
+        relations: {
+            user: true,
+        },
     });
     const guilds = Object.groupBy(sounds, (s) => s.guild_id as string);
     await Promise.all(
         body.guild_ids.map(async (guild_id) => {
+            const p = this.permissions[guild_id];
+            const perms = p?.has(Permissions.FLAGS.CREATE_GUILD_EXPRESSIONS) || p?.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS);
             await emitEvent({
                 event: "SOUNDBOARD_SOUNDS",
                 user_id: this.user_id,
                 data: {
                     guild_id,
-                    soundboard_sounds: guilds[guild_id]?.map((_) => _.toJSON()) || [],
+                    soundboard_sounds: guilds[guild_id]?.map((_) => _.toJSON(perms)) || [],
                 },
             });
         }),
