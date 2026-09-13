@@ -27,3 +27,7 @@ export interface UpdateSoundboardSoundSchema {
     emoji_id?: string | null;
     emoji_name?: string | null;
 }
+export interface SendSoundSchema {
+    sound_id: string;
+    source_guild_id?: string;
+}

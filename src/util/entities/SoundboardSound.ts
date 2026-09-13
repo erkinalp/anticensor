@@ -20,6 +20,7 @@ import { Column, Entity, JoinColumn, ManyToOne, Relation } from "typeorm";
 import { BaseClass } from "./BaseClass.js";
 import { Guild } from "./Guild.js";
 import { User } from "./User.js";
+import { Emoji } from "./Emoji.js";
 
 @Entity({
     name: "soundboard_sound",
@@ -33,6 +34,12 @@ export class SoundboardSound extends BaseClass {
 
     @Column({ nullable: true })
     emoji_id?: string;
+
+    @JoinColumn({ name: "emoji_id" })
+    @ManyToOne(() => Guild, (guild) => guild.stickers, {
+        onDelete: "SET NULL",
+    })
+    emoji?: Relation<Emoji>;
 
     @Column({ nullable: true })
     emoji_name?: string;
