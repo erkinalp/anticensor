@@ -65,6 +65,7 @@ router.get(
         });
 
         if (req.query.include_url) throw new HTTPError("include_url is not a supported option anymore");
+        const ret = tokens.map((x) => x.token);
 
         if (req.query.plain) return res.send(ret.join("\n"));
 
