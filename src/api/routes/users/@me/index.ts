@@ -117,7 +117,7 @@ router.patch(
         }
 
         if (body.username) {
-            checkUsername(body.username, req);
+            checkUsername(body.username, req.i18n);
             if (!body.password) {
                 throw FieldErrors({
                     password: {

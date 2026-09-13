@@ -125,7 +125,7 @@ router.patch(
 
         if (app.owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
-        if (body.username) checkUsername(body.username, req);
+        if (body.username) checkUsername(body.username, req.i18n);
 
         if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar);
         if (body.banner) body.banner = await handleFile(`/banners/${app.id}`, body.banner);
