@@ -18,7 +18,9 @@
 
 import { randomString, route } from "#harmony/api";
 import { Config, ValidRegistrationToken } from "#harmony/util";
+import { HTTPError } from "#lambert-server";
 import { Request, Response, Router } from "express";
+import { Http2ServerRequest } from "http2";
 
 const router: Router = Router({ mergeParams: true });
 export default router;
@@ -62,7 +64,7 @@ router.get(
             transaction: false,
         });
 
-        const ret = req.query.include_url ? tokens.map((x) => `${Config.get().general.frontPage}/register?token=${x.token}`) : tokens.map((x) => x.token);
+        if (req.query.include_url) throw new HTTPError("include_url is not a supported option anymore");
 
         if (req.query.plain) return res.send(ret.join("\n"));
 
