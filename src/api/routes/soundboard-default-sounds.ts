@@ -18,11 +18,13 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "#harmony/api";
+import { SoundboardSound } from "#harmony/util";
+import { IsNull } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
-//TODO stub
-router.get("/", route({ permission: null }), (req: Request, res: Response) => {
-    res.json([]).status(200);
+router.get("/", route({ permission: null }), async (req: Request, res: Response) => {
+    const hasPerms = req.rights.has("OPERATOR");
+    res.json((await SoundboardSound.find({ where: { guild_id: IsNull() }, relations: { user: hasPerms } })).map((_) => _.toJSON(hasPerms)));
 });
 
 export default router;
