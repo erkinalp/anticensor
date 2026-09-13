@@ -86,12 +86,18 @@ export default class LichessConnection extends Connection {
                     Authorization: `Bearer ${j.access_token}`,
                 },
             })
-        ).json()) as { username: string; id: number };
+        ).json()) as {
+            username: string;
+            id: number;
+            perfs: Record<string, { rating: number }>;
+        };
+        const ratings = Object.values(user.perfs).map((_) => _.rating);
+        const rating = ratings.reduce((prev, cur) => prev + cur, 0) / ratings.length;
 
         return await this.createConnection({
             user_id: userId,
             external_id: user.id + "",
-            metadata_: {},
+            metadata_: { rating },
             friend_sync: false,
             name: user.username,
             type: this.id,
