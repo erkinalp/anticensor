@@ -20,7 +20,6 @@ import { randomString, route } from "#harmony/api";
 import { Config, ValidRegistrationToken } from "#harmony/util";
 import { HTTPError } from "#lambert-server";
 import { Request, Response, Router } from "express";
-import { Http2ServerRequest } from "http2";
 
 const router: Router = Router({ mergeParams: true });
 export default router;
