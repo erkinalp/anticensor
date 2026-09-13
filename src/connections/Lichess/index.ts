@@ -89,7 +89,7 @@ export default class LichessConnection extends Connection {
         ).json()) as {
             username: string;
             id: number;
-            perfs: Record<string, { rating: number }>;
+            perfs: Record<string, { games: number; rating: number }>;
         };
         const ratings = Object.values(user.perfs).map((_) => _.rating);
         const rating = ratings.reduce((prev, cur) => prev + cur, 0) / ratings.length;
