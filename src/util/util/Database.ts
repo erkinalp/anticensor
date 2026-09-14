@@ -37,26 +37,27 @@ const dbConnectionString = process.env.DATABASE ?? "";
 export const DatabaseType = isHeadlessProcess ? "postgres" : dbConnectionString.split(":")[0]?.replace("+srv", "");
 const applyMigrations = process.env.APPLY_DB_MIGRATIONS !== "false";
 
-export const DataSourceOptions = isHeadlessProcess
-    ? (undefined as unknown as DataSource)
-    : new DataSource({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
-          type: DatabaseType,
+export const DataSourceOptions =
+    isHeadlessProcess && dbConnectionString
+        ? (undefined as unknown as DataSource)
+        : new DataSource({
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              //@ts-ignore type 'string' is not 'sqlite' | 'postgres' | etc etc
+              type: DatabaseType,
 
-          charset: "utf8mb4",
-          url: process.env.DATABASE,
-          entities: [path.join(import.meta.dirname, "..", "entities", "./index.js")],
-          synchronize: !!process.env.DB_SYNC,
-          logging: !!process.env.DB_LOGGING,
-          bigNumberStrings: false,
-          supportBigNumbers: true,
-          migrations: applyMigrations ? [path.join(import.meta.dirname, "..", "migration", DatabaseType, "*.js")] : [],
-          invalidWhereValuesBehavior: {
-              null: "ignore",
-              undefined: "ignore",
-          },
-      });
+              charset: "utf8mb4",
+              url: process.env.DATABASE,
+              entities: [path.join(import.meta.dirname, "..", "entities", "./index.js")],
+              synchronize: !!process.env.DB_SYNC,
+              logging: !!process.env.DB_LOGGING,
+              bigNumberStrings: false,
+              supportBigNumbers: true,
+              migrations: applyMigrations ? [path.join(import.meta.dirname, "..", "migration", DatabaseType, "*.js")] : [],
+              invalidWhereValuesBehavior: {
+                  null: "ignore",
+                  undefined: "ignore",
+              },
+          });
 
 // Gets the existing database connection
 export function getDatabase(): DataSource | null {
