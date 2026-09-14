@@ -22,7 +22,6 @@ export class GeneralConfiguration {
     instanceName: string = "Harmony Instance";
     serverName: string | null = null;
     instanceDescription: string | null = "This is a Harmony instance made in the pre-release days";
-    frontPage: string | null = null;
     tosPage: string | null = null;
     correspondenceEmail: string | null = null;
     correspondenceUserID: string | null = null;

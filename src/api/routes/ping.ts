@@ -45,8 +45,8 @@ router.get(
 
                 correspondenceEmail: general.correspondenceEmail,
                 correspondenceUserID: general.correspondenceUserID,
-
-                frontPage: general.frontPage,
+                //TODO remove this, we don't support this
+                frontPage: null,
                 tosPage: general.tosPage,
             },
         });
