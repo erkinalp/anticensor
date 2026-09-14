@@ -25,7 +25,7 @@ export default class LichessConnection extends Connection {
     public readonly authorizeUrl = "https://lichess.org/oauth";
     private challengeMap = new Map<string, string>();
     get clientID() {
-        return new URL(Config.get().api.endpointPublic as string).hostname;
+        return Config.get().general.instanceName;
     }
     init(): void {
         this.settings = { enabled: true };
