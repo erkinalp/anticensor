@@ -27,11 +27,12 @@ import path from "path";
 import fs from "fs";
 import { NO_AUTHORIZATION_ROUTES } from "../dist/api/middlewares/Authentication.js";
 import pkg from "picocolors";
+import type schematype from "../assets/schemas.json";
 const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = pkg;
 
 const openapiPath = path.join(__dirname, "..", "assets", "openapi.json");
 const SchemaPath = path.join(__dirname, "..", "assets", "schemas.json");
-const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }));
+const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" })) as typeof schematype;
 let missingRouteCount = 0;
 let missingResponseSchemaCount = 0;
 let missingRequestSchemaCount = 0;
@@ -39,9 +40,9 @@ let missingRequestSchemaCount = 0;
 let specification = {
     openapi: "3.1.0",
     info: {
-        title: "Spacebar Server",
+        title: "Harmony Server",
         description:
-            "Spacebar is a Discord.com server implementation and extension, with the goal of complete feature parity with Discord.com, all while adding some additional goodies, security, privacy, and configuration options.",
+            "Harmony is a Discord.com server implementation and extension, with the goal of complete feature parity with Discord.com, all while adding some additional goodies, security, privacy, and configuration options.",
         license: {
             name: "AGPLV3",
             url: "https://www.gnu.org/licenses/agpl-3.0.en.html",
@@ -49,13 +50,13 @@ let specification = {
         version: "1.0.0",
     },
     externalDocs: {
-        description: "Spacebar Docs",
-        url: "https://docs.spacebar.chat",
+        description: "Harmony Docs",
+        url: "https://docs.melodychat.org/",
     },
     servers: [
         {
-            url: "https://old.server.spacebar.chat/api/",
-            description: "Official Spacebar Instance",
+            url: "https://api.harmony.melodychat.org/",
+            description: "Official Harmony Instance",
         },
     ],
     components: {
@@ -71,25 +72,26 @@ let specification = {
     },
     tags: [],
     paths: {},
-};
+} as any;
 
 const schemaRegEx = new RegExp(/^[\w.]+$/);
-function combineSchemas(schemas) {
-    let definitions = {};
+function combineSchemas(schemas: typeof schematype) {
+    let definitions = {} as any;
 
-    for (const name in schemas) {
-        definitions = {
-            ...definitions,
-            ...schemas[name].definitions,
-            [name]: {
-                ...schemas[name],
-                definitions: undefined,
-                $schema: undefined,
-            },
-        };
+    for (const name of Object.keys(schemas) as (keyof typeof schematype)[]) {
+        if ("definitions" in schemas[name])
+            definitions = {
+                ...definitions,
+                ...(schemas[name].definitions as any),
+                [name]: {
+                    ...schemas[name],
+                    definitions: undefined,
+                    $schema: undefined,
+                },
+            };
     }
 
-    for (const key in definitions) {
+    for (const key of Object.keys(definitions)) {
         if (!schemaRegEx.test(key)) {
             console.error(` \x1b[5m${bgRedBright("ERROR")}\x1b[25m Invalid schema name: ${key}, context:`, definitions[key]);
             continue;
@@ -103,10 +105,11 @@ function combineSchemas(schemas) {
 
         if (typeof definition.properties === "object") {
             for (const property of Object.values(definition.properties)) {
-                if (Array.isArray(property.type)) {
-                    if (property.type.includes("null")) {
-                        property.type = property.type.find((x) => x !== "null");
-                        property.nullable = true;
+                const p = property as any;
+                if (Array.isArray(p.type)) {
+                    if (p.type.includes("null")) {
+                        p.type = p.type.find((x: string) => x !== "null");
+                        p.nullable = true;
                     }
                 }
             }
@@ -116,11 +119,11 @@ function combineSchemas(schemas) {
     return definitions;
 }
 
-function getTag(key) {
-    return key.match(/\/([\w-]+)/)[1];
+function getTag(key: string) {
+    return key.match(/\/([\w-]+)/)![1];
 }
 
-async function apiRoutes(missingRoutes) {
+async function apiRoutes(missingRoutes: any) {
     const routes = await getRouteDescriptions();
 
     // populate tags
@@ -175,7 +178,7 @@ async function apiRoutes(missingRoutes) {
         if (route.responses) {
             obj.responses = {};
 
-            for (const [k, v] of Object.entries(route.responses)) {
+            for (const [k, v] of Object.entries(route.responses) as [any, any]) {
                 if (v.body) {
                     obj.responses[k] = {
                         description: obj?.responses?.[k]?.description || "",
@@ -215,7 +218,7 @@ async function apiRoutes(missingRoutes) {
 
         // handles path parameters
         if (p.includes(":")) {
-            obj.parameters = p.match(/:\w+/g)?.map((x) => ({
+            obj.parameters = p.match(/:\w+/g)?.map((x: string) => ({
                 name: x.replace(":", ""),
                 in: "path",
                 required: true,
@@ -226,7 +229,7 @@ async function apiRoutes(missingRoutes) {
 
         if (route.query) {
             // map to array
-            const query = Object.entries(route.query).map(([k, v]) => ({
+            const query = Object.entries(route.query).map(([k, v]: any[]) => ({
                 name: k,
                 in: "query",
                 required: v.required,

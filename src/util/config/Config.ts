@@ -43,7 +43,6 @@ import {
 } from "./types/index.js";
 
 export class ConfigValue {
-    admin: EndpointConfiguration = new EndpointConfiguration();
     gateway: EndpointConfiguration = new EndpointConfiguration();
     cdn: CdnConfiguration = new CdnConfiguration();
     api: ApiConfiguration = new ApiConfiguration();

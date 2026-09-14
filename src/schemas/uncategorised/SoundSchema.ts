@@ -1,23 +1,33 @@
 /*
-	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
-	
+	Harmony: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Harmony and Harmony Contributors
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
 	by the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
-	
+
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export class UserConfiguration {
-    blockedContains: string[] = ["discord", "clyde", "steam", "community", "support", "ticket", "harmony", "fermi"];
-    blockedEquals: string[] = ["everyone", "here"];
-    botsCanUseInvites = false;
+export interface CreateSoundboardSoundSchema extends UpdateSoundboardSoundSchema {
+    name: string;
+    sound: string;
+}
+
+export interface UpdateSoundboardSoundSchema {
+    name?: string;
+    volume?: number | null;
+    emoji_id?: string | null;
+    emoji_name?: string | null;
+}
+export interface SendSoundSchema {
+    sound_id: string;
+    source_guild_id?: string;
 }

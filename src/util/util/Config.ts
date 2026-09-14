@@ -38,6 +38,10 @@ export class Config {
         console.log("[Config] Loading configuration...");
         if (!process.env.CONFIG_PATH) {
             if (jsonOnly) throw new Error("WebRTC server only allows for JSON config");
+            else
+                console.error(
+                    "Database configs are going to be dropped in a future release, please migrate now.\nRead more at: https://docs.melodychat.org/setup/server/configuration/dbdep",
+                );
             pairs = await validateConfig();
             config = pairsToConfig(pairs);
         } else {

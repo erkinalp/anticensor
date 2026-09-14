@@ -21,3 +21,4 @@ export * from "./LazyRequestSchema.js";
 export * from "./StreamCreateSchema.js";
 export * from "./StreamDeleteSchema.js";
 export * from "./StreamWatchSchema.js";
+export * from "./RequestSoundboardSoundsSchema.js";

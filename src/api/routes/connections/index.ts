@@ -31,15 +31,22 @@ function makeRes() {
     });
 
     const connections = new Map([...ConnectionStore.connections.values()].map((_) => [_.id, _] as const));
+
     Object.entries(config as APIConnectionsConfiguration).forEach(([key, value]) => {
         const con = connections.get(key);
         if (!con) {
             delete config[key];
             return;
         }
-
+        connections.delete(key);
         value.icon_url = con.icon_url;
     });
+    for (const [id, connection] of connections) {
+        config[id] = {
+            enabled: connection.settings.enabled,
+            icon_url: connection.icon_url,
+        };
+    }
 
     resp = config;
     return resp;

@@ -5,9 +5,9 @@
 	Does not prepend is file contains @fc-license-skip
 */
 import "../dist/util/initEnv.js";
-const Path = require("path");
-const fs = require("fs");
-const walk = require("./util/walk");
+import Path from "path";
+import fs from "fs";
+import walk from "./util/walk";
 
 const SPACEBAR_SOURCE_DIR = Path.join(__dirname, "..", "src");
 const SPACEBAR_SCRIPTS_DIR = Path.join(__dirname);
@@ -17,7 +17,7 @@ const SPACEBAR_LICENSE_PREAMBLE = fs
     .split("\r") // remove windows bs
     .join("") // ^
     .split("\n")
-    .map((x) => `\t${x}`)
+    .map((x: string) => `\t${x}`)
     .join("\n");
 
 const languageCommentStrings = {
@@ -25,13 +25,13 @@ const languageCommentStrings = {
     ts: ["/*", "*/"],
 };
 
-const addToDir = (dir) => {
+const addToDir = (dir: string) => {
     const files = walk(dir, Object.keys(languageCommentStrings));
 
     for (let path of files) {
         const file = fs.readFileSync(path).toString().split("\r").join("");
         const fileType = path.slice(path.lastIndexOf(".") + 1);
-        const commentStrings = languageCommentStrings[fileType];
+        const commentStrings = languageCommentStrings[fileType as "js"] as string[] | undefined;
         if (!commentStrings) continue;
 
         const preamble = commentStrings[0] + "\n" + SPACEBAR_LICENSE_PREAMBLE + "\n" + commentStrings[1];

@@ -27,6 +27,7 @@ import { cache, cacheNotFound } from "./cache.js";
 
 const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
 const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
+const SOUND_MIME_TYPES = ["audio/aac", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"] as string[];
 const IMG_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 interface RouteSettings {
     getonly?: boolean;
@@ -35,6 +36,7 @@ interface RouteSettings {
     customPath?: (id: string, hash?: string, id2?: string, nameLess?: boolean) => string;
     customIds?: string;
     allowAnimated?: boolean;
+    sound?: boolean;
     addToEndPath?: string;
 }
 export function registerRoute(name: string, settings: RouteSettings = {}) {
@@ -45,7 +47,7 @@ export function registerRoute(name: string, settings: RouteSettings = {}) {
     settings.addToEndPath ??= "";
 
     settings.allowAnimated ??= true;
-    const ALLOWED_MIMES = settings.allowAnimated ? IMG_MIME_TYPES : STATIC_MIME_TYPES;
+    const ALLOWED_MIMES = settings.sound ? SOUND_MIME_TYPES : settings.allowAnimated ? IMG_MIME_TYPES : STATIC_MIME_TYPES;
 
     let ids = settings.customIds ?? (settings.ids ? "/:id" : "/:id/:id2");
     const idsWithhash = settings.noHash ? ids : ids + "/:hash";

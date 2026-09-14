@@ -20,15 +20,14 @@
 	Super simple script to check if the server starts at all, for use in gh actions.
 	Not a proper test framework by any means.
 */
-
-const { spawn } = require("child_process");
-const path = require("path");
-const fs = require("fs");
+import { spawn } from "child_process";
+import path from "path";
+import fs from "fs";
 
 const cfgFile = path.join(__dirname, "test_config.json");
 process.env.CONFIG_PATH = cfgFile;
 
-function ignoreErrors(test) {
+function ignoreErrors(test: string) {
     return !test.includes("DEP0169");
 }
 
