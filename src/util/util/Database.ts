@@ -38,7 +38,7 @@ export const DatabaseType = isHeadlessProcess ? "postgres" : dbConnectionString.
 const applyMigrations = process.env.APPLY_DB_MIGRATIONS !== "false";
 
 export const DataSourceOptions =
-    isHeadlessProcess && dbConnectionString
+    isHeadlessProcess || !dbConnectionString
         ? (undefined as unknown as DataSource)
         : new DataSource({
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
