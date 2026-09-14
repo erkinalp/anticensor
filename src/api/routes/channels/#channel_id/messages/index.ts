@@ -122,6 +122,7 @@ router.get(
             take: limit,
             where: { channel_id },
             relations: Message.stdRelations,
+            relationLoadStrategy: "query",
         };
 
         let messages: Message[];

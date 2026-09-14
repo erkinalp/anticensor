@@ -23,7 +23,8 @@ export interface IdentifySchema {
     properties: {
         // bruh discord really uses $ in the property key, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
         os?: string;
-        os_atch?: string;
+        os_arch?: string;
+        app_arch?: string;
         browser?: string;
         device?: string;
         $os?: string;
@@ -31,6 +32,7 @@ export interface IdentifySchema {
         $device?: string;
         browser_user_agent?: string;
         browser_version?: string;
+        os_sdk_version?: string;
         os_version?: string;
         referrer?: string;
         referring_domain?: string;
@@ -38,6 +40,7 @@ export interface IdentifySchema {
         referring_domain_current?: string;
         release_channel?: string;
         client_build_number?: number;
+        native_build_number?: number;
         client_event_source?: string;
         client_version?: string;
         system_locale?: string;
@@ -49,6 +52,7 @@ export interface IdentifySchema {
         is_fast_connect?: boolean;
         gateway_connect_reasons?: string;
     };
+    qos_token?: string;
     intents?: number; // this is a number, we can make it a bigint later
     presence?: SendActivitySchema;
     compress?: boolean;
