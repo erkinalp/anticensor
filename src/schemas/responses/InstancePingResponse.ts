@@ -25,7 +25,7 @@ export interface InstancePingResponse {
         image: string | null;
         correspondenceEmail: string | null;
         correspondenceUserID: string | null;
-        frontPage: string | null;
+        frontPage: null;
         tosPage: string | null;
     };
 }

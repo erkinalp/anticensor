@@ -41,7 +41,9 @@ export class ConnectionLoader {
         dirs.forEach(async (x) => {
             const modPath = path.resolve(path.join(root, x));
             const imp = await import(modPath + "/index.js");
+
             const mod = new imp.default() as Connection;
+
             ConnectionStore.connections.set(mod.id, mod);
 
             mod.init();
