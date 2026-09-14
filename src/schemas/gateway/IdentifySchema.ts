@@ -32,6 +32,7 @@ export interface IdentifySchema {
         $device?: string;
         browser_user_agent?: string;
         browser_version?: string;
+        os_sdk_version?: string;
         os_version?: string;
         referrer?: string;
         referring_domain?: string;
