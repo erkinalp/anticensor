@@ -91,13 +91,13 @@ export default class LichessConnection extends Connection {
             id: number;
             perfs: Record<string, { games: number; rating: number }>;
         };
-        const ratings = Object.values(user.perfs).map((_) => _.rating);
-        const rating = ratings.reduce((prev, cur) => prev + cur, 0) / ratings.length;
+        const games = Object.entries(user.perfs);
+        const game = games.reduce((prev, cur) => (prev[1].games > cur[1].games ? prev : cur), games[0]);
 
         return await this.createConnection({
             user_id: userId,
             external_id: user.id + "",
-            metadata_: { rating },
+            metadata_: game[1].games < 5 ? {} : { rating: game[1].rating, game: game[0] },
             friend_sync: false,
             name: user.username,
             type: this.id,
