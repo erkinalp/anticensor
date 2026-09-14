@@ -33,7 +33,7 @@ let isHeadlessProcess = false;
 
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
-const dbConnectionString = process.env.DATABASE!;
+const dbConnectionString = process.env.DATABASE ?? "";
 export const DatabaseType = isHeadlessProcess ? "postgres" : dbConnectionString.split(":")[0]?.replace("+srv", "");
 const applyMigrations = process.env.APPLY_DB_MIGRATIONS !== "false";
 
