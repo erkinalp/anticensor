@@ -303,10 +303,8 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
             catch (TaskCanceledException) {
                 yield break;
             }
+            // InvalidOperationException also covers ObjectDisposedException
             catch (InvalidOperationException) {
-                yield break;
-            }
-            catch (ObjectDisposedException) {
                 yield break;
             }
             catch (WebSocketException) {

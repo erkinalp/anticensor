@@ -176,7 +176,8 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
             try {
                 msg = await RawClientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
             }
-            catch (Exception e) when (e is TaskCanceledException or InvalidOperationException or ObjectDisposedException or WebSocketException) {
+            // InvalidOperationException also covers ObjectDisposedException
+            catch (Exception e) when (e is TaskCanceledException or InvalidOperationException or WebSocketException) {
                 yield break;
             }
             trace.Add(($"RCV.{idx}", sw.GetElapsedAndRestart()));
