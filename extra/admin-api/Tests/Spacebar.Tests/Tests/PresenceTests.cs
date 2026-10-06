@@ -59,12 +59,18 @@ public class PresenceTests(ITestOutputHelper testOutputHelper, TestFixture fixtu
                     }
                 };
 
-                await Client.Gateway.RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload()
-                {
-                    Opcode = GatewayOpcode.C2SPresenceUpdate,
-                    EventData = presencePayload.ToJsonNode().AsObject()
-                }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
-                _testOutputHelper.WriteLine("Sent presence payload...");
+                try {
+                    await Client.Gateway.RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload()
+                    {
+                        Opcode = GatewayOpcode.C2SPresenceUpdate,
+                        EventData = presencePayload.ToJsonNode().AsObject()
+                    }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
+                    _testOutputHelper.WriteLine("Sent presence payload...");
+                }
+                finally {
+                    // Start() pumps until the socket closes; without this the test runs forever
+                    await Client.Gateway.Disconnect();
+                }
                 return true;
             }
 
