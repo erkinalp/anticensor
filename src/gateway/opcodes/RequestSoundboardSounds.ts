@@ -46,7 +46,8 @@ export async function onRequestSoundboardSounds(this: WebSocket, { d }: Payload)
                 user_id: this.user_id,
                 data: {
                     guild_id,
-                    soundboard_sounds: guilds[guild_id]?.map((_) => _.toJSON(perms)) || [],
+                    // only members may read a guild's sounds; non-members get an empty list
+                    soundboard_sounds: p ? guilds[guild_id]?.map((_) => _.toJSON(perms)) || [] : [],
                 },
             });
         }),

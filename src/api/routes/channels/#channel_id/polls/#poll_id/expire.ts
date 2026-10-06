@@ -19,7 +19,7 @@
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api/middlewares";
 import { Message } from "@spacebar/database";
-import { DiscordApiErrors, emitEvent, MessageUpdateEvent, pendingPolls } from "@spacebar/util";
+import { DiscordApiErrors, emitEvent, MessageUpdateEvent, pendingPolls, Permissions } from "@spacebar/util";
 import { generatePollResultsMessage, sendMessage } from "@spacebar/api/util";
 
 const router: Router = Router({ mergeParams: true });
@@ -40,6 +40,9 @@ router.post("/", route({ permission: "VIEW_CHANNEL" }), async (req: Request, res
     if (new Date() > new Date(message.poll.expiry)) {
         throw DiscordApiErrors.POLL_EXPIRED;
     }
+
+    const canExpire = message.author_id === req.user_id || req.permission?.has(Permissions.FLAGS.MANAGE_MESSAGES);
+    if (!canExpire) throw DiscordApiErrors.MISSING_PERMISSIONS;
 
     message.poll.expiry = new Date();
 

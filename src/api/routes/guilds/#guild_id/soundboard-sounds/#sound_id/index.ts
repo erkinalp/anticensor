@@ -41,7 +41,7 @@ router.get(
             },
         });
 
-        return sound.toJSON(perms);
+        res.json(sound.toJSON(perms));
     },
 );
 
@@ -66,6 +66,7 @@ router.patch(
 
         const allowed = perms.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS) || (sound.user_id === req.user_id && perms.has(Permissions.FLAGS.CREATE_GUILD_EXPRESSIONS));
         if (!allowed) throw new HTTPError(req.t("common:missing_permissions.SOUNDBOARD"));
+        if (body.volume != null && (body.volume < 0 || body.volume > 1)) throw new HTTPError(req.t("common:field.VOLUME_OUT_OF_RANGE"));
         Object.assign(sound, body);
         await sound.save();
         emitEvent({

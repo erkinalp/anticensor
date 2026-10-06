@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { emitEvent } from "@spacebar/util";
+import { DiscordApiErrors, emitEvent } from "@spacebar/util";
 import { Channel, SoundboardSound, VoiceState } from "@spacebar/database";
 import { route } from "@spacebar/api";
 import { SendSoundSchema } from "@spacebar/schemas";
@@ -45,6 +45,17 @@ router.post(
                 emoji: true,
             },
         });
+
+        const isDefaultSound = !sound.guild_id;
+        const isOwnGuildSound = !!sound.guild_id && sound.guild_id === channel.guild_id;
+        if (channel.guild_id) {
+            req.permission!.hasThrow("USE_SOUNDBOARD");
+            if (!isOwnGuildSound && !isDefaultSound) req.permission!.hasThrow("USE_EXTERNAL_SOUNDS");
+        } else if (!isDefaultSound) {
+            // guild sounds are not usable in DM/group voice calls
+            throw DiscordApiErrors.MISSING_PERMISSIONS;
+        }
+
         emitEvent({
             event: "VOICE_CHANNEL_EFFECT_SEND",
             channel_id,

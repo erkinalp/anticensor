@@ -45,8 +45,9 @@ export async function generatePollResultsMessage(options: MessageOptions): Promi
 
     const allAnswerCounts = message.poll.results.answer_counts as unknown as (Omit<PollAnswerCount, "me_voted"> & { voters: string[] })[];
 
-    const totalVotes = allAnswerCounts.map((a) => a.voters).length;
-    const winningAnswerCounts = allAnswerCounts.filter((a) => (a.count * totalVotes) / 100);
+    const totalVotes = allAnswerCounts.reduce((n, a) => n + (a.voters?.length ?? a.count ?? 0), 0);
+    const maxVotes = Math.max(0, ...allAnswerCounts.map((a) => a.count ?? 0));
+    const winningAnswerCounts = allAnswerCounts.filter((a) => a.count > 0 && a.count === maxVotes);
 
     const pollResultsMessage = {
         type: MessageType.POLL_RESULT,

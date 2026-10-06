@@ -42,6 +42,7 @@ export class SingletonCache<T> {
         try {
             const result = await factory();
             this.cachedValue = result;
+            this.lastUpdated = new Date();
             return result;
         } catch (e) {
             console.error(`[SingletonCache] Factory method failed, returning stale value:`, e);
