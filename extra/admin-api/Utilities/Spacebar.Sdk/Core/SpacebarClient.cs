@@ -226,10 +226,16 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
                     if (ct.IsFaulted) throw ct.Exception;
                 });
                 IdentifyData.Token = token;
-                await RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload() {
-                    Opcode = GatewayOpcode.C2SIdentify, // Identify
-                    EventData = IdentifyData.ToJsonNode().AsObject()
-                }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
+                try {
+                    await RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload() {
+                        Opcode = GatewayOpcode.C2SIdentify, // Identify
+                        EventData = IdentifyData.ToJsonNode().AsObject()
+                    }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
+                }
+                catch (Exception e) when (e is ObjectDisposedException or WebSocketException) {
+                    // Socket died between HELLO and Identify — nothing left to do.
+                    return;
+                }
             }
             else if (msg.Opcode == GatewayOpcode.S2CHeartbeatAck) {
                 logger.LogInformation("Got heartbeat ACK from server!");
@@ -259,17 +265,22 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
 
     private async Task _runHeartbeatLoop(int interval, CancellationToken ct) {
         while (RawClientWebSocket.State < WebSocketState.Closed) {
-            await RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload() {
-                Opcode = GatewayOpcode.C2SQoSHeartbeat, // QoS Heartbeat
-                EventData = new QoSHeartbeatRequest() {
-                    Sequence = Sequence,
-                    QoSPayload = new() {
-                        Active = true,
-                        Reasons = ["foregrounded"],
-                        Version = 27
-                    }
-                }.ToJsonNode().AsObject()
-            }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, ct);
+            try {
+                await RawClientWebSocket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(new GatewayPayload() {
+                    Opcode = GatewayOpcode.C2SQoSHeartbeat, // QoS Heartbeat
+                    EventData = new QoSHeartbeatRequest() {
+                        Sequence = Sequence,
+                        QoSPayload = new() {
+                            Active = true,
+                            Reasons = ["foregrounded"],
+                            Version = 27
+                        }
+                    }.ToJsonNode().AsObject()
+                }), WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, ct);
+            }
+            catch (Exception e) when (e is ObjectDisposedException or WebSocketException or OperationCanceledException) {
+                return;
+            }
             await Task.Delay(interval, ct);
         }
     }
@@ -293,6 +304,12 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
                 yield break;
             }
             catch (InvalidOperationException) {
+                yield break;
+            }
+            catch (ObjectDisposedException) {
+                yield break;
+            }
+            catch (WebSocketException) {
                 yield break;
             }
 
