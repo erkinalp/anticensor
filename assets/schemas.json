@@ -9593,12 +9593,6 @@
         },
         "additionalProperties": false,
         "required": [
-            "email",
-            "email_verified",
-            "locale",
-            "nickname",
-            "picture",
-            "preferred_username",
             "sub"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

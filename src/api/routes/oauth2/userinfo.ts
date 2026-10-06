@@ -34,14 +34,24 @@ router.get(
         // TODO: scopes: openid
     }),
     (req: Request, res: Response) => {
+        // Tokens minted without a scopes claim are first-party session tokens and get
+        // every claim; scoped tokens (OAuth grants, reset tokens) only get the claims
+        // their scopes entitle.
+        const scopes = req.token.scopes;
+        const hasScope = (scope: string) => !scopes || scopes.includes(scope);
+
         res.json({
             sub: req.user_id,
-            email: req.user.email ?? null, // TODO: scopes: email
-            email_verified: req.user.verified, // TODO: scopes: email
-            preferred_username: req.user.username, // TODO: scopes: identify
-            nickname: req.user.username, // TODO: pomelo, scopes: identify
-            picture: `${Config.get().cdn.endpointPublic}/avatars/${req.user.id}/${req.user.avatar}.png`, // TODO: scopes: identify
-            locale: req.user.settings?.locale ?? "en-US", // TODO: scopes: identify
+            ...(hasScope("email") && {
+                email: req.user.email ?? null,
+                email_verified: req.user.verified,
+            }),
+            ...(hasScope("identify") && {
+                preferred_username: req.user.username,
+                nickname: req.user.username, // TODO: pomelo
+                picture: `${Config.get().cdn.endpointPublic}/avatars/${req.user.id}/${req.user.avatar}.png`,
+                locale: req.user.settings?.locale ?? "en-US",
+            }),
         } satisfies OAuth2UserInfoResponse);
     },
 );

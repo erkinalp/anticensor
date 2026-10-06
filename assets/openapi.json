@@ -8686,12 +8686,6 @@
                     }
                 },
                 "required": [
-                    "email",
-                    "email_verified",
-                    "locale",
-                    "nickname",
-                    "picture",
-                    "preferred_username",
                     "sub"
                 ]
             },

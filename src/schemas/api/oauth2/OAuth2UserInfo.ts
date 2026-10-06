@@ -16,12 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// claims present only when the token carries the scope that grants them
 export interface OAuth2UserInfoResponse {
     sub: string;
-    email: string | null;
-    email_verified: boolean;
-    preferred_username: string;
-    nickname: string | null;
-    picture: string;
-    locale: string;
+    email?: string | null; // scope: email
+    email_verified?: boolean; // scope: email
+    preferred_username?: string; // scope: identify
+    nickname?: string | null; // scope: identify
+    picture?: string; // scope: identify
+    locale?: string; // scope: identify
 }
