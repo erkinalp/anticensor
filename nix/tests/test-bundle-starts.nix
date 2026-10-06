@@ -73,6 +73,17 @@ in
     services.nginx.enable = true;
     services.rabbitmq.enable = isRabbitMqTest;
 
+    # *.localhost resolution otherwise depends on NSS module ordering inside
+    # the sandboxed services; pin the endpoints so lookups never stall.
+    networking.hosts."127.0.0.1" = [
+      "sb.localhost"
+      "api.sb.localhost"
+      "gw.sb.localhost"
+      "cdn.sb.localhost"
+      "admin.sb.localhost"
+      "voice.sb.localhost"
+    ];
+
     # ...fix startup ordering
     systemd.services =
       let
