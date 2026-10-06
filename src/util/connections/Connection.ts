@@ -17,7 +17,7 @@
 */
 
 import crypto from "node:crypto";
-import { ConnectedAccount } from "../entities";
+import { ConnectedAccount } from "../../database/entities";
 import { ConnectedAccountSchema, ConnectionCallbackSchema } from "@spacebar/schemas";
 import { Config, DiscordApiErrors } from "../util";
 
@@ -46,7 +46,7 @@ export abstract class Connection {
      * @param userId the user id to generate the url for
      * @returns the authorization url
      */
-    abstract getAuthorizationUrl(userId: string): string;
+    abstract getAuthorizationUrl(userId: string): string | Promise<string>;
 
     /**
      * Returns the redirect_uri for a connection type

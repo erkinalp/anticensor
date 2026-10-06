@@ -15,6 +15,7 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 export * from "./ActivitySchema";
 export * from "./ApplicationAuthorizeSchema";
 export * from "./AutomodRuleSchema";
@@ -62,10 +63,6 @@ export * from "./PruneSchema";
 export * from "./PurgeSchema";
 export * from "./RefreshUrlsRequestSchema";
 export * from "./RegisterSchema";
-export * from "./RelationshipPatchSchema";
-export * from "./RelationshipPostSchema";
-export * from "./RelationshipPatchSchema";
-export * from "./RelationshipPutSchema";
 export * from "./RequestGuildMembersSchema";
 export * from "./RoleModifySchema";
 export * from "./RolePositionUpdateSchema";
@@ -82,7 +79,6 @@ export * from "./UserDeleteSchema";
 export * from "./UserGuildSettingsSchema";
 export * from "./UserModifySchema";
 export * from "./UserNoteUpdateSchema";
-export * from "./UserProfileModifySchema";
 export * from "./VanityUrlSchema";
 export * from "./VerifyEmailSchema";
 export * from "./VoiceStateUpdateSchema";
@@ -102,3 +98,5 @@ export * from "./TicketSchemas";
 export * from "./SKUCreateSchema";
 export * from "./EntitlementCreateSchema";
 export * from "./CryptoPaymentSchema";
+export * from "./SoundSchema";
+export * from "./PollPutSchema";

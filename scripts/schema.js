@@ -19,7 +19,7 @@
 /*
 	Regenerates the `spacebarchat/server/assets/schemas.json` file, used for API/Gateway input validation.
 */
-const { Stopwatch } = require("../dist/util/util/Stopwatch");
+const { Stopwatch } = require("../dist/extensions/Stopwatch");
 const totalSw = Stopwatch.startNew();
 
 const conWarn = console.warn;
@@ -157,7 +157,7 @@ async function main() {
     process.stdout.write("Generating schema list... ");
     let schemas = generator.getUserSymbols().filter((x) => {
         return (
-            (x.endsWith("Schema") || x.endsWith("Response") || x.startsWith("API")) &&
+            (x.endsWith("Schema") || x.endsWith("Response") || x.startsWith("API") || x.endsWith("Array")) &&
             // !ExcludeAndWarn.some((exc) => {
             // 	const match = exc instanceof RegExp ? exc.test(x) : x === exc;
             // 	if (match) console.warn("Warning: Excluding schema", x);
@@ -256,7 +256,7 @@ async function main() {
         process.stdout.write(
             "Done in " + yellowBright(elapsed.totalMilliseconds + "." + elapsed.microseconds) + " ms, " + yellowBright(JSON.stringify(part).length) + " bytes (unformatted) ",
         );
-        if (elapsed.totalMilliseconds >= 20) console.log(bgRedBright("\x1b[5m[SLOW]\x1b[25m"));
+        if (elapsed.totalMilliseconds >= 100) console.log(bgRedBright("\x1b[5m[SLOW]\x1b[25m"));
         else console.log();
 
         definitions = { ...definitions, [name]: { ...part } };

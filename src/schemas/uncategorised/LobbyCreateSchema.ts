@@ -18,12 +18,12 @@
 
 export interface LobbyMemberSchema {
     id: string;
-    metadata?: Record<string, string> | null;
+    metadata?: object | null;
     flags?: number;
 }
 
 export interface LobbyCreateSchema {
-    metadata?: Record<string, string> | null;
+    metadata?: object | null;
     /**
      * @maxItems 25
      */
@@ -36,7 +36,7 @@ export interface LobbyCreateSchema {
 }
 
 export interface LobbyUpdateSchema {
-    metadata?: Record<string, string> | null;
+    metadata?: object | null;
     /**
      * @maxItems 25
      */
@@ -49,7 +49,7 @@ export interface LobbyUpdateSchema {
 }
 
 export interface LobbyMemberUpdateSchema {
-    metadata?: Record<string, string> | null;
+    metadata?: object | null;
     flags?: number;
 }
 

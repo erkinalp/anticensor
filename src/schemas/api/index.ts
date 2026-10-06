@@ -20,6 +20,8 @@ export * from "./bots";
 export * from "./channels";
 export * from "./developers";
 export * from "./guilds";
+export * from "./integrations";
 export * from "./messages";
 export * from "./reports";
+export * from "./spacebar";
 export * from "./users";

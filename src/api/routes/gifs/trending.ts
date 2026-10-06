@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { getGifApiKey, parseGifResult } from "@spacebar/util";
+import { route } from "@spacebar/api/middlewares";
 import { Request, Response, Router } from "express";
-import { TenorCategoriesResults, TenorTrendingResults } from "@spacebar/schemas";
+import { TrendingGifsResponse } from "@spacebar/schemas";
+import { GifProviderManager } from "@spacebar/integrations/gifs";
 
 const router = Router({ mergeParams: true });
 
@@ -31,42 +31,29 @@ router.get(
                 type: "string",
                 description: "Locale",
             },
+            provider: {
+                type: "string",
+                description: "Provider to use",
+            },
         },
         responses: {
             200: {
-                body: "TenorTrendingResponse",
+                body: "TrendingGifsResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Custom providers
-        // TODO: return gifs as mp4
-        // const { media_format, locale } = req.query;
-        const { locale } = req.query;
+        const provider = GifProviderManager.getProvider((req.query.provider as string) ?? "klipy");
 
-        const apiKey = getGifApiKey();
-
-        const [responseSource, trendGifSource] = await Promise.all([
-            fetch(`https://g.tenor.com/v1/categories?locale=${locale}&key=${apiKey}`, {
-                method: "get",
-                headers: { "Content-Type": "application/json" },
-            }),
-            fetch(`https://g.tenor.com/v1/trending?locale=${locale}&key=${apiKey}`, {
-                method: "get",
-                headers: { "Content-Type": "application/json" },
-            }),
+        const [trendingCategories, trendingGifs] = await Promise.all([
+            provider.getTrendingCategories(req.query as typeof provider.getTrendingCategories.arguments),
+            provider.getTrendingGifs(req.query as typeof provider.getTrendingGifs.arguments),
         ]);
 
-        const { tags } = (await responseSource.json()) as TenorCategoriesResults;
-        const { results } = (await trendGifSource.json()) as TenorTrendingResults;
-
         res.json({
-            categories: tags.map((x) => ({
-                name: x.searchterm,
-                src: x.image,
-            })),
-            gifs: [parseGifResult(results[0])],
-        }).status(200);
+            categories: trendingCategories,
+            gifs: trendingGifs,
+        } satisfies TrendingGifsResponse).status(200);
     },
 );
 

@@ -17,5 +17,5 @@
 */
 
 export * from "./Server";
-export * from "./middlewares/";
-export * from "./util/";
+export * from "./middlewares/index";
+export * from "./util/index";

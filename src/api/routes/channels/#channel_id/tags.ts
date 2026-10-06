@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Tag } from "@spacebar/database";
+import { ChannelUpdateEvent, emitEvent } from "@spacebar/util";
 import { TagCreateSchema } from "@spacebar/schemas";
-import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -42,7 +43,7 @@ router.post(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: { available_tags: true },
         });
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
@@ -87,7 +88,7 @@ router.put(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: { available_tags: true },
         });
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
@@ -126,7 +127,7 @@ router.delete(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: { available_tags: true },
         });
 
         if (!channel.isForum()) throw new Error("is not thread only channel");

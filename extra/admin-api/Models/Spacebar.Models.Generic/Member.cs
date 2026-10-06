@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Spacebar.Models.Generic;
@@ -7,7 +8,11 @@ namespace Spacebar.Models.Generic;
 [DebuggerDisplay("{User.Id} ({User.Username}#{User.Discriminator})")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public class Member {
+[JsonPolymorphic]
+[JsonDerivedType(typeof(Member))]
+[JsonDerivedType(typeof(MemberWithPresence))]
+public class Member
+{
     [JsonPropertyName("user")]
     public required PartialUser User { get; set; }
 
@@ -18,13 +23,13 @@ public class Member {
     public string? Avatar { get; set; }
 
     [JsonPropertyName("avatar_decoration_data")]
-    public object? AvatarDecorationData { get; set; }
+    public JsonObject? AvatarDecorationData { get; set; }
 
     [JsonPropertyName("collectibles")]
-    public object? Collectibles { get; set; }
+    public JsonObject? Collectibles { get; set; }
 
-    [JsonPropertyName("display_name_styles")]
-    public object? DisplayNameStyles { get; set; }
+    [JsonPropertyName("display_name_styles"), JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public DisplayNameStyle? DisplayNameStyles { get; set; }
 
     [JsonPropertyName("banner")]
     public string? Banner { get; set; }
@@ -37,7 +42,8 @@ public class Member {
 }
 
 // Unsure if this is used anywhere outside of op14...?
-public class MemberWithPresence : Member {
+public class MemberWithPresence : Member
+{
     [JsonPropertyName("presence")]
     public Presence? Presence { get; set; }
 }

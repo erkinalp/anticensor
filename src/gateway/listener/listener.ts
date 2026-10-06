@@ -16,26 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-    Ban,
-    EVENTEnum,
-    EventOpts,
-    getPermission,
-    listenEvent,
-    ListenEventOpts,
-    Member,
-    Message,
-    NewUrlUserSignatureData,
-    Permissions,
-    RabbitMQ,
-    Recipient,
-    Relationship,
-} from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send } from "../util";
-import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
-import { PublicMember, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
+import { Ban, Member, Message, Recipient, Relationship } from "@spacebar/database";
+import { EVENTEnum, EventOpts, getPermission, listenEvent, ListenEventOpts, NewUrlUserSignatureData, Permissions, RabbitMQ } from "@spacebar/util";
+import { WebSocket } from "@spacebar/gateway";
+import { PublicMember, RelationshipType } from "@spacebar/schemas";
+import { CLOSECODES, OPCODES, Send } from "../util";
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent
@@ -70,7 +57,7 @@ export async function setupListener(this: WebSocket) {
         Relationship.find({
             where: {
                 from_id: this.user_id,
-                type: RelationshipType.friends,
+                type: RelationshipType.FRIEND,
             },
         }),
     ]);
@@ -197,7 +184,7 @@ export async function setupListener(this: WebSocket) {
 // TODO: only subscribe for events that are in the connection intents
 async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
-    const id = data.id as string;
+    const id = (opts.guild_id || opts.channel_id || opts.user_id || opts.session_id) as string;
     const permission = this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
     const consumer = consume.bind(this);

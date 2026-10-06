@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, Member, OrmUtils } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Member } from "@spacebar/database";
+import { OrmUtils } from "@spacebar/util";
 import { UserGuildSettingsSchema } from "@spacebar/schemas";
 import { In } from "typeorm";
 import { HTTPError } from "lambert-server";
@@ -66,6 +67,8 @@ router.patch(
 
         const member = await Member.findOneOrFail({
             where: { id: req.user_id, guild_id: req.params.guild_id as string },
+
+            select: { settings: true, index: true },
         });
         OrmUtils.mergeDeep(member.settings || {}, body);
         await member.save();

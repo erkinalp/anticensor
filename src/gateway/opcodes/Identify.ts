@@ -16,52 +16,62 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { In, Not } from "typeorm";
+import { PreloadedUserSettings } from "discord-protos";
 import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
+import { arrayGroupBy, ElapsedTime, Stopwatch, timeFunction, timePromise, Random } from "@spacebar/extensions";
 import {
-    Application,
-    arrayGroupBy,
-    Channel,
-    checkToken,
-    Config,
-    CurrentTokenFormatVersion,
-    ElapsedTime,
-    emitEvent,
-    Emoji,
-    EVENTEnum,
-    generateToken,
     getDatabase,
+    Application,
+    Channel,
+    Emoji,
     Guild,
-    GuildOrUnavailable,
-    Intents,
     Member,
     MemberPrivateProjection,
-    OPCodes,
-    PresenceUpdateEvent,
     ReadState,
-    ReadyEventData,
-    ReadyGuildDTO,
-    ReadyUserGuildSettingsEntries,
     Recipient,
     Relationship,
     Role,
     Session,
-    SessionsReplace,
     Sticker,
-    Stopwatch,
     ThreadMember,
-    timeFunction,
-    timePromise,
-    TraceNode,
-    TraceRoot,
     UserSettings,
     UserSettingsProtos,
     VoiceState,
+} from "@spacebar/database";
+import {
+    checkToken,
+    Config,
+    CurrentTokenFormatVersion,
+    emitEvent,
+    EVENTEnum,
+    generateToken,
+    GuildOrUnavailable,
+    Intents,
+    OPCodes,
+    OrmUtils,
+    getMostRelevantSession,
+    Presence,
+    PresenceUpdateEvent,
+    ReadyEventData,
+    ReadyGuildDTO,
+    ReadyUserGuildSettingsEntries,
+    SessionsReplace,
+    TraceNode,
+    TraceRoot,
 } from "@spacebar/util";
+import {
+    ChannelType,
+    DefaultUserGuildSettings,
+    DMChannel,
+    IdentifySchema,
+    PrivateStatus,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+} from "@spacebar/schemas";
 import { check } from "./instanceOf";
-import { In, Not } from "typeorm";
-import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
-import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -69,7 +79,7 @@ import { randomString } from "@spacebar/api";
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
     const taskSw = Stopwatch.startNew();
-    const gatewayShardName = `sb-gateway`;
+    const gatewayShardName = process.env.WORKER_NAME ?? `sb-gateway`;
 
     if (this.user_id) {
         // we've already identified
@@ -90,7 +100,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         checkToken(identify.token, {
             // relations: {"relationships", "relationships.to", "settings"],
             // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: { ...Object.fromEntries(PrivateUserProjection.map((_) => [_, true] as const)), rights: true },
+            select: [...PrivateUserProjection, "rights"],
         }),
     );
 
@@ -203,7 +213,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     activities: this.session.activities,
                 },
                 origin: "GATEWAY_IDENTIFY",
-                transaction_id: `IDENT_${this.user_id}_${randomString()}`,
+                transaction_id: `IDENT_${this.user_id}_${Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 6)}`,
             } satisfies PresenceUpdateEvent;
         }
     }
@@ -262,7 +272,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 where: { id: this.user_id },
                 select: {
                     // We only want some member props
-                    ...Object.fromEntries(["index", ...MemberPrivateProjection].map((x) => [x, true])),
+                    ...OrmUtils.keysToObject(["index", ...(<string[]>MemberPrivateProjection)]),
                     settings: true, // guild settings
                     roles: { id: true }, // the full role is fetched from the `guild` relation
                     guild: { id: true },
@@ -325,6 +335,50 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     const userMetaQueryTime = taskSw.getElapsedAndReset();
 
+    const friendPresenceUserIds = [...new Set(relationships.filter((relationship) => relationship.type === RelationshipType.FRIEND).map((relationship) => relationship.to_id))];
+    const { result: friendPresenceSessions, elapsed: friendPresenceSessionsQueryTime } = await timePromise(() =>
+        friendPresenceUserIds.length === 0
+            ? Promise.resolve([] as Session[])
+            : getDatabase()!
+                  .getRepository(Session)
+                  .find({
+                      where: {
+                          user_id: In(friendPresenceUserIds),
+                          is_admin_session: false,
+                          // "unknown" isn't part of PrivateStatus, but clients can send it on identify, so guard against it having been persisted
+                          status: Not(In(["offline", "invisible", "unknown"] as PrivateStatus[])),
+                      },
+                      relations: { user: true },
+                      select: {
+                          user_id: true,
+                          status: true,
+                          activities: true,
+                          client_status: true,
+                          user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
+                      },
+                  }),
+    );
+
+    const { result: friendPresences, elapsed: generateFriendPresencesTime } = timeFunction<Presence[]>(() => {
+        const sessionsByUserId = arrayGroupBy(friendPresenceSessions, (session) => session.user_id);
+
+        return friendPresenceUserIds.flatMap((userId) => {
+            const sessions = sessionsByUserId.get(userId);
+            if (!sessions?.length) return [];
+
+            const session = getMostRelevantSession(sessions);
+            return [
+                {
+                    user: session.user.toPublicUser(),
+                    status: session.getPublicStatus(),
+                    activities: session.activities,
+                    client_status: session.client_status,
+                    processed_at_timestamp: session.last_seen?.getTime() ?? new Date(0).getTime(), // TODO: does this have a different meaning?
+                },
+            ];
+        });
+    });
+
     const memberGuildIds = members.map((m) => m.guild_id);
 
     // select relations
@@ -355,7 +409,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     type: Not(In([ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD, ChannelType.GUILD_NEWS_THREAD])),
                 },
                 order: { guild_id: "ASC" },
-                relations: ["available_tags"],
+                relations: { available_tags: true },
             }),
         ),
         timePromise(() =>
@@ -748,10 +802,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         queryGuildsTime,
         guildRelationQueryTime,
         createUserSettingsTime,
+        friendPresenceSessionsQueryTime,
         mergedMembersTime,
         generateGuildsListTime,
         generateUserGuildSettingsTime,
         generateDmChannelsTime,
+        generateFriendPresencesTime,
         appendRelationshipsTime,
         findAndGenerateSessionReplaceTime,
         emitSessionsReplaceTime,
@@ -770,6 +826,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     sessionSaveTime,
                     sessionQueryTime,
                     relationshipQueryTime,
+                    friendPresenceSessionsQueryTime,
                     settingsQueryTime,
                     settingsProtosQueryTime,
                     applicationQueryTime,
@@ -847,28 +904,35 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         }),
     );
 
-    const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => ({
-        voice_states: guild.voice_states.map((state) => VoiceState.prototype.toPublicVoiceState.apply(state)),
-        id: guild.id,
-        embedded_activities: [],
-    }));
+    const readySupplementalGuilds = guilds.map((guild) => {
+        if (!("voice_states" in guild)) return { id: guild.id };
 
-    // TODO: ready supplemental
+        const availableGuild = guild as Guild;
+        return {
+            id: availableGuild.id,
+            voice_states: availableGuild.voice_states.map((state) => VoiceState.prototype.toPublicVoiceState.apply(state)),
+            // embedded_activities is the older name for the same field, kept for clients that still read it
+            embedded_activities: [],
+            activity_instances: [],
+        };
+    });
+
+    // TODO: ready supplemental - merged_members and guild presences are still empty
     await Send(this, {
         op: OPCodes.DISPATCH,
         t: EVENTEnum.ReadySupplemental,
         s: this.sequence++,
         d: {
+            guilds: readySupplementalGuilds, // { voice_states: [], id: string, embedded_activities: [], activity_instances: [] }
+            merged_members: guilds.map(() => []), // these merged members seem to be all users currently in vc in your guilds
             merged_presences: {
-                guilds: [],
-                friends: [],
+                friends: friendPresences,
+                guilds: guilds.map(() => []),
             },
-            // these merged members seem to be all users currently in vc in your guilds
-            merged_members: [],
             lazy_private_channels: [],
-            guilds: readySupplementalGuilds, // { voice_states: [], id: string, embedded_activities: [] }
             // embedded_activities are users currently in an activity?
             disclose: [], // Config.get().general.uniqueUsernames ? ["pomelo"] : []
+            game_invites: [],
         },
     });
 

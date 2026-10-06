@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { handleMessage, postHandleMessage } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Attachment, Channel, Member, Message, ReadState, Relationship, User, ThreadMember, ThreadMemberFlags } from "@spacebar/database";
 import {
-    Attachment,
-    Channel,
     Config,
     DiscordApiErrors,
     DmChannelDTO,
@@ -27,27 +27,19 @@ import {
     FieldErrors,
     getPermission,
     getUrlSignature,
-    Member,
-    Message,
     MessageCreateEvent,
     NewUrlSignatureData,
     NewUrlUserSignatureData,
-    ReadState,
-    Relationship,
     Rights,
     Snowflake,
     uploadFile,
-    User,
-    ThreadMember,
-    ThreadMemberFlags,
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import multer from "multer";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
-import { URL } from "node:url";
 import {
     AcknowledgeDeleteSchema,
     isTextChannel,
@@ -55,6 +47,7 @@ import {
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     PartialUser,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     ReadStateType,
@@ -73,7 +66,7 @@ async function populateForwardLinks(messages: Message[]): Promise<void> {
                         message_id: message.id,
                     },
                 },
-                select: ["id"],
+                select: { id: true },
             });
 
             if (replies.length > 0) {
@@ -109,7 +102,7 @@ router.get(
         },
         responses: {
             200: {
-                body: "APIMessageArray",
+                body: "PublicMessageListResponse",
             },
             400: {
                 body: "APIErrorResponse",
@@ -250,6 +243,15 @@ router.get(
                     return att;
                 }) ?? [];
 
+            if (x.poll?.results) {
+                (x.poll.results.answer_counts as (PollAnswerCount & { voters?: string[] })[]).map((answer) => {
+                    answer.me_voted = answer.voters!.includes(req.user_id);
+                    delete answer.voters;
+
+                    return answer;
+                });
+            }
+
             /**
 			Some clients ( discord.js ) only check if a property exists within the response,
 			which causes errors when, say, the `application` property is `null`.
@@ -285,7 +287,7 @@ export const messageUpload = multer({
     limits: {
         fileSize: Config.get().limits.message.maxAttachmentSize,
         fields: 10,
-        // files: 1
+        files: Config.get().limits.message.maxAttachments,
     },
     storage: multer.memoryStorage(),
 }); // max upload 50 mb
@@ -318,7 +320,7 @@ router.post(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -384,6 +386,10 @@ router.post(
             throw new HTTPError(`Cannot send messages to channel of type ${channel.type}`, 400);
         }
 
+        if (body.poll && !isTextChannel(channel.type)) {
+            throw DiscordApiErrors.POLL_INVALID_CHANNEL_TYPE;
+        }
+
         // handle blocked users in dms
         if (channel.recipients?.length == 2) {
             const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
@@ -395,7 +401,7 @@ router.post(
                     ],
                 });
 
-                if (relationship?.type === RelationshipType.blocked) {
+                if (relationship?.type === RelationshipType.BLOCKED) {
                     throw DiscordApiErrors.CANNOT_MESSAGE_USER;
                 }
             }
@@ -439,7 +445,7 @@ router.post(
         for (const currFile of files) {
             try {
                 const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, currFile);
-                attachments.push(Attachment.create(file));
+                attachments.push(file);
             } catch (error) {
                 return res.status(400).json({ message: error?.toString() });
             }
@@ -459,7 +465,7 @@ router.post(
             timestamp: new Date(),
         });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore dont care2
+        // @ts-ignore dont care
         message.edited_timestamp = null;
 
         if (channel.isDm()) {

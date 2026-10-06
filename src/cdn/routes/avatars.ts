@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import crypto from "node:crypto";
 import { Router, Response, Request } from "express";
 import { Config } from "@spacebar/util";
-import { storage } from "@spacebar/cdn";
-import { fileTypeFromBuffer } from "file-type";
-import { HTTPError } from "lambert-server";
-import crypto from "node:crypto";
-import { multer } from "../util/multer";
-import { cache } from "../util/cache";
+import { HTTPError } from "lambert-server/HTTPError";
+import { storage, multer, setCacheControl } from "../util";
+
+const fileTypeFromBuffer = (buffer: Uint8Array) => import("file-type").then((m) => m.fileTypeFromBuffer(buffer));
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
@@ -61,7 +60,7 @@ router.post("/:user_id", multer.single("file"), async (req: Request, res: Respon
     });
 });
 
-router.get("/:user_id", cache, async (req: Request, res: Response) => {
+router.get("/:user_id", setCacheControl, async (req: Request, res: Response) => {
     let { user_id } = req.params as { [key: string]: string };
     user_id = user_id.split(".")[0]; // remove .file extension
     const path = `avatars/${user_id}`;
@@ -90,7 +89,7 @@ const getAvatar = async (req: Request, res: Response): Promise<Response | void> 
     return res.send(file);
 };
 
-router.get("/:user_id/:hash", cache, getAvatar);
+router.get("/:user_id/:hash", setCacheControl, getAvatar);
 
 router.delete("/:user_id/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");

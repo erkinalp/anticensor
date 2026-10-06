@@ -16,29 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-    ConnectedAccount,
-    Invite,
-    Role,
-    Emoji,
-    Channel,
-    User,
-    Sticker,
-    Activity,
-    Status,
-    Presence,
-    UserSettings,
-    IReadyGuildDTO,
-    ReadState,
-    ReadyUserGuildSettingsEntries,
-    ReadyPrivateChannel,
-    GuildOrUnavailable,
-    Snowflake,
-    ThreadMember,
-    PrivateStatus,
-    Entitlement,
-    Subscription,
-} from "@spacebar/util";
+import { ConnectedAccount, Invite, Role, Emoji, Channel, User, Sticker, UserSettings, ReadState, ThreadMember, Entitlement, Subscription } from "@spacebar/database";
+import { Activity, Presence, IReadyGuildDTO, ReadyUserGuildSettingsEntries, ReadyPrivateChannel, GuildOrUnavailable, Snowflake } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,
@@ -46,11 +25,14 @@ import {
     Interaction,
     InteractionFailureReason,
     PartialEmoji,
+    PartialRelationshipSchema,
+    PrivateStatus,
     PublicChannel,
     PublicMember,
     PublicMessage,
     PublicUser,
     PublicVoiceState,
+    RelationshipSchema,
     RelationshipType,
     UserPrivate,
 } from "@spacebar/schemas";
@@ -73,13 +55,6 @@ export interface Event {
 
 export interface InvalidatedEvent extends Event {
     event: "INVALIDATED";
-}
-
-export interface PublicRelationship {
-    id: string;
-    user: PublicUser;
-    type: RelationshipType;
-    nickname?: string;
 }
 
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
@@ -117,7 +92,7 @@ export interface ReadyEventData {
     user_settings?: UserSettings;
     user_settings_proto?: string;
     user_settings_proto_json?: JsonValue;
-    relationships?: PublicRelationship[]; // TODO
+    relationships?: RelationshipSchema[]; // TODO
     read_state: {
         entries: ReadState[]; // TODO
         partial: boolean;
@@ -387,6 +362,29 @@ export interface MessageDeleteBulkEvent extends Event {
         guild_id?: string;
     };
 }
+
+export interface MessagePollVoteAddEvent extends Event {
+    event: "MESSAGE_POLL_VOTE_ADD";
+    data: {
+        answer_id: number;
+        channel_id: string;
+        guild_id?: string;
+        message_id: string;
+        user_id: string;
+    };
+}
+
+export interface MessagePollVoteRemoveEvent extends Event {
+    event: "MESSAGE_POLL_VOTE_REMOVE";
+    data: {
+        answer_id: number;
+        channel_id: string;
+        guild_id?: string;
+        message_id: string;
+        user_id: string;
+    };
+}
+
 export const enum ReactionType {
     normal = 0,
     burst = 1,
@@ -579,22 +577,18 @@ export interface MessageAckEvent extends Event {
 
 export interface RelationshipAddEvent extends Event {
     event: "RELATIONSHIP_ADD";
-    data: PublicRelationship & {
+    data: RelationshipSchema & {
         should_notify?: boolean;
-        user: PublicUser;
     };
 }
 export interface RelationshipUpdateEvent extends Event {
     event: "RELATIONSHIP_UPDATE";
-    data: PublicRelationship & {
-        should_notify?: boolean;
-        user: PublicUser;
-    };
+    data: PartialRelationshipSchema;
 }
 
 export interface RelationshipRemoveEvent extends Event {
     event: "RELATIONSHIP_REMOVE";
-    data: Omit<PublicRelationship, "nickname">;
+    data: PartialRelationshipSchema;
 }
 
 export interface EntitlementCreateEvent extends Event {
@@ -736,6 +730,8 @@ export type EventData =
     | MessageUpdateEvent
     | MessageDeleteEvent
     | MessageDeleteBulkEvent
+    | MessagePollVoteAddEvent
+    | MessagePollVoteRemoveEvent
     | MessageReactionAddEvent
     | MessageReactionRemoveEvent
     | MessageReactionRemoveAllEvent
@@ -803,6 +799,8 @@ export enum EVENTEnum {
     MessageUpdate = "MESSAGE_UPDATE",
     MessageDelete = "MESSAGE_DELETE",
     MessageDeleteBulk = "MESSAGE_DELETE_BULK",
+    MessagePollVoteAdd = "MESSAGE_POLL_VOTE_ADD",
+    MessageePollVoteRemove = "MESSAGE_POLL_VOTE_REMOVE",
     MessageReactionAdd = "MESSAGE_REACTION_ADD",
     MessageReactionRemove = "MESSAGE_REACTION_REMOVE",
     MessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL",
@@ -828,6 +826,11 @@ export enum EVENTEnum {
     ThreadListSync = "THREAD_LIST_SYNC",
     ThreadMemberUpdate = "THREAD_MEMBER_UPDATE",
     ThreadMembersUpdate = "THREAD_MEMBERS_UPDATE",
+    SoundboardSounds = "SOUNDBOARD_SOUNDS",
+    GuildSoundboardSoundCreate = "GUILD_SOUNDBOARD_SOUND_CREATE",
+    GuildSoundboardSoundUpdate = "GUILD_SOUNDBOARD_SOUND_UPDATE",
+    GuildSoundboardSoundDelete = "GUILD_SOUNDBOARD_SOUND_DELETE",
+    VoiceChannelEffectSend = "VOICE_CHANNEL_EFFECT_SEND",
     EntitlementCreate = "ENTITLEMENT_CREATE",
     EntitlementUpdate = "ENTITLEMENT_UPDATE",
     EntitlementDelete = "ENTITLEMENT_DELETE",
@@ -867,6 +870,8 @@ export type EVENT =
     | "MESSAGE_UPDATE"
     | "MESSAGE_DELETE"
     | "MESSAGE_DELETE_BULK"
+    | "MESSAGE_POLL_VOTE_ADD"
+    | "MESSAGE_POLL_VOTE_REMOVE"
     | "MESSAGE_REACTION_ADD"
     // TODO: add a new event: bulk add reaction:
     // | "MESSAGE_REACTION_BULK_ADD"
@@ -903,6 +908,11 @@ export type EVENT =
     | "THREAD_LIST_SYNC"
     | "THREAD_MEMBER_UPDATE"
     | "THREAD_MEMBERS_UPDATE"
+    | "SOUNDBOARD_SOUNDS"
+    | "GUILD_SOUNDBOARD_SOUND_CREATE"
+    | "GUILD_SOUNDBOARD_SOUND_UPDATE"
+    | "GUILD_SOUNDBOARD_SOUND_DELETE"
+    | "VOICE_CHANNEL_EFFECT_SEND"
     | "ENTITLEMENT_CREATE"
     | "ENTITLEMENT_UPDATE"
     | "ENTITLEMENT_DELETE"
@@ -912,12 +922,4 @@ export type EVENT =
     | CUSTOMEVENTS;
 
 export type CUSTOMEVENTS =
-    | "INVALIDATED"
-    | "RATELIMIT"
-    | "SB_SESSION_REMOVE"
-    | "SB_SESSION_CLOSE"
-    | "LOBBY_CREATE"
-    | "LOBBY_UPDATE"
-    | "LOBBY_DELETE"
-    | "LOBBY_MEMBER_ADD"
-    | "LOBBY_MEMBER_REMOVE";
+    "INVALIDATED" | "RATELIMIT" | "SB_SESSION_REMOVE" | "SB_SESSION_CLOSE" | "LOBBY_CREATE" | "LOBBY_UPDATE" | "LOBBY_DELETE" | "LOBBY_MEMBER_ADD" | "LOBBY_MEMBER_REMOVE";

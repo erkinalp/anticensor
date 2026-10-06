@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Message, Sticker } from "@spacebar/database";
+import { emitEvent, MessageCreateEvent, Permissions } from "@spacebar/util";
 import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -31,7 +32,7 @@ router.post(
         permission: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             404: {},
             400: {
@@ -101,7 +102,7 @@ router.post(
             channel.save(),
         ]);
 
-        res.send(message);
+        res.json(publicMsg);
     },
 );
 

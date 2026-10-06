@@ -17,10 +17,10 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@spacebar/api";
-import { Team, TeamMember, User } from "@spacebar/util";
-import { HTTPError } from "lambert-server";
-import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Team as TeamEntity, TeamMember, User } from "@spacebar/database";
+import { TeamCreateSchema, TeamMemberRole, TeamMemberState, Team } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -40,7 +40,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const teams = await Team.find({
+        const teams = await TeamEntity.find({
             where: {
                 owner_user_id: req.user_id,
             },
@@ -70,7 +70,7 @@ router.post(
 
         const body = req.body as TeamCreateSchema;
 
-        const team = Team.create({
+        const team = TeamEntity.create({
             name: body.name,
             owner_user_id: req.user_id,
         });
@@ -84,7 +84,7 @@ router.post(
             role: TeamMemberRole.ADMIN,
         }).save();
 
-        res.json(team);
+        res.json(team.toJSON() satisfies Team);
     },
 );
 

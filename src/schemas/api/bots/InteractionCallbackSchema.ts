@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbackType } from "./InteractionCallbackType";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "@spacebar/schemas/uncategorised";
 import { AllowedMentions, BaseMessageComponents, Embed } from "../messages";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "#schemas/uncategorised";
+import { InteractionCallbackType } from "./InteractionCallbackType";
 
 export interface InteractionCallbackSchema {
     type: InteractionCallbackType;
@@ -50,13 +50,7 @@ export interface MessageDUpdateCallback extends InteractionCallbackSchema {
     data: InteractionMessage;
 }
 export type InteractionCallbacksSchema =
-    | PongCallback
-    | AckCallback
-    | MessageCallback
-    | MessageWSourceCallback
-    | MessageDWSourceCallback
-    | MessageUpdateCallback
-    | MessageDUpdateCallback;
+    PongCallback | AckCallback | MessageCallback | MessageWSourceCallback | MessageDWSourceCallback | MessageUpdateCallback | MessageDUpdateCallback;
 
 export interface InteractionMessage {
     content?: string;

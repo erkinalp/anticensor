@@ -17,8 +17,9 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@spacebar/api";
-import { ConnectedAccount, ConnectedAccountDTO } from "@spacebar/util";
+import { route } from "@spacebar/api/middlewares";
+import { ConnectedAccount } from "@spacebar/database";
+import { ConnectedAccountDTO } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 

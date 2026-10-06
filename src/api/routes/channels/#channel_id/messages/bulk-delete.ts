@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, Config, emitEvent, getPermission, getRights, Message, MessageDeleteBulkEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Message } from "@spacebar/database";
+import { Config, emitEvent, getPermission, getRights, MessageDeleteBulkEvent } from "@spacebar/util";
+import { In } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -63,12 +65,14 @@ router.post(
             if (messages.length > maxBulkDelete) throw new HTTPError(`You cannot delete more than ${maxBulkDelete} messages`);
         }
 
-        await Message.delete(messages);
+        const messageIdsInChannel = (await Message.find({ where: { id: In(messages), channel_id: channel_id }, select: { id: true } })).map((x) => x.id);
+
+        await Message.delete({ id: In(messageIdsInChannel), channel_id: channel_id });
 
         await emitEvent({
             event: "MESSAGE_DELETE_BULK",
             channel_id,
-            data: { ids: messages, channel_id, guild_id: channel.guild_id },
+            data: { ids: messageIdsInChannel, channel_id, guild_id: channel.guild_id },
         } satisfies MessageDeleteBulkEvent);
 
         res.sendStatus(204);

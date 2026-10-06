@@ -16,65 +16,52 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { fillMessageUrlEmbeds, randomString } from "@spacebar/api";
+import { HTTPError } from "lambert-server/HTTPError";
+import { Equal, In, Or } from "typeorm";
+// noinspection ES6PreferShortImport -- Causes a circular reference...
+import { fillMessageUrlEmbeds } from "../utility/EmbedHandlers";
+import { getDatabase, Application, Attachment, Channel, CloudAttachment, Guild, Member, Message, ReadState, Role, Session, Sticker, User, Webhook } from "@spacebar/database";
+import { mathLogBase, arrayDistributeSequentially, Stopwatch, Random } from "@spacebar/extensions";
 import {
-    Application,
-    arrayDistributeSequentially,
-    arrayPartition,
-    Attachment,
-    Channel,
-    CloudAttachment,
     Config,
     DiscordApiErrors,
     emitEvent,
+    ErrorList,
     EVERYONE_MENTION,
+    FieldError,
     FieldErrors,
-    getDatabase,
     getPermission,
     getRights,
-    Guild,
     handleFile,
     HERE_MENTION,
-    mathLogBase,
-    Member,
-    Message,
+    makeObjectErrorContent,
     MessageCreateEvent,
     MessageFlags,
     Permissions,
-    ReadState,
-    Role,
     ROLE_MENTION,
-    Session,
     Snowflake,
-    Sticker,
-    Stopwatch,
     TraceNode,
     TraceRoot,
     TraceSubTree,
-    User,
     USER_MENTION,
-    Webhook,
 } from "@spacebar/util";
-import { HTTPError } from "lambert-server";
-import { Equal, In, Or } from "typeorm";
 import {
     ActionRowComponent,
+    AttachmentFlags,
     BaseMessageComponents,
     ButtonStyle,
     ChannelType,
-    Embed,
     EmbedType,
     MessageComponentType,
-    MessageCreateAttachment,
     MessageCreateCloudAttachment,
-    MessageCreateSchema,
     MessageReferenceType,
     MessageType,
-    Reaction,
     ReadStateType,
     UnfurledMediaItem,
     v1CompTypes,
 } from "@spacebar/schemas";
+import { addPendingPoll } from "../utility/polls";
+import { MessageOptionAttachment, MessageOptions } from "@spacebar/util/dtos/MessageOptions";
 
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
@@ -296,7 +283,7 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         throw FieldErrors(errors);
     }
     return async (messageId: string, user: User, channel: Channel) => {
-        const batchId = `CLOUD_compUploads_${randomString(128)}`;
+        const batchId = `CLOUD_compUploads_${Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 128)}`;
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
@@ -478,7 +465,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             }
             /** Q: should be checked if the referenced message exists? ANSWER: NO
 			 otherwise backfilling won't work **/
-            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
+            if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type && MessageType.POLL_RESULT !== message.type)
+                message.type = MessageType.REPLY;
         }
     }
 
@@ -499,6 +487,27 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     }
 
     message.content = opts.content?.trim();
+
+    if (message.poll) {
+        message.poll.results = { answer_counts: [], is_finalized: false };
+
+        if (opts.poll?.duration) {
+            message.poll.expiry = new Date(Date.now() + opts.poll.duration * 3600000);
+            addPendingPoll(message, opts.poll.duration * 3600000);
+        }
+
+        if (opts.poll?.answers) {
+            if (opts.poll.answers.length < 1 || opts.poll.answers.length > 10) {
+                const errors: ErrorList = {};
+                errors["poll"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", "Must be between 1 and 10 in length.");
+                throw new FieldError(50035, "Invalid form body", errors);
+            }
+
+            for (let i = 0; i < opts.poll.answers.length; i++) {
+                message.poll.answers[i].answer_id = i + 1;
+            }
+        }
+    }
 
     await handleMessageMentionsAsync(message);
 
@@ -585,24 +594,6 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-type MessageOptionAttachment = MessageCreateAttachment | MessageCreateCloudAttachment | Attachment;
-interface MessageOptions extends MessageCreateSchema {
-    id?: string;
-    type?: MessageType;
-    pinned?: boolean;
-    author_id?: string;
-    webhook_id?: string;
-    application_id?: string;
-    embeds?: Embed[] | null;
-    reactions?: Reaction[];
-    channel_id?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
-    edited_timestamp?: Date;
-    timestamp?: Date;
-    username?: string;
-    avatar_url?: string;
-}
-
 // Makes for concise code, inspired by Nix' lib.trace
 function logPassthru<T>(obj: T, ...data: unknown[]) {
     console.log(...data);
@@ -614,8 +605,28 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
     console.log("[Message] Processing attachments for message", source.id, "->", source.attachments);
     const tasks = source.attachments?.map(async (src): Promise<Attachment> => {
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
-        if (isCloudAttachment(src))
-            return logPassthru(await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id), logp, "Got MessageCreateCloudAttachment contents");
+        if (isCloudAttachment(src)) {
+            const result = logPassthru(await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id), logp, "Got MessageCreateCloudAttachment contents");
+
+            result.flags = 0 as AttachmentFlags;
+            result.flags &= (src.is_clip ? 1 : 0) * (AttachmentFlags.IS_CLIP as number);
+            result.flags &= (src.is_remix ? 1 : 0) * (AttachmentFlags.IS_REMIX as number);
+            result.flags &= (src.is_thumbnail ? 1 : 0) * (AttachmentFlags.IS_THUMBNAIL as number);
+            result.flags &= (src.is_spoiler ? 1 : 0) * (AttachmentFlags.IS_SPOILER as number);
+            return logPassthru(result, logp, "Got MessageCreateCloudAttachment contents");
+        }
+        if (isInternalCdnAttachment(src)) {
+            const result = Attachment.create({
+                ...src,
+            });
+
+            // result.flags = 0 as AttachmentFlags;
+            // result.flags &= (src.is_clip ? 1 : 0) * (AttachmentFlags.IS_CLIP as number);
+            // result.flags &= (src.is_remix ? 1 : 0) * (AttachmentFlags.IS_REMIX as number);
+            // result.flags &= (src.is_thumbnail ? 1 : 0) * (AttachmentFlags.IS_THUMBNAIL as number);
+            // result.flags &= (src.is_spoiler ? 1 : 0) * (AttachmentFlags.IS_SPOILER as number);
+            return result;
+        }
         throw new Error(logp + " Unhandled attachment: " + JSON.stringify(src));
     });
 
@@ -629,14 +640,18 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
     return "uploaded_filename" in attachment;
 }
 
-export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
-    const attEnt = await CloudAttachment.findOneOrFail({
+export function isInternalCdnAttachment(attachment: MessageOptionAttachment) {
+    return "url" in attachment;
+}
+
+export async function convertCloudAttachmentToAttachment(cloudAttachmentReference: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
+    const cloudAttachment = await CloudAttachment.findOneOrFail({
         where: {
-            uploadFilename: cAtt.uploaded_filename,
+            uploadFilename: cloudAttachmentReference.uploaded_filename,
         },
     });
 
-    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {
+    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${cloudAttachment.uploadFilename}/clone_to_message/${destinationMessageId}`, {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -644,21 +659,29 @@ export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateClou
     });
 
     if (!cloneResponse.ok) {
-        console.error(`[Message] Failed to clone attachment ${attEnt.userFilename} to message ${destinationMessageId}`);
+        console.error(`[Message] Failed to clone attachment ${cloudAttachment.userFilename} to message ${destinationMessageId}`);
         throw new HTTPError("Failed to process attachment: " + (await cloneResponse.text()), 500);
     }
 
     const cloneRespBody = (await cloneResponse.json()) as { success: boolean; new_path: string };
 
     const realAtt = Attachment.create({
-        filename: attEnt.userFilename,
-        size: attEnt.size,
-        height: attEnt.height,
-        width: attEnt.width,
-        content_type: attEnt.contentType || attEnt.userOriginalContentType,
         channel_id: destinationChannelId,
         message_id: destinationMessageId,
+
+        filename: cloudAttachment.userFilename,
+        size: cloudAttachment.size,
+        height: cloudAttachment.height,
+        width: cloudAttachment.width,
+        content_type: cloudAttachment.contentType || cloudAttachment.userOriginalContentType,
+
+        title: cloudAttachmentReference.title,
+        duration_secs: cloudAttachmentReference.duration_secs,
+        clip_created_at: cloudAttachmentReference.clip_created_at,
+        description: cloudAttachmentReference.description,
+        waveform: cloudAttachmentReference.waveform,
     });
+
     console.log("[Message] Converted cloud attachment to", realAtt);
     return realAtt;
 }
@@ -715,7 +738,7 @@ async function handleMessageMentionsAsync(message: Message) {
         }
         contentTrace.calls.push("parseMentions", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
-        let mentionedRoles = await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
+        let mentionedRoles = !channel.guild_id ? [] : await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
         contentTrace.calls.push("queryMentionRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
         // Silently drop invalid role mentions (e.g. from DMs, cross-guild pastes) rather
@@ -754,6 +777,13 @@ async function handleMessageMentionsAsync(message: Message) {
             );
         }
 
+        if (message.embeds[0]?.type === EmbedType.poll_result) {
+            message.mentions.push(
+                // @ts-expect-error it does not like the .toPublicUser() lol
+                (await User.findOne({ where: { id: message.author_id } }))!.toPublicUser(),
+            );
+        }
+
         if (message.message_reference.type === MessageReferenceType.FORWARD) {
             message.type = MessageType.DEFAULT;
 
@@ -769,7 +799,7 @@ async function handleMessageMentionsAsync(message: Message) {
     /*message.mention_channels = mention_channel_ids.map((x) =>
 		Channel.create({ id: x }),
 	);*/
-    message.mention_roles = await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
+    message.mention_roles = mention_role_id_set.size == 0 ? [] : await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
     message.mentions = [...message.mentions, ...(await User.find({ where: { id: In(mention_user_id_set.values().toArray()) } }))];
     message.mention_everyone = mention_everyone;
     trace.calls.push("fillMessageMentionProperties", { micros: sw.getElapsedAndReset().totalMicroseconds });

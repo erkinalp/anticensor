@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getVoiceRegions, route } from "@spacebar/api";
-import { Guild } from "@spacebar/util";
+import { getVoiceRegions } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Guild } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -27,7 +28,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "APIGuildVoiceRegion",
+                body: "VoiceRegionListResponse",
             },
             404: {
                 body: "APIErrorResponse",

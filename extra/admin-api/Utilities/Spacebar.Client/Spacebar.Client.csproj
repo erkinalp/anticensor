@@ -6,6 +6,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+        <UseSystemResourceKeys>false</UseSystemResourceKeys>
+        <UseSizeOptimizedLinq>false</UseSizeOptimizedLinq> <!-- makes Linq slightly faster -->
+        <DebuggerSupport>true</DebuggerSupport>
+        <TrimmerRemoveSymbols>false</TrimmerRemoveSymbols>
 
         <!-- copied from https://cgit.rory.gay/matrix/tools/MatrixUtils.git/tree/MatrixUtils.Web/MatrixUtils.Web.csproj -->
         <LinkIncremental>true</LinkIncremental>
@@ -22,7 +26,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArcaneLibs.Blazor.Components" Version="1.0.1-preview.20260505-124817"/>
+        <PackageReference Include="ArcaneLibs.Blazor.Components" Version="1.0.1-preview.20260827-231533" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
     </ItemGroup>

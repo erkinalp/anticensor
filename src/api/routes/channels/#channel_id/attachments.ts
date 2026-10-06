@@ -16,9 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
-import { CloudAttachment, Channel, Config, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, CloudAttachment } from "@spacebar/database";
+import { Random } from "@spacebar/extensions";
+import { Config, Permissions } from "@spacebar/util";
 import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -52,7 +54,7 @@ router.post(
         }
 
         const cdnUrl = Config.get().cdn.endpointPublic;
-        const batchId = `CLOUD_${user.id}_${randomString(128)}`;
+        const batchId = `CLOUD_${user.id}_${Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 128)}`;
 
         // validate IDs
         const seenIds: (string | undefined)[] = [];

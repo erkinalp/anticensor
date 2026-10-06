@@ -18,13 +18,14 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { route } from "@spacebar/api";
-import { DiscordApiErrors, Guild } from "@spacebar/util";
-import { Request, Response, Router } from "express";
 import fs from "node:fs";
-import { HTTPError } from "lambert-server";
 import path from "node:path";
-import { storage } from "@spacebar/cdn";
+import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { storage } from "@spacebar/cdn/util/Storage";
+import { Guild } from "@spacebar/database";
+import { DiscordApiErrors } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -44,6 +45,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };

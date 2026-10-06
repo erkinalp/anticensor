@@ -16,11 +16,13 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
-import { HTTPError } from "#util/util/lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
+import { handleComps, sendMessage } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Message, User } from "@spacebar/database";
+import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { Config, emitEvent, InteractionSuccessEvent, MessageUpdateEvent, pendingInteractions, InteractionFailureEvent } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -29,6 +31,7 @@ router.post(
     route({
         stripNulls: true,
         requestBody: "InteractionCallbacksSchema",
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const body = req.body as InteractionCallbacksSchema;

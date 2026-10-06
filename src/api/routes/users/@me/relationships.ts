@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, Relationship, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { PublicUserProjection, RelationshipType, RelationshipPatchSchema } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Member, Relationship, User } from "@spacebar/database";
+import { Config, DiscordApiErrors, RelationshipAddEvent, RelationshipRemoveEvent, RelationshipUpdateEvent, emitEvent } from "@spacebar/util";
+import { PublicUserProjection, RelationshipType, RelationshipModifySchema, RelationshipListSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -31,7 +32,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "UserRelationshipsResponse",
+                body: "RelationshipListSchema",
             },
             404: {
                 body: "APIErrorResponse",
@@ -46,14 +47,14 @@ router.get(
         });
 
         const related_users = user.relationships.map((r) => r.toPublicRelationship());
-        return res.json(related_users);
+        return res.json(related_users satisfies RelationshipListSchema);
     },
 );
 
 router.put(
     "/:user_id",
     route({
-        requestBody: "RelationshipPutSchema",
+        requestBody: "RelationshipCreateSchema",
         responses: {
             204: {},
             400: {
@@ -71,16 +72,16 @@ router.put(
             await User.findOneOrFail({
                 where: { id: req.params.user_id as string },
                 relations: { relationships: { to: true } },
-                select: userProjection,
+                select: Object.fromEntries(userProjection.map((i) => [i, true])), // TODO: cleanup
             }),
-            req.body.type ?? RelationshipType.friends,
+            req.body.type ?? RelationshipType.FRIEND,
         ),
 );
 
 router.patch(
     "/:user_id",
     route({
-        requestBody: "RelationshipPatchSchema",
+        requestBody: "RelationshipModifySchema",
         responses: {
             204: {},
             400: {
@@ -92,7 +93,7 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = req.body as RelationshipPatchSchema;
+        const body = req.body as RelationshipModifySchema;
         const rel = await Relationship.findOneOrFail({
             where: {
                 from_id: req.user_id,
@@ -105,7 +106,7 @@ router.patch(
                 event: "RELATIONSHIP_UPDATE",
                 data: {
                     ...rel.toPublicRelationship(),
-                    should_notify: true,
+                    // should_notify: true, // TODO: this apparently isn't valid?
                 },
                 user_id: req.user_id,
             } satisfies RelationshipUpdateEvent),
@@ -118,7 +119,7 @@ router.patch(
 router.post(
     "/",
     route({
-        requestBody: "RelationshipPostSchema",
+        requestBody: "SendRelationshipRequestSchema",
         responses: {
             204: {},
             400: {
@@ -135,13 +136,13 @@ router.post(
             res,
             await User.findOneOrFail({
                 relations: { relationships: { to: true } },
-                select: userProjection,
+                select: Object.fromEntries(userProjection.map((i) => [i, true])), // TODO: cleanup
                 where: {
                     discriminator: String(req.body.discriminator).padStart(4, "0"), //Discord send the discriminator as integer, we need to add leading zeroes
                     username: req.body.username,
                 },
             }),
-            req.body.type,
+            req.body.type, // TODO: is this even correct? the schema doesnt have a type field...
         ),
 );
 
@@ -164,12 +165,12 @@ router.delete(
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
-            select: userProjection,
+            select: Object.fromEntries(userProjection.map((i) => [i, true])), // TODO: cleanup
             relations: { relationships: true },
         });
         const friend = await User.findOneOrFail({
             where: { id: user_id },
-            select: userProjection,
+            select: Object.fromEntries(userProjection.map((i) => [i, true])), // TODO: cleanup
             relations: { relationships: true },
         });
 
@@ -178,7 +179,7 @@ router.delete(
 
         if (!relationship) throw new HTTPError("You are not friends with the user", 404);
 
-        if (relationship?.type === RelationshipType.blocked) {
+        if (relationship?.type === RelationshipType.BLOCKED) {
             // unblock user
             await Promise.all([
                 Relationship.delete({ id: relationship.id }),
@@ -190,7 +191,7 @@ router.delete(
             ]);
             return res.sendStatus(204);
         }
-        if (friendRequest && friendRequest.type !== RelationshipType.blocked) {
+        if (friendRequest && friendRequest.type !== RelationshipType.BLOCKED) {
             await Promise.all([
                 Relationship.delete({ id: friendRequest.id }),
                 await emitEvent({
@@ -214,8 +215,6 @@ router.delete(
     },
 );
 
-export default router;
-
 async function updateRelationship(req: Request, res: Response, friend: User, type: RelationshipType) {
     const id = friend.id;
     if (id === req.user_id) throw new HTTPError("You can't add yourself as a friend");
@@ -223,32 +222,33 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
     const user = await User.findOneOrFail({
         where: { id: req.user_id },
         relations: { relationships: { to: true } },
-        select: userProjection,
+        select: Object.fromEntries(userProjection.map((i) => [i, true])), //TODO: cleanup
     });
 
     let relationship = user.relationships.find((x) => x.to_id === id);
     const friendRequest = friend.relationships.find((x) => x.to_id === req.user_id);
 
     // TODO: you can add infinitely many blocked users (should this be prevented?)
-    if (type === RelationshipType.blocked) {
+    if (type === RelationshipType.BLOCKED) {
         if (relationship) {
-            if (relationship.type === RelationshipType.blocked) throw new HTTPError("You already blocked the user");
-            relationship.type = RelationshipType.blocked;
+            if (relationship.type === RelationshipType.BLOCKED) throw new HTTPError("You already blocked the user");
+            relationship.type = RelationshipType.BLOCKED;
             await relationship.save();
         } else {
             relationship = await Relationship.create({
                 to_id: id,
-                type: RelationshipType.blocked,
+                type: RelationshipType.BLOCKED,
                 from_id: req.user_id,
+                since: new Date(),
             }).save();
         }
 
-        if (friendRequest && friendRequest.type !== RelationshipType.blocked) {
+        if (friendRequest && friendRequest.type !== RelationshipType.BLOCKED) {
             await Promise.all([
                 Relationship.delete({ id: friendRequest.id }),
                 emitEvent({
                     event: "RELATIONSHIP_REMOVE",
-                    data: friendRequest.toPublicRelationship(),
+                    data: friendRequest.toPartialRelationship(),
                     user_id: id,
                 } satisfies RelationshipRemoveEvent),
             ]);
@@ -266,33 +266,42 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
     const { maxFriends } = Config.get().limits.user;
     if (user.relationships.length >= maxFriends) throw DiscordApiErrors.MAXIMUM_FRIENDS.withParams(maxFriends);
 
+    let isStrangerRequest = true;
+    const ownMemberships = (await Member.find({ where: { id: req.user_id }, select: { guild_id: true } })).map((x) => x.guild_id);
+    const targetMemberships = (await Member.find({ where: { id: req.user_id }, select: { guild_id: true } })).map((x) => x.guild_id);
+
+    if (ownMemberships.filter((x) => targetMemberships.includes(x)).length > 0) isStrangerRequest = false;
+
     let incoming_relationship = Relationship.create({
         nickname: undefined,
-        type: RelationshipType.incoming,
+        type: RelationshipType.INCOMING_REQUEST,
         to: user,
         from: friend,
+        since: new Date(),
+        stranger_request: isStrangerRequest,
     });
     let outgoing_relationship = Relationship.create({
         nickname: undefined,
-        type: RelationshipType.outgoing,
+        type: RelationshipType.OUTGOING_REQUEST,
         to: friend,
         from: user,
+        since: new Date(),
     });
 
     if (friendRequest) {
-        if (friendRequest.type === RelationshipType.blocked) throw new HTTPError("The user blocked you");
-        if (friendRequest.type === RelationshipType.friends) throw new HTTPError("You are already friends with the user");
+        if (friendRequest.type === RelationshipType.BLOCKED) throw new HTTPError("The user blocked you");
+        if (friendRequest.type === RelationshipType.FRIEND) throw new HTTPError("You are already friends with the user");
         // accept friend request
         incoming_relationship = friendRequest;
-        incoming_relationship.type = RelationshipType.friends;
+        incoming_relationship.type = RelationshipType.FRIEND;
     }
 
     if (relationship) {
-        if (relationship.type === RelationshipType.outgoing) throw new HTTPError("You already sent a friend request");
-        if (relationship.type === RelationshipType.blocked) throw new HTTPError("Unblock the user before sending a friend request");
-        if (relationship.type === RelationshipType.friends) throw new HTTPError("You are already friends with the user");
+        if (relationship.type === RelationshipType.OUTGOING_REQUEST) throw new HTTPError("You already sent a friend request");
+        if (relationship.type === RelationshipType.BLOCKED) throw new HTTPError("Unblock the user before sending a friend request");
+        if (relationship.type === RelationshipType.FRIEND) throw new HTTPError("You are already friends with the user");
         outgoing_relationship = relationship;
-        outgoing_relationship.type = RelationshipType.friends;
+        outgoing_relationship.type = RelationshipType.FRIEND;
     }
 
     await Promise.all([
@@ -315,3 +324,5 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
 
     return res.sendStatus(204);
 }
+
+export default router;

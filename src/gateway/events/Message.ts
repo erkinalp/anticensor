@@ -17,7 +17,6 @@
 */
 
 import { CLOSECODES, Payload, WebSocket } from "@spacebar/gateway";
-import * as erlpack from "harmony-erlpack";
 import fs from "node:fs/promises";
 import BigIntJson from "json-bigint";
 import path from "node:path";
@@ -25,6 +24,7 @@ import WS from "ws";
 import OPCodeHandlers from "../opcodes";
 import { check } from "../opcodes/instanceOf";
 import { PayloadSchema } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 
@@ -52,7 +52,8 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
             }
         }
         data = bigIntJson.parse(buffer as string);
-    } else if (this.encoding === "etf" && Buffer.isBuffer(buffer) && erlpack) {
+    } else if (this.encoding === "etf" && Buffer.isBuffer(buffer)) {
+        const erlpack = await import("harmony-erlpack");
         try {
             // cast is ~safe: unpack returns the parsed data in the shape it was provided, @yukikaze-bot/erlpack got around this by returning `any` instead of an actual type union.
             data = erlpack.unpack(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)) as unknown as Payload;
@@ -90,7 +91,9 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         return await OPCodeHandler.call(this, data);
     } catch (error) {
         console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Error: Op ${data.op}`, error);
+        let message: string | undefined = undefined;
+        if (error instanceof HTTPError) message = error.message;
         // if (!this.CLOSED && this.CLOSING)
-        return this.close(CLOSECODES.Unknown_error);
+        return this.close(CLOSECODES.Unknown_error, message ?? `Unknown opcode error while handling opcode ${data.op}`);
     }
 }

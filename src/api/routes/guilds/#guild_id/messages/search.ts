@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Member, Message } from "@spacebar/database";
+import { FieldErrors, Snowflake, getPermission } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -127,7 +128,7 @@ router.get(
         mentions = mentions instanceof Array ? mentions : mentions ? [mentions] : [];
         let roleids = [] as string[];
         if (mentions) {
-            const ms = await Member.find({ where: { id: In(mentions), guild_id: req.params.guild_id as string }, relations: ["roles"] });
+            const ms = await Member.find({ where: { id: In(mentions), guild_id: req.params.guild_id as string }, relations: { roles: true } });
             const rSet = new Set<string>();
             ms.forEach((memb) => {
                 memb.roles.forEach(({ id }) => rSet.add(id));

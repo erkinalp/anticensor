@@ -13,7 +13,8 @@
 		"BASE_TYPE_CONSTANT": "This field must be {{value}}",
 		"EMAIL_TYPE_INVALID_EMAIL": "Not a well-formed email address",
 		"DATE_TYPE_PARSE": "Could not parse {{date}}. Should be ISO8601",
-		"BASE_TYPE_BAD_LENGTH": "Must be between {{length}} in length"
+		"BASE_TYPE_BAD_LENGTH": "Must be between {{length}} in length",
+		"VOLUME_OUT_OF_RANGE": "Volume must be between 0 and 1"
 	},
 	"body": {
 		"INVALID_BODY": "Invalid Body",
@@ -45,5 +46,8 @@
 		"REMOVE_SELF": "You can't remove yourself as a friend",
 		"UNBLOCK": "Unblock the user before sending a friend request",
 		"BLOCKED": "The user blocked you"
+	},
+	"missing_permissions": {
+		"SOUNDBOARD": "You need the SOUNDBOARD permission to perform this action"
 	}
 }

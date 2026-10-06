@@ -16,9 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, Webhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Webhook } from "@spacebar/database";
+import { Config } from "@spacebar/util";
+import { WebhookResponse } from "@spacebar/schemas";
+
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -28,7 +31,7 @@ router.get(
         permission: "MANAGE_WEBHOOKS",
         responses: {
             200: {
-                body: "APIWebhookArray",
+                body: "WebhookListResponse",
             },
         },
     }),
@@ -39,13 +42,17 @@ router.get(
             relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
         });
 
-        const instanceUrl = Config.get().api.endpointPublic;
         return res.json(
-            webhooks.map((webhook) => ({
-                ...webhook,
-                user: webhook.user?.toPublicUser(),
-                url: instanceUrl + "/webhooks/" + webhook.id + "/" + webhook.token,
-            })),
+            webhooks.map(
+                (webhook) =>
+                    ({
+                        ...webhook,
+                        user: webhook.user.toPartialUser(),
+                        source_guild: webhook.source_guild?.toIntegrationGuild(),
+                        source_channel: webhook.source_channel?.toWebhookChannel(),
+                        url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
+                    }) satisfies WebhookResponse,
+            ),
         );
     },
 );

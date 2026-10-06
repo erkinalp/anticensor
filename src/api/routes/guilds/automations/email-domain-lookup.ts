@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@spacebar/api/middlewares";
 import { FieldErrors } from "@spacebar/util";
 import emailProviders from "email-providers/all.json";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { EmailDomainLookupResponse, EmailDomainLookupSchema, EmailDomainLookupVerifyCodeSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });

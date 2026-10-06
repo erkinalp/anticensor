@@ -17,6 +17,6 @@
 */
 
 export * from "./Server";
-export * from "./util/";
-export * from "./opcodes/";
+export * from "./util/index";
+export * from "./opcodes/index";
 export * from "./listener/listener";

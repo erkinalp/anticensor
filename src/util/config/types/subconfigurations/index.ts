@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./defaults";
-export * from "./guild";
-export * from "./kafka";
-export * from "./limits";
-export * from "./register";
-export * from "./security";
+export * from "./defaults/index";
+export * from "./guild/index";
+export * from "./kafka/index";
+export * from "./limits/index";
+export * from "./register/index";
+export * from "./security/index";

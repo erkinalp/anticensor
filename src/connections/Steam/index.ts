@@ -17,7 +17,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectedAccount, Connection, ConnectionLoader } from "@spacebar/util";
+import { Config, Connection, ConnectionLoader } from "@spacebar/util";
+import { ConnectedAccount } from "@spacebar/database";
 import { SteamSettings } from "./SteamSettings";
 import { ConnectionCallbackSchema } from "@spacebar/schemas";
 

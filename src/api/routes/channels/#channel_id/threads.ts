@@ -16,29 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
-import {
-    Channel,
-    emitEvent,
-    User,
-    uploadFile,
-    Attachment,
-    Member,
-    ReadState,
-    MessageCreateEvent,
-    FieldErrors,
-    getPermission,
-    ThreadMember,
-    Message,
-    ChannelFlags,
-    Snowflake,
-} from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
-
 import { Request, Response, Router } from "express";
-import { messageUpload } from "./messages";
-import { HTTPError } from "#util/util/lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { handleMessage, postHandleMessage, sendMessage } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Attachment, Channel, Member, Message, ReadState, ThreadMember, User } from "@spacebar/database";
+import { emitEvent, uploadFile, MessageCreateEvent, FieldErrors, getPermission, ChannelFlags } from "@spacebar/util";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { messageUpload } from "./messages";
 
 const router = Router({ mergeParams: true });
 
@@ -71,7 +57,7 @@ router.post(
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
-            relations: ["available_tags"],
+            relations: { available_tags: true },
         });
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
@@ -142,7 +128,7 @@ router.post(
             for (const currFile of files) {
                 try {
                     const file = await uploadFile(`/attachments/${channel.id}/${thread.id}`, currFile);
-                    attachments.push(Attachment.create(file));
+                    attachments.push(file);
                 } catch (error) {
                     return res.status(400).json({ message: error?.toString() });
                 }

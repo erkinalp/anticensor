@@ -1,6 +1,9 @@
 {
     "include": [
-        "MessageInteractionSchema"
+        "MessageInteractionSchema",
+        "BackupCodeArray",
+        "MessageListResponse",
+        "ReportMenuTypeNames"
     ],
     "includeRe": [
         "^MessageComponentType\\..*",
@@ -31,7 +34,6 @@
         "UpdateRouteResponse",
         "MessagesSendAPIResponse",
         "APIWebhook",
-        "WebhookResponse",
         "WebhookValidationResponse",
         "MessageResponse",
         "ConnectionSettingsResponse",

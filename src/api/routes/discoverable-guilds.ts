@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild, Member } from "@spacebar/util";
-
-import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains, In, Not } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Guild, Member } from "@spacebar/database";
+import { Config } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -49,7 +49,7 @@ router.get(
             where: {
                 id: Not(In(hiddenGuildIds)),
                 discovery_excluded: false,
-                ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
+                ...(categories == undefined ? {} : { primary_category_id: Number(categories as string) }), // TODO: isnt this an array?
                 ...(showAllGuilds ? {} : { features: ArrayContains(["DISCOVERABLE"]) }),
             },
             order: {
@@ -64,11 +64,12 @@ router.get(
 
         res.send({
             total: total,
-            guilds: guilds.map((g) => ({
-                ...g,
-                discovery_weight: undefined,
-                discovery_splash: undefined,
-            })),
+            // guilds: guilds.map((g) => ({
+            //     ...g,
+            //     discovery_weight: undefined,
+            //     discovery_splash: undefined,
+            // })),
+            guilds: await Promise.all(guilds.map((g) => g.toDiscoverableGuild())),
             offset: Number(offset || Config.get().guild.discovery.offset),
             limit: Number(limit || configLimit),
         });

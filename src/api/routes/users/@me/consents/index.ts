@@ -1,6 +1,6 @@
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { UserConsent } from "@spacebar/util";
+import { UserConsent } from "@spacebar/database";
 
 const router: Router = Router();
 

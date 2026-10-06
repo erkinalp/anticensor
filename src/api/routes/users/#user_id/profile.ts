@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Badge, Member, Relationship, User } from "@spacebar/database";
+import { Config, emitEvent, FieldErrors, handleFile, UserUpdateEvent } from "@spacebar/util";
 import { PartialConnectedAccountResponse, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -114,12 +115,15 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
     let mutual_friends_count = 0;
 
     if (with_mutual_friends == "true" || with_mutual_friends_count == "true") {
-        const relationshipsSelf = await Relationship.find({ where: { from_id: req.user_id, type: RelationshipType.friends } });
-        const relationshipsUser = await Relationship.find({ where: { from_id: user_id, type: RelationshipType.friends } });
+        const relationshipsSelf = await Relationship.find({ where: { from_id: req.user_id, type: RelationshipType.FRIEND } });
+        const relationshipsUser = await Relationship.find({ where: { from_id: user_id, type: RelationshipType.FRIEND } });
         const relationshipsIntersection = relationshipsSelf.filter((r1) => relationshipsUser.some((r2) => r2.to_id === r1.to_id));
         if (with_mutual_friends_count) mutual_friends_count = relationshipsIntersection.length;
         if (with_mutual_friends) {
-            const users = await User.find({ where: { id: In(relationshipsIntersection.map((r) => r.to_id)) }, select: PublicUserProjection });
+            const users = await User.find({
+                where: { id: In(relationshipsIntersection.map((r) => r.to_id)) },
+                select: Object.fromEntries(PublicUserProjection.map((i) => [i, true])),
+            }); //TODO: clean up
             mutual_friends = users.map((u) => u.toPublicUser());
         }
     }
@@ -168,7 +172,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
     const user = await User.findOneOrFail({
         where: { id: req.user_id },
-        select: [...PrivateUserProjection, "data"],
+        select: Object.fromEntries([...PrivateUserProjection, "data"].map((i) => [i, true])), //TODO: cleanup
     });
 
     if (body.bio) {
@@ -178,6 +182,18 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
                 bio: {
                     code: "BIO_INVALID",
                     message: `Bio must be less than ${maxBio} in length`,
+                },
+            });
+        }
+    }
+
+    if (body.pronouns) {
+        const { maxPronouns } = Config.get().limits.user;
+        if (body.pronouns.length > maxPronouns) {
+            throw FieldErrors({
+                pronouns: {
+                    code: "PRONOUNS_INVALID",
+                    message: `Pronouns must be less than ${maxPronouns} in length`,
                 },
             });
         }

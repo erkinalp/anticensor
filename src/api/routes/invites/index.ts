@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Ban, Config, DiscordApiErrors, emitEvent, getPermission, Guild, Invite, InviteDeleteEvent, PublicInviteRelation } from "@spacebar/util";
+import { route } from "@spacebar/api/middlewares";
+import { Ban, Guild, Invite, PublicInviteRelation } from "@spacebar/database";
+import { Config, DiscordApiErrors, emitEvent, getPermission, InviteDeleteEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { UserFlags } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -35,13 +36,14 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { invite_code } = req.params as { [key: string]: string };
 
         const invite = await Invite.findOneOrFail({
             where: { code: invite_code },
-            relations: PublicInviteRelation,
+            relations: Object.fromEntries(PublicInviteRelation.map((i) => [i, true])), //TODO: clean up
         });
 
         res.status(200).send(invite.toPublicJSON());

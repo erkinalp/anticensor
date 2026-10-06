@@ -1,21 +1,29 @@
-import { route } from "@spacebar/api";
-import {
-    Config,
-    DiscordApiErrors,
-    getPermission,
-    Webhook,
-    WebhooksUpdateEvent,
-    emitEvent,
-    Channel,
-    handleFile,
-    ValidateName,
-    Message,
-    MessageDeleteBulkEvent,
-} from "@spacebar/util";
+/*
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server/HTTPError";
 import { In } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Webhook, Channel, Message } from "@spacebar/database";
+import { Config, DiscordApiErrors, getPermission, WebhooksUpdateEvent, emitEvent, handleFile, ValidateName, MessageDeleteBulkEvent } from "@spacebar/util";
+import type { WebhookResponse, WebhookUpdateSchema } from "@spacebar/schemas";
+
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -24,7 +32,7 @@ router.get(
         description: "Returns a webhook object for the given id. Requires the MANAGE_WEBHOOKS permission or to be the owner of the webhook.",
         responses: {
             200: {
-                body: "APIWebhook",
+                body: "WebhookResponse",
             },
             404: {},
         },
@@ -44,8 +52,11 @@ router.get(
 
         return res.json({
             ...webhook,
+            user: webhook.user.toPartialUser(),
+            source_guild: webhook.source_guild?.toIntegrationGuild(),
+            source_channel: webhook.source_channel?.toWebhookChannel(),
             url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
-        });
+        } satisfies WebhookResponse);
     },
 );
 
@@ -93,6 +104,7 @@ router.delete(
             } satisfies MessageDeleteBulkEvent);
         }
 
+        await Message.delete({ channel_id, webhook_id });
         await Webhook.delete({ id: webhook_id });
 
         await emitEvent({

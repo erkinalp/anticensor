@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { getPermission, GuildMemberSubscription, GuildMemberSubscriptionStatus, GuildSubscriptionTier } from "@spacebar/util";
+import { getPermission } from "@spacebar/util";
+import { GuildMemberSubscription, GuildMemberSubscriptionStatus, GuildSubscriptionTier } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

@@ -30,9 +30,14 @@ export async function getVoiceRegions(ipAddress: string, vip: boolean) {
         let min = Number.POSITIVE_INFINITY;
 
         for (const ar of availableRegions) {
-            //TODO the endpoint location should be saved in the database if not already present to prevent IPAnalysis call
-            const dist = distanceBetweenLocations(clientIpAnalysis!, ar.location || (await IpDataClient.getIpInfo(ar.endpoint))!);
+            let location = ar.location;
+            if (!location) {
+                //TODO the endpoint location should be saved in the database if not already present to prevent IPAnalysis call
+                const data = await IpDataClient.getIpInfo(ar.endpoint);
+                location = data ?? { latitude: 0, longitude: 0 };
+            }
 
+            const dist = distanceBetweenLocations(clientIpAnalysis!, location);
             if (dist < min) {
                 min = dist;
                 optimalId = ar.id;

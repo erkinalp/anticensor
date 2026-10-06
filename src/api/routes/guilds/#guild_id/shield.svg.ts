@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { DiscordApiErrors, Guild, Member } from "@spacebar/util";
-import { Request, Response, Router } from "express";
-import { makeBadge } from "badge-maker";
-import path from "node:path";
 import fs from "node:fs";
+import path from "node:path";
+import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Guild, Member } from "@spacebar/database";
+import { DiscordApiErrors } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -49,6 +49,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -89,6 +90,7 @@ async function getWidgetJsonData(guild_id: string, useWhiteLogo: boolean = true)
     const minLastSeen = Date.now() - 1000 * 60 * 5;
     const onlineMembers = members.filter((m) => m.user.sessions.filter((s) => (s.last_seen?.getTime() ?? 0) > minLastSeen).length > 0);
 
+    const { makeBadge } = await import("badge-maker");
     return makeBadge({
         label: "Spacebar",
         message: `${onlineMembers.length} online`,

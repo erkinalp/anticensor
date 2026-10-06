@@ -18,13 +18,15 @@
 
 import path from "node:path";
 import morgan from "morgan";
-import { Server, ServerOptions } from "lambert-server";
-import { Attachment, Config, initDatabase, registerRoutes } from "@spacebar/util";
-import { CORS, BodyParser } from "@spacebar/api";
+import { Server, ServerOptions } from "lambert-server/Server";
+import { CORS, BodyParser, Authentication } from "@spacebar/api/middlewares";
+import { Attachment, initDatabase } from "@spacebar/database";
+import { Config, JwtKeypairManager, registerRoutes } from "@spacebar/util";
+import { ProcessLifecycle, SystemdLifecycle } from "../util/util/ProcessLifecycle";
+import { Monitoring } from "../util/monitoring/Monitoring";
 import guildProfilesRoute from "./routes/guild-profiles";
 import { storage } from "./util";
-import { ProcessLifecycle } from "../util/util/ProcessLifecycle";
-import { Monitoring } from "../util/monitoring/Monitoring";
+import { ErrorHandler } from "@spacebar/cdn/util/ErrorHandler";
 
 export type CDNServerOptions = ServerOptions;
 
@@ -40,6 +42,7 @@ export class CDNServer extends Server {
         Monitoring.attach(this.app);
         await initDatabase();
         await Config.init();
+        await JwtKeypairManager.init();
 
         this.migrateAttachments().then(
             (_) => console.log("[CDN] Successfully migrated attachments"),
@@ -64,6 +67,8 @@ export class CDNServer extends Server {
 
         this.app.disable("x-powered-by");
 
+        this.app.use(Authentication);
+        this.app.use(ErrorHandler);
         this.app.use(CORS);
         this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
 
@@ -75,8 +80,9 @@ export class CDNServer extends Server {
         this.app.use("/guilds/:guild_id/users/:user_id/banners", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/banners registered");
 
+        await super.start();
+        await SystemdLifecycle.setStatus(`Listening on ${this.options.host}:${this.options.port}...`);
         await ProcessLifecycle.Ready();
-        return super.start();
     }
 
     async migrateAttachments() {

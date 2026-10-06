@@ -16,11 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition, getMostRelevantSession } from "@spacebar/util";
-import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
-import { check } from "./instanceOf";
+import { getDatabase, Member, Role, Session, User, Channel } from "@spacebar/database";
+import { arrayPartition, Stopwatch } from "@spacebar/extensions";
+import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { LazyRequestSchema } from "@spacebar/schemas";
+import { getPermission, listenEvent, Presence, Permissions, getMostRelevantSession, Config } from "@spacebar/util";
+import { check } from "./instanceOf";
+import { start } from "node:repl";
 
 // TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
@@ -149,11 +152,15 @@ async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
 }
 
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
-    const startTime = Date.now();
+    const sw = Stopwatch.startNew();
     // TODO: check data
     check.call(this, LazyRequestSchema, d);
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
+
+    if (Config.get().offload.gateway.lazyRequestUrl !== null) {
+        if (await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.lazyRequestUrl!, d)) return;
+    }
 
     if (members) {
         // Client has requested a PRESENCE_UPDATE for specific member
@@ -254,5 +261,5 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         },
     });
 
-    console.log(`[Gateway/${this.user_id}] LAZY_REQUEST ${guild_id} ${channel_id} took ${Date.now() - startTime}ms`);
+    console.log(`[Gateway/${this.user_id}] LAZY_REQUEST ${guild_id} ${channel_id} took ${sw.elapsed().toString()}`);
 }

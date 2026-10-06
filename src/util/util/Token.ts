@@ -16,18 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import jwt from "jsonwebtoken";
-import { Config } from "./Config";
-import { InstanceBan, Session, User } from "../entities";
-import crypto from "node:crypto";
-import fs from "node:fs/promises";
+import crypto, { KeyObject } from "node:crypto";
 import { existsSync } from "node:fs";
-// TODO: dont use deprecated APIs lol
-import { FindOptionsRelationByString, FindOptionsRelations, FindOptionsSelect, FindOptionsSelectByString } from "typeorm";
-import { randomUpperString } from "@spacebar/api";
-import { TimeSpan } from "./Timespan";
-import { HTTPError } from "lambert-server";
 import path from "node:path";
+import fs from "node:fs/promises";
+import jwt from "jsonwebtoken";
+import { HTTPError } from "lambert-server/HTTPError";
+import { InstanceBan, Session, User } from "@spacebar/database";
+import { Random, sleep, Stopwatch, TimeSpan } from "@spacebar/extensions";
+import { Config } from "./Config";
+import { OrmUtils } from "@spacebar/util";
+import { clearInterval, setInterval } from "node:timers";
+import { ProcessLifecycle } from "@spacebar/util/util/ProcessLifecycle";
 
 /// Change history:
 /// 1 - Initial version with HS256
@@ -46,6 +46,8 @@ export type UserTokenData = {
         ver?: number;
         // device id
         did?: string;
+        // OAuth scopes
+        scopes?: string[];
     };
 };
 
@@ -62,8 +64,8 @@ function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: numb
 export const checkToken = (
     token: string,
     opts?: {
-        select?: FindOptionsSelect<User>;
-        relations?: FindOptionsRelations<User>;
+        select?: string[]; // TODO: clean up
+        relations?: string[]; // TODO: clean up
         ipAddress?: string;
         fingerprint?: string;
     },
@@ -85,8 +87,8 @@ export const checkToken = (
             let [user, session] = await Promise.all([
                 User.findOne({
                     where: { id: decoded.id },
-                    select: { ...(opts?.select || {}), id: true, bot: true, disabled: true, deleted: true, rights: true, data: true },
-                    relations: opts?.relations,
+                    select: OrmUtils.keysToObject([...(opts?.select || []), "id", "bot", "disabled", "deleted", "rights", "data"]), // TODO: clean up
+                    relations: !opts?.relations ? undefined : OrmUtils.keysToObject(opts.relations), // TODO: clean up
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: decoded.id } }) : undefined,
             ]);
@@ -150,20 +152,18 @@ export const checkToken = (
             legacyVersion = 1;
             jwt.verify(token, Config.get().security.jwtSecret!, { algorithms: ["HS256"] }, validateUser);
         } else if (dec.header.alg == "ES512") {
-            loadOrGenerateKeypair().then((keyPair) => {
-                jwt.verify(token, keyPair.publicKey, { algorithms: ["ES512"] }, validateUser);
-            });
+            jwt.verify(token, JwtKeypairManager.keypair.publicKey, { algorithms: ["ES512"] }, validateUser);
         } else return void rejectAndLog(reject, 400, "Unsupported token algorithm: " + dec.header.alg);
     });
 
-export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
+export async function generateToken(id: string, isAdminSession: boolean = false, scopes: string[] | undefined = undefined): Promise<string | undefined> {
     const iat = Math.floor(Date.now() / 1000);
-    const keyPair = await loadOrGenerateKeypair();
+    const keyPair = JwtKeypairManager.keypair;
 
     let newSession;
     do {
         newSession = Session.create({
-            session_id: randomUpperString(10), // readable at a glance
+            session_id: Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10), // readable at a glance
             user_id: id,
             is_admin_session: isAdminSession,
             client_status: {},
@@ -175,7 +175,7 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
     await newSession.save();
 
     return new Promise((res, rej) => {
-        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
+        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id, scopes } as UserTokenData["decoded"];
         jwt.sign(
             payload,
             keyPair.privateKey,
@@ -190,58 +190,93 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
     });
 }
 
-let lastFsCheck: number;
-let cachedKeypair: {
-    privateKey: crypto.KeyObject;
-    publicKey: crypto.KeyObject;
-    fingerprint: string;
-};
+export class JwtKeypairManager {
+    private static isLocked = false;
+    static #keypair?: JwtKeypair;
+    static #filesystemCheckInterval: NodeJS.Timeout;
 
-// Get ECDSA keypair from file or generate it
-export async function loadOrGenerateKeypair() {
-    if (cachedKeypair) {
-        // check for file deletion every minute
-        if (Date.now() - lastFsCheck > 60000) {
+    public static get keypair() {
+        if (!this.#keypair) throw new Error("JwtKeypairManager#keypair.get called before being initialized.");
+        return this.#keypair;
+    }
+
+    // Get ECDSA keypair from file or generate it
+    public static async init() {
+        if (this.isLocked) {
+            const lockSw = Stopwatch.startNew();
+            while (this.isLocked) {
+                await sleep(50);
+                if (lockSw.elapsed().totalSeconds > 10) throw new Error("[JwtKeypairManager] Initialization was locked for >10 seconds!");
+            }
+        }
+
+        this.isLocked = true;
+        try {
+            let privateKey: crypto.KeyObject;
+            let publicKey: crypto.KeyObject;
+
+            if (existsSync("jwt.key") && existsSync("jwt.key.pub")) {
+                const [loadedPrivateKey, loadedPublicKey] = await Promise.all([fs.readFile("jwt.key"), fs.readFile("jwt.key.pub")]);
+
+                privateKey = crypto.createPrivateKey(loadedPrivateKey);
+                publicKey = crypto.createPublicKey(loadedPublicKey);
+            } else {
+                console.log("[JWT] Generating new keypair:", path.resolve("jwt.key"), "- PWD:", process.cwd());
+                const res = crypto.generateKeyPairSync("ec", {
+                    namedCurve: "secp521r1",
+                });
+                privateKey = res.privateKey;
+                publicKey = res.publicKey;
+
+                await Promise.all([
+                    fs.writeFile("jwt.key", privateKey.export({ format: "pem", type: "sec1" })),
+                    fs.writeFile("jwt.key.pub", publicKey.export({ format: "pem", type: "spki" })),
+                ]);
+            }
+
+            const fingerprint = crypto
+                .createHash("sha256")
+                .update(publicKey.export({ format: "pem", type: "spki" }))
+                .digest("hex");
+
+            this.#keypair = new JwtKeypair(privateKey, publicKey, fingerprint);
+
+            // set up interval to check if key was accidentally deleted
+            this.#filesystemCheckInterval = setInterval(async () => this.runDeletionCheck(), 60_000);
+            ProcessLifecycle.eventEmitter.on("stopped", async () => {
+                clearInterval(this.#filesystemCheckInterval);
+                await this.runDeletionCheck();
+            });
+        } catch (e) {
+            console.error(`[JwtKeypairManager] Initialization failed:`, e);
+        } finally {
+            this.isLocked = false;
+        }
+    }
+
+    private static async runDeletionCheck() {
+        try {
             if (!existsSync("jwt.key") || !existsSync("jwt.key.pub")) {
                 console.log("[JWT] Keypair files disappeared... Saving them again.");
                 await Promise.all([
-                    fs.writeFile("jwt.key", cachedKeypair.privateKey.export({ format: "pem", type: "sec1" })),
-                    fs.writeFile("jwt.key.pub", cachedKeypair.publicKey.export({ format: "pem", type: "spki" })),
+                    fs.writeFile("jwt.key", this.keypair.privateKey.export({ format: "pem", type: "sec1" })),
+                    fs.writeFile("jwt.key.pub", this.keypair.publicKey.export({ format: "pem", type: "spki" })),
                 ]);
             }
-            lastFsCheck = Date.now();
+        } catch (e) {
+            console.error("[JwtKeypairManager] Failed to check if keypair was accidentally deleted:", e);
         }
-
-        return cachedKeypair;
     }
+}
 
-    let privateKey: crypto.KeyObject;
-    let publicKey: crypto.KeyObject;
+class JwtKeypair {
+    public readonly privateKey: KeyObject;
+    public readonly publicKey: KeyObject;
+    public readonly fingerprint: string;
 
-    if (existsSync("jwt.key") && existsSync("jwt.key.pub")) {
-        const [loadedPrivateKey, loadedPublicKey] = await Promise.all([fs.readFile("jwt.key"), fs.readFile("jwt.key.pub")]);
-
-        privateKey = crypto.createPrivateKey(loadedPrivateKey);
-        publicKey = crypto.createPublicKey(loadedPublicKey);
-    } else {
-        console.log("[JWT] Generating new keypair:", path.resolve("jwt.key"), "- PWD:", process.cwd());
-        const res = crypto.generateKeyPairSync("ec", {
-            namedCurve: "secp521r1",
-        });
-        privateKey = res.privateKey;
-        publicKey = res.publicKey;
-
-        await Promise.all([
-            fs.writeFile("jwt.key", privateKey.export({ format: "pem", type: "sec1" })),
-            fs.writeFile("jwt.key.pub", publicKey.export({ format: "pem", type: "spki" })),
-        ]);
+    constructor(privateKey: KeyObject, publicKey: KeyObject, fingerprint: string) {
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+        this.fingerprint = fingerprint;
     }
-
-    const fingerprint = crypto
-        .createHash("sha256")
-        .update(publicKey.export({ format: "pem", type: "spki" }))
-        .digest("hex");
-
-    lastFsCheck = Date.now();
-    return (cachedKeypair = { privateKey, publicKey, fingerprint });
 }

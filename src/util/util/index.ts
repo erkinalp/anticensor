@@ -17,16 +17,12 @@
 */
 
 export * from "./ApiError";
-export * from "./extensions/Array";
 export * from "./BitField";
 //export * from "./Categories";
 export * from "./cdn";
 export * from "./Config";
 export * from "./Constants";
-export * from "./Database";
-export * from "./DateBuilder";
 export * from "./email";
-export * from "./ElapsedTime";
 export * from "./ipc/Event";
 export * from "./FieldError";
 export * from "./Intents";
@@ -41,20 +37,12 @@ export * from "./ipc/RabbitMQ";
 export * from "./Regex";
 export * from "./Rights";
 export * from "./Snowflake";
-export * from "./Stopwatch";
-export * from "./String";
-export * from "./Timespan";
 export * from "./Token";
 export * from "./TraverseDirectory";
 export * from "./WebAuthn";
 export * from "./ChannelFlags";
-export * from "./Gifs";
 export * from "./Application";
 export * from "./NameValidation";
-export * from "../../schemas/HelperTypes";
-export * from "./extensions";
-export * from "./Random";
-export * from "./Url";
 export * from "./Version";
 export * from "./ConnectionPrivacy";
 export * from "./DmPrivacy";

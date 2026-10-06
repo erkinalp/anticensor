@@ -18,13 +18,14 @@
 import http from "node:http";
 import ws from "ws";
 import { green, yellow } from "picocolors";
-import { Config, initDatabase, initEvent } from "@spacebar/util";
+import { initDatabase } from "@spacebar/database";
+import { Config, initEvent, JwtKeypairManager } from "@spacebar/util";
+import { ProcessLifecycle, SystemdLifecycle } from "../util/util/ProcessLifecycle";
+import { Monitoring } from "../util/monitoring/Monitoring";
 import { Connection } from "./events/Connection";
 import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util";
-import { ProcessLifecycle } from "../util/util/ProcessLifecycle";
-import { Monitoring } from "../util/monitoring/Monitoring";
 
-export class Server {
+export class WebrtcServer {
     public ws: ws.Server;
     public port: number;
     public server: http.Server;
@@ -66,6 +67,7 @@ export class Server {
         await initDatabase();
         await Config.init();
         await initEvent();
+        await JwtKeypairManager.init();
 
         // try to load webrtc library, if failed just don't start webrtc endpoint
         try {
@@ -79,6 +81,7 @@ export class Server {
         if (!this.server.listening) {
             this.server.listen(this.port);
             console.log(`[WebRTC] ${green(`online on 0.0.0.0:${this.port}`)}`);
+            await SystemdLifecycle.setStatus(`Listening on 0.0.0.0:${this.port}...`);
         }
 
         await ProcessLifecycle.Ready();

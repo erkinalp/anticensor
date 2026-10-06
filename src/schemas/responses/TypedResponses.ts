@@ -20,20 +20,16 @@
 import { GeneralConfiguration, LimitsConfiguration } from "../../util/config/types";
 import { DmChannelDTO } from "../../util/dtos";
 // TODO: remove entity imports
-import { Application, BackupCode, Categories, Channel, Entitlement, Guild, Invite, Member, Message, Role, SKU, Template, Webhook } from "@spacebar/util";
-import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
-import { GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
+import { Application, Categories, Channel, Entitlement, Guild, SKU, Template } from "@spacebar/database";
+import { GuildCreateResponse, PrivateUser } from "@spacebar/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class
 export type APIGuild = Omit<Guild, "afk_channel" | "template" | "owner" | "public_updates_channel" | "rules_channel" | "system_channel" | "widget_channel">;
-export type APIPublicUser = PublicUser;
-export type APIPrivateUser = PrivateUser;
 export type APIGuildArray = APIGuild[];
 export type APIDMChannelArray = DmChannelDTO[];
-export type APIBackupCodeArray = BackupCode[];
 
-export interface UserUpdateResponse extends APIPrivateUser {
+export interface UserUpdateResponse extends PrivateUser {
     newToken?: string;
 }
 
@@ -41,22 +37,15 @@ export type ApplicationDetectableResponse = unknown[];
 export type ApplicationEntitlementsResponse = Entitlement[];
 export type ApplicationSkusResponse = SKU[];
 export type APIApplicationArray = Application[];
-export type APIInviteArray = Invite[];
-export type APIMessageArray = Message[];
-export type APIWebhookArray = Webhook[];
 export type APIDiscoveryCategoryArray = Categories[];
-export type APIGeneralConfiguration = GeneralConfiguration;
 export type APIChannelArray = Channel[];
-export type APIMemberArray = Member[];
-export type APIPublicMember = PublicMember;
 
 export interface APIGuildWithJoinedAt extends GuildCreateResponse {
     joined_at: string;
 }
 
-export type APIRoleArray = Role[];
 export type APITemplateArray = Template[];
-export type APIGuildVoiceRegion = GuildVoiceRegion[];
+export type APIGeneralConfiguration = GeneralConfiguration;
 export type APILimitsConfiguration = LimitsConfiguration;
 
 export type APIConnectionsConfiguration = Record<

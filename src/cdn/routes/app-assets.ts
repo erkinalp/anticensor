@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
-import { storage } from "@spacebar/cdn";
-import { fileTypeFromBuffer } from "file-type";
-import { HTTPError } from "lambert-server";
 import crypto from "node:crypto";
-import { multer } from "../util/multer";
-import { cache, cacheNotFound } from "../util/cache";
+import { Router, Response, Request } from "express";
+import { HTTPError } from "lambert-server/HTTPError";
+import { Config } from "@spacebar/util";
+import { storage, multer, setCacheControl, setCacheControlNotFound, validateServerAuth } from "../util";
+
+const fileTypeFromBuffer = (buffer: Uint8Array) => import("file-type").then((m) => m.fileTypeFromBuffer(buffer));
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
@@ -37,8 +36,7 @@ const ALLOWED_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 const router = Router({ mergeParams: true });
 
 const pathPrefix = "app-assets";
-router.post("/:guild_id", multer.single("file"), async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
+router.post("/:guild_id", validateServerAuth, multer.single("file"), async (req: Request, res: Response) => {
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { guild_id } = req.params as { [key: string]: string };
@@ -62,13 +60,13 @@ router.post("/:guild_id", multer.single("file"), async (req: Request, res: Respo
     });
 });
 
-router.get("/:guild_id", cache, async (req: Request, res: Response) => {
+router.get("/:guild_id", setCacheControl, async (req: Request, res: Response) => {
     let { guild_id } = req.params as { [key: string]: string };
     guild_id = guild_id.split(".")[0]; // remove .file extension
     const path = `${pathPrefix}/${guild_id}`;
 
     const file = await storage.get(path);
-    if (!file) return cacheNotFound(req, res);
+    if (!file) return setCacheControlNotFound(req, res);
     const type = await fileTypeFromBuffer(file);
 
     res.set("Content-Type", type?.mime);
@@ -83,7 +81,7 @@ const getAvatar = async (req: Request, res: Response): Promise<Response | void> 
     const path = `${pathPrefix}/${guild_id}/${hash}`;
 
     const file = await storage.get(path);
-    if (!file) return cacheNotFound(req, res);
+    if (!file) return setCacheControlNotFound(req, res);
     const type = await fileTypeFromBuffer(file);
 
     res.set("Content-Type", type?.mime);
@@ -91,7 +89,7 @@ const getAvatar = async (req: Request, res: Response): Promise<Response | void> 
     return res.send(file);
 };
 
-router.get("/:guild_id/:hash", cache, getAvatar);
+router.get("/:guild_id/:hash", setCacheControl, getAvatar);
 
 router.delete("/:guild_id/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");

@@ -22,11 +22,12 @@ import cluster from "node:cluster";
 import morgan from "morgan";
 import express from "express";
 import { green, bold } from "picocolors";
-import * as Api from "@spacebar/api";
-import * as Gateway from "@spacebar/gateway";
-import * as Webrtc from "@spacebar/webrtc";
+import { SpacebarServer } from "@spacebar/api";
 import { CDNServer } from "@spacebar/cdn";
-import { Config, initDatabase } from "@spacebar/util";
+import { initDatabase } from "@spacebar/database";
+import { GatewayServer } from "@spacebar/gateway";
+import { Config } from "@spacebar/util";
+import { WebrtcServer } from "@spacebar/webrtc";
 import { ProcessLifecycle } from "../util/util/ProcessLifecycle";
 import { Monitoring } from "../util/monitoring/Monitoring";
 
@@ -37,10 +38,10 @@ const wrtcWsPort = Number(process.env.WRTC_WS_PORT) || 3004;
 const production = process.env.NODE_ENV == "development" ? false : true;
 server.on("request", app);
 
-const api = new Api.SpacebarServer({ server, port, production, app });
+const api = new SpacebarServer({ server, port, production, app });
 const cdn = new CDNServer({ server, port, production, app });
-const gateway = new Gateway.Server({ server, port, production });
-const webrtc = new Webrtc.Server({
+const gateway = new GatewayServer({ server, port, production, app });
+const webrtc = new WebrtcServer({
     server: undefined,
     port: wrtcWsPort,
     production,
@@ -56,6 +57,7 @@ ProcessLifecycle.eventEmitter.on("stopping", async () => {
 
 async function main() {
     await Monitoring.init();
+    Monitoring.attach(app);
     await initDatabase();
     await Config.init();
 

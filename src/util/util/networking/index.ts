@@ -15,6 +15,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-export * from "./abuseipdb";
-export * from "./ipdata";
+export * from "./abuseipdb/index";
+export * from "./ipdata/index";
 export * from "./stopforumspam/StopForumSpamClient";

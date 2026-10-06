@@ -18,7 +18,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { User } from "../../entities";
+import { User } from "../../../database/entities";
 import { Config } from "../Config";
 import { generateToken } from "../Token";
 import { IEmail, IEmailClient } from "./clients/IEmailClient";
@@ -129,7 +129,7 @@ export const Email: {
      * @param id user id
      */
     generateLink: async function (type, id) {
-        const token = (await generateToken(id)) as string;
+        const token = (await generateToken(id, undefined, ["account.password.reset"])) as string;
         // puyodead1: this is set to api endpoint because the verification page is on the server since no clients have one, and not all 3rd party clients will have one
         const instanceUrl = Config.get().api.endpointPublic?.replace("/api", "");
         const dashedType = type.replace(/([A-Z])/g, "-$1").toLowerCase();

@@ -16,26 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import {
-    Channel,
-    ChannelDeleteEvent,
-    ChannelRecipientRemoveEvent,
-    emitEvent,
-    Emoji,
-    Guild,
-    InstanceBan,
-    Member,
-    Recipient,
-    Sticker,
-    Stopwatch,
-    User,
-    UserDeleteEvent,
-    UserSettingsProtos,
-} from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@spacebar/schemas";
 import { Not } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Emoji, Guild, InstanceBan, Member, Recipient, Sticker, User, UserSettingsProtos } from "@spacebar/database";
+import { ChannelDeleteEvent, ChannelRecipientRemoveEvent, emitEvent, UserDeleteEvent } from "@spacebar/util";
+import { ChannelType, InstanceUserDeleteSchema, PrivateUserProjection } from "@spacebar/schemas";
+import { Stopwatch } from "@spacebar/extensions";
 
 const router = Router({ mergeParams: true });
 
@@ -59,7 +46,7 @@ router.post(
         const body = req.body as InstanceUserDeleteSchema | undefined;
         const user = await User.findOneOrFail({
             where: { id: req.params.user_id as string },
-            select: [...PrivateUserProjection, "data"],
+            select: Object.fromEntries([...PrivateUserProjection, "data"].map((i) => [i, true])), // TODO: clean up
         });
 
         if ((body?.persistInstanceBan ?? true) && !(await InstanceBan.findOne({ where: { user_id: user.id } })))

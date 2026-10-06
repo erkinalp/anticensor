@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { StreamSession, VoiceState } from "@spacebar/database";
 import { CLOSECODES } from "@spacebar/gateway";
-import { StreamSession, VoiceState } from "@spacebar/util";
 import { validateSchema, VoiceIdentifySchema } from "@spacebar/schemas";
 import { generateSsrc, mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "@spacebar/webrtc";
 import { SSRCs } from "@spacebarchat/spacebar-webrtc-types";
@@ -80,7 +80,7 @@ export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
 
     const voiceRoomId = type === "stream" ? server_id : voiceState!.channel_id;
     try {
-        this.webRtcClient = await mediaServer.join(voiceRoomId, this.user_id, this, type!);
+        this.webRtcClient = await mediaServer.join(voiceRoomId!, this.user_id, this, type!);
     } catch (e) {
         return this.close(4013);
     }

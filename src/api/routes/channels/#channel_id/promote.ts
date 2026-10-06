@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Guild, Permissions, emitEvent } from "@spacebar/util";
+import { Permissions, emitEvent } from "@spacebar/util";
+import { Channel, Guild } from "@spacebar/database";
 import { ChannelType, ChannelPromoteSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -70,7 +71,7 @@ router.post(
 
         const guild = await Guild.findOneOrFail({
             where: { id: guildId },
-            relations: ["roles"],
+            relations: { roles: true },
         });
 
         const threadOverwrites = channel.permission_overwrites ?? [];

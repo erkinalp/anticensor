@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Member, VoiceState } from "@spacebar/database";
+import { DiscordApiErrors, emitEvent, getPermission, VoiceStateUpdateEvent } from "@spacebar/util";
 import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -79,7 +80,7 @@ router.patch(
         voiceState.member = await Member.findOneOrFail({
             where: {
                 id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
+                guild_id: voiceState.guild_id ?? undefined,
             },
         });
 

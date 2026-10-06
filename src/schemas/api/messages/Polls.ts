@@ -32,7 +32,7 @@ export interface PollMedia {
 }
 
 export interface PollAnswer {
-    answer_id?: string;
+    answer_id?: number;
     poll_media: PollMedia;
 }
 
@@ -45,4 +45,8 @@ export interface PollAnswerCount {
     id: string;
     count: number;
     me_voted: boolean;
+}
+
+export interface PollUserAnswersSchema {
+    answer_ids: string[];
 }

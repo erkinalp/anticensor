@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Message, Channel, getPermission, getRights, emitEvent, MessageDeleteBulkEvent } from "@spacebar/util";
+import { getPermission, getRights, emitEvent, MessageDeleteBulkEvent } from "@spacebar/util";
+import { Channel, Message } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { route } from "../../../../../util";
+import { route } from "@spacebar/api/middlewares";
 
 const router = Router();
 
@@ -52,7 +53,7 @@ router.get(
                         message_id: message_id,
                     },
                 },
-                select: ["id"],
+                select: { id: true },
             });
 
             if (replies.length > 0) {
@@ -69,7 +70,7 @@ router.get(
                 id: In(parentMessage.reply_ids || []),
                 channel_id: channel_id,
             },
-            relations: ["author", "webhook", "application", "mentions", "mention_roles", "mention_channels", "sticker_items", "attachments"],
+            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
             order: { timestamp: "ASC" },
         });
 
@@ -114,7 +115,7 @@ router.delete(
                         message_id: message_id,
                     },
                 },
-                select: ["id"],
+                select: { id: true },
             });
 
             if (replies.length > 0) {
@@ -129,7 +130,7 @@ router.delete(
         if (parentMessage.reply_ids?.length) {
             const replyMessages = await Message.find({
                 where: { id: In(parentMessage.reply_ids) },
-                select: ["id", "author_id"],
+                select: { id: true, author_id: true },
             });
 
             const userOwnedReplies = replyMessages.filter((msg) => msg.author_id === req.user_id);

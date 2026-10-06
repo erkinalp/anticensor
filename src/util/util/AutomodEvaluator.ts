@@ -1,4 +1,4 @@
-import { AutomodRule, Channel, User } from "../entities";
+import { AutomodRule, Channel, User } from "@spacebar/database";
 import { ChannelType } from "@spacebar/schemas";
 import { AutomodTriggerTypes } from "./Constants";
 

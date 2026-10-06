@@ -16,13 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { arrayDistinctBy, arrayGroupBy, Config, EmbedCache, emitEvent, Message, MessageUpdateEvent, normalizeUrl, OrmUtils, sleep } from "@spacebar/util";
-import { Embed, EmbedImage, EmbedType } from "@spacebar/schemas";
 import * as cheerio from "cheerio";
 import crypto from "node:crypto";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
+import { EmbedCache, Message } from "@spacebar/database";
+import { sleep, arrayDistinctBy, arrayGroupBy, normalizeUrl } from "@spacebar/extensions";
+import { Config, emitEvent, MessageFlags, MessageUpdateEvent, OrmUtils } from "@spacebar/util";
+import { Embed, EmbedImage, EmbedType } from "@spacebar/schemas";
 
 export function getDefaultFetchOptions(): RequestInit {
     return {
@@ -655,6 +657,9 @@ export async function fillMessageUrlEmbeds(message: Message) {
     // Filter out embeds that could be links, start from scratch
     const richEmbeds = message.embeds.filter((embed) => embed.type === "rich");
     message.embeds = richEmbeds;
+
+    // Dont add embeds if the message has embeds suppressed
+    if ((message.flags & Number(MessageFlags.FLAGS.SUPPRESS_EMBEDS)) !== 0) return message;
 
     if (linkMatches.length == 0) return message;
 

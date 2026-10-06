@@ -26,8 +26,7 @@ export interface GuildCreateSchema {
     region?: string;
     icon?: string | null;
     channels?: ChannelCreateSchema[];
-    system_channel_id?: string;
-    rules_channel_id?: string;
+    //system_channel_id?: string; //TODO what in the world does this even mean here??
     guild_template_code?: string;
     staff_only?: boolean;
 }

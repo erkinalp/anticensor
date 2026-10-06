@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent, distributePresenceUpdate } from "@spacebar/util";
-import { randomString } from "@spacebar/api";
-import { ProcessLifecycle } from "../../util/util/ProcessLifecycle";
+import { Member, Session, User, VoiceState } from "@spacebar/database";
+import { Random } from "@spacebar/extensions";
+import { WebSocket } from "@spacebar/gateway/util";
+import { emitEvent, PresenceUpdateEvent, SessionsReplace, VoiceStateUpdateEvent, distributePresenceUpdate } from "@spacebar/util";
+import { ProcessLifecycle } from "@spacebar/util/util/ProcessLifecycle";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
@@ -29,7 +30,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     this.inflate?.close();
     this.removeAllListeners();
 
-    if (this.session_id) {
+    if (this.session) {
         const authSessionId = this.session?.session_id;
         const closedAt = Date.now();
 
@@ -55,7 +56,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                                     activities: this.session!.activities,
                                 },
                                 origin: "GATEWAY_CLOSE",
-                                transaction_id: `IDENT_${this.user_id}_${randomString()}`,
+                                transaction_id: `IDENT_${this.user_id}_${Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 6)}`,
                             } satisfies PresenceUpdateEvent);
                             console.log("... done!");
                         } else console.log("... Discarding presence update as the session reactivated");
@@ -65,6 +66,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 }
             }, 10_000);
 
+        if (!this.user_id) console.error("No user id in websocket???", this);
         const voiceState = await VoiceState.findOne({
             where: { user_id: this.user_id },
         });
@@ -74,31 +76,31 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
             const prevGuildId = voiceState.guild_id;
             const prevChannelId = voiceState.channel_id;
 
-            // @ts-expect-error channel_id is nullable
             voiceState.channel_id = null;
-            // @ts-expect-error guild_id is nullable
             voiceState.guild_id = null;
             voiceState.self_stream = false;
             voiceState.self_video = false;
             await voiceState.save();
 
-            voiceState.member = await Member.findOneOrFail({
-                where: {
-                    id: voiceState.user_id,
+            if (prevGuildId) {
+                voiceState.member = await Member.findOneOrFail({
+                    where: {
+                        id: voiceState.user_id,
+                        guild_id: prevGuildId,
+                    },
+                });
+                // let the users in previous guild/channel know that user disconnected
+                await emitEvent({
+                    event: "VOICE_STATE_UPDATE",
+                    data: {
+                        ...voiceState.toPublicVoiceState(),
+                        guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
+                        member: voiceState.member.toPublicMember(),
+                    },
                     guild_id: prevGuildId,
-                },
-            });
-            // let the users in previous guild/channel know that user disconnected
-            await emitEvent({
-                event: "VOICE_STATE_UPDATE",
-                data: {
-                    ...voiceState.toPublicVoiceState(),
-                    guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
-                    member: voiceState.member.toPublicMember(),
-                },
-                guild_id: prevGuildId,
-                channel_id: prevChannelId,
-            } satisfies VoiceStateUpdateEvent);
+                    channel_id: prevChannelId,
+                } satisfies VoiceStateUpdateEvent);
+            }
         }
     }
 

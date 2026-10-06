@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ConnectedAccount } from "../entities/ConnectedAccount";
+import { ConnectedAccount } from "@spacebar/database";
 
 export enum VisibilityLevel {
     PRIVATE = 0,

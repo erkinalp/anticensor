@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@spacebar/util";
-import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
-
 import { Request, Response, Router } from "express";
+import { sendMessage } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Message, User } from "@spacebar/database";
+import { emitEvent, MessageUpdateEvent } from "@spacebar/util";
+import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -44,7 +45,7 @@ router.post(
         const body = req.body as MessageThreadCreationSchema;
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: ["guild"],
+            relations: { guild: true },
         });
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },

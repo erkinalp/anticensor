@@ -28,9 +28,11 @@ import {
     GeneralConfiguration,
     GifConfiguration,
     GuildConfiguration,
+    IntegrationConfiguration,
     LimitsConfiguration,
     LoginConfiguration,
     OffloadConfiguration,
+    ProxyConfiguration,
     PasswordResetConfiguration,
     RabbitMQConfiguration,
     RegionConfiguration,
@@ -62,7 +64,9 @@ export class ConfigValue {
     passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
     user: UserConfiguration = new UserConfiguration();
     offload: OffloadConfiguration = new OffloadConfiguration();
+    proxy: ProxyConfiguration = new ProxyConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();
+    integrations = new IntegrationConfiguration();
     billing: BillingConfiguration = new BillingConfiguration();
 }

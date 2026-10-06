@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { MoreThan } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Member } from "@spacebar/database";
 import { PublicMemberProjection } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -42,7 +42,7 @@ router.get(
         },
         responses: {
             200: {
-                body: "APIMemberArray",
+                body: "PublicMemberListResponse",
             },
             403: {
                 body: "APIErrorResponse",
@@ -60,12 +60,12 @@ router.get(
 
         const members = await Member.find({
             where: { guild_id, ...query },
-            select: PublicMemberProjection,
+            select: Object.fromEntries(PublicMemberProjection.map((i) => [i, true])), // TODO: cleanup
             take: limit,
             order: { id: "ASC" },
         });
 
-        return res.json(members);
+        return res.json(members.map((m) => m.toPublicMember()));
     },
 );
 

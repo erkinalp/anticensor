@@ -1,17 +1,24 @@
+/*
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2023 Spacebar and Spacebar Contributors
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import { Channel, Member, Stream, StreamSession, VoiceState } from "@spacebar/database";
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@spacebar/gateway";
-import {
-    Channel,
-    Config,
-    emitEvent,
-    Member,
-    Snowflake,
-    Stream,
-    StreamCreateEvent,
-    StreamServerUpdateEvent,
-    StreamSession,
-    VoiceState,
-    VoiceStateUpdateEvent,
-} from "@spacebar/util";
+import { Config, emitEvent, Snowflake, StreamCreateEvent, StreamServerUpdateEvent, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamCreateSchema } from "@spacebar/schemas";
 
@@ -31,7 +38,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
 
     if (body.guild_id) {
         voiceState.member = await Member.findOneOrFail({
-            where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
+            where: { id: voiceState.user_id, guild_id: voiceState.guild_id ?? undefined },
             relations: { user: true, roles: true },
         });
     }
@@ -112,8 +119,8 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
             ...voiceState.toPublicVoiceState(),
             member: voiceState.member.toPublicMember(),
         },
-        guild_id: voiceState.guild_id,
-        channel_id: voiceState.channel_id,
+        guild_id: voiceState.guild_id ?? undefined,
+        channel_id: voiceState.channel_id ?? undefined,
     } satisfies VoiceStateUpdateEvent);
 
     console.log(`[Gateway/${this.user_id}] STREAM_CREATE for user ${this.user_id} in channel ${body.channel_id} with stream key ${streamKey} in ${Date.now() - startTime}ms`);

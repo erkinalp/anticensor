@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,7 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity import
-import { Team } from "@spacebar/util";
+import { Snowflake } from "@spacebar/schemas";
+
+export interface Team {
+    id: Snowflake;
+    name: string;
+    icon: string | null;
+    owner_user_id: Snowflake;
+    // members?: TeamMember[]; // TODO: only in application object
+    // TODO: only on Get/List Team(s) w/ include_payout_account_status=true
+    // payout_account_status?: TeamPayoutAccountStatus | null;
+    // payout_account_statuses?: TeamPayoutAccount[];
+    // TODO: Get Team only
+    // stripe_connect_account_id?: string;
+}
 
 export type TeamListResponse = Team[];

@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { generateCode, route } from "@spacebar/api";
-import { Guild, Template } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Guild, Template } from "@spacebar/database";
+import { generateCode } from "@spacebar/extensions";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -85,7 +86,7 @@ router.post(
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: TemplateGuildProjection,
+            select: Object.fromEntries(TemplateGuildProjection.map((i) => [i, true])), //TODO: cleanup
             relations: { roles: true, channels: true },
         });
         const exists = await Template.findOne({
@@ -141,7 +142,7 @@ router.put(
         const { code, guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: TemplateGuildProjection,
+            select: Object.fromEntries(TemplateGuildProjection.map((i) => [i, true])), //TODO: cleanup
         });
 
         const template = await Template.create({

@@ -29,7 +29,7 @@ import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "node:url";
 import { Config } from "@spacebar/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
-import { ProcessLifecycle } from "../../util/util/ProcessLifecycle";
+import { ProcessLifecycle } from "@spacebar/util/util/ProcessLifecycle";
 import { Monitoring } from "../../util/monitoring/Monitoring";
 import { Gauge } from "prom-client";
 
@@ -44,6 +44,7 @@ const openConnectionCount = Monitoring.attachMetric(
     new Gauge({
         name: "spacebar_gateway_open_connection_count",
         help: "The total number of HTTP requests received",
+        registers: [],
     }),
 );
 

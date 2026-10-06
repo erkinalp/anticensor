@@ -17,7 +17,7 @@
 */
 
 import { MinimalPublicUserDTO } from "./UserDTO";
-import { Channel, User } from "../entities";
+import { Channel, User } from "../../database/entities";
 import { PublicUserProjection } from "@spacebar/schemas";
 
 export class DmChannelDTO {
@@ -46,7 +46,7 @@ export class DmChannelDTO {
                     .map((r) =>
                         User.findOneOrFail({
                             where: { id: r.user_id },
-                            select: PublicUserProjection,
+                            select: Object.fromEntries(PublicUserProjection.map((i) => [i, true])), // TODO: clean up
                         }),
                     ) || [],
             )
