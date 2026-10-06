@@ -34,8 +34,8 @@ router.get("/", route({ permission: "VIEW_CHANNEL" }), async (req: Request, res:
         throw DiscordApiErrors.UNKNOWN_MESSAGE;
     }
 
-    const answerCount = message.poll.results.answer_counts.find((a) => a.id === answer_id) as unknown as Omit<PollAnswerCount, "me_voted"> & { voters: string[] };
-    const usersAnswered = (await User.find({ where: { id: In(answerCount.voters) } })).map((user) => user.toPublicUser());
+    const answerCount = message.poll.results.answer_counts.find((a) => a.id === answer_id) as unknown as (Omit<PollAnswerCount, "me_voted"> & { voters: string[] }) | undefined;
+    const usersAnswered = (await User.find({ where: { id: In(answerCount?.voters ?? []) } })).map((user) => user.toPublicUser());
 
     res.send({ users: usersAnswered });
 });

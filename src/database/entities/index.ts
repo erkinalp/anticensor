@@ -73,4 +73,3 @@ export * from "./Subscription";
 export * from "./GuildSubscriptionTier";
 export * from "./GuildMemberSubscription";
 export * from "./SoundboardSound";
-export * from "./RunningPolls";

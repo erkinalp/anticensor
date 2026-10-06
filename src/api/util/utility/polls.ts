@@ -18,11 +18,11 @@
 
 import { sendMessage } from "@spacebar/api";
 import { EmbedType, MessageReferenceType, MessageType, PollAnswerCount } from "@spacebar/schemas";
-import { pendingPolls } from "@spacebar/util";
+import { emitEvent, MessageUpdateEvent, pendingPolls } from "@spacebar/util";
 import { Message } from "@spacebar/database";
 import { MessageOptions } from "@spacebar/util/dtos/MessageOptions";
 
-export async function generatePollResultsMessage(options: MessageOptions): Promise<MessageOptions> {
+export async function generatePollResultsMessage(options: MessageOptions): Promise<MessageOptions | null> {
     // TODO: shouldnt this get saved?
     const message = Message.create({
         ...options,
@@ -40,7 +40,7 @@ export async function generatePollResultsMessage(options: MessageOptions): Promi
     });
 
     if (!message.poll?.results) {
-        return {};
+        return null;
     }
 
     const allAnswerCounts = message.poll.results.answer_counts as unknown as (Omit<PollAnswerCount, "me_voted"> & { voters: string[] })[];
@@ -127,13 +127,42 @@ export async function generatePollResultsMessage(options: MessageOptions): Promi
     return pollResultsMessage;
 }
 
-export async function addPendingPoll(message: Message, timeoutTime: number) {
-    pendingPolls.set(message.id, {
-        timeout: setTimeout(async () => {
-            const pollResultsMessage = await generatePollResultsMessage(message);
+// setTimeout clamps delays > 2^31-1 ms (~596h) to ~1ms; Discord allows poll
+// durations up to 768h, so long polls must re-arm chained timeouts.
+const MAX_TIMEOUT_DELAY = 2_147_483_647;
 
-            await sendMessage(pollResultsMessage);
-            pendingPolls.delete(message.id);
-        }, timeoutTime),
-    });
+export async function addPendingPoll(message: Message, timeoutTime: number) {
+    const expiry = Date.now() + timeoutTime;
+    const arm = () => {
+        pendingPolls.set(message.id, {
+            timeout: setTimeout(
+                async () => {
+                    const remaining = expiry - Date.now();
+                    if (remaining > 0) return arm();
+
+                    // Re-fetch: the armed-time entity snapshot is stale — votes written
+                    // since via fresh instances would be invisible to the results.
+                    const fresh = await Message.findOne({ where: { id: message.id } });
+                    if (!fresh?.poll) {
+                        pendingPolls.delete(message.id);
+                        return;
+                    }
+
+                    if (fresh.poll.results) fresh.poll.results.is_finalized = true;
+                    await fresh.save();
+                    await emitEvent({
+                        channel_id: fresh.channel_id!,
+                        data: fresh.toJSON(),
+                        event: "MESSAGE_UPDATE",
+                    } satisfies MessageUpdateEvent);
+
+                    const pollResultsMessage = await generatePollResultsMessage(fresh);
+                    if (pollResultsMessage) await sendMessage(pollResultsMessage);
+                    pendingPolls.delete(message.id);
+                },
+                Math.min(timeoutTime, MAX_TIMEOUT_DELAY),
+            ),
+        });
+    };
+    arm();
 }

@@ -157,7 +157,7 @@ export class SpacebarServer extends Server {
 
         for (const message of nonExpiredPolls) {
             if (!message.poll) {
-                return;
+                continue;
             }
 
             addPendingPoll(message, new Date(message.poll.expiry).getTime() - Date.now());

@@ -24,7 +24,7 @@ import { HTTPError } from "lambert-server/HTTPError";
 import { createHash } from "node:crypto";
 import dns from "node:dns/promises";
 import { ConnectedAccountSchema } from "@spacebar/schemas";
-import { proxyFetch } from "../../../../../util/util/porxyFetch";
+import { proxyFetch } from "../../../../../util/util/proxyFetch";
 import { Http2ServerRequest } from "node:http2";
 
 const router: Router = Router({ mergeParams: true });

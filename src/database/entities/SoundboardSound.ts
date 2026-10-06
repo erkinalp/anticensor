@@ -36,7 +36,7 @@ export class SoundboardSound extends BaseClass {
     emoji_id?: string;
 
     @JoinColumn({ name: "emoji_id" })
-    @ManyToOne(() => Guild, (guild) => guild.stickers, {
+    @ManyToOne(() => Emoji, {
         onDelete: "SET NULL",
     })
     emoji?: Relation<Emoji>;
