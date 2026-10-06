@@ -34,6 +34,9 @@ pkgs.buildNpmPackage {
   src = filteredSrc;
   npmDeps = pkgs.importNpmLock { npmRoot = filteredSrc; };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+  # Lockfile encodes the pnpm-style flat tree (peers like fdir's optional
+  # picomatch are not materialised); resolving peers needs registry access.
+  npmFlags = [ "--legacy-peer-deps" ];
 
   dontNpmBuild = true;
   makeCacheWritable = true;
