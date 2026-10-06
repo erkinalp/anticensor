@@ -399,12 +399,17 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             message.author.username = message.username;
         }
         if (opts.avatar_url) {
-            const avatarData = await fetch(opts.avatar_url);
-            const base64 = await avatarData.arrayBuffer().then((x) => Buffer.from(x).toString("base64"));
+            const avatarData = await fetch(opts.avatar_url).catch((e) => {
+                console.error(`[Webhook] Failed to fetch avatar_url ${opts.avatar_url}, sending with default avatar:`, e);
+                return null;
+            });
+            if (avatarData) {
+                const base64 = await avatarData.arrayBuffer().then((x) => Buffer.from(x).toString("base64"));
 
-            const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
+                const dataUri = "data:" + avatarData.headers.get("content-type") + ";base64," + base64;
 
-            message.avatar = await handleFile(`/avatars/${opts.webhook_id}`, dataUri as string);
+                message.avatar = await handleFile(`/avatars/${opts.webhook_id}`, dataUri as string);
+            }
         }
     } else {
         permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
