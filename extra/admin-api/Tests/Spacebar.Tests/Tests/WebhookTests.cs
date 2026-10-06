@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Configuration;
 using Spacebar.Models.Generic;
 using Spacebar.Sdk.Core;
 using Spacebar.Tests.Abstractions;
@@ -21,6 +22,13 @@ public class WebhookTests(ITestOutputHelper testOutputHelper, TestFixture fixtur
     private static SpacebarClientChannel? Channel = null!;
     private static Webhook? Webhook = null!;
     private static Message? WebhookMessage = null!;
+
+    // MemberData enumerates statically and can race the async well-known resolver,
+    // so combination data must not depend on Client.ClientWellKnown.
+    private static readonly Config StaticConfig = new(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: true)
+        .AddJsonFile(Environment.GetEnvironmentVariable("TEST_APPSETTINGS_PATH")!, optional: true)
+        .Build());
 
     public async ValueTask InitializeAsync() {
         Client = await _userAbstraction.GetSharedUser();
@@ -126,9 +134,9 @@ public class WebhookTests(ITestOutputHelper testOutputHelper, TestFixture fixtur
     }
 
     public static IEnumerable<object?[]> WebhookExecuteCombinations() {
-        string[] contents = ["meow", "# hi!!!", Client.ClientWellKnown.Api.BaseUrl, "@everyone", "@here"];
+        string[] contents = ["meow", "# hi!!!", StaticConfig.TestInstance, "@everyone", "@here"];
         string?[] usernames = [null, "meow"];
-        string?[] avatarUrls = [null, Client.ClientWellKnown.Api.BaseUrl + "/static/logo.png"];
+        string?[] avatarUrls = [null, StaticConfig.TestInstance + "/static/logo.png"];
         bool?[] ttsEnabled = [null, true, false];
         int?[] messageFlags = [
             null,
