@@ -24,8 +24,18 @@ public class UserAbstraction(Config _config, SpacebarClientProviderService _clie
         return client;
     }
 
+    private static readonly SemaphoreSlim _sharedUserLock = new(1, 1);
     private static AuthenticatedSpacebarClient? _authenticatedSpacebarClient;
     public async Task<AuthenticatedSpacebarClient> GetSharedUser() {
-        return _authenticatedSpacebarClient ??= await GetFreshUser();
+        // ??= is not atomic: parallel test classes would each register a different
+        // "shared" user, and whichever ran last wins — later requests in other classes
+        // then act as a user that is not a member of their shared guilds.
+        await _sharedUserLock.WaitAsync();
+        try {
+            return _authenticatedSpacebarClient ??= await GetFreshUser();
+        }
+        finally {
+            _sharedUserLock.Release();
+        }
     }
 }
