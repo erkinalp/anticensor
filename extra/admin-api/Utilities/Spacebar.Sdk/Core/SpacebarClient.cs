@@ -202,7 +202,12 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
 
     public async Task Disconnect() {
         await _cts.CancelAsync();
-        await RawClientWebSocket.CloseAsync(closeStatus: WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+        // CloseAsync throws WebSocketException when the socket is already dead
+        // (e.g. server dropped it) — a dead socket needs no graceful close.
+        if (RawClientWebSocket.State is WebSocketState.Open or WebSocketState.CloseReceived or WebSocketState.CloseSent)
+            await RawClientWebSocket.CloseAsync(closeStatus: WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+        else
+            RawClientWebSocket.Abort();
     }
 
     public async Task Start() {
