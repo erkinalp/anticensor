@@ -18,6 +18,7 @@
 
 export * from "./GatewayPayloadSchema";
 export * from "./IdentifySchema";
+export * from "./RequestSoundboardSoundsSchema";
 export * from "./StreamCreateSchema";
 export * from "./StreamDeleteSchema";
 export * from "./StreamWatchSchema";

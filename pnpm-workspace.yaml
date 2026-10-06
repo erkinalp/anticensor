@@ -1,0 +1,8 @@
+allowBuilds:
+  bcrypt: true
+  cbor-extract: true
+onlyBuiltDependencies:
+  - bcrypt
+  - cbor-extract
+overrides:
+  "fido2-lib>jose": ^4.15.9

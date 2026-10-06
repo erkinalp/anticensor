@@ -16,9 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Guild, Member, Invite } from "@spacebar/database";
+import { Random } from "@spacebar/extensions";
+import { Config, DiscordApiErrors, Permissions } from "@spacebar/util";
 import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -45,6 +47,7 @@ router.get(
                 body: "APIErrorResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
@@ -92,7 +95,7 @@ async function getWidgetJsonData(guild_id: string) {
         const expires_at = new Date(max_age * 1000 + Date.now());
 
         invite = await Invite.create({
-            code: randomString(),
+            code: Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 6),
             temporary: false,
             uses: 0,
             max_uses: 0,

@@ -17,8 +17,8 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@spacebar/api";
-import { Application, SKU, SKUType } from "@spacebar/util";
+import { route } from "@spacebar/api/middlewares";
+import { Application, SKU, SKUType } from "@spacebar/database";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, Message, TypingStartEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Member, Message } from "@spacebar/database";
+import { emitEvent, getPermission, TypingStartEvent } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -27,6 +28,7 @@ router.post(
     route({
         permission: "SEND_MESSAGES",
         responses: {
+            200: {},
             204: {},
             404: {},
             403: {},
@@ -40,13 +42,30 @@ router.post(
             where: { id: channel_id },
         });
 
-        if (channel.rate_limit_per_user) {
-            const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: user_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
-                ?.timestamp;
-            if (lastMsgTime && Date.now() - channel.rate_limit_per_user * 1000 < +lastMsgTime) {
-                const permission = await getPermission(user_id, channel.guild_id, channel_id);
-                if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
-                    throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
+        const limit = channel.rate_limit_per_user;
+        if (limit) {
+            const lastMsgTime = (
+                await Message.findOne({
+                    where: {
+                        channel_id: channel.id,
+                        author_id: user_id,
+                    },
+                    select: { timestamp: true },
+                    order: { timestamp: "DESC" },
+                })
+            )?.timestamp;
+
+            if (lastMsgTime) {
+                const cooldown = +lastMsgTime + limit * 1000 - Date.now();
+
+                if (cooldown > 0) {
+                    const permission = await getPermission(user_id, channel.guild_id, channel);
+
+                    if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
+                        return res.status(200).json({
+                            message_send_cooldown_ms: cooldown,
+                        });
+                    }
                 }
             }
         }

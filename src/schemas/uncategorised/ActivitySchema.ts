@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity imports
-import { Activity, ClientStatus, SetPrivateStatus, Status } from "@spacebar/util";
+import { ClientStatus, SetPrivateStatus } from "@spacebar/schemas";
+import { Activity } from "@spacebar/util";
 
 export const ActivitySchema = {
     $afk: Boolean,
@@ -33,8 +33,11 @@ export const ActivitySchema = {
                 $end: Number,
             },
             $application_id: String,
+            $parent_application_id: String,
             $details: String,
+            $details_url: String,
             $state: String,
+            $state_url: String,
             $emoji: {
                 $name: String,
                 $id: String,
@@ -62,12 +65,17 @@ export const ActivitySchema = {
             $id: String,
             $sync_id: String,
             $metadata: {
+                $button_urls: [String],
                 // spotify
                 $context_uri: String,
-                album_id: String,
-                artist_ids: [String],
+                $album_id: String,
+                $artist_ids: [String],
             },
             $session_id: String,
+            $platform: String,
+            $supported_platforms: [String],
+            $status_display_type: Number,
+            $buttons: [String],
         },
     ],
     $since: Number, // unix time (in milliseconds) of when the client went idle, or null if the client is not idle

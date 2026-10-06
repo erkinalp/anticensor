@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Guild, Member, VoiceState } from "@spacebar/database";
 import { Payload, WebSocket, genVoiceToken } from "@spacebar/gateway";
-import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { Config, emitEvent, VoiceServerUpdateEvent, VoiceStateUpdateEvent } from "@spacebar/util";
+import { ConfigVoiceRegion, VoiceStateUpdateSchema } from "@spacebar/schemas";
 import { check } from "./instanceOf";
-import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
 // TODO: check if a voice server is setup
 
 // Notice: Bot users respect the voice channel's user limit, if set.
@@ -53,7 +54,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
             await emitEvent({
                 event: "VOICE_STATE_UPDATE",
                 data: { ...voiceState.toPublicVoiceState(), channel_id: null },
-                guild_id: voiceState.guild_id,
+                guild_id: voiceState.guild_id ?? undefined,
             });
         }
 
@@ -81,8 +82,8 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
                 channel_id: null,
                 guild_id: null,
             },
-            guild_id: prevState?.guild_id,
-            channel_id: prevState?.channel_id,
+            guild_id: prevState?.guild_id ?? undefined,
+            channel_id: prevState?.channel_id ?? undefined,
         });
     }
 
@@ -91,7 +92,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     //TODO this may fail
     if (body.guild_id) {
         const member = await Member.findOne({
-            where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
+            where: { id: voiceState.user_id, guild_id: voiceState.guild_id ?? undefined },
             relations: { user: true, roles: true },
         });
 
@@ -114,8 +115,8 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
                 ...voiceState.toPublicVoiceState(),
                 member: member?.toPublicMember(),
             },
-            guild_id: voiceState.guild_id,
-            channel_id: voiceState.channel_id,
+            guild_id: voiceState.guild_id ?? undefined,
+            channel_id: voiceState.channel_id ?? undefined,
             user_id: voiceState.user_id,
         } satisfies VoiceStateUpdateEvent),
     ]);
@@ -123,10 +124,10 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     //If it's null it means that we are leaving the channel and this event is not needed
     if ((isNew || isChanged) && voiceState.channel_id !== null) {
         const guild = await Guild.findOne({
-            where: { id: voiceState.guild_id },
+            where: { id: voiceState.guild_id ?? undefined },
         });
         const regions = Config.get().regions;
-        let guildRegion: Region | undefined;
+        let guildRegion: ConfigVoiceRegion | undefined;
 
         const defaultRegion = regions.available.find((r) => r.id === regions.default);
 

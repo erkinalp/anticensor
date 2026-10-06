@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { checkUsername, Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { AvatarDecoration, User } from "@spacebar/database";
+import { ApiError, Config, DiscordApiErrors, emitEvent, FieldErrors, generateToken, handleFile, UserUpdateEvent, checkUsername } from "@spacebar/util";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -29,14 +30,14 @@ router.get(
     route({
         responses: {
             200: {
-                body: "APIPrivateUser",
+                body: "PrivateUser",
             },
         },
     }),
     async (req: Request, res: Response) => {
         res.json(
             await User.findOne({
-                select: PrivateUserProjection,
+                select: Object.fromEntries(PrivateUserProjection.map((i) => [i, true])), //TODO: cleanup
                 where: { id: req.user_id },
             }),
         );
@@ -64,7 +65,7 @@ router.patch(
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
-            select: [...PrivateUserProjection, "data"],
+            select: Object.fromEntries([...PrivateUserProjection, "data"].map((i) => [i, true])), //TODO: cleanup
         });
 
         // Populated on password change
@@ -193,6 +194,21 @@ router.patch(
             else {
                 user.display_name_styles ??= {} as unknown as DisplayNameStyle;
                 user.display_name_styles!.colors = body.display_name_colors;
+            }
+        }
+
+        if ("avatar_decoration_sku_id" in body) {
+            if (!body.avatar_decoration_sku_id) {
+                user.avatar_decoration_data = undefined;
+                user.avatar_decoration_id = undefined;
+            } else {
+                const avatarDecoration = await AvatarDecoration.findOne({ where: { id: body.avatar_decoration_sku_id } });
+                if (!avatarDecoration) throw FieldErrors({ avatar_decoration_sku_id: { code: "50057", message: "Invalid SKU" } });
+
+                if (!(await avatarDecoration.canUseAvatarDecoration(req.user_id)))
+                    throw FieldErrors({ avatar_decoration_sku_id: { code: "40018", message: "You do not have access to this avatar decoration" } }); // TODO: find a better code
+
+                user.avatar_decoration_id = body.avatar_decoration_sku_id;
             }
         }
 

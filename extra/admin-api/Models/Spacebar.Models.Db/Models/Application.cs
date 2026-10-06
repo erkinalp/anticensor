@@ -87,7 +87,7 @@ public partial class Application
     public string? PrivacyPolicyUrl { get; set; }
 
     [Column("owner_id")]
-    public long? OwnerId { get; set; }
+    public long OwnerId { get; set; }
 
     [Column("bot_user_id")]
     public long? BotUserId { get; set; }
@@ -101,12 +101,12 @@ public partial class Application
     [Column("custom_install_url", TypeName = "character varying")]
     public string? CustomInstallUrl { get; set; }
 
-    [InverseProperty("Application")]
-    public virtual ICollection<ApplicationCommand> ApplicationCommands { get; set; } = new List<ApplicationCommand>();
-
     [ForeignKey("BotUserId")]
     [InverseProperty("ApplicationBotUser")]
     public virtual User? BotUser { get; set; }
+
+    [InverseProperty("Application")]
+    public virtual ICollection<Emoji> Emojis { get; set; } = new List<Emoji>();
 
     [ForeignKey("GuildId")]
     [InverseProperty("Applications")]
@@ -117,7 +117,7 @@ public partial class Application
 
     [ForeignKey("OwnerId")]
     [InverseProperty("ApplicationOwners")]
-    public virtual User? Owner { get; set; }
+    public virtual User Owner { get; set; } = null!;
 
     [ForeignKey("TeamId")]
     [InverseProperty("Applications")]

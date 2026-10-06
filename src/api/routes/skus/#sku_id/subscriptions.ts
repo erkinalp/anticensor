@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Subscription } from "@spacebar/util";
+import { Subscription } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 import { ArrayContains, FindOptionsWhere, LessThan, MoreThan } from "typeorm";
 

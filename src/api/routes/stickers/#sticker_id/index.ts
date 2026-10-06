@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Sticker } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Sticker } from "@spacebar/database";
+
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -48,7 +49,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { sticker_id } = req.params as { [key: string]: string };
         const sticker = await Sticker.findOne({ where: { id: sticker_id }, relations: { guild: true } });
-        res.json(await sticker?.guild?.ToGuildSource());
+        res.json(await sticker?.guild?.toDiscoverableGuild());
     },
 );
 

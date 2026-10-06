@@ -3,7 +3,8 @@
 	Copyright (C) 2023 Spacebar and Spacebar Contributors
 */
 import { route } from "@spacebar/api";
-import { Channel, ChannelCreateEvent, emitEvent, Snowflake, getPermission } from "@spacebar/util";
+import { ChannelCreateEvent, emitEvent, Snowflake, getPermission } from "@spacebar/util";
+import { Channel } from "@spacebar/database";
 import { ChannelType } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 

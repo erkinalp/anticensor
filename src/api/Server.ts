@@ -19,18 +19,32 @@
 import path from "node:path";
 import { Request, Response, Router } from "express";
 import morgan from "morgan";
-import { Server, ServerOptions } from "lambert-server";
+import { Server, ServerOptions } from "lambert-server/Server";
 import { red } from "picocolors";
-import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "@spacebar/util";
-import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
-import { initInstance } from "./util/handlers/Instance";
-import { route } from "./util";
-import { ProcessLifecycle } from "../util/util/ProcessLifecycle";
+import { getDatabase, initDatabase, Message } from "@spacebar/database";
+import {
+    Config,
+    ConnectionConfig,
+    ConnectionLoader,
+    Email,
+    JSONReplacer,
+    WebAuthn,
+    initEvent,
+    registerRoutes,
+    getRevInfoOrFail,
+    pendingPolls,
+    JwtKeypairManager,
+    ASSETS_FOLDER,
+    PUBLIC_ASSETS_FOLDER,
+} from "@spacebar/util";
+import { ProcessLifecycle, SystemdLifecycle } from "../util/util/ProcessLifecycle";
 import { Monitoring } from "../util/monitoring/Monitoring";
 import { BcryptWorkerPool } from "../util/util/workers/bcrypt/BcryptWorkerPool";
-
-const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
-const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
+import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
+import { initInstance } from "./util/handlers/Instance";
+import { addPendingPoll } from "./util";
+import { route } from "@spacebar/api/middlewares";
+import { GifProviderManager } from "@spacebar/integrations/gifs";
 
 export type SpacebarServerOptions = ServerOptions;
 
@@ -61,8 +75,10 @@ export class SpacebarServer extends Server {
         await Email.init();
         await ConnectionConfig.init();
         await initInstance();
+        await JwtKeypairManager.init();
         WebAuthn.init();
         // await BcryptWorkerPool.Init(8); // TODO: make configurable
+        await GifProviderManager.init();
 
         const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) {
@@ -85,12 +101,10 @@ export class SpacebarServer extends Server {
 
         this.app.use(CORS);
         this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        this.app.use(Authentication);
 
         const app = this.app;
         const api = Router({ mergeParams: true });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this.app = api;
 
         // Normalize percent-encoded path parameters (e.g. %40me → @me)
         // so routes using @me in filesystem paths match correctly
@@ -106,11 +120,13 @@ export class SpacebarServer extends Server {
             }
             next();
         });
-        api.use(Authentication);
         await initRateLimits(api);
         await initTranslation(api);
 
-        this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))).filter((r) => !!r);
+        this.routes = [
+            ...(await registerRoutes(this, path.join(__dirname, "routes", "/"), api)),
+            ...(await registerRoutes(this, path.join(__dirname, "routes_toplevel", "/"))),
+        ].filter((r) => !!r);
 
         // 404 is not an error in express, so this should not be an error middleware
         // this is a fine place to put the 404 handler because its after we register the routes
@@ -124,8 +140,6 @@ export class SpacebarServer extends Server {
             });
         });
 
-        this.app = app;
-
         //app.use("/__development", )
         //app.use("/__internals", )
 
@@ -138,77 +152,16 @@ export class SpacebarServer extends Server {
 
         app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
-        app.get("/", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "index.html"));
-        });
+        // Pickup non-expired polls
+        const nonExpiredPolls = await Message.createQueryBuilder("message").where("message.poll->>'expiry' > :now", { now: new Date().toISOString() }).getMany();
 
-        app.get("/verify-email", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "verify.html"));
-        });
+        for (const message of nonExpiredPolls) {
+            if (!message.poll) {
+                return;
+            }
 
-        app.get("/widget", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "widget.html"));
-        });
-
-        app.get("/_spacebar/api/schemas.json", (req, res) => {
-            res.sendFile(path.join(ASSETS_FOLDER, "schemas.json"));
-        });
-
-        app.get("/_spacebar/api/openapi.json", (req, res) => {
-            res.sendFile(path.join(ASSETS_FOLDER, "openapi.json"));
-        });
-
-        app.get("/_spacebar/api/version", (req, res) => {
-            res.json({
-                implementation: "spacebar-server-ts",
-                version: getRevInfoOrFail(),
-            });
-        });
-
-        // current well-known location
-        app.get("/.well-known/spacebar", (req, res) => {
-            res.json({
-                api: (Config.get().api.endpointPublic + "/api/").replace("//api/", "/api/"),
-            });
-        });
-
-        // new well-known location
-        app.get("/.well-known/spacebar/client", (req, res) => {
-            res.json({
-                api: {
-                    baseUrl: Config.get().api.endpointPublic?.split("/api/")[0],
-                    apiVersions: {
-                        default: Config.get().api.defaultVersion,
-                        active: Config.get().api.activeVersions,
-                    },
-                },
-                cdn: {
-                    baseUrl: Config.get().cdn.endpointPublic,
-                },
-                gateway: {
-                    baseUrl: Config.get().gateway.endpointPublic,
-                    encoding: ["etf", "json"],
-                    compression: ["zstd-stream", "zlib-stream", null],
-                },
-                admin:
-                    Config.get().admin.endpointPublic === null
-                        ? undefined
-                        : {
-                              baseUrl: Config.get().admin.endpointPublic,
-                          },
-            });
-        });
-
-        function isReady(req: Request, res: Response) {
-            if (!getDatabase()) return res.sendStatus(503);
-            return res.sendStatus(200);
+            addPendingPoll(message, new Date(message.poll.expiry).getTime() - Date.now());
         }
-
-        app.get("/readyz", route({ description: "Get the ready state of the server" }), isReady);
-        app.get("/healthz", route({ description: "Get the ready state of the server" }), isReady);
 
         this.app.use(ErrorHandler);
 
@@ -216,7 +169,8 @@ export class SpacebarServer extends Server {
 
         if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
 
+        await super.start();
+        await SystemdLifecycle.setStatus(`Listening on ${this.options.host}:${this.options.port}...`);
         await ProcessLifecycle.Ready();
-        return super.start();
     }
 }

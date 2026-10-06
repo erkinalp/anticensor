@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { KillBillService, Subscription, SubscriptionStatus, emitEvent } from "@spacebar/util";
+import { KillBillService, emitEvent } from "@spacebar/util";
+import { Subscription, SubscriptionStatus } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

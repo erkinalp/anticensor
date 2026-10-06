@@ -16,12 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server/HTTPError";
+import { route } from "@spacebar/api/middlewares";
+import { Application, Channel, User, Webhook } from "@spacebar/database";
+import { Config, DiscordApiErrors, handleFile, ValidateName } from "@spacebar/util";
+import { isTextChannel, WebhookCreateSchema, WebhookResponse, WebhookType } from "@spacebar/schemas";
+import { trimSpecial } from "@spacebar/extensions";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -32,7 +34,7 @@ router.get(
         permission: "MANAGE_WEBHOOKS",
         responses: {
             200: {
-                body: "APIWebhookArray",
+                body: "WebhookListResponse",
             },
         },
     }),
@@ -44,11 +46,16 @@ router.get(
         });
 
         return res.json(
-            webhooks.map((webhook) => ({
-                ...webhook,
-                user: webhook.user?.toPublicUser(),
-                url: Config.get().api.endpointPublic + "/api/webhooks/" + webhook.id + "/" + webhook.token,
-            })),
+            webhooks.map(
+                (webhook) =>
+                    ({
+                        ...webhook,
+                        user: webhook.user.toPartialUser(),
+                        source_guild: webhook.source_guild?.toIntegrationGuild(),
+                        source_channel: webhook.source_channel?.toWebhookChannel(),
+                        url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
+                    }) satisfies WebhookResponse,
+            ),
         );
     },
 );

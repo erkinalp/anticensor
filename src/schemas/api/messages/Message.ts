@@ -17,8 +17,8 @@
 */
 
 // TODO: remove entity import
-import { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { Sticker } from "@spacebar/database";
+import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake, WebhookType } from "@spacebar/schemas";
 import { PublicAttachment } from "./Attachments";
 
 export enum MessageType {
@@ -163,6 +163,7 @@ export interface MessageSnapshot {
     };
 }
 
+export type PublicMessageListResponse = PublicMessage[];
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
@@ -213,6 +214,18 @@ export interface PublicMessage {
     // soundboard_sounds?: SoundboardSound[];
     potions?: Potion[];
     shared_client_theme?: SharedClientTheme;
+    // spacebar extension
+    webhook: PublicMessageWebhook;
+}
+
+export interface PublicMessageWebhook {
+    type: WebhookType;
+    name: string;
+    avatar: string;
+    user_id: string;
+    application_id: string;
+    source_guild_id: string | undefined;
+    source_channel_id: string;
 }
 
 export interface SharedClientTheme {
@@ -240,10 +253,13 @@ export enum PotionType {
     CONFETTI = 0,
 }
 
-export interface MessageReference {
+export interface MessageReferenceIds {
     message_id?: string;
     channel_id?: string;
     guild_id?: string;
+}
+
+export interface MessageReference extends MessageReferenceIds {
     fail_if_not_exists?: boolean;
     type?: MessageReferenceType;
 }

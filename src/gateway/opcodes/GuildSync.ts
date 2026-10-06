@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Member, Session, Presence, timePromise, Stopwatch, Config, getMostRelevantSession } from "@spacebar/util";
+import { In } from "typeorm";
+import { Member, Session } from "@spacebar/database";
+import { Stopwatch, timePromise } from "@spacebar/extensions";
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { PublicMember } from "@spacebar/schemas";
-import { In } from "typeorm";
+import { Presence, Config, getMostRelevantSession } from "@spacebar/util";
 
 // TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
@@ -30,7 +32,7 @@ export async function onGuildSync(this: WebSocket, { d }: Payload) {
     if (!Array.isArray(d)) throw new Error("Invalid payload for GUILD_SYNC");
 
     if (Config.get().offload.gateway.guildSyncUrl !== null) {
-        return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.guildSyncUrl!, d);
+        if (await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.guildSyncUrl!, d)) return;
     }
 
     const guild_ids = d as string[];

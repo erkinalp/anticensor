@@ -69,6 +69,8 @@ in
       );
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/start-webrtc";
+        Type = "notify";
+        Slice = "system-spacebar.slice";
       };
     };
 
@@ -76,6 +78,7 @@ in
       description = "Spacebar Server - Pion SFU";
       serviceConfig = {
         ExecStart = "${lib.getExe cfg.pion-sfu.package} -ip ${cfg.pion-sfu.publicIp} -port ${toString cfg.pion-sfu.listenPort}";
+        Slice = "system-spacebar.slice";
       };
     };
   };

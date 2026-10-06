@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Session, User } from "@spacebar/database";
 import { WebSocket, Payload } from "@spacebar/gateway";
-import { emitEvent, InternalStatusOrder, PresenceUpdateEvent, PrivateStatus, PublicStatus, PublicStatusOrder, Session, User } from "@spacebar/util";
+import { emitEvent, PresenceUpdateEvent } from "@spacebar/util";
+import { ActivitySchema, InternalStatusOrder, PrivateStatus } from "@spacebar/schemas";
 import { check } from "./instanceOf";
-import { ActivitySchema } from "@spacebar/schemas";
 
 export async function onPresenceUpdate(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();

@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { Entitlement, KillBillService, Subscription, SubscriptionStatus, emitEvent } from "@spacebar/util";
+import { KillBillService, emitEvent } from "@spacebar/util";
+import { Entitlement, Subscription, SubscriptionStatus } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });

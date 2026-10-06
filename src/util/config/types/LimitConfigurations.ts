@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelLimits, GlobalRateLimits, GuildLimits, MessageLimits, RateLimits, UserLimits } from ".";
+import { ApplicationLimits, ChannelLimits, GlobalRateLimits, GuildLimits, MessageLimits, RateLimits, UserLimits } from "./subconfigurations/limits";
 
 export class LimitsConfiguration {
+    application: ApplicationLimits = new ApplicationLimits();
     user: UserLimits = new UserLimits();
     guild: GuildLimits = new GuildLimits();
     message: MessageLimits = new MessageLimits();

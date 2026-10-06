@@ -21,7 +21,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { JSONReplacer } from "@spacebar/util";
-import * as erlpack from "harmony-erlpack";
 
 // don't care
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,8 +49,9 @@ export async function Send(socket: WebSocket, data: Payload) {
     }
 
     let buffer: Buffer | string;
-    if (socket.encoding === "etf" && erlpack) {
+    if (socket.encoding === "etf") {
         // Erlpack doesn't like Date objects, encodes them as {}
+        const erlpack = await import("harmony-erlpack");
         data = recurseJsonReplace(data);
         buffer = Buffer.from(erlpack.pack(data));
     }

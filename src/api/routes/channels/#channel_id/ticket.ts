@@ -1,5 +1,6 @@
 import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, emitEvent, getPermission, TicketFlags, DiscordApiErrors } from "@spacebar/util";
+import { ChannelUpdateEvent, emitEvent, getPermission, TicketFlags, DiscordApiErrors } from "@spacebar/util";
+import { Channel } from "@spacebar/database";
 import { ChannelType } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 

@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { getPermission, Member, PermissionResolvable } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Member } from "@spacebar/database";
+import { getPermission, PermissionResolvable } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -28,7 +29,7 @@ router.patch(
         requestBody: "MemberNickChangeSchema",
         responses: {
             200: {
-                body: "APIPublicMember",
+                body: "PublicMember",
             },
             400: {
                 body: "APIErrorResponse",

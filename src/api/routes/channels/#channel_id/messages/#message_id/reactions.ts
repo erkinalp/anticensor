@@ -16,25 +16,21 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server/HTTPError";
+import { In } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Emoji, Member, Message, User } from "@spacebar/database";
+import { arrayRemove } from "@spacebar/extensions";
 import {
-    Channel,
     emitEvent,
-    Emoji,
     getPermission,
-    Member,
-    Message,
     MessageReactionAddEvent,
     MessageReactionRemoveAllEvent,
     MessageReactionRemoveEmojiEvent,
     MessageReactionRemoveEvent,
-    User,
-    arrayRemove,
     ReactionType,
 } from "@spacebar/util";
-import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
-import { In } from "typeorm";
 import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -165,7 +161,7 @@ router.get(
                 where: {
                     id: In(reaction.user_ids),
                 },
-                select: PublicUserProjection,
+                select: Object.fromEntries(PublicUserProjection.map((i) => [i, true])), //TODO: cleanup
                 take: limit,
             })
         ).map((user) => user.toPublicUser());

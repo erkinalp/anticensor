@@ -16,10 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, Email, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { verifyCaptcha } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { User } from "@spacebar/database";
+import { Config, Email } from "@spacebar/util";
 import { ForgotPasswordSchema } from "@spacebar/schemas";
+
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -32,6 +35,7 @@ router.post(
                 body: "APIErrorOrCaptchaResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { login, captcha_key } = req.body as ForgotPasswordSchema;

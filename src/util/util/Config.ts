@@ -18,9 +18,9 @@
 
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
-import { OrmUtils } from "..";
+import { OrmUtils } from "../imports";
 import { ConfigValue } from "../config";
-import { ConfigEntity } from "../entities";
+import { ConfigEntity } from "../../database/entities";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
 
@@ -76,6 +76,7 @@ export class Config {
         if (process.env.CAPTCHA_SITE_KEY_PATH) config.security.captcha.sitekey = await Config.readSecret("CAPTCHA_SITE_KEY_PATH");
         if (process.env.IPDATA_API_KEY_PATH) config.security.ipdataApiKey = await Config.readSecret("IPDATA_API_KEY_PATH");
         if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
+        if (process.env.KLIPY_API_KEY_PATH) config.integrations.gifs.klipy.apiKeyPath = process.env.KLIPY_API_KEY_PATH;
 
         await this.set(config);
         validateFinalConfig(config);

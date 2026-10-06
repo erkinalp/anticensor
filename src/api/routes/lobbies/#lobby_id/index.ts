@@ -18,7 +18,8 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { LobbyStore, DiscordApiErrors, Channel, Member, Lobby, LobbyMemberDTO, LobbyDTO } from "@spacebar/util";
+import { LobbyStore, DiscordApiErrors, Lobby, LobbyMemberDTO, LobbyDTO } from "@spacebar/util";
+import { Channel, Member } from "@spacebar/database";
 
 const router = Router();
 

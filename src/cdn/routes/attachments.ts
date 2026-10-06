@@ -16,29 +16,30 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, CloudAttachment, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
-import { HTTPError } from "lambert-server";
-import { multer } from "../util/multer";
-import { storage } from "@spacebar/cdn";
-import { fileTypeFromBuffer } from "file-type";
-import { cache } from "../util/cache";
+import { HTTPError } from "lambert-server/HTTPError";
+import { Attachment, CloudAttachment } from "@spacebar/database";
+import { Config, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
+import { storage, multer, setCacheControl } from "../util";
+import { InternalCdnAttachment } from "@spacebar/util/dtos/MessageOptions";
+
+const fileTypeFromBuffer = (buffer: Uint8Array) => import("file-type").then((m) => m.fileTypeFromBuffer(buffer));
 
 const router = Router({ mergeParams: true });
 
 const SANITIZED_CONTENT_TYPE = ["text/html", "text/mhtml", "multipart/related", "application/xhtml+xml"];
 
 router.post("/:channel_id/:message_id", multer.single("file"), async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature)
-        throw new HTTPError(`Invalid request signature, expected '${Config.get().security.requestSignature}', got ${req.headers.signature}`);
+    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
     if (!req.file) throw new HTTPError("file missing");
 
     const { buffer, mimetype, size, originalname } = req.file;
     const { channel_id, message_id } = req.params as { [key: string]: string };
     const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const attachment_id = Snowflake.generate();
+    const path = `attachments/${channel_id}/${attachment_id}/${filename}`;
 
     const endpoint = Config.get()?.cdn.endpointPublic;
 
@@ -46,17 +47,21 @@ router.post("/:channel_id/:message_id", multer.single("file"), async (req: Reque
     let width;
     let height;
     if (mimetype.includes("image")) {
-        const dimensions = imageSize(buffer);
-        if (dimensions) {
-            width = dimensions.width;
-            height = dimensions.height;
+        try {
+            const dimensions = imageSize(buffer);
+            if (dimensions) {
+                width = dimensions.width;
+                height = dimensions.height;
+            }
+        } catch (e) {
+            console.warn("Failed to get image size for attachment of type", mimetype, "because of", e);
         }
     }
 
     const finalUrl = `${endpoint}/${path}`;
 
-    const file = {
-        id: Snowflake.generate(),
+    const file: InternalCdnAttachment = {
+        id: attachment_id,
         channel_id,
         message_id,
         content_type: mimetype,
@@ -71,11 +76,11 @@ router.post("/:channel_id/:message_id", multer.single("file"), async (req: Reque
     return res.json(file);
 });
 
-router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res: Response) => {
-    const { channel_id, message_id, filename } = req.params as { [key: string]: string };
+router.get("/:channel_id/:attachment_id/:filename", setCacheControl, async (req: Request, res: Response) => {
+    const { channel_id, attachment_id, filename } = req.params as { [key: string]: string };
     // const { format } = req.query;
 
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const path = `attachments/${channel_id}/${attachment_id}/${filename}`;
 
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
 
@@ -83,8 +88,9 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     if (req.headers.signature) {
         hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
         if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
-    } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
-    else {
+    } else if (!Config.get().security.cdnSignUrls) {
+        hasValidAuth = true;
+    } else {
         hasValidAuth = hasValidSignature(
             new NewUrlUserSignatureData({
                 ip: req.ip,
@@ -97,7 +103,22 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
 
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
 
-    const file = await storage.get(path);
+    let file = await storage.get(path);
+    if (!file) {
+        const att = await Attachment.findOne({
+            where: {
+                channel_id,
+                id: attachment_id,
+            },
+        });
+
+        if (att) {
+            const attPath = `attachments/${channel_id}/${att.message_id}/${filename}`;
+            if (!(await storage.exists(attPath))) throw new HTTPError("File not found");
+            await storage.move(attPath, path);
+            file = await storage.get(path);
+        }
+    }
     if (!file) throw new HTTPError("File not found");
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";
@@ -111,11 +132,11 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     return res.send(file);
 });
 
-router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Response) => {
+router.delete("/:channel_id/:attachment_id/:filename", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
-    const { channel_id, message_id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const { channel_id, attachment_id, filename } = req.params as { [key: string]: string };
+    const path = `attachments/${channel_id}/${attachment_id}/${filename}`;
 
     await storage.delete(path);
 

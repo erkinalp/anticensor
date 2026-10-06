@@ -8,9 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260420-212318"/>
-        <PackageReference Include="ArcaneLibs.StringNormalisation" Version="1.0.1-preview.20260420-212318"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+        <PackageReference Include="ArcaneLibs" Version="1.0.1-preview.20260827-231533" />
+        <PackageReference Include="ArcaneLibs.StringNormalisation" Version="1.0.1-preview.20260827-231533" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(ContinuousIntegrationBuild)'!='true'">
@@ -20,6 +20,7 @@
         <ProjectReference Include="..\Models\Spacebar.Models.Config\Spacebar.Models.Config.csproj"/>
         <ProjectReference Include="..\Models\Spacebar.Models.Db\Spacebar.Models.Db.csproj"/>
         <ProjectReference Include="..\Models\Spacebar.Models.Generic\Spacebar.Models.Generic.csproj"/>
+        <ProjectReference Include="..\Models\Spacebar.Models.Api\Spacebar.Models.Api.csproj" />
     </ItemGroup>
 
     <!-- For nix... -->
@@ -30,5 +31,6 @@
         <PackageReference Include="Spacebar.Models.Config" Version="*-preview*"/>
         <PackageReference Include="Spacebar.Models.Db" Version="*-preview*"/>
         <PackageReference Include="Spacebar.Models.Generic" Version="*-preview*"/>
+        <PackageReference Include="Spacebar.Models.Api" Version="*-preview*"/>
     </ItemGroup>
 </Project>

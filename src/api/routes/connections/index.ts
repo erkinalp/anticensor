@@ -17,7 +17,7 @@
 */
 
 import { APIConnectionsConfiguration } from "#schemas";
-import { route } from "@spacebar/api";
+import { route } from "@spacebar/api/middlewares";
 import { ConnectionConfig, ConnectionStore } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });

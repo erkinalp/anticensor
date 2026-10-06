@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
+import { route } from "@spacebar/api/middlewares";
+import { Message, User } from "@spacebar/database";
+import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, MessageCreateEvent, MessageUpdateEvent } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -164,7 +165,7 @@ router.get(
         permission: ["READ_MESSAGE_HISTORY"],
         responses: {
             200: {
-                body: "APIMessageArray",
+                body: "PublicMessageListResponse",
             },
             400: {
                 body: "APIErrorResponse",

@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, Message } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
+import { route } from "@spacebar/api/middlewares";
+import { Message } from "@spacebar/database";
+import { Config } from "@spacebar/util";
+import { PreloadMessagesRequestSchema, PublicMessageListResponse } from "@spacebar/schemas";
+
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -28,7 +30,7 @@ router.post(
         requestBody: "PreloadMessagesRequestSchema",
         responses: {
             200: {
-                body: "PreloadMessagesResponse",
+                body: "PublicMessageListResponse",
             },
             400: {
                 body: "APIErrorResponse",
@@ -60,7 +62,7 @@ router.post(
             // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
             x.reactions = undefined;
             return x;
-        }) as unknown as PreloadMessagesResponseSchema;
+        }) as unknown as PublicMessageListResponse;
 
         return res.status(200).send(filteredMessages);
     },

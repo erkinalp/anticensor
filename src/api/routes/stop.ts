@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, SpacebarServer } from "@spacebar/api";
+import { route } from "@spacebar/api/middlewares";
 import { Request, Response, Router } from "express";
-import { ProcessLifecycle } from "../../util/util/ProcessLifecycle";
+import { ProcessLifecycle } from "@spacebar/util/util/ProcessLifecycle";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -16,14 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
-import { storage } from "@spacebar/cdn";
-import { fileTypeFromBuffer } from "file-type";
-import { HTTPError } from "lambert-server";
 import crypto from "node:crypto";
-import { multer } from "../util/multer";
-import { cache, cacheNotFound } from "../util/cache";
+import { Router, Response, Request } from "express";
+import { HTTPError } from "lambert-server/HTTPError";
+import { Config } from "@spacebar/util";
+import { storage, multer, setCacheControl, setCacheControlNotFound } from "../util";
+
+const fileTypeFromBuffer = (buffer: Uint8Array) => import("file-type").then((m) => m.fileTypeFromBuffer(buffer));
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
@@ -62,13 +61,13 @@ router.post("/:emoji_id", multer.single("file"), async (req: Request, res: Respo
     });
 });
 
-router.get("/:emoji_id", cache, async (req: Request, res: Response) => {
+router.get("/:emoji_id", setCacheControl, async (req: Request, res: Response) => {
     let { emoji_id } = req.params as { [key: string]: string };
     emoji_id = emoji_id.split(".")[0]; // remove .file extension
     const path = `${pathPrefix}/${emoji_id}`;
 
     const file = await storage.get(path);
-    if (!file) return cacheNotFound(req, res);
+    if (!file) return setCacheControlNotFound(req, res);
     const type = await fileTypeFromBuffer(file);
 
     res.set("Content-Type", type?.mime);

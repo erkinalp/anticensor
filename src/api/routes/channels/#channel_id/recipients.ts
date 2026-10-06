@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { Channel, Recipient, User } from "@spacebar/database";
+import { ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent } from "@spacebar/util";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
@@ -37,6 +38,10 @@ router.put(
             where: { id: channel_id },
             relations: { recipients: true },
         });
+
+        if (!channel.recipients || channel.recipients.length == 0 || channel.recipients.filter((r) => r.user_id == req.user_id).length == 0) {
+            throw DiscordApiErrors.UNKNOWN_CHANNEL; // TODO: is this the right error
+        }
 
         if (channel.type !== ChannelType.GROUP_DM) {
             const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
@@ -64,7 +69,7 @@ router.put(
                     user: (
                         await User.findOneOrFail({
                             where: { id: user_id },
-                            select: PublicUserProjection,
+                            select: Object.fromEntries(PublicUserProjection.map((i) => [i, true])), //TODO: cleanup
                         })
                     ).toPublicUser(),
                 },

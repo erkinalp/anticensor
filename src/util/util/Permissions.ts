@@ -2,11 +2,12 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import { Channel, Guild, Member, Role, User } from "../entities";
+import { Channel, Guild, Member, Role, User } from "../../database/entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { ChannelPermissionOverwrite, ChannelPermissionOverwriteType, ChannelType, UserFlags } from "@spacebar/schemas";
 import { FindOneOptions } from "typeorm";
+import { OrmUtils } from "@spacebar/util";
 
 export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
 
@@ -77,7 +78,7 @@ export class Permissions extends BitField {
         SET_VOICE_CHANNEL_STATUS: BitFlag(48),
         SEND_POLLS: BitFlag(49),
         USE_EXTERNAL_APPS: BitFlag(50),
-        PIN_MESSAGES: BitFlag(51),
+        UNUSED_13: BitFlag(51),
         BYPASS_SLOWMODE: BitFlag(52),
         MANAGE_TICKETS: BitFlag(53),
 
@@ -260,8 +261,8 @@ export async function getPermission(
         select: { id: true, flags: true },
     });
     const query = {
-        relations: ["recipients", "thread_members", "thread_members.member", ...(opts.channel_relations || [])],
-        select: ["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(opts.channel_select || [])],
+        relations: OrmUtils.keysToObject(["recipients", "thread_members", "thread_members.member", ...(opts.channel_relations || [])]), // TODO: cleanup
+        select: OrmUtils.keysToObject(["type", "parent_id", "id", "recipients", "permission_overwrites", "owner_id", "guild_id", ...(<string[]>opts.channel_select || [])]), // TODO: cleanup
     } as FindOneOptions<Channel>;
     if (typeof channel_id === "string") {
         channel = await Channel.findOneOrFail({ where: { id: channel_id }, ...query });
@@ -288,17 +289,17 @@ export async function getPermission(
         if (typeof guild_id === "string") {
             guild = await Guild.findOneOrFail({
                 where: { id: guild_id },
-                select: ["id", "owner_id", ...(opts.guild_select || [])],
-                relations: opts.guild_relations,
+                select: !opts.guild_select ? { id: true, owner_id: true } : OrmUtils.keysToObject(["id", "owner_id", ...(<string[]>opts.guild_select || [])]), // TODO: clean up
+                relations: !opts.guild_relations ? undefined : OrmUtils.keysToObject(opts.guild_relations), // TODO: clean up
             });
         } else {
             guild = guild_id;
         }
-        if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
+        if (guild!.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
         member = await Member.findOneOrFail({
-            where: { guild_id: guild.id, id: user_id },
-            relations: ["roles", ...(opts.member_relations || [])],
+            where: { guild_id: guild!.id, id: user_id },
+            relations: OrmUtils.keysToObject(["roles", ...(opts.member_relations || [])]), // TODO: clean up
             // select: [
             // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
             // "roles",

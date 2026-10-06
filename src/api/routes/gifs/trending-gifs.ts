@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { getGifApiKey, parseGifResult } from "@spacebar/util";
+import { route } from "@spacebar/api/middlewares";
 import { Request, Response, Router } from "express";
-import { TenorGif, TenorMediaTypes } from "@spacebar/schemas";
+import { GifMediaTypes } from "@spacebar/schemas";
+import { GifProviderManager } from "@spacebar/integrations/gifs";
 
 const router = Router({ mergeParams: true });
 
@@ -30,33 +30,31 @@ router.get(
             media_format: {
                 type: "string",
                 description: "Media format",
-                values: Object.keys(TenorMediaTypes).filter((key) => isNaN(Number(key))),
+                values: Object.keys(GifMediaTypes).filter((key) => isNaN(Number(key))),
             },
             locale: {
                 type: "string",
                 description: "Locale",
             },
+            limit: {
+                type: "number",
+                description: "Maximum number of GIFs to return",
+            },
+            provider: {
+                type: "string",
+                description: "Provider to use",
+            },
         },
         responses: {
             200: {
-                body: "TenorGifsResponse",
+                body: "GifsResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Custom providers
-        const { media_format, locale } = req.query;
-
-        const apiKey = getGifApiKey();
-
-        const response = await fetch(`https://g.tenor.com/v1/trending?media_format=${media_format}&locale=${locale}&key=${apiKey}`, {
-            method: "get",
-            headers: { "Content-Type": "application/json" },
-        });
-
-        const { results } = (await response.json()) as { results: TenorGif[] };
-
-        res.json(results.map(parseGifResult)).status(200);
+        const provider = GifProviderManager.getProvider((req.query.provider as string) ?? "klipy");
+        const results = await provider.getTrendingGifs(req.query as typeof provider.getTrendingGifs.arguments);
+        res.json(results).status(200);
     },
 );
 

@@ -1,15 +1,34 @@
-import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+/*
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import { Request, Response } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { MoreThan } from "typeorm";
+import { handleMessage, postHandleMessage } from "./Message";
+import { Attachment, Channel, Message, Webhook } from "@spacebar/database";
+import { Config, DiscordApiErrors, emitEvent, FieldErrors, MessageCreateEvent, Snowflake, uploadFile, ValidateName } from "@spacebar/util";
 import { WebhookExecuteSchema } from "@spacebar/schemas";
 
 export async function executeWebhook(req: Request, res: Response): Promise<void> {
     const body = req.body as WebhookExecuteSchema;
     const messageId = Snowflake.generate();
 
-    const { webhook_id, token } = req.params as { [key: string]: string };
+    const { webhook_id, webhook_token } = req.params as { [key: string]: string };
 
     const webhook = await Webhook.findOne({
         where: {
@@ -18,13 +37,8 @@ export async function executeWebhook(req: Request, res: Response): Promise<void>
         relations: { channel: true, guild: true, application: true },
     });
 
-    if (!webhook) {
-        throw DiscordApiErrors.UNKNOWN_WEBHOOK;
-    }
-
-    if (webhook.token !== token) {
-        throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
-    }
+    if (!webhook) throw DiscordApiErrors.UNKNOWN_WEBHOOK;
+    if (webhook.token !== webhook_token) throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
 
     if (body.username) {
         ValidateName(body.username);

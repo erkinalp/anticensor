@@ -16,14 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan, Stopwatch } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "lambert-server/HTTPError";
 import { MoreThan } from "typeorm";
+import { verifyCaptcha } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { Invite, User, ValidRegistrationToken } from "@spacebar/database";
+import { Config, FieldErrors, generateToken, IpDataClient, AbuseIpDbClient } from "@spacebar/util";
 import { RegisterSchema } from "@spacebar/schemas";
-import { BcryptWorkerPool } from "../../../util/util/workers/bcrypt/BcryptWorkerPool";
+import { BcryptWorkerPool } from "@spacebar/util/util/workers/bcrypt/BcryptWorkerPool";
+import { Stopwatch, TimeSpan } from "@spacebar/extensions";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -44,6 +47,7 @@ router.post(
             200: { body: "TokenOnlyResponse" },
             400: { body: "APIErrorOrCaptchaResponse" },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const totalSw = Stopwatch.startNew();
@@ -201,17 +205,17 @@ router.post(
                         throw new HTTPError("Your IP is blocked from registration");
                     }
 
-                    if (ipData.asn.type && register.blockAsnTypes.includes(ipData.asn.type)) {
+                    if (ipData.asn?.type && register.blockAsnTypes.includes(ipData.asn.type)) {
                         cacheBlockedIp(ip, `IPData.co ASN type ${ipData.asn.type} is blocked`);
                         throw new HTTPError("Your IP is blocked from registration");
-                    } else if (!ipData.asn.type) {
+                    } else if (!ipData.asn?.type) {
                         console.log("[Register] IPData.co response missing asn.type field", ipData);
                     }
 
-                    if (ipData.asn.asn && register.blockAsns.includes(ipData.asn.asn)) {
+                    if (ipData.asn?.asn && register.blockAsns.includes(ipData.asn.asn)) {
                         cacheBlockedIp(ip, `IPData.co ASN ${ipData.asn.name} is blocked`);
                         throw new HTTPError("Your IP is blocked from registration");
-                    } else if (!ipData.asn.asn) {
+                    } else if (!ipData.asn?.asn) {
                         console.log("[Register] IPData.co response missing asn.asn field", ipData);
                     }
                 }

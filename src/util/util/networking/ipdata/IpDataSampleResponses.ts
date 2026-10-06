@@ -16,64 +16,62 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export type IpDataIpLookupResponse = typeof ipDataSampleIpLookupResponse;
-
-const ipDataSampleIpLookupResponse = {
-    ip: "",
-    is_eu: true,
-    city: "",
-    region: "",
-    region_code: "",
-    country_name: "",
-    country_code: "",
-    continent_name: "",
-    continent_code: "",
-    latitude: 0,
-    longitude: 0,
-    postal: "",
-    calling_code: "",
-    flag: "",
-    emoji_flag: "",
-    emoji_unicode: "",
-    asn: {
-        asn: "",
-        name: "",
-        domain: "",
-        route: "",
-        type: "isp",
-    },
+export interface IpDataIpLookupResponse {
+    ip: string;
+    is_eu: boolean;
+    city: string;
+    region: string;
+    region_code: string;
+    country_name: string;
+    country_code: string;
+    continent_name: string;
+    continent_code: string;
+    latitude: number;
+    longitude: number;
+    postal: string;
+    calling_code: string;
+    flag: string;
+    emoji_flag: string;
+    emoji_unicode: string;
+    asn?: {
+        asn: string;
+        name: string;
+        domain: string;
+        route: string;
+        type: string;
+    };
     languages: [
         {
-            name: "",
-            native: "",
+            name: string;
+            native: string;
         },
-    ],
+    ];
     currency: {
-        name: "",
-        code: "",
-        symbol: "",
-        native: "",
-        plural: "",
-    },
+        name: string;
+        code: string;
+        symbol: string;
+        native: string;
+        plural: string;
+    };
     time_zone: {
-        name: "",
-        abbr: "",
-        offset: "",
-        is_dst: true,
-        current_time: "",
-    },
+        name: string;
+        abbr: string;
+        offset: string;
+        is_dst: true;
+        current_time: string;
+    };
     threat: {
-        is_tor: false,
-        is_icloud_relay: false,
-        is_proxy: false,
-        is_datacenter: false,
-        is_anonymous: false,
-        is_known_attacker: false,
-        is_known_abuser: false,
-        is_threat: false,
-        is_bogon: false,
-        blocklists: [],
-    },
-    count: 0,
-    status: 200,
-};
+        is_tor: boolean;
+        is_icloud_relay: boolean;
+        is_proxy: boolean;
+        is_datacenter: boolean;
+        is_anonymous: boolean;
+        is_known_attacker: boolean;
+        is_known_abuser: boolean;
+        is_threat: boolean;
+        is_bogon: boolean;
+        blocklists: [];
+    };
+    count: number;
+    status: number;
+}

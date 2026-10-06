@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { Entitlement, EntitlementType, getRights, Message, SKU, Snowflake, emitEvent } from "@spacebar/util";
+import { getRights, Snowflake, emitEvent } from "@spacebar/util";
+import { Entitlement, EntitlementType, Message, SKU } from "@spacebar/database";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 

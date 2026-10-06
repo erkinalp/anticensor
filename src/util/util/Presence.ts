@@ -16,7 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { emitEvent, Member, PresenceUpdateEvent, Recipient, Relationship, Session } from "@spacebar/util";
+import { Member, Recipient, Relationship, Session } from "@spacebar/database";
+import { emitEvent, PresenceUpdateEvent } from "@spacebar/util";
 import { RelationshipType } from "@spacebar/schemas";
 import { Not } from "typeorm";
 
@@ -37,7 +38,7 @@ export function getMostRelevantSession(sessions: Session[]) {
 
 export async function distributePresenceUpdate(userId: string, data: PresenceUpdateEvent) {
     let relationships: Relationship[] | undefined = await Relationship.find({
-        where: { from_id: userId, type: RelationshipType.friends },
+        where: { from_id: userId, type: RelationshipType.FRIEND },
         select: { from_id: true, to_id: true },
     });
     for (const rel of relationships)

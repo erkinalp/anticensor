@@ -16,6 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export * from "./FileStorage";
+export * from "./middlewares";
 export * from "./multer";
 export * from "./Storage";

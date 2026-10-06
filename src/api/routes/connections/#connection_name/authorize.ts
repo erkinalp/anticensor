@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { route } from "@spacebar/api/middlewares";
 import { Request, Response, Router } from "express";
 import { ConnectionStore, FieldErrors } from "@spacebar/util";
 
@@ -43,7 +43,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
         });
 
     res.json({
-        url: connection.getAuthorizationUrl(req.user_id),
+        url: await connection.getAuthorizationUrl(req.user_id),
     });
 });
 

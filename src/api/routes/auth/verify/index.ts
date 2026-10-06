@@ -16,9 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { verifyCaptcha } from "@spacebar/api/util";
+import { route } from "@spacebar/api/middlewares";
+import { User } from "@spacebar/database";
+import { checkToken, Config, FieldErrors, generateToken } from "@spacebar/util";
+
 const router = Router({ mergeParams: true });
 
 async function getToken(user: User) {
@@ -44,6 +47,7 @@ router.post(
                 body: "APIErrorOrCaptchaResponse",
             },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { captcha_key, token } = req.body;

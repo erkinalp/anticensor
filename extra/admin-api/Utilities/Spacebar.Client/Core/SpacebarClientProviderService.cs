@@ -16,7 +16,9 @@ public class SpacebarClientProviderService(ILogger<SpacebarClientProviderService
     }
     
     public async Task<AuthenticatedSpacebarClient> GetAuthenticatedClientAsync(string serverName, string accessToken) {
-        return await AuthenticatedClientCache.GetOrAdd(serverName, async () => {
+        // the cache must be keyed on the token too: callers authenticate as different users
+        // on the same instance, and returning the first user's client makes them act as that user.
+        return await AuthenticatedClientCache.GetOrAdd($"{serverName}|{accessToken}", async () => {
             logger.LogInformation("Creating a new authenticated client for {serverName}!", serverName);
             var clientLogger = serviceProvider.GetRequiredService<ILogger<AuthenticatedSpacebarClient>>();
             var wellKnown = await clientWellKnownResolver.ResolveClientWellKnown(serverName);

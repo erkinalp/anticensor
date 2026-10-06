@@ -16,12 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
-import { Config, ValidRegistrationToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { ValidRegistrationToken } from "@spacebar/database";
+import { Random } from "@spacebar/extensions";
+import { Config } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
-export default router;
 
 router.get(
     "/",
@@ -48,7 +49,7 @@ router.get(
 
         for (let i = 0; i < count; i++) {
             const token = ValidRegistrationToken.create({
-                token: randomString(length),
+                token: Random.getString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", length),
                 expires_at: new Date(Date.now() + Config.get().security.defaultRegistrationTokenExpiration),
             });
             tokens.push(token);
@@ -68,3 +69,5 @@ router.get(
         return res.json({ tokens: ret });
     },
 );
+
+export default router;

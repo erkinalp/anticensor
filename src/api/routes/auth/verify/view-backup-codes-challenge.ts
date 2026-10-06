@@ -16,11 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { FieldErrors, User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
+import { route } from "@spacebar/api/middlewares";
+import { User } from "@spacebar/database";
+import { FieldErrors } from "@spacebar/util";
 import { BackupCodesChallengeSchema } from "@spacebar/schemas";
+
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -31,6 +33,7 @@ router.post(
             200: { body: "BackupCodesChallengeResponse" },
             400: { body: "APIErrorResponse" },
         },
+        authentication: "never",
     }),
     async (req: Request, res: Response) => {
         const { password } = req.body as BackupCodesChallengeSchema;

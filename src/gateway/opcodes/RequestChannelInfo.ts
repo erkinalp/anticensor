@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Channel } from "@spacebar/database";
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { ChannelType } from "@spacebar/schemas";
-import { Channel, Config } from "@spacebar/util";
+import { Config } from "@spacebar/util";
 
 export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both
@@ -26,7 +27,7 @@ export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
     if (!d.fields) throw new Error('"fields" is required');
 
     if (Config.get().offload.gateway.channelInfoUrl !== null) {
-        return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelInfoUrl!, d);
+        if (await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelInfoUrl!, d)) return;
     }
 
     const channels = (

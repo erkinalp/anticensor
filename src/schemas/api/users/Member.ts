@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicUser } from "@spacebar/schemas";
 // TODO: remove entity import
-import { Member } from "@spacebar/util";
+import { Member } from "@spacebar/database";
+import { PublicUser } from "@spacebar/schemas";
 
 export interface ChannelOverride {
     message_notifications: number;
@@ -115,3 +115,5 @@ export type PublicMember = Omit<Pick<Member, PublicMemberKeys>, "roles"> & {
     user: PublicUser;
     roles: string[]; // only role ids not objects
 };
+
+export type PublicMemberListResponse = PublicMember[];
