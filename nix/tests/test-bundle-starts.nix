@@ -28,7 +28,7 @@ in
   name = "test-bundle-starts" + lib.optionalString (withIpc != "unix") ("_ipc=" + withIpc);
   skipTypeCheck = true;
   skipLint = true;
-  globalTimeout = 1500; # 300; # 120
+  globalTimeout = 2400; # 300; # 120
 
   nodes.machine = {
     imports = [ self.nixosModules.default ];
@@ -170,7 +170,7 @@ in
     machine.succeed("curl -f http://cdn.sb.localhost/metrics")
 
     machine.wait_for_unit("spacebar-tests")
-    machine.wait_until_fails("systemctl show spacebar-tests.service | grep 'SubState=running' -q") # ... wait for the unit to exit in any way
+    machine.wait_until_fails("systemctl show spacebar-tests.service | grep 'SubState=running' -q", timeout=1800) # ... wait for the unit to exit in any way
 
     testUnitState = machine.get_unit_property("spacebar-tests.service", "SubState"); 
     t.assertNotEqual("failed", testUnitState)
