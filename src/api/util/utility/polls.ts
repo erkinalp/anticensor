@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { sendMessage } from "@spacebar/api";
+import { sendMessage } from "@spacebar/api/util";
 import { EmbedType, MessageReferenceType, MessageType, PollAnswerCount } from "@spacebar/schemas";
 import { emitEvent, MessageUpdateEvent, pendingPolls } from "@spacebar/util";
 import { Message } from "@spacebar/database";

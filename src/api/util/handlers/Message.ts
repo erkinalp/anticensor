@@ -743,7 +743,7 @@ async function handleMessageMentionsAsync(message: Message) {
         }
         contentTrace.calls.push("parseMentions", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
-        let mentionedRoles = !channel.guild_id ? [] : await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
+        let mentionedRoles = !channel.guild_id ? [] : await Role.find({ where: { id: In(Array.from(mention_role_id_set)), guild_id: channel.guild_id } });
         contentTrace.calls.push("queryMentionRoles", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
         // Silently drop invalid role mentions (e.g. from DMs, cross-guild pastes) rather
@@ -804,8 +804,8 @@ async function handleMessageMentionsAsync(message: Message) {
     /*message.mention_channels = mention_channel_ids.map((x) =>
 		Channel.create({ id: x }),
 	);*/
-    message.mention_roles = mention_role_id_set.size == 0 ? [] : await Role.find({ where: { id: In(mention_role_id_set.values().toArray()), guild_id: channel.guild_id } });
-    message.mentions = [...message.mentions, ...(await User.find({ where: { id: In(mention_user_id_set.values().toArray()) } }))];
+    message.mention_roles = mention_role_id_set.size == 0 ? [] : await Role.find({ where: { id: In(Array.from(mention_role_id_set)), guild_id: channel.guild_id } });
+    message.mentions = [...message.mentions, ...(await User.find({ where: { id: In(Array.from(mention_user_id_set)) } }))];
     message.mention_everyone = mention_everyone;
     trace.calls.push("fillMessageMentionProperties", { micros: sw.getElapsedAndReset().totalMicroseconds });
 
@@ -833,7 +833,7 @@ async function handleMessageMentionsAsync(message: Message) {
                 return;
             }
 
-            const newReadStateSeqs = arrayDistributeSequentially(users.values().toArray(), Math.max(1, mathLogBase(users.size, 2))).map((seq) =>
+            const newReadStateSeqs = arrayDistributeSequentially(Array.from(users.values()), Math.max(1, mathLogBase(users.size, 2))).map((seq) =>
                 seq.map((user_id) => ({ id: Snowflake.generate(), user_id, channel_id: channel.id, read_state_type: ReadStateType.CHANNEL })),
             );
             subTrace.calls.push(`constructNewReadStatesChunked(${newReadStateSeqs.length})`, { micros: subSw.getElapsedAndReset().totalMicroseconds });
@@ -914,7 +914,7 @@ async function handleMessageMentionsAsync(message: Message) {
             const repository = ReadState.getRepository();
 
             await fillInMissingIDs([...users], trace);
-            await repository.increment({ user_id: In(users.values().toArray()), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }, "mention_count", 1);
+            await repository.increment({ user_id: In(Array.from(users.values())), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }, "mention_count", 1);
             trace.calls.push("updateMentionedUserReadStates", { micros: sw.getElapsedAndReset().totalMicroseconds });
         }
     }

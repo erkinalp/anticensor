@@ -207,10 +207,12 @@ public class AuthenticatedSpacebarGatewayClient(ILogger<AuthenticatedSpacebarGat
             // (e.g. server dropped it) — a dead socket needs no graceful close.
             // The state check alone is racy: the socket can still abort between
             // the check and the call, so the throw must be caught regardless.
+            // A concurrent receive pump surfaces the same teardown as
+            // ObjectDisposedException or OperationCanceledException(: Aborted).
             if (RawClientWebSocket.State is WebSocketState.Open or WebSocketState.CloseReceived or WebSocketState.CloseSent)
                 await RawClientWebSocket.CloseAsync(closeStatus: WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
         }
-        catch (WebSocketException) {
+        catch (Exception e) when (e is WebSocketException or ObjectDisposedException or OperationCanceledException) {
         }
         finally {
             RawClientWebSocket.Abort();
