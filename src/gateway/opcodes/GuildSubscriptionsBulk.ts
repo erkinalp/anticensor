@@ -11,12 +11,12 @@ export async function onGuildSubscriptionsBulk(this: WebSocket, payload: Payload
     const body = payload.d as GuildSubscriptionsBulkSchema;
 
     await Promise.all(
-        Object.entries(body).map(async ([guildId, sub]) => {
+        Object.entries(body.subscriptions).map(async ([guildId, sub]) => {
             await onLazyRequest.call(this, {
                 ...payload,
                 d: {
                     guild_id: guildId,
-                    ...body.subscriptions[guildId],
+                    ...sub,
                 },
             });
         }),

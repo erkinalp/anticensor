@@ -36,7 +36,14 @@ export async function onRequestSoundboardSounds(this: WebSocket, { d }: Payload)
             user: true,
         },
     });
-    const guilds = Object.groupBy(sounds, (s) => s.guild_id as string);
+    // Object.groupBy needs Node >= 21; build the map manually.
+    const guilds = new Map<string, SoundboardSound[]>();
+    for (const s of sounds) {
+        const key = s.guild_id as string;
+        const arr = guilds.get(key) ?? [];
+        arr.push(s);
+        guilds.set(key, arr);
+    }
     await Promise.all(
         body.guild_ids.map(async (guild_id) => {
             const p = this.permissions[guild_id];
@@ -47,7 +54,7 @@ export async function onRequestSoundboardSounds(this: WebSocket, { d }: Payload)
                 data: {
                     guild_id,
                     // only members may read a guild's sounds; non-members get an empty list
-                    soundboard_sounds: p ? guilds[guild_id]?.map((_) => _.toJSON(perms)) || [] : [],
+                    soundboard_sounds: p ? guilds.get(guild_id)?.map((_) => _.toJSON(perms)) || [] : [],
                 },
             });
         }),

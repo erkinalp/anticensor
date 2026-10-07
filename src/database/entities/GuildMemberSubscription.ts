@@ -29,7 +29,7 @@ export enum GuildMemberSubscriptionStatus {
 
 @Entity({ name: "guild_member_subscriptions" })
 export class GuildMemberSubscription extends BaseClass {
-    @Column()
+    @Column({ type: "int8" })
     @RelationId((sub: GuildMemberSubscription) => sub.guild)
     guild_id: string;
 
@@ -40,7 +40,7 @@ export class GuildMemberSubscription extends BaseClass {
     @Column()
     user_id: string;
 
-    @Column()
+    @Column({ type: "int8" })
     @RelationId((sub: GuildMemberSubscription) => sub.tier)
     tier_id: string;
 

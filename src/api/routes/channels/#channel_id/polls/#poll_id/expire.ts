@@ -45,6 +45,7 @@ router.post("/", route({ permission: "VIEW_CHANNEL" }), async (req: Request, res
     if (!canExpire) throw DiscordApiErrors.MISSING_PERMISSIONS;
 
     message.poll.expiry = new Date();
+    if (message.poll.results) message.poll.results.is_finalized = true;
 
     await message.save();
 
@@ -55,10 +56,16 @@ router.post("/", route({ permission: "VIEW_CHANNEL" }), async (req: Request, res
     } satisfies MessageUpdateEvent);
 
     const pollResultsMessage = await generatePollResultsMessage(message);
-    await sendMessage(pollResultsMessage);
+    if (pollResultsMessage) await sendMessage(pollResultsMessage);
 
-    pendingPolls.delete(message.id);
-    res.send(message);
+    // clearTimeout, not just delete: the armed timer would otherwise fire at the
+    // original expiry and post a duplicate results message.
+    const pending = pendingPolls.get(message.id);
+    if (pending) {
+        clearTimeout(pending.timeout);
+        pendingPolls.delete(message.id);
+    }
+    res.send(message.toJSON());
 });
 
 export default router;

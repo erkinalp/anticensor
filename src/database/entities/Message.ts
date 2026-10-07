@@ -37,6 +37,7 @@ import {
     MessageType,
     PartialMessage,
     Poll,
+    PollAnswerCount,
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
@@ -380,7 +381,23 @@ export class Message extends BaseClass {
             activity: this.activity ?? undefined,
             application: this.application ?? undefined,
             components: this.components ?? [],
-            poll: this.poll ?? undefined,
+            poll: this.poll
+                ? {
+                      ...this.poll,
+                      results: this.poll.results
+                          ? {
+                                ...this.poll.results,
+                                // answer_counts[].voters is server-internal — the
+                                // list-GET route strips it too; never serialize
+                                // voter user ids on any message response.
+                                answer_counts: (this.poll.results.answer_counts as (PollAnswerCount & { voters?: string[] })[] | undefined)?.map((answer) => {
+                                    delete answer.voters;
+                                    return answer;
+                                }),
+                            }
+                          : this.poll.results,
+                  }
+                : undefined,
             content: this.content ?? "",
             pinned: this.pinned,
             thread: this.thread ? this.thread.toJSON() : this.thread,
