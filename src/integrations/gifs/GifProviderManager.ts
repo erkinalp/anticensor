@@ -47,7 +47,7 @@ export class GifProviderManager {
         if (id == "tenor") id = "klipy";
         if (this._providers.has(id)) return this._providers.get(id)!;
 
-        throw new Error(`Unknown GIF provider, or it is not enabled: ${id}, known GIF providers: ${this._providers.keys().toArray().join(", ")}`);
+        throw new Error(`Unknown GIF provider, or it is not enabled: ${id}, known GIF providers: ${Array.from(this._providers.keys()).join(", ")}`);
     }
 
     public static getProviders() {

@@ -387,13 +387,11 @@ export class Message extends BaseClass {
                       results: this.poll.results
                           ? {
                                 ...this.poll.results,
-                                // answer_counts[].voters is server-internal — the
-                                // list-GET route strips it too; never serialize
-                                // voter user ids on any message response.
-                                answer_counts: (this.poll.results.answer_counts as (PollAnswerCount & { voters?: string[] })[] | undefined)?.map((answer) => {
-                                    delete answer.voters;
-                                    return answer;
-                                }),
+                                // answer_counts[].voters is server-internal — never
+                                // serialize voter user ids on any message response.
+                                // Strip on copies: the entity's voters are still
+                                // needed (list-GET computes me_voted from them).
+                                answer_counts: (this.poll.results.answer_counts as (PollAnswerCount & { voters?: string[] })[] | undefined)?.map(({ voters, ...answer }) => answer),
                             }
                           : this.poll.results,
                   }

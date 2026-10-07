@@ -244,11 +244,11 @@ router.get(
                 }) ?? [];
 
             if (x.poll?.results) {
-                (x.poll.results.answer_counts as (PollAnswerCount & { voters?: string[] })[]).map((answer) => {
-                    answer.me_voted = answer.voters!.includes(req.user_id);
-                    delete answer.voters;
-
-                    return answer;
+                // toJSON already stripped voters off the serialized copy;
+                // read them off the entity to derive me_voted.
+                const voterCounts = (msg.poll?.results?.answer_counts ?? []) as (PollAnswerCount & { voters?: string[] })[];
+                (x.poll.results.answer_counts ?? []).forEach((answer) => {
+                    answer.me_voted = voterCounts.find((a) => a.id === answer.id)?.voters?.includes(req.user_id) ?? false;
                 });
             }
 
